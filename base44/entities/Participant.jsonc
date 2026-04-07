@@ -10,6 +10,11 @@
       "type": "string",
       "title": "NDIS Number"
     },
+    "date_of_birth": {
+      "type": "string",
+      "title": "Date of Birth",
+      "format": "date"
+    },
     "plan_type": {
       "type": "string",
       "title": "Plan Management Type",
@@ -43,11 +48,6 @@
       "type": "string",
       "title": "Address"
     },
-    "date_of_birth": {
-      "type": "string",
-      "title": "Date of Birth",
-      "format": "date"
-    },
     "primary_disability": {
       "type": "string",
       "title": "Primary Disability"
@@ -60,6 +60,42 @@
       "type": "string",
       "title": "Next Plan Review",
       "format": "date"
+    },
+    "plan_coordinator_name": {
+      "type": "string",
+      "title": "Plan Coordinator Name"
+    },
+    "plan_coordinator_email": {
+      "type": "string",
+      "title": "Plan Coordinator Email"
+    },
+    "plan_coordinator_phone": {
+      "type": "string",
+      "title": "Plan Coordinator Phone"
+    },
+    "parent_guardian_name": {
+      "type": "string",
+      "title": "Parent / Guardian Name"
+    },
+    "parent_guardian_phone": {
+      "type": "string",
+      "title": "Parent / Guardian Phone"
+    },
+    "parent_guardian_email": {
+      "type": "string",
+      "title": "Parent / Guardian Email"
+    },
+    "emergency_contact_name": {
+      "type": "string",
+      "title": "Emergency Contact Name"
+    },
+    "emergency_contact_phone": {
+      "type": "string",
+      "title": "Emergency Contact Phone"
+    },
+    "emergency_contact_relationship": {
+      "type": "string",
+      "title": "Emergency Contact Relationship"
     },
     "budget_core": {
       "type": "number",
