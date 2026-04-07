@@ -1,0 +1,98 @@
+{
+  "name": "OnboardingRequest",
+  "type": "object",
+  "properties": {
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "sent_to_email": {
+      "type": "string",
+      "title": "Sent To Email"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Sent",
+        "Completed"
+      ],
+      "default": "Sent"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "title": "Date of Birth"
+    },
+    "ndis_number": {
+      "type": "string",
+      "title": "NDIS Number"
+    },
+    "address": {
+      "type": "string",
+      "title": "Address"
+    },
+    "phone": {
+      "type": "string",
+      "title": "Participant Phone"
+    },
+    "email": {
+      "type": "string",
+      "title": "Participant Email"
+    },
+    "primary_disability": {
+      "type": "string",
+      "title": "Primary Disability"
+    },
+    "medical_alerts": {
+      "type": "string",
+      "title": "Medical Alerts / Allergies"
+    },
+    "plan_type": {
+      "type": "string",
+      "title": "Plan Management Type"
+    },
+    "plan_coordinator_name": {
+      "type": "string",
+      "title": "Plan Coordinator Name"
+    },
+    "plan_coordinator_email": {
+      "type": "string",
+      "title": "Plan Coordinator Email"
+    },
+    "plan_coordinator_phone": {
+      "type": "string",
+      "title": "Plan Coordinator Phone"
+    },
+    "parent_guardian_name": {
+      "type": "string",
+      "title": "Parent / Guardian Name"
+    },
+    "parent_guardian_phone": {
+      "type": "string",
+      "title": "Parent / Guardian Phone"
+    },
+    "parent_guardian_email": {
+      "type": "string",
+      "title": "Parent / Guardian Email"
+    },
+    "emergency_contact_name": {
+      "type": "string",
+      "title": "Emergency Contact Name"
+    },
+    "emergency_contact_phone": {
+      "type": "string",
+      "title": "Emergency Contact Phone"
+    },
+    "emergency_contact_relationship": {
+      "type": "string",
+      "title": "Emergency Contact Relationship"
+    },
+    "additional_notes": {
+      "type": "string",
+      "title": "Additional Notes"
+    }
+  },
+  "required": [
+    "participant_name"
+  ]
+}

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Plus, Search, User, Phone, Mail, MapPin, Shield } from "lucide-react";
+import SendOnboardingForm from "../components/SendOnboardingForm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,6 +19,7 @@ export default function Participants() {
   const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [selected, setSelected] = useState(null);
+  const [onboardingName, setOnboardingName] = useState(null);
 
   const load = async () => {
     const data = await base44.entities.Participant.list("-created_date");
@@ -51,9 +53,14 @@ export default function Participants() {
             Full database of NDIS profiles and funding records.
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)} className="rounded-xl font-bold gap-2">
-          <Plus size={18} /> Add Participant
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setOnboardingName("")} className="rounded-xl font-bold gap-2">
+            <Mail size={16} /> Send Onboarding Form
+          </Button>
+          <Button onClick={() => setShowForm(true)} className="rounded-xl font-bold gap-2">
+            <Plus size={18} /> Add Participant
+          </Button>
+        </div>
       </div>
 
       <div className="relative max-w-md">
@@ -132,6 +139,24 @@ export default function Participants() {
               load();
             }}
           />
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={onboardingName !== null} onOpenChange={(open) => { if (!open) setOnboardingName(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader><DialogTitle>Send Onboarding Form</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm font-bold">Participant Name</label>
+              <input
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm mt-1"
+                value={onboardingName}
+                onChange={e => setOnboardingName(e.target.value)}
+                placeholder="Enter participant's name"
+              />
+            </div>
+            {onboardingName !== null && <SendOnboardingForm participantName={onboardingName} onClose={() => setOnboardingName(null)} />}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

@@ -22,6 +22,7 @@ import DocumentVault from './pages/DocumentVault';
 import Complaints from './pages/Complaints';
 import AuditChecklists from './pages/AuditChecklists';
 import KPIDashboard from './pages/KPIDashboard';
+import OnboardingRequests from './pages/OnboardingRequests';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -66,6 +67,7 @@ const AuthenticatedApp = () => {
         <Route path="/complaints" element={<Complaints />} />
         <Route path="/audit-checklists" element={<AuditChecklists />} />
         <Route path="/kpi" element={<KPIDashboard />} />
+        <Route path="/onboarding" element={<OnboardingRequests />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

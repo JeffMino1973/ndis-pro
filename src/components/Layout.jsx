@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Users,
   ShieldCheck,
+  ClipboardCheck,
   AlertTriangle,
   ClipboardList,
   FileText,
@@ -27,6 +28,7 @@ const NAV_SECTIONS = [
     items: [
       { path: "/", label: "Dashboard", icon: LayoutDashboard },
       { path: "/participants", label: "Participants", icon: Users },
+      { path: "/onboarding", label: "Onboarding Requests", icon: ClipboardCheck },
       { path: "/kpi", label: "KPI Dashboard", icon: BarChart3 },
     ],
   },
