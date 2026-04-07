@@ -1,6 +1,24 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Printer, Plus } from "lucide-react";
+import { Printer, Plus, Trash2 } from "lucide-react";
+
+const NDIS_ITEMS = [
+  { code: "01_011_0107_1_1", name: "Assistance With Self-Care Activities - Standard - Weekday Daytime", rate: 68.12 },
+  { code: "01_011_0107_1_1_T", name: "Assistance With Self-Care Activities - Standard - Weekday Evening", rate: 74.86 },
+  { code: "01_011_0107_1_1_S", name: "Assistance With Self-Care Activities - Standard - Saturday", rate: 95.29 },
+  { code: "01_011_0107_1_1_U", name: "Assistance With Self-Care Activities - Standard - Sunday", rate: 122.46 },
+  { code: "01_011_0107_1_1_P", name: "Assistance With Self-Care Activities - Standard - Public Holiday", rate: 149.63 },
+  { code: "04_104_0125_6_1", name: "Access Community Social and Rec Activities - Standard - Weekday", rate: 68.12 },
+  { code: "04_104_0125_6_1_S", name: "Access Community Social and Rec Activities - Standard - Saturday", rate: 95.29 },
+  { code: "04_104_0125_6_1_U", name: "Access Community Social and Rec Activities - Standard - Sunday", rate: 122.46 },
+  { code: "07_001_0106_1_3", name: "Support Coordination Level 1: Support Connection", rate: 76.52 },
+  { code: "07_002_0106_1_3", name: "Support Coordination Level 2: Coordination of Supports", rate: 102.64 },
+  { code: "01_741_0128_1_3", name: "Assessment Recommendation Therapy or Training - Social Worker", rate: 199.05 },
+  { code: "15_056_0128_1_3", name: "Assessment Recommendation Therapy or Training - Other Therapy", rate: 199.05 },
+  { code: "11_022_0117_1_3", name: "Individual Life Skills - Standard - Weekday Daytime", rate: 68.12 },
+  { code: "09_009_0115_1_1", name: "Innovative Community Participation - Standard", rate: 68.12 },
+  { code: "08_001_0106_6_3", name: "Plan Management - Financial Administration", rate: 116.54 },
+];
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +35,7 @@ export default function ServiceAgreements() {
     participant_name: "",
     start_date: "",
     end_date: "",
-    services: [{ description: "Assistance with Daily Life", category: "Core Support", amount: 0 }],
+    services: [{ ndis_code: "", description: "", category: "Core Support", hours: 1, rate: 0, amount: 0 }],
     status: "Draft",
   });
 
@@ -32,6 +50,35 @@ export default function ServiceAgreements() {
   };
 
   useEffect(() => { load(); }, []);
+
+  const updateService = (i, field, value) => {
+    setForm((prev) => {
+      const services = prev.services.map((s, idx) => {
+        if (idx !== i) return s;
+        const updated = { ...s, [field]: value };
+        if (field === "ndis_code") {
+          const found = NDIS_ITEMS.find((n) => n.code === value);
+          if (found) { updated.description = found.name; updated.rate = found.rate; }
+        }
+        if (field === "hours" || field === "rate") {
+          updated.amount = parseFloat(((updated.hours || 0) * (updated.rate || 0)).toFixed(2));
+        }
+        return updated;
+      });
+      return { ...prev, services };
+    });
+  };
+
+  const addService = () => {
+    setForm((prev) => ({
+      ...prev,
+      services: [...prev.services, { ndis_code: "", description: "", category: "Core Support", hours: 1, rate: 0, amount: 0 }],
+    }));
+  };
+
+  const removeService = (i) => {
+    setForm((prev) => ({ ...prev, services: prev.services.filter((_, idx) => idx !== i) }));
+  };
 
   const handleSave = async () => {
     await base44.entities.ServiceAgreement.create(form);
@@ -93,9 +140,9 @@ export default function ServiceAgreements() {
       )}
 
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>New Service Agreement</DialogTitle></DialogHeader>
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div>
               <Label>Participant</Label>
               <Select value={form.participant_name} onValueChange={(v) => setForm({...form, participant_name: v})}>
@@ -109,14 +156,57 @@ export default function ServiceAgreements() {
               <div><Label>Start Date</Label><Input type="date" value={form.start_date} onChange={(e) => setForm({...form, start_date: e.target.value})} /></div>
               <div><Label>End Date</Label><Input type="date" value={form.end_date} onChange={(e) => setForm({...form, end_date: e.target.value})} /></div>
             </div>
+
             <div>
-              <Label>Service Description</Label>
-              <Input value={form.services[0].description} onChange={(e) => setForm({...form, services: [{...form.services[0], description: e.target.value}]})} placeholder="e.g. Assistance with Daily Life" />
+              <div className="flex justify-between items-center mb-3">
+                <Label className="text-sm font-bold">NDIS Support Items</Label>
+                <Button variant="outline" size="sm" onClick={addService} className="rounded-lg gap-1"><Plus size={13} /> Add Item</Button>
+              </div>
+              <div className="space-y-3">
+                {form.services.map((s, i) => (
+                  <div key={i} className="p-4 bg-secondary rounded-2xl space-y-3">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex-1">
+                        <Label className="text-[10px]">NDIS Item Code & Name</Label>
+                        <Select value={s.ndis_code} onValueChange={(v) => updateService(i, "ndis_code", v)}>
+                          <SelectTrigger className="text-xs h-9"><SelectValue placeholder="Select NDIS item..." /></SelectTrigger>
+                          <SelectContent>
+                            {NDIS_ITEMS.map((n) => (
+                              <SelectItem key={n.code} value={n.code}>
+                                <span className="text-[10px] font-mono text-muted-foreground">{n.code}</span> — {n.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {form.services.length > 1 && (
+                        <button onClick={() => removeService(i)} className="text-muted-foreground hover:text-destructive mt-5"><Trash2 size={15} /></button>
+                      )}
+                    </div>
+                    {s.description && <p className="text-xs text-muted-foreground italic">{s.description}</p>}
+                    <div className="grid grid-cols-3 gap-3">
+                      <div>
+                        <Label className="text-[10px]">Hours</Label>
+                        <Input type="number" value={s.hours} onChange={(e) => updateService(i, "hours", parseFloat(e.target.value))} className="h-8 text-sm" />
+                      </div>
+                      <div>
+                        <Label className="text-[10px]">Rate ($/hr)</Label>
+                        <Input type="number" value={s.rate} onChange={(e) => updateService(i, "rate", parseFloat(e.target.value))} className="h-8 text-sm" />
+                      </div>
+                      <div>
+                        <Label className="text-[10px]">Amount</Label>
+                        <p className="font-black text-primary text-sm h-8 flex items-center">${(s.amount || 0).toFixed(2)}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-3 p-4 bg-primary/5 rounded-xl flex justify-between">
+                <span className="text-sm font-bold text-muted-foreground">Total Agreement Value</span>
+                <span className="text-lg font-black text-primary">${form.services.reduce((a, s) => a + (s.amount || 0), 0).toFixed(2)}</span>
+              </div>
             </div>
-            <div>
-              <Label>Amount ($)</Label>
-              <Input type="number" value={form.services[0].amount} onChange={(e) => setForm({...form, services: [{...form.services[0], amount: Number(e.target.value)}]})} />
-            </div>
+
             <Button onClick={handleSave} disabled={!form.participant_name} className="w-full rounded-xl font-bold">Create Agreement</Button>
           </div>
         </DialogContent>
