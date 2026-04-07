@@ -14,6 +14,7 @@ import Incidents from './pages/Incidents';
 import SupportPlans from './pages/SupportPlans';
 import ServiceAgreements from './pages/ServiceAgreements';
 import SettingsPage from './pages/SettingsPage';
+import Invoices from './pages/Invoices';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -50,6 +51,7 @@ const AuthenticatedApp = () => {
         <Route path="/support-plans" element={<SupportPlans />} />
         <Route path="/service-agreements" element={<ServiceAgreements />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/invoices" element={<Invoices />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

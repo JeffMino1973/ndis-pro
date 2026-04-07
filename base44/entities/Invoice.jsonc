@@ -1,0 +1,83 @@
+{
+  "name": "Invoice",
+  "type": "object",
+  "properties": {
+    "invoice_number": {
+      "type": "string",
+      "title": "Invoice Number"
+    },
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "issue_date": {
+      "type": "string",
+      "title": "Issue Date",
+      "format": "date"
+    },
+    "due_date": {
+      "type": "string",
+      "title": "Due Date",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Draft",
+        "Sent",
+        "Paid",
+        "Overdue"
+      ],
+      "default": "Draft"
+    },
+    "line_items": {
+      "type": "array",
+      "title": "Line Items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "support_item_code": {
+            "type": "string"
+          },
+          "hours": {
+            "type": "number"
+          },
+          "rate": {
+            "type": "number"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "subtotal": {
+      "type": "number",
+      "title": "Subtotal"
+    },
+    "gst": {
+      "type": "number",
+      "title": "GST"
+    },
+    "total": {
+      "type": "number",
+      "title": "Total"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "participant_name",
+    "issue_date"
+  ]
+}

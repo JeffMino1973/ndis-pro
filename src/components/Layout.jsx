@@ -10,8 +10,8 @@ import {
   Flame,
   Settings,
   Menu,
-  X,
-  ChevronRight
+  ChevronRight,
+  Receipt
 } from "lucide-react";
 
 const NAV_SECTIONS = [
@@ -35,6 +35,7 @@ const NAV_SECTIONS = [
     items: [
       { path: "/support-plans", label: "Support Plans", icon: ClipboardList },
       { path: "/service-agreements", label: "Service Agreements", icon: FileText },
+      { path: "/invoices", label: "Invoices & Claims", icon: Receipt },
     ],
   },
   {
