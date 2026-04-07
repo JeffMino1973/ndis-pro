@@ -23,6 +23,7 @@ import Complaints from './pages/Complaints';
 import AuditChecklists from './pages/AuditChecklists';
 import KPIDashboard from './pages/KPIDashboard';
 import OnboardingRequests from './pages/OnboardingRequests';
+import TobyProfile from './pages/TobyProfile';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -68,6 +69,7 @@ const AuthenticatedApp = () => {
         <Route path="/audit-checklists" element={<AuditChecklists />} />
         <Route path="/kpi" element={<KPIDashboard />} />
         <Route path="/onboarding" element={<OnboardingRequests />} />
+        <Route path="/toby" element={<TobyProfile />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
