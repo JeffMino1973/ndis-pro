@@ -1,0 +1,64 @@
+{
+  "name": "Timesheet",
+  "type": "object",
+  "properties": {
+    "staff_name": {
+      "type": "string",
+      "title": "Staff Name"
+    },
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "date": {
+      "type": "string",
+      "title": "Date",
+      "format": "date"
+    },
+    "start_time": {
+      "type": "string",
+      "title": "Start Time"
+    },
+    "end_time": {
+      "type": "string",
+      "title": "End Time"
+    },
+    "hours": {
+      "type": "number",
+      "title": "Total Hours"
+    },
+    "support_item_code": {
+      "type": "string",
+      "title": "Support Item Code"
+    },
+    "km_travelled": {
+      "type": "number",
+      "title": "KM Travelled",
+      "default": 0
+    },
+    "travel_claim": {
+      "type": "number",
+      "title": "Travel Claim ($)",
+      "default": 0
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Draft",
+        "Submitted",
+        "Approved",
+        "Rejected"
+      ],
+      "default": "Draft"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "staff_name",
+    "date"
+  ]
+}

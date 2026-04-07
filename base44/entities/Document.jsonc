@@ -1,0 +1,51 @@
+{
+  "name": "Document",
+  "type": "object",
+  "properties": {
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "document_type": {
+      "type": "string",
+      "title": "Document Type",
+      "enum": [
+        "Care Plan",
+        "NDIS Plan",
+        "Risk Assessment",
+        "Medical Report",
+        "WWCC Certificate",
+        "Police Check",
+        "First Aid Certificate",
+        "Consent Form",
+        "Emergency Plan",
+        "Other"
+      ]
+    },
+    "title": {
+      "type": "string",
+      "title": "Document Title"
+    },
+    "file_url": {
+      "type": "string",
+      "title": "File URL"
+    },
+    "expiry_date": {
+      "type": "string",
+      "title": "Expiry Date",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "title",
+    "document_type"
+  ]
+}

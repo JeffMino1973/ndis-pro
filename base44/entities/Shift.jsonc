@@ -1,0 +1,61 @@
+{
+  "name": "Shift",
+  "type": "object",
+  "properties": {
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "staff_name": {
+      "type": "string",
+      "title": "Staff Name"
+    },
+    "date": {
+      "type": "string",
+      "title": "Date",
+      "format": "date"
+    },
+    "start_time": {
+      "type": "string",
+      "title": "Start Time"
+    },
+    "end_time": {
+      "type": "string",
+      "title": "End Time"
+    },
+    "support_type": {
+      "type": "string",
+      "title": "Support Type"
+    },
+    "support_item_code": {
+      "type": "string",
+      "title": "Support Item Code"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Scheduled",
+        "Confirmed",
+        "Completed",
+        "Cancelled",
+        "No Show"
+      ],
+      "default": "Scheduled"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "participant_name",
+    "staff_name",
+    "date",
+    "start_time"
+  ]
+}

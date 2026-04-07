@@ -11,7 +11,14 @@ import {
   Settings,
   Menu,
   ChevronRight,
-  Receipt
+  Receipt,
+  Calendar,
+  Clock,
+  Target,
+  FolderOpen,
+  MessageSquareWarning,
+  CheckSquare,
+  BarChart3,
 } from "lucide-react";
 
 const NAV_SECTIONS = [
@@ -20,6 +27,21 @@ const NAV_SECTIONS = [
     items: [
       { path: "/", label: "Dashboard", icon: LayoutDashboard },
       { path: "/participants", label: "Participants", icon: Users },
+      { path: "/kpi", label: "KPI Dashboard", icon: BarChart3 },
+    ],
+  },
+  {
+    title: "Scheduling",
+    items: [
+      { path: "/rostering", label: "Rostering", icon: Calendar },
+      { path: "/timesheets", label: "Timesheets & Travel", icon: Clock },
+    ],
+  },
+  {
+    title: "Client Management",
+    items: [
+      { path: "/goal-tracking", label: "Goal Tracking", icon: Target },
+      { path: "/document-vault", label: "Document Vault", icon: FolderOpen },
     ],
   },
   {
@@ -28,10 +50,12 @@ const NAV_SECTIONS = [
       { path: "/staff", label: "Staff & Compliance", icon: ShieldCheck },
       { path: "/risk-assessments", label: "Risk Assessments", icon: AlertTriangle },
       { path: "/incidents", label: "Incidents", icon: Flame },
+      { path: "/audit-checklists", label: "Audit Checklists", icon: CheckSquare },
+      { path: "/complaints", label: "Complaints Register", icon: MessageSquareWarning },
     ],
   },
   {
-    title: "Builders",
+    title: "Finance",
     items: [
       { path: "/support-plans", label: "Support Plans", icon: ClipboardList },
       { path: "/service-agreements", label: "Service Agreements", icon: FileText },

@@ -1,0 +1,71 @@
+{
+  "name": "Complaint",
+  "type": "object",
+  "properties": {
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "complainant": {
+      "type": "string",
+      "title": "Complainant (Name/Role)"
+    },
+    "complaint_type": {
+      "type": "string",
+      "title": "Type",
+      "enum": [
+        "Service Delivery",
+        "Staff Conduct",
+        "Communication",
+        "Billing",
+        "Safety",
+        "Other"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "date_received": {
+      "type": "string",
+      "title": "Date Received",
+      "format": "date"
+    },
+    "priority": {
+      "type": "string",
+      "title": "Priority",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Open",
+        "Under Review",
+        "Resolved",
+        "Escalated"
+      ],
+      "default": "Open"
+    },
+    "resolution": {
+      "type": "string",
+      "title": "Resolution / Actions Taken"
+    },
+    "resolved_date": {
+      "type": "string",
+      "title": "Resolved Date",
+      "format": "date"
+    }
+  },
+  "required": [
+    "participant_name",
+    "complaint_type",
+    "description",
+    "date_received"
+  ]
+}

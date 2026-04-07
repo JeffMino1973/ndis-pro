@@ -1,0 +1,70 @@
+{
+  "name": "AuditChecklist",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Checklist Title"
+    },
+    "standard": {
+      "type": "string",
+      "title": "NDIS Practice Standard",
+      "enum": [
+        "Rights and Responsibilities",
+        "Governance and Operational Management",
+        "The Provision of Supports",
+        "Support Provision Environment",
+        "Responsive Support Provision",
+        "Specialist Support - Behaviour Support",
+        "Specialist Support - Early Childhood"
+      ]
+    },
+    "items": {
+      "type": "array",
+      "title": "Checklist Items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "criterion": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "Compliant",
+              "Non-Compliant",
+              "Partial",
+              "N/A"
+            ]
+          },
+          "evidence": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "overall_status": {
+      "type": "string",
+      "title": "Overall Status",
+      "enum": [
+        "Draft",
+        "In Progress",
+        "Complete"
+      ],
+      "default": "Draft"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "title": "Reviewed By"
+    },
+    "review_date": {
+      "type": "string",
+      "title": "Review Date",
+      "format": "date"
+    }
+  },
+  "required": [
+    "title",
+    "standard"
+  ]
+}

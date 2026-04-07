@@ -15,6 +15,13 @@ import SupportPlans from './pages/SupportPlans';
 import ServiceAgreements from './pages/ServiceAgreements';
 import SettingsPage from './pages/SettingsPage';
 import Invoices from './pages/Invoices';
+import Rostering from './pages/Rostering';
+import Timesheets from './pages/Timesheets';
+import GoalTracking from './pages/GoalTracking';
+import DocumentVault from './pages/DocumentVault';
+import Complaints from './pages/Complaints';
+import AuditChecklists from './pages/AuditChecklists';
+import KPIDashboard from './pages/KPIDashboard';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -52,6 +59,13 @@ const AuthenticatedApp = () => {
         <Route path="/service-agreements" element={<ServiceAgreements />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/invoices" element={<Invoices />} />
+        <Route path="/rostering" element={<Rostering />} />
+        <Route path="/timesheets" element={<Timesheets />} />
+        <Route path="/goal-tracking" element={<GoalTracking />} />
+        <Route path="/document-vault" element={<DocumentVault />} />
+        <Route path="/complaints" element={<Complaints />} />
+        <Route path="/audit-checklists" element={<AuditChecklists />} />
+        <Route path="/kpi" element={<KPIDashboard />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
