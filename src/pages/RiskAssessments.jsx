@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Trash2, Save } from "lucide-react";
+import { Plus, Trash2, Save, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,7 +46,12 @@ export default function RiskAssessments() {
   const [hazards, setHazards] = useState(DEFAULT_HAZARDS);
   const [assessorName, setAssessorName] = useState("");
   const [activity, setActivity] = useState("");
+  const [participantName, setParticipantName] = useState("");
+  const [homeAddress, setHomeAddress] = useState("");
+  const [workAddress, setWorkAddress] = useState("");
+  const [ndisNumber, setNdisNumber] = useState("");
   const [saving, setSaving] = useState(false);
+  const [printData, setPrintData] = useState(null);
 
   useEffect(() => {
     async function load() {
@@ -75,6 +80,7 @@ export default function RiskAssessments() {
     await base44.entities.RiskAssessment.create({
       assessor_name: assessorName,
       activity_description: activity,
+      participant_name: participantName,
       hazards,
       overall_risk_level: riskLevel === "LOW" ? "Low" : riskLevel === "MEDIUM" ? "Medium" : riskLevel === "HIGH" ? "High" : "Extreme",
       status: "Draft",
@@ -84,10 +90,15 @@ export default function RiskAssessments() {
     setSaving(false);
     setAssessorName("");
     setActivity("");
+    setParticipantName("");
     setHazards(DEFAULT_HAZARDS);
   };
 
   const currentRisk = RISK_MATRIX[activeL][activeC];
+
+  if (printData) {
+    return <RiskAssessmentPrint data={printData} onBack={() => setPrintData(null)} />;
+  }
 
   return (
     <div className="space-y-8">
@@ -102,8 +113,12 @@ export default function RiskAssessments() {
           <div className="bg-card border border-border rounded-3xl p-6 lg:p-8">
             <h3 className="font-black text-lg mb-4">Assessment Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+              <div><Label>Client Full Name</Label><Input value={participantName} onChange={(e) => setParticipantName(e.target.value)} placeholder="Participant name" /></div>
               <div><Label>Assessor Name</Label><Input value={assessorName} onChange={(e) => setAssessorName(e.target.value)} placeholder="Your name" /></div>
+              <div><Label>Participant Home Address</Label><Input value={homeAddress} onChange={(e) => setHomeAddress(e.target.value)} placeholder="Home address" /></div>
+              <div><Label>Workplace / Destination</Label><Input value={workAddress} onChange={(e) => setWorkAddress(e.target.value)} placeholder="Destination address" /></div>
               <div><Label>Activity / Scope</Label><Input value={activity} onChange={(e) => setActivity(e.target.value)} placeholder="e.g. Travel training via bus" /></div>
+              <div><Label>NDIS Number</Label><Input value={ndisNumber} onChange={(e) => setNdisNumber(e.target.value)} placeholder="NDIS number" /></div>
             </div>
 
             <h3 className="font-black text-lg mb-4">Interactive 5×5 Risk Matrix</h3>
@@ -200,6 +215,9 @@ export default function RiskAssessments() {
           <Button onClick={saveAssessment} disabled={saving} className="w-full rounded-xl font-bold gap-2 py-6 text-base">
             <Save size={18} /> {saving ? "Saving..." : "Save Assessment"}
           </Button>
+          <Button variant="outline" onClick={() => setPrintData({ assessorName, activity, participantName, homeAddress, workAddress, ndisNumber, hazards, currentRisk })} className="w-full rounded-xl font-bold gap-2">
+            <Printer size={16} /> Preview / Print
+          </Button>
 
           <div className="bg-card border border-border rounded-3xl p-6">
             <h4 className="font-black mb-4">Saved Assessments</h4>
@@ -210,7 +228,7 @@ export default function RiskAssessments() {
             ) : (
               <div className="space-y-3">
                 {assessments.slice(0, 5).map((a) => (
-                  <div key={a.id} className="p-3 bg-secondary rounded-xl">
+                  <div key={a.id} className="p-3 bg-secondary rounded-xl cursor-pointer hover:bg-primary/5" onClick={() => setPrintData({ assessorName: a.assessor_name, activity: a.activity_description, participantName: a.participant_name, hazards: a.hazards || [], currentRisk: a.overall_risk_level?.[0] || "M" })}>
                     <p className="text-xs font-bold text-foreground truncate">{a.activity_description || "Untitled"}</p>
                     <div className="flex justify-between mt-1">
                       <p className="text-[10px] text-muted-foreground">{a.assessor_name}</p>
@@ -224,6 +242,131 @@ export default function RiskAssessments() {
             )}
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function RiskAssessmentPrint({ data, onBack }) {
+  const RISK_LABEL = { L: "LOW", M: "MEDIUM", H: "HIGH", E: "EXTREME" };
+  const RISK_BG = { L: "bg-green-100 text-green-800", M: "bg-orange-100 text-orange-800", H: "bg-red-100 text-red-800", E: "bg-red-900 text-white" };
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center no-print">
+        <button onClick={onBack} className="text-primary font-bold text-sm hover:underline">← Back</button>
+        <Button variant="outline" onClick={() => window.print()} className="rounded-xl gap-2">
+          <Printer size={16} /> Download / Print PDF
+        </Button>
+      </div>
+
+      <div className="bg-white border border-slate-200 rounded-2xl p-8 lg:p-14 max-w-3xl mx-auto text-slate-800 text-sm">
+        {/* Header */}
+        <div className="flex justify-between items-start mb-8 pb-6 border-b border-slate-200">
+          <div>
+            <h1 className="text-3xl font-black text-slate-900">NDIS Travel Risk Assessment</h1>
+            <p className="text-slate-500 mt-1">{data.activity || "Activity Risk Assessment"}</p>
+          </div>
+          <div className={`px-4 py-2 rounded-xl font-black text-sm ${RISK_BG[data.currentRisk] || "bg-slate-100 text-slate-700"}`}>
+            Overall: {RISK_LABEL[data.currentRisk] || data.currentRisk}
+          </div>
+        </div>
+
+        {/* Client Details */}
+        <div className="grid grid-cols-2 gap-3 mb-8">
+          {[
+            { label: "Client Full Name", value: data.participantName },
+            { label: "Carer / Support Worker", value: data.assessorName },
+            { label: "Participant Home Address", value: data.homeAddress },
+            { label: "Workplace / Destination", value: data.workAddress },
+          ].map(f => (
+            <div key={f.label} className="bg-slate-50 rounded-xl p-3">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{f.label}</p>
+              <p className="font-semibold text-slate-800">{f.value || "—"}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Risk Rating Matrix summary */}
+        <section className="mb-8">
+          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">1</span>
+            Risk Rating Matrix
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs border border-slate-200 rounded-xl overflow-hidden">
+              <thead className="bg-slate-50">
+                <tr className="text-[10px] font-black text-slate-400 uppercase">
+                  <th className="px-4 py-3 text-left">Likelihood</th>
+                  <th className="px-4 py-3">Minor (1)</th>
+                  <th className="px-4 py-3">Moderate (2)</th>
+                  <th className="px-4 py-3">Major (3)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {[["Highly Likely (A)","Medium","High","Extreme"],["Possible (B)","Low","Medium","High"],["Unlikely (C)","Low","Low","Medium"]].map(row => (
+                  <tr key={row[0]}>
+                    <td className="px-4 py-2 font-semibold">{row[0]}</td>
+                    {row.slice(1).map((cell,i) => (
+                      <td key={i} className={`px-4 py-2 text-center font-bold ${{Low:"text-green-700",Medium:"text-orange-700",High:"text-red-700",Extreme:"text-red-900"}[cell]}`}>{cell}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* Hazards */}
+        <section className="mb-8">
+          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">2</span>
+            Comprehensive Risk Assessment
+          </h2>
+          <table className="w-full text-sm border border-slate-200 rounded-xl overflow-hidden">
+            <thead className="bg-slate-50">
+              <tr className="text-[10px] font-black text-slate-400 uppercase">
+                <th className="px-4 py-3 text-left">Hazard Description</th>
+                <th className="px-4 py-3">Likelihood</th>
+                <th className="px-4 py-3">Risk Level</th>
+                <th className="px-4 py-3 text-left">Mitigation &amp; Control Measures</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {(data.hazards || []).map((h, i) => (
+                <tr key={i}>
+                  <td className="px-4 py-4 font-semibold text-slate-800">{h.hazard}</td>
+                  <td className="px-4 py-4 text-center text-slate-600">{h.likelihood}</td>
+                  <td className="px-4 py-4 text-center">
+                    <span className={`text-[10px] font-black px-2 py-1 rounded-full ${{ Low: "bg-green-100 text-green-800", Medium: "bg-orange-100 text-orange-800", High: "bg-red-100 text-red-800"}[h.residual_risk] || "bg-slate-100 text-slate-600"}`}>{h.residual_risk || "—"}</span>
+                  </td>
+                  <td className="px-4 py-4 text-slate-600">{h.controls || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        {/* Emergency Management */}
+        <section>
+          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <span className="w-5 h-5 bg-red-500 text-white rounded text-[10px] flex items-center justify-center">!</span>
+            Emergency Management Plan
+          </h2>
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              "Primary Emergency Contact (Parent/Guardian)",
+              "Primary Phone Number",
+              "Secondary Emergency Contact",
+              "Secondary Phone Number",
+            ].map(label => (
+              <div key={label} className="border-b border-dashed border-slate-300 pb-3">
+                <p className="text-[10px] text-slate-400 font-bold uppercase mb-2">{label}</p>
+                <p className="text-slate-300">&nbsp;</p>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Target, Plus, Trash2 } from "lucide-react";
+import { Target, Plus, Trash2, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,24 +10,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 export default function SupportPlans() {
   const [participants, setParticipants] = useState([]);
   const [selectedParticipant, setSelectedParticipant] = useState("");
-  const [goals, setGoals] = useState([{ text: "", steps: "", support: "" }]);
+  const [goals, setGoals] = useState([{ text: "", steps: "", support: "", success: "" }]);
   const [budgetItems, setBudgetItems] = useState([
     { category: "Core: Daily Life", description: "", provider: "", amount: 0 },
     { category: "Core: Community", description: "", provider: "", amount: 0 },
     { category: "CB: Health/Therapy", description: "", provider: "", amount: 0 },
   ]);
+  const [primaryGoal, setPrimaryGoal] = useState("");
+  const [supportFocus, setSupportFocus] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showPreview, setShowPreview] = useState(false);
+  const [config, setConfig] = useState({});
 
   useEffect(() => {
     async function load() {
-      const data = await base44.entities.Participant.list();
+      const [data, me] = await Promise.all([base44.entities.Participant.list(), base44.auth.me()]);
       setParticipants(data);
+      setConfig(me?.businessConfig || {});
       setLoading(false);
     }
     load();
   }, []);
 
-  const addGoal = () => setGoals([...goals, { text: "", steps: "", support: "" }]);
+  const addGoal = () => setGoals([...goals, { text: "", steps: "", support: "", success: "" }]);
   const removeGoal = (i) => setGoals(goals.filter((_, idx) => idx !== i));
   const updateGoal = (i, field, val) => setGoals(goals.map((g, idx) => idx === i ? { ...g, [field]: val } : g));
 
@@ -38,6 +43,10 @@ export default function SupportPlans() {
 
   const participant = participants.find((p) => p.id === selectedParticipant);
 
+  if (showPreview) {
+    return <SupportPlanPrint participant={participant} goals={goals} budgetItems={budgetItems} primaryGoal={primaryGoal} supportFocus={supportFocus} config={config} onBack={() => setShowPreview(false)} />;
+  }
+
   return (
     <div className="space-y-8">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -45,17 +54,32 @@ export default function SupportPlans() {
           <h2 className="text-3xl font-black tracking-tight">Support Plan Builder</h2>
           <p className="text-muted-foreground text-sm">Goal-focused strategy and budget allocation.</p>
         </div>
+        <Button onClick={() => setShowPreview(true)} disabled={!participant} variant="outline" className="rounded-xl font-bold gap-2">
+          <Printer size={16} /> Preview / Print
+        </Button>
       </div>
 
       {/* Select Participant */}
-      <div className="bg-card border border-border rounded-3xl p-6">
-        <Label>Select Participant</Label>
-        <Select value={selectedParticipant} onValueChange={setSelectedParticipant}>
-          <SelectTrigger className="max-w-md mt-1"><SelectValue placeholder="Choose a participant..." /></SelectTrigger>
-          <SelectContent>
-            {participants.map((p) => <SelectItem key={p.id} value={p.id}>{p.name} — {p.ndis_number}</SelectItem>)}
-          </SelectContent>
-        </Select>
+      <div className="bg-card border border-border rounded-3xl p-6 space-y-4">
+        <div>
+          <Label>Select Participant</Label>
+          <Select value={selectedParticipant} onValueChange={setSelectedParticipant}>
+            <SelectTrigger className="max-w-md mt-1"><SelectValue placeholder="Choose a participant..." /></SelectTrigger>
+            <SelectContent>
+              {participants.map((p) => <SelectItem key={p.id} value={p.id}>{p.name} — {p.ndis_number}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="grid grid-cols-2 gap-4 max-w-2xl">
+          <div>
+            <Label>Primary Goal</Label>
+            <Input value={primaryGoal} onChange={e => setPrimaryGoal(e.target.value)} placeholder="e.g. Increase independence in daily life" />
+          </div>
+          <div>
+            <Label>Support Focus</Label>
+            <Input value={supportFocus} onChange={e => setSupportFocus(e.target.value)} placeholder="e.g. Community participation & transport" />
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -74,12 +98,12 @@ export default function SupportPlans() {
               {goals.map((g, i) => (
                 <div key={i} className="p-5 bg-secondary rounded-2xl space-y-3">
                   <div className="flex justify-between items-start gap-2">
-                    <Input value={g.text} onChange={(e) => updateGoal(i, "text", e.target.value)} placeholder="e.g., In 12 months, I will be able to cook 3 healthy meals independently..." className="font-semibold" />
+                    <Input value={g.text} onChange={(e) => updateGoal(i, "text", e.target.value)} placeholder="e.g., In 12 months, I will be able to travel independently by bus..." className="font-semibold" />
                     {goals.length > 1 && (
                       <button onClick={() => removeGoal(i)} className="text-muted-foreground hover:text-destructive p-1"><Trash2 size={16} /></button>
                     )}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                       <Label className="text-[10px]">Action Steps</Label>
                       <Textarea value={g.steps} onChange={(e) => updateGoal(i, "steps", e.target.value)} placeholder="How to achieve this goal..." className="h-16 text-sm" />
@@ -87,6 +111,10 @@ export default function SupportPlans() {
                     <div>
                       <Label className="text-[10px]">Support Required</Label>
                       <Textarea value={g.support} onChange={(e) => updateGoal(i, "support", e.target.value)} placeholder="What support is needed..." className="h-16 text-sm" />
+                    </div>
+                    <div>
+                      <Label className="text-[10px]">Success Criteria</Label>
+                      <Textarea value={g.success} onChange={(e) => updateGoal(i, "success", e.target.value)} placeholder="How will success be measured..." className="h-16 text-sm" />
                     </div>
                   </div>
                 </div>
@@ -149,6 +177,115 @@ export default function SupportPlans() {
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total Plan Budget</p>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SupportPlanPrint({ participant, goals, budgetItems, primaryGoal, supportFocus, config, onBack }) {
+  const total = budgetItems.reduce((a, b) => a + (Number(b.amount) || 0), 0);
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center no-print">
+        <button onClick={onBack} className="text-primary font-bold text-sm hover:underline">← Back to Builder</button>
+        <Button onClick={() => window.print()} variant="outline" className="rounded-xl gap-2">
+          <Printer size={16} /> Download / Print PDF
+        </Button>
+      </div>
+
+      <div className="bg-white border border-slate-200 rounded-2xl p-8 lg:p-14 max-w-3xl mx-auto text-slate-800 text-sm">
+        {/* Header */}
+        <div className="flex justify-between items-start mb-8 pb-6 border-b border-slate-200">
+          <div>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">NDIS Support Plan</h1>
+            <p className="text-slate-500 text-sm mt-1">Individualised Support & Goal Framework</p>
+          </div>
+          <div className="text-right">
+            <p className="text-lg font-black text-slate-900">{config.businessName || "NDIS PRO"}</p>
+            {config.abn && <p className="text-xs text-slate-500">ABN: {config.abn}</p>}
+          </div>
+        </div>
+
+        {/* Details */}
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          {[
+            { label: "Participant Name", value: participant?.name || "—" },
+            { label: "Primary Goal", value: primaryGoal || "—" },
+            { label: "Support Focus", value: supportFocus || "—" },
+            { label: "NDIS Number", value: participant?.ndis_number || "—" },
+            { label: "Date of Plan", value: new Date().toLocaleDateString("en-AU") },
+            { label: "Plan Type", value: participant?.plan_type || "—" },
+          ].map(f => (
+            <div key={f.label} className="bg-slate-50 rounded-xl p-3">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{f.label}</p>
+              <p className="font-bold text-slate-900">{f.value}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Goals Table */}
+        <section className="mb-8">
+          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">1</span>
+            Goal Plan & Skill Development
+          </h2>
+          <table className="w-full text-left text-sm border border-slate-200 rounded-xl overflow-hidden">
+            <thead className="bg-slate-50">
+              <tr className="text-[10px] font-black text-slate-400 uppercase">
+                <th className="px-4 py-3">Goal</th>
+                <th className="px-4 py-3">Support Strategy</th>
+                <th className="px-4 py-3">Success Criteria</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {goals.filter(g => g.text).map((g, i) => (
+                <tr key={i}>
+                  <td className="px-4 py-4 font-semibold text-slate-800">{g.text}</td>
+                  <td className="px-4 py-4 text-slate-600">{g.support || g.steps || "—"}</td>
+                  <td className="px-4 py-4 text-slate-600">{g.success || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        {/* Budget */}
+        <section className="mb-8">
+          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+            <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">2</span>
+            Budget Allocation
+          </h2>
+          <table className="w-full text-sm border border-slate-200 rounded-xl overflow-hidden">
+            <thead className="bg-slate-50">
+              <tr className="text-[10px] font-black text-slate-400 uppercase">
+                <th className="px-4 py-3 text-left">Category</th>
+                <th className="px-4 py-3 text-left">Description</th>
+                <th className="px-4 py-3 text-left">Provider</th>
+                <th className="px-4 py-3 text-right">Amount</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {budgetItems.filter(b => b.category || b.amount > 0).map((b, i) => (
+                <tr key={i}>
+                  <td className="px-4 py-3 font-semibold">{b.category}</td>
+                  <td className="px-4 py-3 text-slate-500">{b.description || "—"}</td>
+                  <td className="px-4 py-3 text-slate-500">{b.provider || "—"}</td>
+                  <td className="px-4 py-3 text-right font-black">${Number(b.amount).toLocaleString()}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot className="bg-slate-50">
+              <tr>
+                <td colSpan={3} className="px-4 py-3 text-right font-black text-slate-700">Total Plan Budget</td>
+                <td className="px-4 py-3 text-right font-black text-primary text-base">${total.toLocaleString()}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </section>
+
+        <div className="mt-8 pt-6 border-t border-slate-100 text-center text-xs text-slate-400">
+          This support plan has been developed in partnership with the participant and their support network.
         </div>
       </div>
     </div>

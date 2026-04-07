@@ -216,83 +216,138 @@ export default function ServiceAgreements() {
 }
 
 function AgreementPreview({ agreement, onBack }) {
+  const [config, setConfig] = useState({});
+  useEffect(() => { base44.auth.me().then(me => setConfig(me?.businessConfig || {})); }, []);
+
+  const total = (agreement.services || []).reduce((a, s) => a + (Number(s.amount) || 0), 0);
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-4">
+      <div className="flex justify-between items-center no-print">
         <button onClick={onBack} className="text-primary font-bold text-sm hover:underline">← Back</button>
         <Button variant="outline" onClick={() => window.print()} className="rounded-xl gap-2">
-          <Printer size={16} /> Print Agreement
+          <Printer size={16} /> Save as PDF
         </Button>
       </div>
 
-      <div className="bg-card border border-border rounded-3xl p-8 lg:p-16 max-w-4xl mx-auto">
-        <div className="flex justify-between items-start mb-16">
+      <div className="bg-white border border-slate-200 rounded-2xl p-8 lg:p-14 max-w-3xl mx-auto text-slate-800 text-sm">
+        {/* Header */}
+        <div className="flex justify-between items-start mb-8 pb-6 border-b border-slate-200">
           <div>
-            <h1 className="text-4xl font-black text-foreground tracking-tight mb-2">SERVICE AGREEMENT</h1>
-            <p className="text-[10px] font-black text-primary uppercase tracking-widest bg-primary/5 inline-block px-3 py-1 rounded-md">
-              NDIS Practice Standard Compliant
-            </p>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">NDIS Service Agreement</h1>
+            <p className="text-slate-500 text-sm mt-1">Individualized Support Plan</p>
           </div>
           <div className="text-right">
-            <p className="text-xl font-black text-foreground">NDIS PRO</p>
-            <p className="text-xs text-muted-foreground">NSW Provider</p>
+            <p className="text-lg font-black text-slate-900">{config.businessName || "NDIS PRO"}</p>
+            {config.abn && <p className="text-xs text-slate-500">ABN: {config.abn}</p>}
+            {config.phone && <p className="text-xs text-slate-500">{config.phone}</p>}
+            {config.email && <p className="text-xs text-slate-500">{config.email}</p>}
           </div>
         </div>
 
-        <div className="space-y-10">
-          <section>
-            <h4 className="text-xs font-black text-primary uppercase tracking-widest mb-4">1. Parties to the Agreement</h4>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-6 bg-secondary rounded-2xl">
-                <p className="text-[9px] font-black text-muted-foreground uppercase mb-2">Participant</p>
-                <p className="font-bold text-foreground">{agreement.participant_name}</p>
-              </div>
-              <div className="p-6 bg-secondary rounded-2xl">
-                <p className="text-[9px] font-black text-muted-foreground uppercase mb-2">Agreement Period</p>
-                <p className="font-bold text-foreground">{agreement.start_date || "TBD"} — {agreement.end_date || "TBD"}</p>
-              </div>
+        {/* Parties */}
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          {[
+            { label: "Participant Name", value: agreement.participant_name },
+            { label: "Agreement Date", value: agreement.start_date || new Date().toLocaleDateString("en-AU") },
+            { label: "Provider Name", value: config.businessName || "—" },
+            { label: "NDIS Number", value: "—" },
+          ].map(f => (
+            <div key={f.label} className="bg-slate-50 rounded-xl p-4">
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{f.label}</p>
+              <p className="font-bold text-slate-900">{f.value}</p>
             </div>
-          </section>
+          ))}
+        </div>
 
-          <section>
-            <h4 className="text-xs font-black text-primary uppercase tracking-widest mb-4">2. Supports Provided</h4>
-            <div className="border border-border rounded-2xl overflow-hidden">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-secondary">
-                  <tr className="text-[9px] font-black text-muted-foreground uppercase">
-                    <th className="px-6 py-4">Item</th>
-                    <th className="px-6 py-4">Category</th>
-                    <th className="px-6 py-4 text-right">Budget</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(agreement.services || []).map((s, i) => (
-                    <tr key={i} className="border-t border-border">
-                      <td className="px-6 py-4 font-bold text-foreground">{s.description}</td>
-                      <td className="px-6 py-4 text-muted-foreground">{s.category}</td>
-                      <td className="px-6 py-4 text-right font-black">${Number(s.amount).toLocaleString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </section>
+        {/* Section 1 */}
+        <section className="mb-6">
+          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+            <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">1</span>
+            Purpose of Agreement
+          </h2>
+          <p className="text-slate-600 leading-relaxed">
+            This Service Agreement is made for the purpose of providing supports under the participant's National Disability Insurance Scheme (NDIS) plan.
+            The parties agree to work together to provide supports that help <strong>{agreement.participant_name}</strong> achieve their goals and increase independence.
+          </p>
+        </section>
 
-          <section className="space-y-4 text-sm text-muted-foreground leading-relaxed">
-            <h4 className="text-xs font-black text-primary uppercase tracking-widest">3. Responsibilities</h4>
-            <p><span className="font-bold text-foreground">The Provider agrees to:</span> Deliver supports in a safe manner, communicate regularly, and protect the participant's privacy in accordance with NDIS Practice Standards.</p>
-            <p><span className="font-bold text-foreground">The Participant agrees to:</span> Treat staff with respect, pay invoices on time, and provide 24-hours notice for cancellations.</p>
-          </section>
+        {/* Section 2 - Schedule */}
+        <section className="mb-6">
+          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+            <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">2</span>
+            Schedule of Supports &amp; Costing
+          </h2>
+          <p className="text-xs text-slate-400 mb-3">Costs are based on the NDIS Pricing Arrangements and Price Limits 2025-2026 (National/Standard rates).</p>
+          <table className="w-full text-left text-sm border border-slate-200 rounded-xl overflow-hidden">
+            <thead className="bg-slate-50">
+              <tr className="text-[10px] font-black text-slate-400 uppercase">
+                <th className="px-4 py-3">Item Code</th>
+                <th className="px-4 py-3">Support Description</th>
+                <th className="px-4 py-3 text-right">Rate (per hour)</th>
+                <th className="px-4 py-3 text-right">Hours</th>
+                <th className="px-4 py-3 text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {(agreement.services || []).map((s, i) => (
+                <tr key={i}>
+                  <td className="px-4 py-3 font-mono text-xs text-slate-500">{s.ndis_code || "—"}</td>
+                  <td className="px-4 py-3 font-semibold text-slate-800">{s.description}</td>
+                  <td className="px-4 py-3 text-right">${Number(s.rate || 0).toFixed(2)}</td>
+                  <td className="px-4 py-3 text-right">{s.hours || "—"}</td>
+                  <td className="px-4 py-3 text-right font-black">${Number(s.amount || 0).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot className="bg-slate-50">
+              <tr>
+                <td colSpan={4} className="px-4 py-3 text-right font-black text-slate-700">Total Agreement Value</td>
+                <td className="px-4 py-3 text-right font-black text-primary text-base">${total.toFixed(2)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </section>
 
-          <div className="grid grid-cols-2 gap-16 pt-16 border-t border-border">
-            <div>
-              <p className="text-[9px] font-black text-muted-foreground uppercase mb-16">Participant Signature</p>
-              <div className="border-b border-foreground/20 w-full h-1" />
-            </div>
-            <div>
-              <p className="text-[9px] font-black text-muted-foreground uppercase mb-16">Provider Representative</p>
-              <div className="border-b border-foreground/20 w-full h-1" />
-            </div>
+        {/* Section 3 - Provider Responsibilities */}
+        <section className="mb-6">
+          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+            <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">3</span>
+            Provider Responsibilities
+          </h2>
+          <ul className="list-disc list-inside space-y-1 text-slate-600">
+            <li>Provide supports that meet the participant's goals.</li>
+            <li>Ensure workers are appropriately trained and screened.</li>
+            <li>Provide clear, itemized invoices and financial records.</li>
+            <li>Respect the participant's rights, privacy and dignity at all times.</li>
+          </ul>
+        </section>
+
+        {/* Section 4 - Participant Responsibilities */}
+        <section className="mb-10">
+          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
+            <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">4</span>
+            Participant Responsibilities
+          </h2>
+          <ul className="list-disc list-inside space-y-1 text-slate-600">
+            <li>Be ready for scheduled sessions.</li>
+            <li>Provide 24 hours' notice for cancellations.</li>
+            <li>Inform provider of NDIS plan changes promptly.</li>
+            <li>Treat support workers with respect.</li>
+          </ul>
+        </section>
+
+        {/* Signatures */}
+        <div className="grid grid-cols-2 gap-12 pt-8 border-t border-slate-200">
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-12">Participant / Representative Signature</p>
+            <div className="border-b border-slate-300 w-full" />
+            <p className="text-xs text-slate-400 mt-2">Date: ___ / ___ / ________</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-12">Provider Representative Signature</p>
+            <div className="border-b border-slate-300 w-full" />
+            <p className="text-xs text-slate-400 mt-2">Date: ___ / ___ / ________</p>
           </div>
         </div>
       </div>
