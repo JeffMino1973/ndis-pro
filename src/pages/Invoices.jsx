@@ -9,12 +9,75 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const NDIS_ITEMS = [
-  { code: "01_011_0107_1_1", name: "Assistance With Self-Care Activities - Weekday Daytime", rate: 68.12 },
-  { code: "04_104_0125_6_1", name: "Access Community Social and Rec Activities - Weekday", rate: 68.12 },
+  // 01 - Daily Activities
+  { code: "01_011_0107_1_1", name: "Assistance With Self-Care Activities - Standard - Weekday Daytime", rate: 68.12 },
+  { code: "01_011_0107_1_1_T", name: "Assistance With Self-Care Activities - Standard - Weekday Evening", rate: 74.86 },
+  { code: "01_011_0107_1_1_S", name: "Assistance With Self-Care Activities - Standard - Saturday", rate: 95.29 },
+  { code: "01_011_0107_1_1_U", name: "Assistance With Self-Care Activities - Standard - Sunday", rate: 122.46 },
+  { code: "01_011_0107_1_1_P", name: "Assistance With Self-Care Activities - Standard - Public Holiday", rate: 149.63 },
+  { code: "01_012_0107_1_1", name: "Assistance With Self-Care Activities - High Intensity - Weekday Daytime", rate: 75.88 },
+  { code: "01_012_0107_1_1_T", name: "Assistance With Self-Care Activities - High Intensity - Weekday Evening", rate: 83.41 },
+  { code: "01_012_0107_1_1_S", name: "Assistance With Self-Care Activities - High Intensity - Saturday", rate: 106.28 },
+  { code: "01_012_0107_1_1_U", name: "Assistance With Self-Care Activities - High Intensity - Sunday", rate: 136.69 },
+  { code: "01_012_0107_1_1_P", name: "Assistance With Self-Care Activities - High Intensity - Public Holiday", rate: 167.09 },
+  { code: "01_013_0107_1_1", name: "Assistance With Self-Care Activities - Sleepover (Overnight)", rate: 270.54 },
+  { code: "01_015_0107_1_1", name: "Assistance With Self-Care Activities - Active Overnight - Weekday", rate: 68.12 },
+  { code: "01_015_0107_1_1_S", name: "Assistance With Self-Care Activities - Active Overnight - Saturday", rate: 95.29 },
+  { code: "01_015_0107_1_1_U", name: "Assistance With Self-Care Activities - Active Overnight - Sunday", rate: 122.46 },
+  { code: "01_741_0128_1_3", name: "Assessment, Recommendation, Therapy or Training - Social Worker", rate: 199.05 },
+  { code: "01_742_0128_1_1", name: "Assistance with Decision Making, Daily Planning and Budgeting", rate: 68.12 },
+  { code: "01_799_0104_1_1", name: "Assistance with Daily Life Tasks in a Group or Shared Living Arrangement", rate: 68.12 },
+  // 03 - Home Modifications & Maintenance
+  { code: "03_040_0120_1_1_T", name: "House/Garden Maintenance", rate: 55.89 },
+  { code: "03_050_0120_1_1_T", name: "Cleaning and Domestic Assistance", rate: 55.89 },
+  { code: "03_060_0120_1_1_T", name: "Meal Preparation and Delivery", rate: 55.89 },
+  // 04 - Assistance with Social, Economic and Community Participation
+  { code: "04_104_0125_6_1", name: "Access Community Social and Rec Activities - Standard - Weekday Daytime", rate: 68.12 },
+  { code: "04_104_0125_6_1_T", name: "Access Community Social and Rec Activities - Standard - Weekday Evening", rate: 74.86 },
+  { code: "04_104_0125_6_1_S", name: "Access Community Social and Rec Activities - Standard - Saturday", rate: 95.29 },
+  { code: "04_104_0125_6_1_U", name: "Access Community Social and Rec Activities - Standard - Sunday", rate: 122.46 },
+  { code: "04_104_0125_6_1_P", name: "Access Community Social and Rec Activities - Standard - Public Holiday", rate: 149.63 },
+  { code: "04_104_0125_6_1_H", name: "Access Community Social and Rec Activities - High Intensity - Weekday", rate: 75.88 },
+  { code: "04_210_0125_6_1", name: "Participation in Community, Social and Civic Activities - 1:1", rate: 68.12 },
+  { code: "04_400_0136_6_1", name: "Group and Centre Based Activities - Ratio 1:2 - Weekday", rate: 38.45 },
+  { code: "04_400_0136_6_1_T", name: "Group and Centre Based Activities - Ratio 1:3 - Weekday", rate: 27.60 },
+  { code: "04_400_0136_6_1_S", name: "Group and Centre Based Activities - Ratio 1:4 - Weekday", rate: 21.89 },
+  { code: "04_400_0136_6_1_U", name: "Group and Centre Based Activities - Ratio 1:5 - Weekday", rate: 18.17 },
+  // 07 - Support Coordination
   { code: "07_001_0106_1_3", name: "Support Coordination Level 1: Support Connection", rate: 76.52 },
   { code: "07_002_0106_1_3", name: "Support Coordination Level 2: Coordination of Supports", rate: 102.64 },
-  { code: "01_741_0128_1_3", name: "Assessment Recommendation Therapy - Social Worker", rate: 199.05 },
-  { code: "15_056_0128_1_3", name: "Assessment Recommendation Therapy - Other Therapy", rate: 199.05 },
+  { code: "07_004_0132_8_3", name: "Specialist Support Coordination", rate: 190.54 },
+  // 08 - Plan Management
+  { code: "08_001_0106_6_3", name: "Plan Management - Financial Administration (Monthly Fee)", rate: 116.54 },
+  { code: "08_002_0106_6_3", name: "Plan Management - Plan Implementation (Once-off)", rate: 232.65 },
+  // 09 - Therapeutic Supports
+  { code: "09_001_0128_1_3", name: "Therapy Support - Physiotherapy", rate: 199.05 },
+  { code: "09_002_0128_1_3", name: "Therapy Support - Occupational Therapy", rate: 199.05 },
+  { code: "09_003_0128_1_3", name: "Therapy Support - Psychology", rate: 234.43 },
+  { code: "09_004_0128_1_3", name: "Therapy Support - Speech Pathology", rate: 199.05 },
+  { code: "09_005_0128_1_3", name: "Therapy Support - Dietetics", rate: 154.60 },
+  { code: "09_006_0128_1_3", name: "Therapy Support - Podiatry", rate: 154.60 },
+  { code: "09_007_0128_1_3", name: "Therapy Support - Music Therapy", rate: 154.60 },
+  { code: "09_008_0128_1_3", name: "Therapy Support - Art Therapy", rate: 154.60 },
+  { code: "09_009_0115_1_1", name: "Innovative Community Participation - Standard", rate: 68.12 },
+  { code: "15_056_0128_1_3", name: "Therapy Support - Other Allied Health", rate: 199.05 },
+  // 11 - Life Skills Development
+  { code: "11_022_0117_1_3", name: "Individual Life Skills - Standard - Weekday Daytime", rate: 68.12 },
+  { code: "11_022_0117_1_3_T", name: "Individual Life Skills - Standard - Weekday Evening", rate: 74.86 },
+  { code: "11_022_0117_1_3_S", name: "Individual Life Skills - Standard - Saturday", rate: 95.29 },
+  { code: "11_022_0117_1_3_U", name: "Individual Life Skills - Standard - Sunday", rate: 122.46 },
+  { code: "11_011_0117_1_3", name: "Life Transition Planning (incl. Mentoring, Peer Support)", rate: 68.12 },
+  { code: "11_003_0117_7_3", name: "Specialised Driver Training", rate: 100.18 },
+  // 14 - Community Nursing
+  { code: "14_033_0127_1_3", name: "Nurse Practitioner - Community Nursing", rate: 234.43 },
+  { code: "14_015_0127_1_3", name: "Community Nursing Care - Complex/High Intensity", rate: 152.87 },
+  { code: "14_015_0127_1_1", name: "Community Nursing Care - Standard - Weekday", rate: 102.64 },
+  // 18 - Behaviour Support
+  { code: "18_001_0110_6_3", name: "Behaviour Support - Specialist Positive Behaviour Support", rate: 214.41 },
+  { code: "18_056_0110_6_3", name: "Behaviour Support - Other Intervention Therapy", rate: 199.05 },
+  // Assistive Technology
+  { code: "05_001_0108_1_1", name: "Assistive Technology - Low Risk Consumables", rate: 1.00 },
+  { code: "05_100_0108_1_1", name: "Assistive Technology - Low Cost - Per Item", rate: 1.00 },
 ];
 
 const statusColor = {
