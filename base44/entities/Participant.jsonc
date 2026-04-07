@@ -1,0 +1,126 @@
+{
+  "name": "Participant",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Full Name"
+    },
+    "ndis_number": {
+      "type": "string",
+      "title": "NDIS Number"
+    },
+    "plan_type": {
+      "type": "string",
+      "title": "Plan Management Type",
+      "enum": [
+        "Plan Managed",
+        "Self Managed",
+        "NDIA Managed",
+        "Combination"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Active",
+        "Pending",
+        "Review Due",
+        "Inactive"
+      ],
+      "default": "Active"
+    },
+    "email": {
+      "type": "string",
+      "title": "Email"
+    },
+    "phone": {
+      "type": "string",
+      "title": "Phone"
+    },
+    "address": {
+      "type": "string",
+      "title": "Address"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "title": "Date of Birth",
+      "format": "date"
+    },
+    "primary_disability": {
+      "type": "string",
+      "title": "Primary Disability"
+    },
+    "medical_alerts": {
+      "type": "string",
+      "title": "Medical Alerts"
+    },
+    "next_review": {
+      "type": "string",
+      "title": "Next Plan Review",
+      "format": "date"
+    },
+    "budget_core": {
+      "type": "number",
+      "title": "Core Budget ($)",
+      "default": 0
+    },
+    "budget_capacity": {
+      "type": "number",
+      "title": "Capacity Building Budget ($)",
+      "default": 0
+    },
+    "budget_capital": {
+      "type": "number",
+      "title": "Capital Budget ($)",
+      "default": 0
+    },
+    "used_core": {
+      "type": "number",
+      "title": "Used Core ($)",
+      "default": 0
+    },
+    "used_capacity": {
+      "type": "number",
+      "title": "Used Capacity ($)",
+      "default": 0
+    },
+    "used_capital": {
+      "type": "number",
+      "title": "Used Capital ($)",
+      "default": 0
+    },
+    "goals": {
+      "type": "array",
+      "title": "Goals",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "array",
+      "title": "Progress Notes",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "by": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "name",
+    "ndis_number",
+    "plan_type",
+    "status"
+  ]
+}

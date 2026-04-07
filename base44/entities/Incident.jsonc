@@ -1,0 +1,65 @@
+{
+  "name": "Incident",
+  "type": "object",
+  "properties": {
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "incident_type": {
+      "type": "string",
+      "title": "Incident Type",
+      "enum": [
+        "Injury",
+        "Abuse/Neglect",
+        "Restrictive Practice",
+        "Death",
+        "Medication Error",
+        "Property Damage",
+        "Other"
+      ]
+    },
+    "severity": {
+      "type": "string",
+      "title": "Severity",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Critical"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "action_taken": {
+      "type": "string",
+      "title": "Action Taken"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Open",
+        "Under Investigation",
+        "Resolved"
+      ],
+      "default": "Open"
+    },
+    "incident_date": {
+      "type": "string",
+      "title": "Incident Date",
+      "format": "date"
+    }
+  },
+  "required": [
+    "incident_type",
+    "severity",
+    "description"
+  ]
+}

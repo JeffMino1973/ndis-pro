@@ -5,7 +5,15 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
-// Add page imports here
+import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
+import Participants from './pages/Participants';
+import Staff from './pages/Staff';
+import RiskAssessments from './pages/RiskAssessments';
+import Incidents from './pages/Incidents';
+import SupportPlans from './pages/SupportPlans';
+import ServiceAgreements from './pages/ServiceAgreements';
+import SettingsPage from './pages/SettingsPage';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -33,8 +41,17 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      {/* Add your page Route elements here */}
-      <Route path="*" element={<PageNotFound />} />
+      <Route element={<Layout />}>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/participants" element={<Participants />} />
+        <Route path="/staff" element={<Staff />} />
+        <Route path="/risk-assessments" element={<RiskAssessments />} />
+        <Route path="/incidents" element={<Incidents />} />
+        <Route path="/support-plans" element={<SupportPlans />} />
+        <Route path="/service-agreements" element={<ServiceAgreements />} />
+        <Route path="/settings" element={<SettingsPage />} />
+        <Route path="*" element={<PageNotFound />} />
+      </Route>
     </Routes>
   );
 };

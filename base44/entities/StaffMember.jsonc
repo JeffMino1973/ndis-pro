@@ -1,0 +1,64 @@
+{
+  "name": "StaffMember",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Full Name"
+    },
+    "role": {
+      "type": "string",
+      "title": "Role"
+    },
+    "email": {
+      "type": "string",
+      "title": "Email"
+    },
+    "phone": {
+      "type": "string",
+      "title": "Phone"
+    },
+    "wwcc_expiry": {
+      "type": "string",
+      "title": "WWCC Expiry Date",
+      "format": "date"
+    },
+    "first_aid_expiry": {
+      "type": "string",
+      "title": "First Aid Expiry Date",
+      "format": "date"
+    },
+    "police_check": {
+      "type": "string",
+      "title": "Police Check Status",
+      "enum": [
+        "Cleared",
+        "Pending",
+        "Expired"
+      ]
+    },
+    "training_status": {
+      "type": "string",
+      "title": "Training Status",
+      "enum": [
+        "Complete",
+        "Due Soon",
+        "Overdue"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "title": "Employment Status",
+      "enum": [
+        "Active",
+        "On Leave",
+        "Inactive"
+      ],
+      "default": "Active"
+    }
+  },
+  "required": [
+    "name",
+    "role"
+  ]
+}

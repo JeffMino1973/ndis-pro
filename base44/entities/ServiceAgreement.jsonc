@@ -1,0 +1,56 @@
+{
+  "name": "ServiceAgreement",
+  "type": "object",
+  "properties": {
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "start_date": {
+      "type": "string",
+      "title": "Start Date",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "title": "End Date",
+      "format": "date"
+    },
+    "services": {
+      "type": "array",
+      "title": "Services",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Draft",
+        "Active",
+        "Expired",
+        "Terminated"
+      ],
+      "default": "Draft"
+    }
+  },
+  "required": [
+    "participant_name"
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "name": "RiskAssessment",
+  "type": "object",
+  "properties": {
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "assessor_name": {
+      "type": "string",
+      "title": "Assessor Name"
+    },
+    "activity_description": {
+      "type": "string",
+      "title": "Activity / Scope"
+    },
+    "hazards": {
+      "type": "array",
+      "title": "Hazards",
+      "items": {
+        "type": "object",
+        "properties": {
+          "hazard": {
+            "type": "string"
+          },
+          "likelihood": {
+            "type": "string"
+          },
+          "consequence": {
+            "type": "string"
+          },
+          "controls": {
+            "type": "string"
+          },
+          "residual_risk": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "overall_risk_level": {
+      "type": "string",
+      "title": "Overall Risk Level",
+      "enum": [
+        "Low",
+        "Medium",
+        "High",
+        "Extreme"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Draft",
+        "Active",
+        "Archived"
+      ],
+      "default": "Draft"
+    }
+  },
+  "required": [
+    "assessor_name",
+    "activity_description"
+  ]
+}
