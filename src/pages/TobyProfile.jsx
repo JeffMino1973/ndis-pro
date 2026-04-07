@@ -1,4 +1,9 @@
-import { Printer, Mail, Phone, MapPin, Award, GraduationCap, Briefcase, Heart, Users, Home, Accessibility, Star } from "lucide-react";
+import { useState } from "react";
+import { Printer, Mail, Phone, MapPin, Award, GraduationCap, Briefcase, Heart, Users, Home, Accessibility, Star, Send } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 
 const PHOTO = "https://media.base44.com/images/public/69d54775d9a169daad84a133/9c2ede7a8_Picture1.png";
@@ -19,16 +24,83 @@ const qualifications = [
   { icon: Briefcase, title: "Practical Training Experience", sub: "Hands-on care training and social inclusion fostering." },
 ];
 
+const PROFILE_URL = window.location.origin + "/toby";
+
+const EMAIL_BODY = `
+<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+body{font-family:Arial,sans-serif;background:#f8fafc;margin:0;padding:0}
+.wrap{max-width:560px;margin:0 auto;background:white;border-radius:12px;overflow:hidden}
+.header{background:linear-gradient(135deg,#0ea5e9,#2563eb);padding:32px 40px;color:white}
+.header h1{margin:0 0 6px;font-size:22px}  
+.body{padding:32px 40px}
+.cta{display:inline-block;background:#2563eb;color:white;padding:14px 32px;border-radius:10px;font-weight:bold;text-decoration:none;margin-top:20px}
+</style></head><body>
+<div class="wrap">
+  <div class="header"><h1>Meet Your Support Worker — Toby</h1><p style="margin:0;opacity:.85">Certified NDIS Disability Support Worker · Sydney NSW</p></div>
+  <div class="body">
+    <p>Hi there,</p>
+    <p>I'd like to introduce you to <strong>Sz-Jie (Toby)</strong>, a certified Disability Support Worker based in Waterloo, NSW. Toby is compassionate, patient, and fluent in English, Mandarin, and Cantonese.</p>
+    <p><strong>Services include:</strong> Daily Living Support, Mobility Assistance, Social Inclusion, Community Participation, and Person-Centered Care.</p>
+    <p>View Toby's full profile below:</p>
+    <a href="${PROFILE_URL}" class="cta">View Full Profile →</a>
+    <p style="margin-top:24px;color:#64748b;font-size:13px">To get in touch directly: <a href="mailto:Toby7796@gmail.com">Toby7796@gmail.com</a> · 0435 951 563</p>
+  </div>
+</div>
+</body></html>
+`;
+
 export default function TobyProfile() {
+  const [showEmail, setShowEmail] = useState(false);
+  const [recipient, setRecipient] = useState("");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const sendProfile = async () => {
+    if (!recipient) return;
+    setSending(true);
+    await base44.integrations.Core.SendEmail({
+      to: recipient,
+      subject: "Meet Your Support Worker — Toby (NDIS Disability Support)",
+      body: EMAIL_BODY,
+    });
+    setSending(false);
+    setSent(true);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-inter">
-      {/* Print button */}
+      {/* Action buttons */}
       <div className="no-print fixed bottom-8 right-8 z-50 flex flex-col items-end gap-2">
         <p className="text-xs bg-blue-100 text-blue-700 font-bold px-3 py-1 rounded shadow">Share or Print as PDF</p>
+        <Button onClick={() => { setShowEmail(true); setSent(false); setRecipient(""); }} className="rounded-full shadow-xl gap-2 bg-blue-600 hover:bg-blue-700">
+          <Mail size={16} /> Email Profile
+        </Button>
         <Button onClick={() => window.print()} className="rounded-full shadow-2xl gap-2 bg-slate-900 hover:bg-slate-800">
           <Printer size={16} /> Print / Save PDF
         </Button>
       </div>
+
+      {/* Email Dialog */}
+      <Dialog open={showEmail} onOpenChange={setShowEmail}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader><DialogTitle>Email Toby's Profile</DialogTitle></DialogHeader>
+          {sent ? (
+            <div className="text-center py-6 space-y-3">
+              <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto"><Send size={20} className="text-emerald-600" /></div>
+              <p className="font-black">Profile sent!</p>
+              <p className="text-sm text-muted-foreground">Emailed to <strong>{recipient}</strong></p>
+              <Button onClick={() => setShowEmail(false)} className="w-full rounded-xl">Done</Button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div><Label>Recipient Email</Label><Input value={recipient} onChange={e => setRecipient(e.target.value)} placeholder="client@example.com" type="email" className="mt-1" /></div>
+              <Button onClick={sendProfile} disabled={!recipient || sending} className="w-full rounded-xl font-bold gap-2">
+                <Mail size={15} /> {sending ? "Sending..." : "Send Profile"}
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Hero Banner */}
       <div className="h-48 w-full bg-gradient-to-r from-sky-500 to-blue-700" />
