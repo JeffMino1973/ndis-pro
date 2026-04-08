@@ -1,24 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Printer, Plus, Trash2 } from "lucide-react";
-
-const NDIS_ITEMS = [
-  { code: "01_011_0107_1_1", name: "Assistance With Self-Care Activities - Standard - Weekday Daytime", rate: 68.12 },
-  { code: "01_011_0107_1_1_T", name: "Assistance With Self-Care Activities - Standard - Weekday Evening", rate: 74.86 },
-  { code: "01_011_0107_1_1_S", name: "Assistance With Self-Care Activities - Standard - Saturday", rate: 95.29 },
-  { code: "01_011_0107_1_1_U", name: "Assistance With Self-Care Activities - Standard - Sunday", rate: 122.46 },
-  { code: "01_011_0107_1_1_P", name: "Assistance With Self-Care Activities - Standard - Public Holiday", rate: 149.63 },
-  { code: "04_104_0125_6_1", name: "Access Community Social and Rec Activities - Standard - Weekday", rate: 68.12 },
-  { code: "04_104_0125_6_1_S", name: "Access Community Social and Rec Activities - Standard - Saturday", rate: 95.29 },
-  { code: "04_104_0125_6_1_U", name: "Access Community Social and Rec Activities - Standard - Sunday", rate: 122.46 },
-  { code: "07_001_0106_1_3", name: "Support Coordination Level 1: Support Connection", rate: 76.52 },
-  { code: "07_002_0106_1_3", name: "Support Coordination Level 2: Coordination of Supports", rate: 102.64 },
-  { code: "01_741_0128_1_3", name: "Assessment Recommendation Therapy or Training - Social Worker", rate: 199.05 },
-  { code: "15_056_0128_1_3", name: "Assessment Recommendation Therapy or Training - Other Therapy", rate: 199.05 },
-  { code: "11_022_0117_1_3", name: "Individual Life Skills - Standard - Weekday Daytime", rate: 68.12 },
-  { code: "09_009_0115_1_1", name: "Innovative Community Participation - Standard", rate: 68.12 },
-  { code: "08_001_0106_6_3", name: "Plan Management - Financial Administration", rate: 116.54 },
-];
+import { NDIS_ITEMS } from "@/utils/ndisItems";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
