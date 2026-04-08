@@ -1,11 +1,14 @@
 import { useState, useRef, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { NDIS_ITEMS } from "@/utils/ndisItems";
 import { Search, ChevronDown } from "lucide-react";
 
 export default function NDISItemSelect({ value, onSelect, placeholder = "Search NDIS item..." }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [dropdownStyle, setDropdownStyle] = useState({});
   const ref = useRef(null);
+  const buttonRef = useRef(null);
 
   const filtered = search.length > 0
     ? NDIS_ITEMS.filter(
@@ -26,11 +29,27 @@ export default function NDISItemSelect({ value, onSelect, placeholder = "Search 
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
+  const handleOpen = () => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setDropdownStyle({
+        position: "fixed",
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+        zIndex: 9999,
+      });
+    }
+    setOpen((o) => !o);
+    setSearch("");
+  };
+
   return (
     <div className="relative" ref={ref}>
       <button
+        ref={buttonRef}
         type="button"
-        onClick={() => { setOpen((o) => !o); setSearch(""); }}
+        onClick={handleOpen}
         className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
       >
         {selected ? (
@@ -45,8 +64,8 @@ export default function NDISItemSelect({ value, onSelect, placeholder = "Search 
         <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-2" />
       </button>
 
-      {open && (
-        <div className="absolute z-50 mt-1 w-full bg-popover border border-border rounded-md shadow-lg">
+      {open && ReactDOM.createPortal(
+        <div style={dropdownStyle} className="bg-popover border border-border rounded-md shadow-lg">
           <div className="p-2 border-b border-border">
             <div className="flex items-center gap-2 px-2">
               <Search size={14} className="text-muted-foreground shrink-0" />
@@ -83,7 +102,8 @@ export default function NDISItemSelect({ value, onSelect, placeholder = "Search 
               </p>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
