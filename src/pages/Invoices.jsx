@@ -425,8 +425,19 @@ function InvoicePrint({ invoice, config, onBack }) {
           </div>
         </div>
 
+        {/* Bank Account Details */}
+        <div className="mt-8 p-6 bg-slate-50 rounded-xl border border-slate-200">
+          <p className="text-xs font-black text-slate-400 uppercase mb-3 tracking-widest">Payment Details</p>
+          <div className="grid grid-cols-2 gap-6 text-sm">
+            {config.bankName && <div><p className="text-[10px] text-slate-400 font-bold uppercase">Bank</p><p className="font-semibold text-slate-800">{config.bankName}</p></div>}
+            {config.accountName && <div><p className="text-[10px] text-slate-400 font-bold uppercase">Account Name</p><p className="font-semibold text-slate-800">{config.accountName}</p></div>}
+            {config.bsb && <div><p className="text-[10px] text-slate-400 font-bold uppercase">BSB</p><p className="font-mono font-bold text-slate-800">{config.bsb}</p></div>}
+            {config.accountNumber && <div><p className="text-[10px] text-slate-400 font-bold uppercase">Account Number</p><p className="font-mono font-bold text-slate-800">{config.accountNumber}</p></div>}
+          </div>
+        </div>
+
         {invoice.notes && (
-          <div className="mt-8 p-4 bg-slate-50 rounded-xl">
+          <div className="mt-6 p-4 bg-slate-50 rounded-xl">
             <p className="text-xs font-bold text-slate-500 uppercase mb-1">Notes</p>
             <p className="text-sm text-slate-600">{invoice.notes}</p>
           </div>

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Building2, Mail, Phone, MapPin, Hash, Shield } from "lucide-react";
+import { Building2, Mail, Phone, MapPin, Hash, Shield, Landmark } from "lucide-react";
 
 const FIELDS = [
   { key: "businessName", label: "Legal Trading Name", placeholder: "e.g. Nexus Care Solutions", icon: Building2 },
@@ -15,6 +15,13 @@ const FIELDS = [
   { key: "providerNumber", label: "NDIS Provider Number", placeholder: "e.g. 40500111", icon: Shield },
 ];
 
+const BANK_FIELDS = [
+  { key: "bankName", label: "Bank Name", placeholder: "e.g. Commonwealth Bank", icon: Landmark },
+  { key: "accountName", label: "Account Name", placeholder: "e.g. Nexus Care Solutions Pty Ltd", icon: Building2 },
+  { key: "bsb", label: "BSB", placeholder: "e.g. 062-000", icon: Hash },
+  { key: "accountNumber", label: "Account Number", placeholder: "e.g. 1234 5678", icon: Hash },
+];
+
 export default function SettingsPage() {
   const [config, setConfig] = useState({
     businessName: "",
@@ -23,6 +30,10 @@ export default function SettingsPage() {
     phone: "",
     address: "",
     providerNumber: "",
+    bankName: "",
+    accountName: "",
+    bsb: "",
+    accountNumber: "",
   });
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -72,6 +83,25 @@ export default function SettingsPage() {
             />
           </div>
         ))}
+
+        <div className="pt-4 mt-4 border-t border-border">
+          <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-4">Bank Account Details (shown on invoices)</p>
+          <div className="space-y-6">
+            {BANK_FIELDS.map(({ key, label, placeholder, icon: Icon }) => (
+              <div key={key}>
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <Icon size={12} /> {label}
+                </Label>
+                <Input
+                  value={config[key] || ""}
+                  onChange={(e) => update(key, e.target.value)}
+                  placeholder={placeholder}
+                  className="rounded-xl"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
 
         <div className="pt-2">
           <Button
