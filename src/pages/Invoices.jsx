@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Plus, Printer, Trash2, FileText } from "lucide-react";
 import { NDIS_ITEMS } from "@/utils/ndisItems";
+import NDISItemSelect from "@/components/NDISItemSelect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -214,12 +215,10 @@ export default function Invoices() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
                         <Label className="text-[10px]">NDIS Support Item</Label>
-                        <Select value={line.support_item_code} onValueChange={(v) => updateLine(i, "support_item_code", v)}>
-                          <SelectTrigger className="text-xs h-9"><SelectValue placeholder="Select item..." /></SelectTrigger>
-                          <SelectContent>
-                            {NDIS_ITEMS.map((n) => <SelectItem key={n.code} value={n.code}><span className="text-[10px]">{n.code} — {n.name}</span></SelectItem>)}
-                          </SelectContent>
-                        </Select>
+                        <NDISItemSelect
+                          value={line.support_item_code}
+                          onSelect={(n) => updateLine(i, "support_item_code", n.code)}
+                        />
                       </div>
                       <div>
                         <Label className="text-[10px]">Description</Label>

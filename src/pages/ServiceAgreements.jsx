@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Printer, Plus, Trash2 } from "lucide-react";
 import { NDIS_ITEMS } from "@/utils/ndisItems";
+import NDISItemSelect from "@/components/NDISItemSelect";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -151,16 +152,10 @@ export default function ServiceAgreements() {
                     <div className="flex justify-between items-start gap-2">
                       <div className="flex-1">
                         <Label className="text-[10px]">NDIS Item Code & Name</Label>
-                        <Select value={s.ndis_code} onValueChange={(v) => updateService(i, "ndis_code", v)}>
-                          <SelectTrigger className="text-xs h-9"><SelectValue placeholder="Select NDIS item..." /></SelectTrigger>
-                          <SelectContent>
-                            {NDIS_ITEMS.map((n) => (
-                              <SelectItem key={n.code} value={n.code}>
-                                <span className="text-[10px] font-mono text-muted-foreground">{n.code}</span> — {n.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <NDISItemSelect
+                          value={s.ndis_code}
+                          onSelect={(n) => { updateService(i, "ndis_code", n.code); }}
+                        />
                       </div>
                       {form.services.length > 1 && (
                         <button onClick={() => removeService(i)} className="text-muted-foreground hover:text-destructive mt-5"><Trash2 size={15} /></button>
