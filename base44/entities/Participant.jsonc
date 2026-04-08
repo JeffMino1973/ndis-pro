@@ -10,6 +10,10 @@
       "type": "string",
       "title": "NDIS Number"
     },
+    "photo_url": {
+      "type": "string",
+      "title": "Photo URL"
+    },
     "date_of_birth": {
       "type": "string",
       "title": "Date of Birth",

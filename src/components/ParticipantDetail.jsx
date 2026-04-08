@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, FileText, AlertTriangle, Edit, Phone, Mail, MapPin, User, Shield, Heart, ClipboardList } from "lucide-react";
+import { ArrowLeft, FileText, AlertTriangle, Edit, Phone, Mail, MapPin, User, Shield, Heart, ClipboardList, Upload, Camera, Paperclip, Trash2, Download, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -27,10 +27,56 @@ function SectionHeading({ icon: Icon, title, color = "text-primary" }) {
   );
 }
 
+const DOC_TYPES = ["Care Plan","NDIS Plan","Risk Assessment","Medical Report","WWCC Certificate","Police Check","First Aid Certificate","Consent Form","Emergency Plan","Other"];
+
 export default function ParticipantDetail({ participant, onBack }) {
   const [p, setP] = useState(participant);
   const [newNote, setNewNote] = useState("");
   const [showEdit, setShowEdit] = useState(false);
+  const [documents, setDocuments] = useState([]);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [docForm, setDocForm] = useState({ title: "", document_type: "Care Plan" });
+  const photoRef = useRef();
+  const docFileRef = useRef();
+  const [pendingDocFile, setPendingDocFile] = useState(null);
+
+  useEffect(() => {
+    base44.entities.Document.filter({ participant_id: p.id }, "-created_date").then(setDocuments);
+  }, [p.id]);
+
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingPhoto(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    await base44.entities.Participant.update(p.id, { photo_url: file_url });
+    setP({ ...p, photo_url: file_url });
+    setUploadingPhoto(false);
+  };
+
+  const handleDocUpload = async () => {
+    if (!pendingDocFile || !docForm.title) return;
+    setUploadingDoc(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file: pendingDocFile });
+    const doc = await base44.entities.Document.create({
+      participant_id: p.id,
+      participant_name: p.name,
+      title: docForm.title,
+      document_type: docForm.document_type,
+      file_url,
+    });
+    setDocuments([doc, ...documents]);
+    setDocForm({ title: "", document_type: "Care Plan" });
+    setPendingDocFile(null);
+    if (docFileRef.current) docFileRef.current.value = "";
+    setUploadingDoc(false);
+  };
+
+  const deleteDoc = async (id) => {
+    await base44.entities.Document.delete(id);
+    setDocuments(documents.filter(d => d.id !== id));
+  };
 
   const addNote = async () => {
     if (!newNote.trim()) return;
@@ -50,8 +96,21 @@ export default function ParticipantDetail({ participant, onBack }) {
       <div className="bg-card border border-border rounded-3xl p-6 lg:p-8">
         <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
           <div className="flex items-center gap-5">
-            <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center text-primary font-black text-3xl">
-              {p.name?.charAt(0)}
+            <div className="relative group">
+              {p.photo_url ? (
+                <img src={p.photo_url} alt={p.name} className="w-20 h-20 rounded-2xl object-cover" />
+              ) : (
+                <div className="w-20 h-20 bg-primary/10 rounded-2xl flex items-center justify-center text-primary font-black text-3xl">
+                  {p.name?.charAt(0)}
+                </div>
+              )}
+              <button
+                onClick={() => photoRef.current?.click()}
+                className="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                {uploadingPhoto ? <Loader2 size={18} className="text-white animate-spin" /> : <Camera size={18} className="text-white" />}
+              </button>
+              <input ref={photoRef} type="file" accept="image/*" className="hidden" onChange={handlePhotoUpload} />
             </div>
             <div>
               <h2 className="text-2xl font-black text-foreground">{p.name}</h2>
@@ -125,6 +184,69 @@ export default function ParticipantDetail({ participant, onBack }) {
         </div>
       )}
 
+      {/* Documents */}
+      <div className="bg-card border border-border rounded-3xl overflow-hidden">
+        <div className="p-6 border-b border-border bg-secondary/50 flex items-center gap-2">
+          <Paperclip size={18} className="text-primary" />
+          <h3 className="font-black text-lg">Documents</h3>
+        </div>
+        <div className="p-6 space-y-4">
+          {/* Upload form */}
+          <div className="p-4 bg-secondary rounded-2xl space-y-3">
+            <p className="text-xs font-black text-muted-foreground uppercase tracking-widest">Upload New Document</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <input
+                type="text"
+                value={docForm.title}
+                onChange={e => setDocForm({ ...docForm, title: e.target.value })}
+                placeholder="Document title..."
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+              />
+              <select
+                value={docForm.document_type}
+                onChange={e => setDocForm({ ...docForm, document_type: e.target.value })}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
+              >
+                {DOC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+            <div className="flex items-center gap-3">
+              <label className="flex-1 flex items-center gap-2 cursor-pointer border border-dashed border-border rounded-xl px-4 py-2.5 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors">
+                <Upload size={15} />
+                {pendingDocFile ? pendingDocFile.name : "Choose file..."}
+                <input ref={docFileRef} type="file" className="hidden" onChange={e => setPendingDocFile(e.target.files?.[0] || null)} />
+              </label>
+              <Button onClick={handleDocUpload} disabled={!pendingDocFile || !docForm.title || uploadingDoc} className="rounded-xl font-bold gap-2">
+                {uploadingDoc ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
+                Upload
+              </Button>
+            </div>
+          </div>
+          {/* Document list */}
+          {documents.length === 0 ? (
+            <p className="text-sm text-muted-foreground italic">No documents uploaded yet.</p>
+          ) : (
+            <div className="space-y-2">
+              {documents.map(doc => (
+                <div key={doc.id} className="flex items-center gap-3 p-3 bg-secondary rounded-xl">
+                  <FileText size={16} className="text-primary shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-foreground truncate">{doc.title}</p>
+                    <p className="text-[10px] text-muted-foreground">{doc.document_type} · {doc.created_date?.split("T")[0]}</p>
+                  </div>
+                  <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/70">
+                    <Download size={15} />
+                  </a>
+                  <button onClick={() => deleteDoc(doc.id)} className="text-muted-foreground hover:text-destructive">
+                    <Trash2 size={15} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* Progress Notes */}
       <div className="bg-card border border-border rounded-3xl overflow-hidden">
         <div className="p-6 border-b border-border bg-secondary/50 flex items-center gap-2">
@@ -140,7 +262,13 @@ export default function ParticipantDetail({ participant, onBack }) {
             </div>
           ))}
           <div className="flex gap-3 pt-2">
-            <Input value={newNote} onChange={(e) => setNewNote(e.target.value)} placeholder="Add a progress note..." className="rounded-xl" onKeyDown={(e) => e.key === "Enter" && addNote()} />
+            <input
+              value={newNote}
+              onChange={(e) => setNewNote(e.target.value)}
+              placeholder="Add a progress note..."
+              className="flex-1 flex h-9 w-full rounded-xl border border-input bg-transparent px-3 py-1 text-sm"
+              onKeyDown={(e) => e.key === "Enter" && addNote()}
+            />
             <Button onClick={addNote} className="rounded-xl font-bold px-6">Save</Button>
           </div>
         </div>
