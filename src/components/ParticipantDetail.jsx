@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
 import { ArrowLeft, FileText, AlertTriangle, Edit, Phone, Mail, MapPin, User, Shield, Heart, ClipboardList, Upload, Camera, Paperclip, Trash2, Download, Loader2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -33,6 +34,7 @@ export default function ParticipantDetail({ participant, onBack }) {
   const [p, setP] = useState(participant);
   const [newNote, setNewNote] = useState("");
   const [showEdit, setShowEdit] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [documents, setDocuments] = useState([]);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [uploadingDoc, setUploadingDoc] = useState(false);
@@ -76,6 +78,12 @@ export default function ParticipantDetail({ participant, onBack }) {
   const deleteDoc = async (id) => {
     await base44.entities.Document.delete(id);
     setDocuments(documents.filter(d => d.id !== id));
+  };
+
+  const handleDeleteParticipant = async () => {
+    setDeleting(true);
+    await base44.entities.Participant.delete(p.id);
+    onBack();
   };
 
   const addNote = async () => {
@@ -122,9 +130,30 @@ export default function ParticipantDetail({ participant, onBack }) {
               }`}>{p.status}</span>
             </div>
           </div>
-          <Button variant="outline" className="rounded-xl gap-2" onClick={() => setShowEdit(true)}>
-            <Edit size={16} /> Edit
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" className="rounded-xl gap-2" onClick={() => setShowEdit(true)}>
+              <Edit size={16} /> Edit
+            </Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline" className="rounded-xl gap-2 text-destructive border-destructive/30 hover:bg-destructive/10">
+                  <Trash2 size={16} /> Delete
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Participant?</AlertDialogTitle>
+                  <AlertDialogDescription>This will permanently delete <strong>{p.name}</strong> and cannot be undone.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteParticipant} className="bg-destructive hover:bg-destructive/90" disabled={deleting}>
+                    {deleting ? "Deleting..." : "Delete"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </div>
         </div>
 
         {/* Contact Info */}

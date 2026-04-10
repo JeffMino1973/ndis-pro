@@ -87,8 +87,14 @@ export default function Participants() {
             >
               {/* Profile Header */}
               <div className="flex justify-between items-start mb-4">
-                <div className="w-14 h-14 bg-primary/10 text-primary rounded-2xl flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all font-black text-xl">
-                  {p.name?.charAt(0) || <User size={22} />}
+                <div className="w-14 h-14 rounded-2xl overflow-hidden shrink-0">
+                  {p.photo_url ? (
+                    <img src={p.photo_url} alt={p.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-all font-black text-xl">
+                      {p.name?.charAt(0) || <User size={22} />}
+                    </div>
+                  )}
                 </div>
                 <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider ${
                   p.status === "Active" ? "bg-emerald-100 text-emerald-700" :
