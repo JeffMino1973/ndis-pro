@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Calendar, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +22,7 @@ export default function Rostering() {
   const [participants, setParticipants] = useState([]);
   const [staff, setStaff] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ participant_name: "", staff_name: "", date: "", start_time: "09:00", end_time: "11:00", support_type: "", status: "Scheduled", notes: "" });
 
   const load = async () => {
@@ -39,10 +40,26 @@ export default function Rostering() {
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
+  const EMPTY_FORM = { participant_name: "", staff_name: "", date: "", start_time: "09:00", end_time: "11:00", support_type: "", status: "Scheduled", notes: "" };
+
+  const openAdd = () => { setEditingId(null); setForm(EMPTY_FORM); setShowForm(true); };
+  const openEdit = (s) => { setEditingId(s.id); setForm({ participant_name: s.participant_name, staff_name: s.staff_name, date: s.date, start_time: s.start_time, end_time: s.end_time, support_type: s.support_type || "", status: s.status, notes: s.notes || "" }); setShowForm(true); };
+
   const save = async () => {
-    await base44.entities.Shift.create(form);
+    if (editingId) {
+      await base44.entities.Shift.update(editingId, form);
+    } else {
+      await base44.entities.Shift.create(form);
+    }
     setShowForm(false);
-    setForm({ participant_name: "", staff_name: "", date: "", start_time: "09:00", end_time: "11:00", support_type: "", status: "Scheduled", notes: "" });
+    setEditingId(null);
+    setForm(EMPTY_FORM);
+    load();
+  };
+
+  const deleteShift = async (id) => {
+    if (!window.confirm("Delete this shift?")) return;
+    await base44.entities.Shift.delete(id);
     load();
   };
 
@@ -59,7 +76,7 @@ export default function Rostering() {
           <h2 className="text-3xl font-black tracking-tight">Rostering</h2>
           <p className="text-muted-foreground text-sm">Weekly shift scheduling for staff and participants.</p>
         </div>
-        <Button onClick={() => setShowForm(true)} className="rounded-xl font-bold gap-2">
+        <Button onClick={openAdd} className="rounded-xl font-bold gap-2">
           <Plus size={18} /> Add Shift
         </Button>
       </div>
@@ -87,10 +104,14 @@ export default function Rostering() {
               <p className={`text-lg font-black mb-3 ${isToday ? "text-primary" : "text-foreground"}`}>{format(day, "d")}</p>
               <div className="space-y-1.5">
                 {dayShifts.map((s) => (
-                  <div key={s.id} className={`text-[10px] font-bold px-2 py-1.5 rounded-lg ${STATUS_COLORS[s.status] || "bg-slate-100 text-slate-600"}`}>
+                  <div key={s.id} className={`text-[10px] font-bold px-2 py-1.5 rounded-lg group relative ${STATUS_COLORS[s.status] || "bg-slate-100 text-slate-600"}`}>
                     <p className="truncate">{s.staff_name}</p>
                     <p className="truncate opacity-75">{s.participant_name}</p>
                     <p>{s.start_time}–{s.end_time}</p>
+                    <div className="absolute top-1 right-1 hidden group-hover:flex gap-0.5">
+                      <button onClick={e => { e.stopPropagation(); openEdit(s); }} className="p-0.5 bg-white/70 rounded hover:bg-white"><Pencil size={10} /></button>
+                      <button onClick={e => { e.stopPropagation(); deleteShift(s.id); }} className="p-0.5 bg-white/70 rounded hover:bg-white text-rose-600"><Trash2 size={10} /></button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -114,7 +135,11 @@ export default function Rostering() {
                   <p className="text-[10px] text-muted-foreground">{s.date} · {s.start_time}–{s.end_time} · {s.support_type}</p>
                 </div>
               </div>
-              <span className={`text-[10px] font-black px-3 py-1 rounded-full ${STATUS_COLORS[s.status]}`}>{s.status}</span>
+              <div className="flex items-center gap-2">
+                <span className={`text-[10px] font-black px-3 py-1 rounded-full ${STATUS_COLORS[s.status]}`}>{s.status}</span>
+                <button onClick={() => openEdit(s)} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground"><Pencil size={14} /></button>
+                <button onClick={() => deleteShift(s.id)} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-rose-600"><Trash2 size={14} /></button>
+              </div>
             </div>
           ))}
           {shifts.length === 0 && <p className="p-8 text-center text-muted-foreground text-sm italic">No shifts yet. Add your first shift.</p>}
@@ -123,7 +148,7 @@ export default function Rostering() {
 
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="max-w-lg">
-          <DialogHeader><DialogTitle>New Shift</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editingId ? "Edit Shift" : "New Shift"}</DialogTitle></DialogHeader>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
