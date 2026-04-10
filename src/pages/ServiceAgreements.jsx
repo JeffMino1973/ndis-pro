@@ -149,19 +149,24 @@ export default function ServiceAgreements() {
               <div className="space-y-3">
                 {form.services.map((s, i) => (
                   <div key={i} className="p-4 bg-secondary rounded-2xl space-y-3">
-                    <div className="flex justify-between items-start gap-2">
-                      <div className="flex-1">
-                        <Label className="text-[10px]">NDIS Item Code & Name</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <Label className="text-[10px]">Support Item Code & Name</Label>
                         <NDISItemSelect
                           value={s.ndis_code}
                           onSelect={(n) => { updateService(i, "ndis_code", n.code); }}
                         />
                       </div>
-                      {form.services.length > 1 && (
-                        <button onClick={() => removeService(i)} className="text-muted-foreground hover:text-destructive mt-5"><Trash2 size={15} /></button>
-                      )}
+                      <div className="flex gap-2 items-end">
+                        <div className="flex-1">
+                          <Label className="text-[10px]">Description</Label>
+                          <Input value={s.description} onChange={(e) => updateService(i, "description", e.target.value)} className="h-9 text-sm" placeholder="Support description..." />
+                        </div>
+                        {form.services.length > 1 && (
+                          <button onClick={() => removeService(i)} className="text-muted-foreground hover:text-destructive pb-1"><Trash2 size={15} /></button>
+                        )}
+                      </div>
                     </div>
-                    {s.description && <p className="text-xs text-muted-foreground italic">{s.description}</p>}
                     <div className="grid grid-cols-3 gap-3">
                       <div>
                         <Label className="text-[10px]">Hours</Label>
