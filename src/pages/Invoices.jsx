@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Printer, Trash2, FileText } from "lucide-react";
+import { Plus, Printer, Trash2, FileText, Pencil } from "lucide-react";
 import { NDIS_ITEMS } from "@/utils/ndisItems";
 import NDISItemSelect from "@/components/NDISItemSelect";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,7 @@ export default function Invoices() {
   const [config, setConfig] = useState({});
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [preview, setPreview] = useState(null);
   const [form, setForm] = useState({
     invoice_number: generateInvoiceNumber(),
@@ -85,10 +86,29 @@ export default function Invoices() {
   const gst = 0; // NDIS supports are GST-free
   const total = subtotal + gst;
 
+  const EMPTY_FORM = { invoice_number: generateInvoiceNumber(), participant_name: "", issue_date: new Date().toISOString().split("T")[0], due_date: "", status: "Draft", notes: "", line_items: [{ description: "", support_item_code: "", hours: 1, rate: 68.12, amount: 68.12 }] };
+
+  const openEdit = (inv) => {
+    setEditingId(inv.id);
+    setForm({ invoice_number: inv.invoice_number, participant_name: inv.participant_name, issue_date: inv.issue_date, due_date: inv.due_date || "", status: inv.status, notes: inv.notes || "", line_items: inv.line_items || [] });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this invoice?")) return;
+    await base44.entities.Invoice.delete(id);
+    load();
+  };
+
   const handleSave = async (status = "Draft") => {
-    await base44.entities.Invoice.create({ ...form, status, subtotal, gst, total });
+    if (editingId) {
+      await base44.entities.Invoice.update(editingId, { ...form, status, subtotal, gst, total });
+    } else {
+      await base44.entities.Invoice.create({ ...form, status, subtotal, gst, total });
+    }
     setShowForm(false);
-    setForm({ invoice_number: generateInvoiceNumber(), participant_name: "", issue_date: new Date().toISOString().split("T")[0], due_date: "", status: "Draft", notes: "", line_items: [{ description: "", support_item_code: "", hours: 1, rate: 68.12, amount: 68.12 }] });
+    setEditingId(null);
+    setForm(EMPTY_FORM);
     load();
   };
 
@@ -167,9 +187,11 @@ export default function Invoices() {
                     </Select>
                   </td>
                   <td className="px-6 py-4 text-right">
-                    <Button variant="ghost" size="sm" onClick={() => setPreview(inv)} className="rounded-lg gap-1">
-                      <Printer size={14} /> Print
-                    </Button>
+                    <div className="flex items-center justify-end gap-1">
+                      <Button variant="ghost" size="sm" onClick={() => setPreview(inv)} className="rounded-lg gap-1"><Printer size={14} /> Print</Button>
+                      <Button variant="ghost" size="sm" onClick={() => openEdit(inv)} className="rounded-lg gap-1"><Pencil size={14} /> Edit</Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(inv.id)} className="rounded-lg gap-1 text-destructive hover:text-destructive"><Trash2 size={14} /> Delete</Button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -179,9 +201,9 @@ export default function Invoices() {
       )}
 
       {/* Create Invoice Dialog */}
-      <Dialog open={showForm} onOpenChange={setShowForm}>
+      <Dialog open={showForm} onOpenChange={(open) => { setShowForm(open); if (!open) setEditingId(null); }}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>New Invoice</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editingId ? "Edit Invoice" : "New Invoice"}</DialogTitle></DialogHeader>
           <div className="space-y-5">
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <div>
