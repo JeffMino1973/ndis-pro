@@ -89,7 +89,7 @@ export default function ServiceAgreements() {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-3xl font-black tracking-tight">Service Agreements</h2>
-          <p className="text-muted-foreground text-sm">NDIS Practice Standard compliant contracts.</p>
+          <p className="text-muted-foreground text-sm">Practice Standard compliant contracts.</p>
         </div>
         <Button onClick={() => setShowForm(true)} className="rounded-xl font-bold gap-2">
           <Plus size={18} /> New Agreement
@@ -143,7 +143,7 @@ export default function ServiceAgreements() {
 
             <div>
               <div className="flex justify-between items-center mb-3">
-                <Label className="text-sm font-bold">NDIS Support Items</Label>
+                <Label className="text-sm font-bold">Support Items</Label>
                 <Button variant="outline" size="sm" onClick={addService} className="rounded-lg gap-1"><Plus size={13} /> Add Item</Button>
               </div>
               <div className="space-y-3">
@@ -212,7 +212,7 @@ function AgreementPreview({ agreement, onBack }) {
         {/* Header */}
         <div className="flex justify-between items-start mb-8 pb-6 border-b border-slate-200">
           <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">NDIS Service Agreement</h1>
+            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Service Agreement</h1>
             <p className="text-slate-500 text-sm mt-1">Individualized Support Plan</p>
           </div>
           <div className="text-right">
@@ -256,7 +256,7 @@ function AgreementPreview({ agreement, onBack }) {
             <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">2</span>
             Schedule of Supports &amp; Costing
           </h2>
-          <p className="text-xs text-slate-400 mb-3">Costs are based on the NDIS Pricing Arrangements and Price Limits 2025-2026 (National/Standard rates).</p>
+          <p className="text-xs text-slate-400 mb-3">Costs are based on the Pricing Arrangements and Price Limits 2025-2026 (National/Standard rates).</p>
           <table className="w-full text-left text-sm border border-slate-200 rounded-xl overflow-hidden">
             <thead className="bg-slate-50">
               <tr className="text-[10px] font-black text-slate-400 uppercase">
