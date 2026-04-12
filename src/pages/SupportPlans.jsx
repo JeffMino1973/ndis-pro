@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Target, Plus, Trash2, Printer, Save, FolderOpen } from "lucide-react";
+import { Target, Plus, Trash2, Printer, Save, FolderOpen, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -24,6 +24,7 @@ export default function SupportPlans() {
   const [savedPlans, setSavedPlans] = useState([]);
   const [saving, setSaving] = useState(false);
   const [planTitle, setPlanTitle] = useState("");
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -63,6 +64,15 @@ export default function SupportPlans() {
     const plans = await base44.entities.SupportPlan.list("-created_date");
     setSavedPlans(plans);
     setSaving(false);
+  };
+
+  const deletePlan = async (planId, planTitle) => {
+    if (!window.confirm(`Delete "${planTitle}"?`)) return;
+    setDeleting(true);
+    await base44.entities.SupportPlan.delete(planId);
+    const plans = await base44.entities.SupportPlan.list("-created_date");
+    setSavedPlans(plans);
+    setDeleting(false);
   };
 
   const loadPlan = (plan) => {
@@ -227,11 +237,16 @@ export default function SupportPlans() {
               <h4 className="font-black mb-4 flex items-center gap-2"><FolderOpen size={16} className="text-primary" /> Saved Plans</h4>
               <div className="space-y-2">
                 {savedPlans.slice(0, 8).map(plan => (
-                  <div key={plan.id} onClick={() => loadPlan(plan)} className="p-3 bg-secondary rounded-xl cursor-pointer hover:bg-primary/5 transition-colors">
-                    <p className="text-xs font-bold text-foreground truncate">{plan.title}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{plan.participant_name} · {plan.date_created}</p>
-                  </div>
-                ))}
+                        <div key={plan.id} className="p-3 bg-secondary rounded-xl flex items-center justify-between group hover:bg-primary/5 transition-colors">
+                          <div onClick={() => loadPlan(plan)} className="cursor-pointer flex-1 min-w-0">
+                            <p className="text-xs font-bold text-foreground truncate">{plan.title}</p>
+                            <p className="text-[10px] text-muted-foreground mt-0.5">{plan.participant_name} · {plan.date_created}</p>
+                          </div>
+                          <button onClick={() => deletePlan(plan.id, plan.title)} disabled={deleting} className="text-muted-foreground hover:text-destructive shrink-0 ml-2 p-1 opacity-0 group-hover:opacity-100 transition-all">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
               </div>
             </div>
           )}
