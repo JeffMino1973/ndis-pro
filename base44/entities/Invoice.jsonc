@@ -14,6 +14,18 @@
       "type": "string",
       "title": "Participant ID"
     },
+    "participant_ndis_number": {
+      "type": "string",
+      "title": "Participant NDIS Number"
+    },
+    "plan_manager_name": {
+      "type": "string",
+      "title": "Plan Manager Name"
+    },
+    "plan_manager_email": {
+      "type": "string",
+      "title": "Plan Manager Email"
+    },
     "issue_date": {
       "type": "string",
       "title": "Issue Date",
@@ -41,6 +53,9 @@
       "items": {
         "type": "object",
         "properties": {
+          "date": {
+            "type": "string"
+          },
           "description": {
             "type": "string"
           },

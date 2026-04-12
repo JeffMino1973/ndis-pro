@@ -21,6 +21,8 @@ function generateInvoiceNumber() {
   return "INV-" + String(1000 + Math.floor(Math.random() * 9000));
 }
 
+const EMPTY_LINE = { date: new Date().toISOString().split("T")[0], description: "", support_item_code: "", hours: 2, rate: 70.23, amount: 140.46 };
+
 export default function Invoices() {
   const [invoices, setInvoices] = useState([]);
   const [participants, setParticipants] = useState([]);
@@ -32,11 +34,14 @@ export default function Invoices() {
   const [form, setForm] = useState({
     invoice_number: generateInvoiceNumber(),
     participant_name: "",
+    participant_ndis_number: "",
+    plan_manager_name: "",
+    plan_manager_email: "",
     issue_date: new Date().toISOString().split("T")[0],
     due_date: "",
     status: "Draft",
     notes: "",
-    line_items: [{ description: "", support_item_code: "", hours: 1, rate: 68.12, amount: 68.12 }],
+    line_items: [{ ...EMPTY_LINE }],
   });
 
   const load = async () => {
@@ -74,7 +79,7 @@ export default function Invoices() {
   const addLine = () => {
     setForm((prev) => ({
       ...prev,
-      line_items: [...prev.line_items, { description: "", support_item_code: "", hours: 1, rate: 68.12, amount: 68.12 }],
+      line_items: [...prev.line_items, { ...EMPTY_LINE }],
     }));
   };
 
@@ -86,11 +91,11 @@ export default function Invoices() {
   const gst = 0; // NDIS supports are GST-free
   const total = subtotal + gst;
 
-  const EMPTY_FORM = { invoice_number: generateInvoiceNumber(), participant_name: "", issue_date: new Date().toISOString().split("T")[0], due_date: "", status: "Draft", notes: "", line_items: [{ description: "", support_item_code: "", hours: 1, rate: 68.12, amount: 68.12 }] };
+  const EMPTY_FORM = { invoice_number: generateInvoiceNumber(), participant_name: "", participant_ndis_number: "", plan_manager_name: "", plan_manager_email: "", issue_date: new Date().toISOString().split("T")[0], due_date: "", status: "Draft", notes: "", line_items: [{ ...EMPTY_LINE }] };
 
   const openEdit = (inv) => {
     setEditingId(inv.id);
-    setForm({ invoice_number: inv.invoice_number, participant_name: inv.participant_name, issue_date: inv.issue_date, due_date: inv.due_date || "", status: inv.status, notes: inv.notes || "", line_items: inv.line_items || [] });
+    setForm({ invoice_number: inv.invoice_number, participant_name: inv.participant_name, participant_ndis_number: inv.participant_ndis_number || "", plan_manager_name: inv.plan_manager_name || "", plan_manager_email: inv.plan_manager_email || "", issue_date: inv.issue_date, due_date: inv.due_date || "", status: inv.status, notes: inv.notes || "", line_items: inv.line_items || [] });
     setShowForm(true);
   };
 
@@ -212,7 +217,10 @@ export default function Invoices() {
               </div>
               <div>
                 <Label>Participant</Label>
-                <Select value={form.participant_name} onValueChange={(v) => setForm({ ...form, participant_name: v })}>
+                <Select value={form.participant_name} onValueChange={(v) => {
+                  const p = participants.find(x => x.name === v);
+                  setForm({ ...form, participant_name: v, participant_ndis_number: p?.ndis_number || form.participant_ndis_number });
+                }}>
                   <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                   <SelectContent>
                     {participants.map((p) => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
@@ -220,8 +228,20 @@ export default function Invoices() {
                 </Select>
               </div>
               <div>
+                <Label>NDIS Number</Label>
+                <Input value={form.participant_ndis_number} onChange={(e) => setForm({ ...form, participant_ndis_number: e.target.value })} placeholder="e.g. 430117666" />
+              </div>
+              <div>
                 <Label>Issue Date</Label>
                 <Input type="date" value={form.issue_date} onChange={(e) => setForm({ ...form, issue_date: e.target.value })} />
+              </div>
+              <div>
+                <Label>Plan Manager Name</Label>
+                <Input value={form.plan_manager_name} onChange={(e) => setForm({ ...form, plan_manager_name: e.target.value })} placeholder="e.g. Plan Hero Plan Management" />
+              </div>
+              <div>
+                <Label>Plan Manager Email</Label>
+                <Input value={form.plan_manager_email} onChange={(e) => setForm({ ...form, plan_manager_email: e.target.value })} placeholder="invoices@planmanagement.com.au" />
               </div>
             </div>
 
@@ -236,29 +256,33 @@ export default function Invoices() {
                   <div key={i} className="p-4 bg-secondary rounded-2xl space-y-3">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
+                        <Label className="text-[10px]">Date of Service</Label>
+                        <Input type="date" value={line.date || ""} onChange={(e) => updateLine(i, "date", e.target.value)} className="h-9 text-sm" />
+                      </div>
+                      <div>
                         <Label className="text-[10px]">NDIS Support Item</Label>
                         <NDISItemSelect
                           value={line.support_item_code}
                           onSelect={(n) => updateLine(i, "support_item_code", n.code)}
                         />
                       </div>
-                      <div>
+                      <div className="md:col-span-2">
                         <Label className="text-[10px]">Description</Label>
                         <Input value={line.description} onChange={(e) => updateLine(i, "description", e.target.value)} className="h-9 text-sm" />
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-3 items-end">
                       <div>
-                        <Label className="text-[10px]">Hours</Label>
+                        <Label className="text-[10px]">Qty / Hours</Label>
                         <Input type="number" value={line.hours} onChange={(e) => updateLine(i, "hours", parseFloat(e.target.value))} className="h-9 text-sm" />
                       </div>
                       <div>
-                        <Label className="text-[10px]">Rate ($/hr)</Label>
+                        <Label className="text-[10px]">Unit Price ($/hr)</Label>
                         <Input type="number" value={line.rate} onChange={(e) => updateLine(i, "rate", parseFloat(e.target.value))} className="h-9 text-sm" />
                       </div>
                       <div className="flex items-end gap-2">
                         <div className="flex-1">
-                          <Label className="text-[10px]">Amount</Label>
+                          <Label className="text-[10px]">Line Total</Label>
                           <p className="font-black text-foreground h-9 flex items-center">${(line.amount || 0).toFixed(2)}</p>
                         </div>
                         {form.line_items.length > 1 && (
@@ -295,8 +319,25 @@ export default function Invoices() {
 }
 
 function InvoicePrint({ invoice, config, onBack }) {
+  // Format date as DD/MM/YY
+  const fmtDate = (d) => {
+    if (!d) return "";
+    const parts = d.split("-");
+    if (parts.length !== 3) return d;
+    return `${parts[2]}/${parts[1]}/${parts[0].slice(2)}`;
+  };
+
   return (
     <div className="space-y-4">
+      <style>{`
+        @media print {
+          @page { size: A4; margin: 15mm; }
+          body * { visibility: hidden; }
+          #inv-print, #inv-print * { visibility: visible; }
+          #inv-print { position: absolute; left: 0; top: 0; width: 100%; }
+          .no-print { display: none !important; }
+        }
+      `}</style>
       <div className="flex justify-between items-center no-print">
         <button onClick={onBack} className="text-primary font-bold text-sm hover:underline">← Back to Invoices</button>
         <Button variant="outline" onClick={() => window.print()} className="rounded-xl gap-2">
@@ -304,98 +345,101 @@ function InvoicePrint({ invoice, config, onBack }) {
         </Button>
       </div>
 
-      <div className="bg-white border border-border rounded-3xl p-8 lg:p-14 max-w-3xl mx-auto">
-        <div className="flex justify-between items-start mb-12">
+      <div id="inv-print" className="bg-white p-10 max-w-3xl mx-auto text-sm text-slate-800" style={{ fontFamily: 'Arial, sans-serif' }}>
+        {/* Header: provider left, invoice # right */}
+        <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-1">TAX INVOICE</h1>
-            <p className="text-sm text-slate-500">NDIS Support Services · GST-free</p>
+            <p className="text-xl font-black" style={{ color: '#c0392b' }}>{config.businessName || 'Provider Name'}</p>
+            <div className="mt-2 space-y-0.5 text-sm text-slate-700">
+              {config.abn && <p>ABN: {config.abn}</p>}
+              {config.address && <p>{config.address}</p>}
+              {config.email && <p className="text-blue-600 underline">{config.email}</p>}
+              {config.phone && <p>{config.phone}</p>}
+            </div>
           </div>
           <div className="text-right">
-            <p className="text-xl font-black text-slate-900">{config.businessName || "NDIS PRO"}</p>
-            {config.abn && <p className="text-sm text-slate-500">ABN: {config.abn}</p>}
-            {config.address && <p className="text-xs text-slate-400">{config.address}</p>}
-            {config.email && <p className="text-xs text-slate-400">{config.email}</p>}
+            <p className="text-base font-bold"><span className="font-black">INVOICE #</span> {invoice.invoice_number}</p>
+            <p className="text-base mt-1"><span className="font-bold">Date:</span> {fmtDate(invoice.issue_date)}</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-8 mb-10">
-          <div className="p-5 bg-slate-50 rounded-2xl">
-            <p className="text-[9px] font-black text-slate-400 uppercase mb-2">Bill To</p>
-            <p className="font-black text-slate-900">{invoice.participant_name}</p>
-            <p className="text-sm text-slate-500">NDIS Participant</p>
-          </div>
-          <div className="p-5 bg-slate-50 rounded-2xl space-y-1">
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-400 font-bold">Invoice #</span>
-              <span className="font-black text-slate-900">{invoice.invoice_number}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-400 font-bold">Issue Date</span>
-              <span className="font-bold text-slate-700">{invoice.issue_date}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-400 font-bold">Status</span>
-              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${statusColor[invoice.status]}`}>{invoice.status}</span>
-            </div>
-          </div>
+        {/* To: Plan Manager */}
+        <div className="mb-6">
+          <p className="font-black mb-1">To:</p>
+          <p>{invoice.plan_manager_name || '—'}</p>
+          {invoice.plan_manager_email && <p className="text-blue-600 underline">{invoice.plan_manager_email}</p>}
         </div>
 
-        <table className="w-full text-left text-sm mb-8">
-          <thead className="bg-slate-50">
-            <tr className="text-[9px] font-black text-slate-400 uppercase">
-              <th className="px-4 py-3">Support Item</th>
-              <th className="px-4 py-3 text-right">Hours</th>
-              <th className="px-4 py-3 text-right">Rate</th>
-              <th className="px-4 py-3 text-right">Amount</th>
+        {/* Customer / NDIS */}
+        <div className="mb-6">
+          <p><span className="font-bold">Customer:</span> {invoice.participant_name}</p>
+          {invoice.participant_ndis_number && <p><span className="font-bold">NDIS:</span> {invoice.participant_ndis_number}</p>}
+        </div>
+
+        {/* Line items table */}
+        <table className="w-full text-left text-sm mb-6" style={{ borderCollapse: 'collapse' }}>
+          <thead>
+            <tr style={{ backgroundColor: '#c0392b', color: 'white' }}>
+              <th className="px-3 py-2 font-bold">Date</th>
+              <th className="px-3 py-2 font-bold">Item Number</th>
+              <th className="px-3 py-2 font-bold">Description</th>
+              <th className="px-3 py-2 font-bold text-right">Unit price</th>
+              <th className="px-3 py-2 font-bold text-center">Qty</th>
+              <th className="px-3 py-2 font-bold text-right">Line total</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody>
             {(invoice.line_items || []).map((line, i) => (
-              <tr key={i}>
-                <td className="px-4 py-4">
-                  <p className="font-semibold text-slate-800">{line.description}</p>
-                  {line.support_item_code && <p className="text-[10px] text-slate-400">{line.support_item_code}</p>}
-                </td>
-                <td className="px-4 py-4 text-right text-slate-600">{line.hours}</td>
-                <td className="px-4 py-4 text-right text-slate-600">${line.rate?.toFixed(2)}</td>
-                <td className="px-4 py-4 text-right font-black text-slate-900">${(line.amount || 0).toFixed(2)}</td>
+              <tr key={i} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                <td className="px-3 py-2 whitespace-nowrap">{fmtDate(line.date)}</td>
+                <td className="px-3 py-2 whitespace-nowrap font-mono text-xs">{line.support_item_code || '—'}</td>
+                <td className="px-3 py-2">{line.description}</td>
+                <td className="px-3 py-2 text-right">${(line.rate || 0).toFixed(2)}</td>
+                <td className="px-3 py-2 text-center">{line.hours}</td>
+                <td className="px-3 py-2 text-right font-bold">${(line.amount || 0).toFixed(2)}</td>
+              </tr>
+            ))}
+            {/* Empty filler rows like the PDF */}
+            {Array.from({ length: Math.max(0, 6 - (invoice.line_items || []).length) }).map((_, i) => (
+              <tr key={`empty-${i}`} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                <td className="px-3 py-3" colSpan={6}>&nbsp;</td>
               </tr>
             ))}
           </tbody>
+          <tfoot>
+            <tr style={{ backgroundColor: '#fdf2f2' }}>
+              <td colSpan={4} />
+              <td className="px-3 py-2 font-black text-right" style={{ color: '#c0392b' }}>Subtotal</td>
+              <td className="px-3 py-2 text-right font-bold">${(invoice.subtotal || 0).toFixed(2)}</td>
+            </tr>
+            <tr>
+              <td colSpan={4} />
+              <td className="px-3 py-2 font-black text-right" style={{ color: '#c0392b' }}>GST</td>
+              <td className="px-3 py-2 text-right">0.00</td>
+            </tr>
+            <tr style={{ backgroundColor: '#fdf2f2' }}>
+              <td colSpan={4} />
+              <td className="px-3 py-2 font-black text-right" style={{ color: '#c0392b' }}>Total</td>
+              <td className="px-3 py-2 text-right font-black">${(invoice.total || 0).toFixed(2)}</td>
+            </tr>
+          </tfoot>
         </table>
 
-        <div className="flex justify-end">
-          <div className="w-64 space-y-2">
-            <div className="flex justify-between text-sm"><span className="text-slate-500">Subtotal</span><span className="font-bold">${(invoice.subtotal || 0).toFixed(2)}</span></div>
-            <div className="flex justify-between text-sm"><span className="text-slate-500">GST (0%)</span><span className="font-bold text-emerald-600">$0.00</span></div>
-            <div className="flex justify-between text-lg border-t border-slate-200 pt-2 font-black">
-              <span>Total</span>
-              <span className="text-blue-600">${(invoice.total || 0).toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Bank Account Details */}
-        <div className="mt-8 p-6 bg-slate-50 rounded-xl border border-slate-200">
-          <p className="text-xs font-black text-slate-400 uppercase mb-3 tracking-widest">Payment Details</p>
-          <div className="grid grid-cols-2 gap-6 text-sm">
-            {config.bankName && <div><p className="text-[10px] text-slate-400 font-bold uppercase">Bank</p><p className="font-semibold text-slate-800">{config.bankName}</p></div>}
-            {config.accountName && <div><p className="text-[10px] text-slate-400 font-bold uppercase">Account Name</p><p className="font-semibold text-slate-800">{config.accountName}</p></div>}
-            {config.bsb && <div><p className="text-[10px] text-slate-400 font-bold uppercase">BSB</p><p className="font-mono font-bold text-slate-800">{config.bsb}</p></div>}
-            {config.accountNumber && <div><p className="text-[10px] text-slate-400 font-bold uppercase">Account Number</p><p className="font-mono font-bold text-slate-800">{config.accountNumber}</p></div>}
-          </div>
+        {/* Payment details */}
+        <div className="text-sm text-slate-700 mt-4">
+          <p className="font-bold mb-1">Please make payment to:</p>
+          {config.bankName && <p>{config.bankName}</p>}
+          {config.accountName && <p>Account Name {config.accountName}</p>}
+          {config.bsb && <p>BSB : {config.bsb}</p>}
+          {config.accountNumber && <p>Account :{config.accountNumber}</p>}
         </div>
 
         {invoice.notes && (
-          <div className="mt-6 p-4 bg-slate-50 rounded-xl">
-            <p className="text-xs font-bold text-slate-500 uppercase mb-1">Notes</p>
-            <p className="text-sm text-slate-600">{invoice.notes}</p>
+          <div className="mt-6 text-xs text-slate-500">
+            <p className="font-bold">Notes:</p>
+            <p>{invoice.notes}</p>
           </div>
         )}
-
-        <div className="mt-10 pt-6 border-t border-slate-100 text-center text-xs text-slate-400">
-          NDIS supports are GST-free under Section 38-38 of the A New Tax System (Goods and Services Tax) Act 1999
-        </div>
       </div>
     </div>
   );
