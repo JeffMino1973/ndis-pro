@@ -10,13 +10,67 @@
       "type": "string",
       "title": "Participant Name"
     },
+    "participant_dob": {
+      "type": "string",
+      "title": "Date of Birth"
+    },
+    "ndis_number": {
+      "type": "string",
+      "title": "NDIS Number"
+    },
+    "home_address": {
+      "type": "string",
+      "title": "Home Address"
+    },
+    "destination": {
+      "type": "string",
+      "title": "Workplace / Destination"
+    },
     "assessor_name": {
       "type": "string",
       "title": "Assessor Name"
     },
+    "assessor_role": {
+      "type": "string",
+      "title": "Assessor Role"
+    },
     "activity_description": {
       "type": "string",
       "title": "Activity / Scope"
+    },
+    "assessment_date": {
+      "type": "string",
+      "title": "Assessment Date",
+      "format": "date"
+    },
+    "review_date": {
+      "type": "string",
+      "title": "Review Date",
+      "format": "date"
+    },
+    "emergency_contact_1_name": {
+      "type": "string",
+      "title": "Emergency Contact 1 Name"
+    },
+    "emergency_contact_1_phone": {
+      "type": "string",
+      "title": "Emergency Contact 1 Phone"
+    },
+    "emergency_contact_1_rel": {
+      "type": "string",
+      "title": "Emergency Contact 1 Relationship"
+    },
+    "emergency_contact_2_name": {
+      "type": "string",
+      "title": "Emergency Contact 2 Name"
+    },
+    "emergency_contact_2_phone": {
+      "type": "string",
+      "title": "Emergency Contact 2 Phone"
+    },
+    "emergency_contact_2_rel": {
+      "type": "string",
+      "title": "Emergency Contact 2 Relationship"
     },
     "hazards": {
       "type": "array",
@@ -27,16 +81,28 @@
           "hazard": {
             "type": "string"
           },
-          "likelihood": {
+          "initial_likelihood": {
             "type": "string"
           },
-          "consequence": {
+          "initial_consequence": {
+            "type": "string"
+          },
+          "initial_rating": {
             "type": "string"
           },
           "controls": {
             "type": "string"
           },
-          "residual_risk": {
+          "residual_likelihood": {
+            "type": "string"
+          },
+          "residual_consequence": {
+            "type": "string"
+          },
+          "residual_rating": {
+            "type": "string"
+          },
+          "person_responsible": {
             "type": "string"
           }
         }
