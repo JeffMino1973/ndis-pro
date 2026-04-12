@@ -25,6 +25,7 @@ import {
   BookTemplate,
   Play,
   Zap,
+  Navigation,
 } from "lucide-react";
 
 const NAV_SECTIONS = [
@@ -89,6 +90,7 @@ const NAV_SECTIONS = [
     title: "AI & Intelligence",
     items: [
       { path: "/ai-reports", label: "AI Report Centre", icon: Zap },
+      { path: "/travel-guide", label: "Travel Guide Generator", icon: Navigation },
     ],
   },
   {

@@ -32,6 +32,7 @@ import ShiftLogger from './pages/ShiftLogger';
 import ProgressNotes from './pages/ProgressNotes';
 import RestrictivePractices from './pages/RestrictivePractices';
 import AIReports from './pages/AIReports';
+import TravelGuide from './pages/TravelGuide';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -86,6 +87,7 @@ const AuthenticatedApp = () => {
       <Route path="/progress-notes" element={<ProgressNotes />} />
       <Route path="/restrictive-practices" element={<RestrictivePractices />} />
       <Route path="/ai-reports" element={<AIReports />} />
+      <Route path="/travel-guide" element={<TravelGuide />} />
       <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
