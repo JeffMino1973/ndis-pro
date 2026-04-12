@@ -229,17 +229,38 @@ function AgreementPreview({ agreement, onBack }) {
 
   const total = (agreement.services || []).reduce((a, s) => a + (Number(s.amount) || 0), 0);
 
+  // Resolve rate from stored value or lookup from NDIS_ITEMS
+  const getRate = (s) => {
+    if (s.rate && Number(s.rate) > 0) return Number(s.rate);
+    const code = s.ndis_code || s.support_item_code;
+    if (code) {
+      const found = NDIS_ITEMS.find(n => n.code === code);
+      if (found) return found.rate;
+    }
+    if (s.amount && s.hours && Number(s.hours) > 0) return Number(s.amount) / Number(s.hours);
+    return 0;
+  };
+
   return (
+    <>
+      <style>{`
+        @media print {
+          @page { size: A4; margin: 15mm; }
+          body * { visibility: hidden; }
+          #agreement-print, #agreement-print * { visibility: visible; }
+          #agreement-print { position: absolute; left: 0; top: 0; width: 100%; border: none !important; border-radius: 0 !important; padding: 0 !important; }
+          .no-print { display: none !important; }
+        }
+      `}</style>
     <div className="space-y-4">
       <div className="flex justify-between items-center no-print">
         <button onClick={onBack} className="text-primary font-bold text-sm hover:underline">← Back</button>
         <Button variant="outline" onClick={() => window.print()} className="rounded-xl gap-2">
-          <Printer size={16} /> Save as PDF
+          <Printer size={16} /> Print / Save as PDF (A4)
         </Button>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-8 lg:p-14 max-w-3xl mx-auto text-slate-800 text-sm">
-        {/* Header */}
+      <div id="agreement-print" className="bg-white border border-slate-200 rounded-2xl p-8 lg:p-14 max-w-3xl mx-auto text-slate-800 text-sm">        {/* Header */}
         <div className="flex justify-between items-start mb-8 pb-6 border-b border-slate-200">
           <div>
             <h1 className="text-3xl font-black text-slate-900 tracking-tight">Service Agreement</h1>
@@ -259,7 +280,7 @@ function AgreementPreview({ agreement, onBack }) {
             { label: "Participant Name", value: agreement.participant_name },
             { label: "Agreement Date", value: agreement.start_date || new Date().toLocaleDateString("en-AU") },
             { label: "Provider Name", value: config.businessName || "—" },
-            { label: "NDIS Number", value: "—" },
+            { label: "Agreement Period", value: agreement.end_date ? `${agreement.start_date} → ${agreement.end_date}` : "—" },
           ].map(f => (
             <div key={f.label} className="bg-slate-50 rounded-xl p-4">
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{f.label}</p>
@@ -292,22 +313,23 @@ function AgreementPreview({ agreement, onBack }) {
               <tr className="text-[10px] font-black text-slate-400 uppercase">
                 <th className="px-4 py-3">Item Code</th>
                 <th className="px-4 py-3">Support Description</th>
-                <th className="px-4 py-3 text-right">Rate (per hour)</th>
+                <th className="px-4 py-3 text-right">Rate (per hr)</th>
                 <th className="px-4 py-3 text-right">Hours</th>
                 <th className="px-4 py-3 text-right">Total</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {(agreement.services || []).map((s, i) => {
-                const rate = Number(s.rate) || (s.amount && s.hours ? Number(s.amount) / Number(s.hours) : 0);
+                const rate = getRate(s);
+                const code = s.ndis_code || s.support_item_code || "—";
                 return (
-                <tr key={i}>
-                  <td className="px-4 py-3 font-mono text-xs text-slate-500">{s.ndis_code || s.support_item_code || "—"}</td>
-                  <td className="px-4 py-3 font-semibold text-slate-800">{s.description}</td>
-                  <td className="px-4 py-3 text-right">${rate.toFixed(2)}</td>
-                  <td className="px-4 py-3 text-right">{s.hours || "—"}</td>
-                  <td className="px-4 py-3 text-right font-black">${Number(s.amount || 0).toFixed(2)}</td>
-                </tr>
+                  <tr key={i}>
+                    <td className="px-4 py-3 font-mono text-xs text-slate-500">{code}</td>
+                    <td className="px-4 py-3 font-semibold text-slate-800">{s.description}</td>
+                    <td className="px-4 py-3 text-right">${rate.toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right">{s.hours || "—"}</td>
+                    <td className="px-4 py-3 text-right font-black">${Number(s.amount || 0).toFixed(2)}</td>
+                  </tr>
                 );
               })}
             </tbody>
@@ -363,5 +385,6 @@ function AgreementPreview({ agreement, onBack }) {
         </div>
       </div>
     </div>
+    </>
   );
 }
