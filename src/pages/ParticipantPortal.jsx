@@ -918,36 +918,58 @@ export default function ParticipantPortal() {
                     </div>
                   </div>
 
-                  <div>
+                  <div className="space-y-4">
                     <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Comprehensive Risk Assessment</h2>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
-                        <thead className="bg-slate-700 text-white">
-                          <tr>
-                            <th className="px-3 py-2 text-left">Hazard</th>
-                            <th className="px-2 py-2 text-center">Initial Rating</th>
-                            <th className="px-3 py-2 text-left">Controls</th>
-                            <th className="px-2 py-2 text-center">Residual Rating</th>
-                            <th className="px-2 py-2 text-left">Responsible</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-200">
-                          {(assessment.hazards || []).map((h, i) => {
-                            const initialColor = { Low: "bg-green-100 text-green-800", Medium: "bg-orange-100 text-orange-800", High: "bg-red-100 text-red-800", Extreme: "bg-red-900 text-white" }[h.initial_rating] || "bg-slate-50";
-                            const residualColor = { Low: "bg-green-100 text-green-800", Medium: "bg-orange-100 text-orange-800", High: "bg-red-100 text-red-800", Extreme: "bg-red-900 text-white" }[h.residual_rating] || "bg-slate-50";
-                            return (
-                              <tr key={i} className="bg-slate-50">
-                                <td className="px-3 py-2 font-semibold text-slate-800">{h.hazard}</td>
-                                <td className={`px-2 py-2 text-center text-[9px] font-black ${initialColor}`}>{h.initial_rating}</td>
-                                <td className="px-3 py-2 text-[9px] text-slate-600">{h.controls}</td>
-                                <td className={`px-2 py-2 text-center text-[9px] font-black ${residualColor}`}>{h.residual_rating}</td>
-                                <td className="px-2 py-2 text-[9px]">{h.person_responsible}</td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
-                    </div>
+                    {(assessment.hazards || []).map((h, i) => {
+                      const initialColor = { Low: "bg-green-100 text-green-800", Medium: "bg-orange-100 text-orange-800", High: "bg-red-100 text-red-800", Extreme: "bg-red-900 text-white" }[h.initial_rating] || "bg-slate-50";
+                      const residualColor = { Low: "bg-green-100 text-green-800", Medium: "bg-orange-100 text-orange-800", High: "bg-red-100 text-red-800", Extreme: "bg-red-900 text-white" }[h.residual_rating] || "bg-slate-50";
+                      return (
+                        <div key={i} className="border border-slate-200 rounded-xl p-4 bg-white">
+                          <div className="grid grid-cols-2 gap-4 mb-3">
+                            <div>
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Hazard</p>
+                              <p className="text-sm font-semibold text-slate-800">{h.hazard}</p>
+                            </div>
+                            <div>
+                              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Responsible</p>
+                              <p className="text-sm font-semibold text-slate-800">{h.person_responsible}</p>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 mb-3">
+                            <div className="bg-slate-50 rounded p-2">
+                              <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5">Initial Likelihood</p>
+                              <p className="text-xs font-bold text-slate-800">{h.initial_likelihood}</p>
+                            </div>
+                            <div className="bg-slate-50 rounded p-2">
+                              <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5">Initial Consequence</p>
+                              <p className="text-xs font-bold text-slate-800">{h.initial_consequence}</p>
+                            </div>
+                            <div className={`rounded p-2 text-center ${initialColor}`}>
+                              <p className="text-[8px] font-black uppercase mb-0.5">Rating</p>
+                              <p className="text-xs font-black">{h.initial_rating}</p>
+                            </div>
+                          </div>
+                          <div className="mb-3 bg-blue-50 border border-blue-200 rounded p-3">
+                            <p className="text-[9px] font-black text-blue-600 uppercase tracking-widest mb-1">Control Measures</p>
+                            <p className="text-sm text-slate-800 leading-relaxed">{h.controls}</p>
+                          </div>
+                          <div className="grid grid-cols-3 gap-2">
+                            <div className="bg-slate-50 rounded p-2">
+                              <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5">Residual Likelihood</p>
+                              <p className="text-xs font-bold text-slate-800">{h.residual_likelihood}</p>
+                            </div>
+                            <div className="bg-slate-50 rounded p-2">
+                              <p className="text-[8px] font-black text-slate-400 uppercase mb-0.5">Residual Consequence</p>
+                              <p className="text-xs font-bold text-slate-800">{h.residual_consequence}</p>
+                            </div>
+                            <div className={`rounded p-2 text-center ${residualColor}`}>
+                              <p className="text-[8px] font-black uppercase mb-0.5">Rating</p>
+                              <p className="text-xs font-black">{h.residual_rating}</p>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   <div>
