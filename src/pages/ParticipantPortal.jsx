@@ -173,7 +173,6 @@ const TABS = [
   { id: "medications", label: "Medications", icon: Star },
   { id: "epilepsy", label: "Epilepsy Plan", icon: AlertTriangle },
   { id: "pbsp", label: "Behaviour Plan", icon: MessageSquareWarning },
-  { id: "travel_risk", label: "Travel Risk Assessment", icon: Navigation },
   { id: "reports", label: "Session Notes", icon: Navigation },
   { id: "complaint", label: "Lodge Complaint", icon: MessageSquareWarning },
 ];
@@ -978,16 +977,6 @@ export default function ParticipantPortal() {
         )}
 
 
-        {/* TRAVEL RISK ASSESSMENT TAB */}
-        {activeTab === "travel_risk" && (() => {
-          const RaF = ({ label, field, type = "text", placeholder = "" }) => (
-            <div><Label className="text-xs">{label}</Label><Input type={type} value={raForm[field]} onChange={e => raSet(field, e.target.value)} placeholder={placeholder} className="mt-1" /></div>
-          );
-          if (raLoading) return <div className="flex items-center justify-center h-40"><Loader2 className="animate-spin text-primary" size={28} /></div>
-          return (
-            <div className="space-y-4">{raAssessments.map(a => (<div key={a.id} className="bg-white border border-slate-200 rounded-2xl p-6"><div className="flex justify-between items-start mb-4"><div><h3 className="font-black text-slate-900">{a.title || a.activity_description}</h3><p className="text-xs text-slate-500 mt-1">{a.participant_name} · {a.assessment_date}</p></div><span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${a.overall_risk_level === "Low" ? "bg-emerald-100 text-emerald-700" : a.overall_risk_level === "Medium" ? "bg-amber-100 text-amber-700" : "bg-rose-100 text-rose-700"}`}>{a.overall_risk_level} Risk</span></div><div className="space-y-4"><div><p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Hazards</p><div className="space-y-2">{(a.hazards || []).map((h, i) => (<div key={i} className="bg-slate-50 rounded-xl p-3"><p className="text-sm font-bold text-slate-800 mb-1">{h.hazard}</p><div className="flex justify-between text-xs text-slate-500"><span>Initial: {h.initial_rating}</span><span>Residual: {h.residual_rating}</span></div></div>))}</div></div></div></div>))}</div>
-          );
-        })()}
 
         {/* IMPLEMENTATION PROGRAMS TAB */}
         {activeTab === "implementation" && (() => {
