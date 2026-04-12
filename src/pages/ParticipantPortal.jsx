@@ -732,41 +732,55 @@ export default function ParticipantPortal() {
                     ))}
                   </div>
                   <div className="p-6 space-y-6">
-                    <div>
-                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-4">Hazard Assessment</h2>
-                      <div className="space-y-3">
-                        {(ra.hazards || []).map((h, i) => (
-                          <div key={i} className="border border-slate-200 rounded-xl p-4">
-                            <p className="font-bold text-slate-900 mb-2">{h.hazard}</p>
-                            <div className="grid grid-cols-3 gap-3 mb-3">
-                              <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Initial Rating</p><span className={`text-[10px] font-black px-1.5 py-0.5 rounded ${RISK_COLORS[h.initial_rating] || ""}`}>{h.initial_rating}</span></div>
-                              <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Likelihood</p><p className="text-xs font-bold">{h.initial_likelihood}</p></div>
-                              <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Consequence</p><p className="text-xs font-bold">{h.initial_consequence}</p></div>
-                            </div>
-                            {h.controls && <div className="bg-blue-50 border border-blue-200 rounded p-3 text-xs mb-3"><p className="font-black text-blue-700 mb-1">Control Measures</p><p className="text-blue-800">{h.controls}</p></div>}
-                            <div className="grid grid-cols-3 gap-3">
-                              <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Residual Rating</p><span className={`text-[10px] font-black px-1.5 py-0.5 rounded ${RISK_COLORS[h.residual_rating] || ""}`}>{h.residual_rating}</span></div>
-                              <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Likelihood</p><p className="text-xs font-bold">{h.residual_likelihood}</p></div>
-                              <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Consequence</p><p className="text-xs font-bold">{h.residual_consequence}</p></div>
-                            </div>
-                            {h.person_responsible && <p className="text-xs text-slate-500 mt-2"><span className="font-bold">Responsible:</span> {h.person_responsible}</p>}
-                          </div>
-                        ))}
-                      </div>
+                    <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                      <table className="w-full text-left text-xs">
+                        <thead className="bg-slate-800 text-white">
+                          <tr>
+                            <th className="px-4 py-2 font-black">Hazard</th>
+                            <th className="px-4 py-2 font-black text-center">Initial Risk</th>
+                            <th className="px-4 py-2 font-black">Controls</th>
+                            <th className="px-4 py-2 font-black text-center">Residual Risk</th>
+                            <th className="px-4 py-2 font-black">Owner</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200">
+                          {(ra.hazards || []).map((h, i) => (
+                            <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
+                              <td className="px-4 py-3 font-bold text-slate-900">{h.hazard}</td>
+                              <td className="px-4 py-3 text-center"><span className={`inline-block px-2 py-1 rounded text-[10px] font-black ${RISK_COLORS[h.initial_rating] || ""}`}>{h.initial_rating}</span></td>
+                              <td className="px-4 py-3 text-slate-700 max-w-xs">{h.controls || "—"}</td>
+                              <td className="px-4 py-3 text-center"><span className={`inline-block px-2 py-1 rounded text-[10px] font-black ${RISK_COLORS[h.residual_rating] || ""}`}>{h.residual_rating}</span></td>
+                              <td className="px-4 py-3 text-slate-600">{h.person_responsible || "—"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
                     </div>
                     <div className="bg-slate-800 text-white p-4 rounded-xl flex justify-between items-center">
                       <p className="text-xs font-black uppercase">Overall Residual Risk</p>
                       <span className={`px-4 py-2 rounded-full text-sm font-black ${RISK_COLORS[ra.overall_risk_level] || "bg-slate-100 text-slate-600"}`}>{ra.overall_risk_level}</span>
                     </div>
-                    {(ra.emergency_contact_1_name || ra.emergency_contact_2_name) && (
-                      <div>
-                        <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Emergency Contacts</h2>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {ra.emergency_contact_1_name && <div className="bg-orange-50 border border-orange-200 rounded-xl p-4"><p className="font-black text-orange-800 text-sm">{ra.emergency_contact_1_name}</p><p className="text-xs text-orange-700">{ra.emergency_contact_1_rel} — {ra.emergency_contact_1_phone}</p></div>}
-                          {ra.emergency_contact_2_name && <div className="bg-orange-50 border border-orange-200 rounded-xl p-4"><p className="font-black text-orange-800 text-sm">{ra.emergency_contact_2_name}</p><p className="text-xs text-orange-700">{ra.emergency_contact_2_rel} — {ra.emergency_contact_2_phone}</p></div>}
-                        </div>
+                    <div>
+                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Emergency Management</h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {ra.emergency_contact_1_name && (
+                          <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-4">
+                            <p className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-1">Primary Contact</p>
+                            <p className="font-black text-orange-900 text-sm">{ra.emergency_contact_1_name}</p>
+                            <p className="text-xs text-orange-700 mt-1">{ra.emergency_contact_1_rel}</p>
+                            <p className="text-sm font-bold text-orange-800 mt-1.5">{ra.emergency_contact_1_phone}</p>
+                          </div>
+                        )}
+                        {ra.emergency_contact_2_name && (
+                          <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-4">
+                            <p className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-1">Secondary Contact</p>
+                            <p className="font-black text-orange-900 text-sm">{ra.emergency_contact_2_name}</p>
+                            <p className="text-xs text-orange-700 mt-1">{ra.emergency_contact_2_rel}</p>
+                            <p className="text-sm font-bold text-orange-800 mt-1.5">{ra.emergency_contact_2_phone}</p>
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
               );
@@ -774,7 +788,7 @@ export default function ParticipantPortal() {
           </div>
         )}
 
-        {/* MEDICATIONS TAB - FULL DOCUMENT */}
+        {/* EPILEPSY PLAN TAB - FULL DOCUMENT */}
         {activeTab === "epilepsy" && (
           <div className="space-y-6 max-w-4xl">
             {epilepsyPlans.length === 0 ? (
@@ -1006,10 +1020,13 @@ export default function ParticipantPortal() {
                   ))}
                 </div>
                 <div className="p-6 space-y-6">
-                  {program.program_overview && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Program Overview</h2><p className="text-sm text-slate-700 leading-relaxed bg-slate-50 rounded-xl p-4">{program.program_overview}</p></div>}
-                  {program.phases && program.phases.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Implementation Phases</h2><div className="space-y-3">{program.phases.map((phase, idx) => <div key={idx} className="border border-slate-200 rounded-xl p-4"><div className="flex items-center justify-between mb-2"><p className="font-bold text-slate-900">Phase {phase.phase_number}: {phase.name}</p>{phase.completed && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Completed</span>}</div><div className="grid grid-cols-3 gap-3 text-xs"><div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Duration</p><p className="font-bold text-slate-800">{phase.weeks}</p></div><div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Support Level</p><p className="font-bold text-slate-800">{phase.support_level}</p></div><div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Worker Role</p><p className="font-bold text-slate-800">{phase.worker_role || "—"}</p></div></div>{phase.goal && <p className="text-xs text-slate-600 mt-2"><span className="font-bold">Goal:</span> {phase.goal}</p>}</div>)}</div></div>}
-                  {program.skill_targets && program.skill_targets.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Skill Development Targets</h2><div className="space-y-1.5">{program.skill_targets.map((target, idx) => <div key={idx} className="flex items-center gap-2.5 bg-slate-50 p-3 rounded-lg">{target.achieved ? <CheckCircle size={14} className="text-emerald-600 shrink-0" /> : <Circle size={14} className="text-slate-400 shrink-0" />}<span className="text-sm text-slate-700">{target.skill}</span></div>)}</div></div>}
-                  {program.session_logs && program.session_logs.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Session History</h2><div className="space-y-2">{program.session_logs.slice(-5).reverse().map((log, i) => <div key={i} className="border border-slate-200 rounded-lg p-3 text-xs"><p className="font-bold text-slate-800">{log.date} — Phase {log.phase}</p>{log.participant_response && <p className="text-slate-600 mt-1"><span className="font-bold">Response:</span> {log.participant_response}</p>}{log.logged_by && <p className="text-slate-500 mt-1 text-[10px]">By {log.logged_by}</p>}</div>)}</div></div>}
+                  {program.program_overview && <div className="bg-blue-50 border border-blue-200 rounded-xl p-4"><p className="text-[10px] font-black text-blue-700 uppercase tracking-widest mb-2">Program Overview</p><p className="text-sm text-blue-900 leading-relaxed">{program.program_overview}</p></div>}
+                  {program.focus && <div className="bg-slate-50 border border-slate-200 rounded-xl p-4"><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Focus Area</p><p className="text-sm font-bold text-slate-800">{program.focus}</p></div>}
+                  {program.phases && program.phases.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-4">Detailed Implementation Phases</h2><div className="space-y-4 border-l-4 border-blue-400 pl-4">{program.phases.map((phase, idx) => <div key={idx} className="bg-white border border-slate-200 rounded-xl p-4"><div className="flex items-center justify-between mb-3"><div><p className="text-sm font-black text-slate-900">Phase {phase.phase_number}: {phase.name}</p>{phase.goal && <p className="text-xs text-slate-600 mt-1">{phase.goal}</p>}</div>{phase.completed && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-black">✓ Completed</span>}</div><div className="grid grid-cols-2 sm:grid-cols-4 gap-2"><div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Duration</p><p className="font-bold text-slate-800">{phase.weeks}</p></div><div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Support Level</p><p className="font-bold text-slate-800 text-xs">{phase.support_level}</p></div><div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Worker Role</p><p className="font-bold text-slate-800 text-xs">{phase.worker_role || "—"}</p></div></div></div>)}</div></div>}
+                  {program.required_tools && program.required_tools.length > 0 && <div className="bg-amber-50 border border-amber-200 rounded-xl p-4"><p className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-2">Required Tools & Resources</p><ul className="space-y-1"><li className="flex gap-2 items-start"><span className="text-amber-600 font-bold">•</span><span className="text-sm text-amber-900">{program.required_tools.join(", ")}</span></li></ul></div>}
+                  {program.risk_strategies && program.risk_strategies.length > 0 && <div className="bg-rose-50 border border-rose-200 rounded-xl p-4"><p className="text-[10px] font-black text-rose-700 uppercase tracking-widest mb-2">Risk Management Strategies</p><ul className="space-y-1">{program.risk_strategies.map((rs, idx) => <li key={idx} className="flex gap-2 items-start text-sm"><span className="text-rose-600 font-black">⚠</span><span className="text-rose-900">{rs}</span></li>)}</ul></div>}
+                  {program.skill_targets && program.skill_targets.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Skill Development Targets</h2><div className="space-y-2">{program.skill_targets.map((target, idx) => <div key={idx} className="flex items-center gap-3 bg-white border border-slate-200 p-3 rounded-lg">{target.achieved ? <CheckCircle size={16} className="text-emerald-600 shrink-0" /> : <Circle size={16} className="text-slate-300 shrink-0" />}<span className="text-sm font-medium text-slate-800">{target.skill}</span></div>)}</div></div>}
+                  {program.session_logs && program.session_logs.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Complete Session History</h2><div className="space-y-2">{program.session_logs.map((log, i) => <div key={i} className="bg-white border border-slate-200 rounded-lg p-3 text-xs"><div className="flex justify-between items-start gap-2"><div><p className="font-black text-slate-900">{log.date}</p><p className="text-slate-500 text-[10px] mt-0.5">Phase {log.phase} • {log.support_level_used || "—"}</p></div></div>{log.skills_practiced && <p className="text-slate-700 mt-1"><span className="font-bold">Skills:</span> {log.skills_practiced}</p>}{log.participant_response && <p className="text-slate-700 mt-1"><span className="font-bold">Response:</span> {log.participant_response}</p>}{log.incidents && <p className="text-rose-700 mt-1"><span className="font-bold">Incidents:</span> {log.incidents}</p>}{log.next_session_focus && <p className="text-blue-700 mt-1"><span className="font-bold">Next Focus:</span> {log.next_session_focus}</p>}{log.logged_by && <p className="text-slate-500 mt-2 text-[10px]">Logged by {log.logged_by}</p>}</div>)}</div></div>}
                 </div>
               </div>
             ))}
