@@ -1,0 +1,150 @@
+{
+  "name": "ImplementationProgram",
+  "type": "object",
+  "properties": {
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "ndis_number": {
+      "type": "string",
+      "title": "NDIS Number"
+    },
+    "primary_goal": {
+      "type": "string",
+      "title": "Primary Goal"
+    },
+    "focus": {
+      "type": "string",
+      "title": "Focus Area"
+    },
+    "program_overview": {
+      "type": "string",
+      "title": "Program Overview"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Active",
+        "Completed",
+        "Draft",
+        "On Hold"
+      ],
+      "default": "Active"
+    },
+    "start_date": {
+      "type": "string",
+      "title": "Start Date",
+      "format": "date"
+    },
+    "phases": {
+      "type": "array",
+      "title": "Implementation Phases",
+      "items": {
+        "type": "object",
+        "properties": {
+          "phase_number": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "weeks": {
+            "type": "string"
+          },
+          "goal": {
+            "type": "string"
+          },
+          "support_level": {
+            "type": "string"
+          },
+          "worker_role": {
+            "type": "string"
+          },
+          "completed": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "skill_targets": {
+      "type": "array",
+      "title": "Skill Development Targets",
+      "items": {
+        "type": "object",
+        "properties": {
+          "skill": {
+            "type": "string"
+          },
+          "achieved": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "required_tools": {
+      "type": "array",
+      "title": "Required Tools",
+      "items": {
+        "type": "string"
+      }
+    },
+    "risk_strategies": {
+      "type": "array",
+      "title": "Risk Management Strategies",
+      "items": {
+        "type": "string"
+      }
+    },
+    "session_structure": {
+      "type": "string",
+      "title": "Session Structure"
+    },
+    "data_collection_notes": {
+      "type": "string",
+      "title": "Data Collection Notes"
+    },
+    "session_logs": {
+      "type": "array",
+      "title": "Session Logs",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "phase": {
+            "type": "string"
+          },
+          "support_level_used": {
+            "type": "string"
+          },
+          "skills_practiced": {
+            "type": "string"
+          },
+          "participant_response": {
+            "type": "string"
+          },
+          "incidents": {
+            "type": "string"
+          },
+          "next_session_focus": {
+            "type": "string"
+          },
+          "logged_by": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "participant_name",
+    "primary_goal"
+  ]
+}

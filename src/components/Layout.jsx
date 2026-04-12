@@ -91,6 +91,7 @@ const NAV_SECTIONS = [
     items: [
       { path: "/ai-reports", label: "AI Report Centre", icon: Zap },
       { path: "/travel-guide", label: "Travel Guide Generator", icon: Navigation },
+      { path: "/implementation-programs", label: "Implementation Programs", icon: ClipboardList },
     ],
   },
   {
