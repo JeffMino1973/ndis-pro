@@ -298,15 +298,18 @@ function AgreementPreview({ agreement, onBack }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {(agreement.services || []).map((s, i) => (
+              {(agreement.services || []).map((s, i) => {
+                const rate = Number(s.rate) || (s.amount && s.hours ? Number(s.amount) / Number(s.hours) : 0);
+                return (
                 <tr key={i}>
-                  <td className="px-4 py-3 font-mono text-xs text-slate-500">{s.ndis_code || "—"}</td>
+                  <td className="px-4 py-3 font-mono text-xs text-slate-500">{s.ndis_code || s.support_item_code || "—"}</td>
                   <td className="px-4 py-3 font-semibold text-slate-800">{s.description}</td>
-                  <td className="px-4 py-3 text-right">${Number(s.rate || 0).toFixed(2)}</td>
+                  <td className="px-4 py-3 text-right">${rate.toFixed(2)}</td>
                   <td className="px-4 py-3 text-right">{s.hours || "—"}</td>
                   <td className="px-4 py-3 text-right font-black">${Number(s.amount || 0).toFixed(2)}</td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
             <tfoot className="bg-slate-50">
               <tr>
