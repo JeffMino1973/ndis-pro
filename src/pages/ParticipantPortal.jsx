@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import {
   ShieldCheck, FileText, Receipt, ClipboardList, CheckCircle, PenLine,
   Loader2, User, Target, AlertTriangle, MessageSquareWarning, Navigation,
-  ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain
+  ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,6 +116,7 @@ const TABS = [
   { id: "documents", label: "My Documents", icon: FileText },
   { id: "profile", label: "My Profile", icon: User },
   { id: "goals", label: "My Goals", icon: Target },
+  { id: "health", label: "Health Plan", icon: Heart },
   { id: "medications", label: "Medications", icon: Star },
   { id: "epilepsy", label: "Epilepsy Plan", icon: AlertTriangle },
   { id: "pbsp", label: "Behaviour Plan", icon: MessageSquareWarning },
@@ -138,6 +139,7 @@ export default function ParticipantPortal() {
   const [medications, setMedications] = useState([]);
   const [epilepsyPlans, setEpilepsyPlans] = useState([]);
   const [pbsps, setPbsps] = useState([]);
+  const [healthPlans, setHealthPlans] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [signingDoc, setSigningDoc] = useState(null);
@@ -146,6 +148,7 @@ export default function ParticipantPortal() {
   // Inline edit state for portal
   const [editingMed, setEditingMed] = useState(null);
   const [editingEpilepsy, setEditingEpilepsy] = useState(null);
+  const [editingHealth, setEditingHealth] = useState(null);
   const [portalSaving, setPortalSaving] = useState(false);
 
   // Profile editing
@@ -171,7 +174,7 @@ export default function ParticipantPortal() {
     setParticipant(p);
     setProfileForm({ phone: p.phone || "", email: p.email || "", address: p.address || "", emergency_contact_name: p.emergency_contact_name || "", emergency_contact_phone: p.emergency_contact_phone || "", emergency_contact_relationship: p.emergency_contact_relationship || "" });
 
-    const [agr, quo, inv, plans, risks, notes, comp, meds, epilepsy, pbsp] = await Promise.all([
+    const [agr, quo, inv, plans, risks, notes, comp, meds, epilepsy, pbsp, hcp] = await Promise.all([
       base44.entities.ServiceAgreement.filter({ participant_name: p.name }),
       base44.entities.Quote.filter({ participant_name: p.name }),
       base44.entities.Invoice.filter({ participant_name: p.name }),
@@ -182,6 +185,7 @@ export default function ParticipantPortal() {
       base44.entities.Medication.filter({ participant_name: p.name }),
       base44.entities.EpilepsyPlan.filter({ participant_name: p.name }),
       base44.entities.PositiveBehaviourSupportPlan.filter({ participant_name: p.name }).catch(() => []),
+      base44.entities.HealthCarePlan.filter({ participant_name: p.name }).catch(() => []),
     ]);
     setAgreements(agr);
     setQuotes(quo);
@@ -193,6 +197,7 @@ export default function ParticipantPortal() {
     setMedications(meds || []);
     setEpilepsyPlans(epilepsy || []);
     setPbsps(pbsp || []);
+    setHealthPlans(hcp || []);
     setLoading(false);
   };
 
@@ -692,6 +697,129 @@ export default function ParticipantPortal() {
                 </div>
               ))
             )}
+          </div>
+        )}
+
+        {/* HEALTH SUPPORT PLAN TAB */}
+        {activeTab === "health" && (
+          <div className="space-y-4">
+            {editingHealth && (
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
+                <div className="flex justify-between items-center">
+                  <p className="font-black text-slate-900">Edit Health Support Plan</p>
+                  <button onClick={() => setEditingHealth(null)} className="text-slate-400 hover:text-slate-700"><X size={16} /></button>
+                </div>
+                <p className="text-xs text-slate-500">You can update contact and care details below. Medical information changes should be confirmed with your provider.</p>
+                {[
+                  {f:"doctor_name",l:"Doctor / GP Name"},
+                  {f:"doctor_phone",l:"Doctor Phone"},
+                  {f:"doctor_address",l:"Doctor Address"},
+                  {f:"parent_carer_name",l:"Parent / Carer Name"},
+                  {f:"parent_carer_phone",l:"Parent / Carer Phone"},
+                  {f:"parent_carer_email",l:"Parent / Carer Email"},
+                  {f:"emergency_contact_name",l:"Emergency Contact Name"},
+                  {f:"emergency_contact_phone",l:"Emergency Contact Phone"},
+                  {f:"emergency_contact_relationship",l:"Relationship"},
+                ].map(({f,l}) => (
+                  <div key={f}>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">{l}</label>
+                    <input value={editingHealth[f]||""} onChange={e => setEditingHealth(p=>({...p,[f]:e.target.value}))} className="w-full h-9 px-3 rounded-md border border-slate-200 text-sm" />
+                  </div>
+                ))}
+                <div>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Additional Support Required</label>
+                  <textarea value={editingHealth.additional_support||""} onChange={e => setEditingHealth(p=>({...p,additional_support:e.target.value}))} className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm min-h-[60px]" />
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => setEditingHealth(null)} className="flex-1 border border-slate-200 rounded-xl py-2 text-sm font-bold text-slate-600">Cancel</button>
+                  <button disabled={portalSaving} onClick={async () => { setPortalSaving(true); await base44.entities.HealthCarePlan.update(editingHealth.id, editingHealth); const hp = await base44.entities.HealthCarePlan.filter({participant_name: participant.name}).catch(()=>[]); setHealthPlans(hp); setEditingHealth(null); setPortalSaving(false); }} className="flex-1 bg-primary text-white rounded-xl py-2 text-sm font-bold">{portalSaving ? "Saving..." : "Save Changes"}</button>
+                </div>
+              </div>
+            )}
+            {healthPlans.length === 0 ? (
+              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
+                <Heart size={36} className="text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500 text-sm">No health support plan on file.</p>
+              </div>
+            ) : healthPlans.map(plan => (
+              <div key={plan.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                <div className="bg-emerald-700 text-white px-5 py-4 flex justify-between items-start">
+                  <div>
+                    <p className="font-black text-lg">Individual Health Support Plan (IHSP)</p>
+                    <p className="text-emerald-200 text-xs mt-0.5">{plan.participant_name}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${plan.status==="Active"?"bg-white text-emerald-700":"bg-emerald-800 text-emerald-200"}`}>{plan.status}</span>
+                    <button onClick={() => setEditingHealth({...plan})} className="text-white/70 hover:text-white"><Edit size={14} /></button>
+                  </div>
+                </div>
+                {plan.emergency_alert && (
+                  <div className="bg-rose-50 border-b border-rose-200 px-5 py-3 flex items-center gap-2">
+                    <AlertTriangle size={14} className="text-rose-600 shrink-0" />
+                    <span className="text-rose-700 font-black text-sm">{plan.emergency_alert}</span>
+                  </div>
+                )}
+                <div className="p-5 space-y-4">
+                  {plan.health_conditions && (
+                    <div className="bg-slate-50 rounded-xl p-4">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Health Conditions</p>
+                      <p className="text-sm text-slate-800 leading-relaxed">{plan.health_conditions}</p>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {[
+                      {l:"Doctor / GP",v:plan.doctor_name},
+                      {l:"Doctor Phone",v:plan.doctor_phone},
+                      {l:"Doctor Address",v:plan.doctor_address},
+                      {l:"Parent / Carer",v:plan.parent_carer_name},
+                      {l:"Carer Phone",v:plan.parent_carer_phone},
+                      {l:"Carer Email",v:plan.parent_carer_email},
+                      {l:"Emergency Contact",v:plan.emergency_contact_name},
+                      {l:"Emergency Phone",v:plan.emergency_contact_phone},
+                      {l:"Relationship",v:plan.emergency_contact_relationship},
+                      {l:"Review Date",v:plan.review_date},
+                    ].filter(x=>x.v).map(({l,v}) => (
+                      <div key={l} className="bg-slate-50 rounded-xl p-3">
+                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{l}</p>
+                        <p className="text-sm font-bold text-slate-800">{v}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {plan.health_support_procedures && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                      <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2">Health Support Procedures</p>
+                      <p className="text-sm text-blue-800 leading-relaxed whitespace-pre-line">{plan.health_support_procedures}</p>
+                    </div>
+                  )}
+                  {plan.emergency_response && (
+                    <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                      <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-2">Emergency Response Plan</p>
+                      <p className="text-sm text-rose-800 leading-relaxed whitespace-pre-line">{plan.emergency_response}</p>
+                    </div>
+                  )}
+                  {plan.medications && plan.medications.length > 0 && (
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Medications</p>
+                      <div className="space-y-2">
+                        {plan.medications.map((m,i) => (
+                          <div key={i} className="bg-slate-50 rounded-xl p-3 text-xs">
+                            <p className="font-black text-slate-800">{m.name} — {m.dose}</p>
+                            <p className="text-slate-500">{m.frequency} · {m.route}{m.time ? ` · ${m.time}` : ""}</p>
+                            {m.notes && <p className="text-slate-400 mt-0.5">{m.notes}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {plan.additional_support && (
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                      <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-2">Additional Support</p>
+                      <p className="text-sm text-amber-800 leading-relaxed">{plan.additional_support}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
