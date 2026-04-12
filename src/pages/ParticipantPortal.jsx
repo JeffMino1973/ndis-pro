@@ -173,7 +173,6 @@ const TABS = [
   { id: "medications", label: "Medications", icon: Star },
   { id: "epilepsy", label: "Epilepsy Plan", icon: AlertTriangle },
   { id: "pbsp", label: "Behaviour Plan", icon: MessageSquareWarning },
-  { id: "travel_risk", label: "Travel Risk Assessment", icon: Navigation },
   { id: "reports", label: "Session Notes", icon: Navigation },
   { id: "complaint", label: "Lodge Complaint", icon: MessageSquareWarning },
 ];
@@ -977,66 +976,6 @@ export default function ParticipantPortal() {
           </div>
         )}
 
-        {/* TRAVEL RISK ASSESSMENT TAB */}
-        {activeTab === "travel_risk" && (() => {
-          const RaF = ({ label, field, type = "text", placeholder = "" }) => (
-            <div><Label className="text-xs">{label}</Label><Input type={type} value={raForm[field]} onChange={e => raSet(field, e.target.value)} placeholder={placeholder} className="mt-1" /></div>
-          );
-          if (raLoading) return <div className="flex items-center justify-center h-40"><Loader2 className="animate-spin text-primary" size={28} /></div>
-          return (
-            <div className="space-y-8">
-              <div><h2 className="text-2xl font-black tracking-tight">Risk Assessment Builder</h2><p className="text-slate-500 text-sm">Compliant with NDIS Practice Standards for Incident and Risk Management.</p></div>
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                <div className="xl:col-span-2 space-y-6">
-                  <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4">
-                    <h3 className="font-black text-lg">Assessment Details</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="md:col-span-2"><Label className="text-xs">Assessment Title *</Label><Input value={raForm.title} onChange={e => raSet("title", e.target.value)} placeholder="e.g. Travel Risk Assessment — Coogee to Botany" className="mt-1 font-semibold" /></div>
-                      <div className="md:col-span-2"><Label className="text-xs">Link to Participant</Label><select value={raForm.participant_id} onChange={e => raSelectParticipant(e.target.value)} className="mt-1 flex h-9 w-full rounded-md border border-slate-200 bg-transparent px-3 text-sm"><option value="">Select participant (auto-fills details)...</option>{raParticipants.map(p => <option key={p.id} value={p.id}>{p.name} — {p.ndis_number}</option>)}</select></div>
-                    </div>
-                    <h3 className="font-black text-lg pt-2">Participant Details</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <RaF label="Participant Full Name" field="participant_name" /><RaF label="Date of Birth" field="participant_dob" type="date" />
-                      <RaF label="NDIS Number" field="ndis_number" /><RaF label="Home Address" field="home_address" />
-                      <RaF label="Destination / Workplace" field="destination" /><RaF label="Activity / Scope" field="activity_description" placeholder="e.g. Independent travel training via bus" />
-                    </div>
-                    <h3 className="font-black text-lg pt-2">Assessor Details</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <RaF label="Assessor Name" field="assessor_name" /><RaF label="Assessor Role / Position" field="assessor_role" />
-                      <RaF label="Assessment Date" field="assessment_date" type="date" /><RaF label="Review Date" field="review_date" type="date" />
-                    </div>
-                  </div>
-                  <div className="bg-white border border-slate-200 rounded-3xl p-6">
-                    <h3 className="font-black text-lg mb-4">Risk Rating Matrix</h3>
-                    <div className="overflow-x-auto"><table className="w-full text-xs border border-slate-200 rounded-xl overflow-hidden"><thead className="bg-slate-100"><tr><th className="px-3 py-2 text-left text-slate-500 font-black uppercase">Likelihood \ Consequence</th>{RA_CONSEQUENCES.map(c => <th key={c} className="px-3 py-2 text-center text-slate-500 font-black uppercase">{c}</th>)}</tr></thead><tbody className="divide-y divide-slate-200">{RA_LIKELIHOODS.map(l => (<tr key={l}><td className="px-3 py-2 font-bold">{l}</td>{RA_CONSEQUENCES.map(c => { const r = raGetRating(l, c); return <td key={c} className={`px-3 py-2 text-center font-black text-[10px] ${RA_RISK_COLORS[r]}`}>{r}</td>; })}</tr>))}</tbody></table></div>
-                  </div>
-                  <div className="bg-white border border-slate-200 rounded-3xl p-6">
-                    <div className="flex justify-between items-center mb-6"><h3 className="font-black text-lg">Hazard Identification & Risk Assessment</h3><Button variant="outline" size="sm" onClick={raAddHazard} className="rounded-lg gap-1"><Plus size={14} /> Add Hazard</Button></div>
-                    <div className="space-y-5">{raHazards.map((h, i) => (<div key={i} className="border border-slate-200 rounded-2xl overflow-hidden"><div className="bg-slate-100 px-4 py-2 flex justify-between items-center"><span className="text-xs font-black text-slate-500 uppercase tracking-widest">Hazard {i + 1}</span><button onClick={() => raRemoveHazard(i)} className="text-slate-400 hover:text-red-600"><Trash2 size={14} /></button></div><div className="p-4 space-y-4"><div><Label className="text-xs">Hazard Description</Label><Input value={h.hazard} onChange={e => raUpdateHazard(i, "hazard", e.target.value)} placeholder="Describe the hazard..." className="mt-1 font-semibold" /></div><div><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Initial Risk (Before Controls)</p><div className="grid grid-cols-3 gap-3"><div><Label className="text-[10px]">Likelihood</Label><Select value={h.initial_likelihood} onValueChange={v => raUpdateHazard(i, "initial_likelihood", v)}><SelectTrigger className="h-8 text-xs mt-1"><SelectValue /></SelectTrigger><SelectContent>{RA_LIKELIHOODS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent></Select></div><div><Label className="text-[10px]">Consequence</Label><Select value={h.initial_consequence} onValueChange={v => raUpdateHazard(i, "initial_consequence", v)}><SelectTrigger className="h-8 text-xs mt-1"><SelectValue /></SelectTrigger><SelectContent>{RA_CONSEQUENCES.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent></Select></div><div><Label className="text-[10px]">Rating</Label><div className={`mt-1 h-8 flex items-center justify-center rounded-md text-xs font-black ${RA_RISK_COLORS[h.initial_rating]}`}>{h.initial_rating}</div></div></div></div><div><Label className="text-xs">Control Measures</Label><Textarea value={h.controls} onChange={e => raUpdateHazard(i, "controls", e.target.value)} placeholder="What controls are in place to mitigate this hazard?" className="mt-1 text-sm min-h-[70px]" /></div><div><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Residual Risk (After Controls)</p><div className="grid grid-cols-3 gap-3"><div><Label className="text-[10px]">Likelihood</Label><Select value={h.residual_likelihood} onValueChange={v => raUpdateHazard(i, "residual_likelihood", v)}><SelectTrigger className="h-8 text-xs mt-1"><SelectValue /></SelectTrigger><SelectContent>{RA_LIKELIHOODS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent></Select></div><div><Label className="text-[10px]">Consequence</Label><Select value={h.residual_consequence} onValueChange={v => raUpdateHazard(i, "residual_consequence", v)}><SelectTrigger className="h-8 text-xs mt-1"><SelectValue /></SelectTrigger><SelectContent>{RA_CONSEQUENCES.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}</SelectContent></Select></div><div><Label className="text-[10px]">Rating</Label><div className={`mt-1 h-8 flex items-center justify-center rounded-md text-xs font-black ${RA_RISK_COLORS[h.residual_rating]}`}>{h.residual_rating}</div></div></div></div><div><Label className="text-xs">Person Responsible</Label><Input value={h.person_responsible} onChange={e => raUpdateHazard(i, "person_responsible", e.target.value)} placeholder="Name / role responsible for controls" className="mt-1 text-sm" /></div></div></div>))}</div>
-                    <div className="mt-4 p-4 bg-slate-800 text-white rounded-2xl flex justify-between items-center"><p className="text-xs font-bold uppercase tracking-widest opacity-60">Overall Residual Risk</p><span className={`px-4 py-1 rounded-full text-sm font-black ${RA_RISK_COLORS[raOverallRisk()]}`}>{raOverallRisk()}</span></div>
-                  </div>
-                  <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4">
-                    <h3 className="font-black text-lg">Emergency Contacts</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <RaF label="Contact 1 Name" field="emergency_contact_1_name" /><RaF label="Contact 1 Phone" field="emergency_contact_1_phone" /><RaF label="Relationship" field="emergency_contact_1_rel" />
-                      <RaF label="Contact 2 Name" field="emergency_contact_2_name" /><RaF label="Contact 2 Phone" field="emergency_contact_2_phone" /><RaF label="Relationship" field="emergency_contact_2_rel" />
-                    </div>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <Button onClick={raSaveAssessment} disabled={raSaving} className="w-full rounded-xl font-bold gap-2 py-6 text-base"><Save size={18} /> {raSaving ? "Saving..." : "Save Assessment"}</Button>
-                  <Button variant="outline" onClick={() => setRaPrintData({ ...raForm, hazards: raHazards, overallRisk: raOverallRisk() })} className="w-full rounded-xl font-bold gap-2"><Printer size={16} /> Preview / Print</Button>
-                  <div className="bg-white border border-slate-200 rounded-3xl p-6">
-                    <h4 className="font-black mb-4">Saved Assessments</h4>
-                    {raLoading ? <p className="text-sm text-slate-400">Loading...</p> : raAssessments.length === 0 ? <p className="text-sm text-slate-400 italic">No assessments yet.</p> : (
-                      <div className="space-y-3">{raAssessments.slice(0, 8).map(a => (<div key={a.id} className="p-3 bg-slate-100 rounded-xl">{raRenameId === a.id ? (<div className="flex gap-1 mb-1"><input value={raRenameVal} onChange={e => setRaRenameVal(e.target.value)} onKeyDown={e => e.key === "Enter" && raSaveRename(a.id)} className="flex-1 text-xs h-7 px-2 rounded border border-blue-500 outline-none" autoFocus /><button onClick={() => raSaveRename(a.id)} className="text-xs text-blue-600 font-black px-2">Save</button><button onClick={() => setRaRenameId(null)} className="text-xs text-slate-400 px-1">✕</button></div>) : (<div className="flex items-center gap-1 mb-1"><p className="text-xs font-bold text-slate-800 truncate flex-1 cursor-pointer hover:text-blue-600" onClick={() => setRaPrintData({ ...a, overallRisk: a.overall_risk_level })}>{a.title || a.activity_description || "Untitled"}</p><button onClick={() => { setRaRenameId(a.id); setRaRenameVal(a.title || a.activity_description || ""); }} className="text-slate-400 hover:text-blue-600 shrink-0"><Pencil size={11} /></button></div>)}<div className="flex justify-between"><p className="text-[10px] text-slate-500">{a.participant_name || a.assessor_name}</p><span className={`text-[10px] font-black px-2 py-0.5 rounded ${RA_RISK_COLORS[a.overall_risk_level] || "bg-slate-100 text-slate-600"}`}>{a.overall_risk_level}</span></div></div>))}</div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })()}
 
         {/* IMPLEMENTATION PROGRAMS TAB */}
         {activeTab === "implementation" && (() => {
