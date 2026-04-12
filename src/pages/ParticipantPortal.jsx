@@ -1214,6 +1214,189 @@ export default function ParticipantPortal() {
           </div>
         )}
 
+        {/* HEALTH PLAN TAB */}
+        {activeTab === "health" && (
+          <div className="space-y-4">
+            {healthPlans.length === 0 ? (
+              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
+                <Heart size={36} className="text-slate-300 mx-auto mb-3" />
+                <h3 className="font-black text-slate-800 mb-1">No Health Plan On File</h3>
+                <p className="text-sm text-slate-500">Your provider hasn't created a health support plan yet.</p>
+              </div>
+            ) : healthPlans.map(plan => (
+              <div key={plan.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                <div className="bg-emerald-700 text-white px-6 py-5">
+                  <h1 className="text-xl font-black">Individual Health Support Plan</h1>
+                  <p className="text-emerald-200 text-sm mt-1">{plan.participant_name}</p>
+                </div>
+                <div className="p-6 space-y-4">
+                  {plan.health_conditions && <div className="bg-slate-50 rounded-xl p-4"><p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Health Conditions</p><p className="text-sm text-slate-700">{plan.health_conditions}</p></div>}
+                  {plan.emergency_alert && <div className="bg-rose-50 border border-rose-200 rounded-xl p-4"><p className="text-xs font-black text-rose-500 uppercase tracking-widest mb-2">⚠️ Emergency Alert</p><p className="text-sm text-rose-800 font-bold">{plan.emergency_alert}</p></div>}
+                  {plan.medications && plan.medications.length > 0 && (
+                    <div>
+                      <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Medications</p>
+                      <div className="space-y-2">
+                        {plan.medications.map((med, i) => (
+                          <div key={i} className="bg-blue-50 border border-blue-100 rounded-xl p-3 text-sm">
+                            <p className="font-black text-blue-900">{med.name} — {med.dose}</p>
+                            <p className="text-blue-600 text-xs mt-0.5">{med.frequency} · {med.route} · {med.time}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {plan.health_support_procedures && <div className="bg-slate-50 rounded-xl p-4"><p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Support Procedures</p><p className="text-sm text-slate-700 whitespace-pre-line">{plan.health_support_procedures}</p></div>}
+                  {plan.emergency_response && <div className="bg-amber-50 border border-amber-200 rounded-xl p-4"><p className="text-xs font-black text-amber-500 uppercase tracking-widest mb-2">Emergency Response</p><p className="text-sm text-amber-800">{plan.emergency_response}</p></div>}
+                  <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
+                    {plan.doctor_name && <div className="bg-slate-50 rounded-xl p-3"><p className="font-black text-slate-400 uppercase tracking-widest mb-1">Doctor</p><p className="text-slate-700 font-bold">{plan.doctor_name}</p>{plan.doctor_phone && <p className="text-slate-500">{plan.doctor_phone}</p>}</div>}
+                    {plan.review_date && <div className="bg-slate-50 rounded-xl p-3"><p className="font-black text-slate-400 uppercase tracking-widest mb-1">Review Date</p><p className="text-slate-700 font-bold">{plan.review_date}</p></div>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* MEDICATIONS TAB */}
+        {activeTab === "medications" && (
+          <div className="space-y-4">
+            {medications.length === 0 ? (
+              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
+                <Pill size={36} className="text-slate-300 mx-auto mb-3" />
+                <h3 className="font-black text-slate-800 mb-1">No Medications On File</h3>
+                <p className="text-sm text-slate-500">No medications have been recorded for you yet.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {medications.filter(m => m.is_rescue).length > 0 && (
+                  <div className="bg-rose-600 text-white rounded-2xl p-5">
+                    <p className="font-black text-lg mb-2">🚨 Emergency / Rescue Medications</p>
+                    {medications.filter(m => m.is_rescue).map(m => (
+                      <div key={m.id} className="bg-white/10 rounded-xl p-3 mb-2">
+                        <p className="font-black">{m.medication_name} — {m.dose}</p>
+                        {m.rescue_instructions && <p className="text-rose-100 text-xs mt-1">{m.rescue_instructions}</p>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {medications.filter(m => !m.is_rescue).map(m => (
+                  <div key={m.id} className="bg-white border border-slate-200 rounded-2xl p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-black text-slate-900">{m.medication_name} <span className="font-normal text-slate-500 text-sm">— {m.dose}</span></p>
+                        <p className="text-xs text-slate-500 mt-0.5">{m.frequency} · {m.route}</p>
+                        {m.indication && <p className="text-xs text-slate-400 mt-1">For: {m.indication}</p>}
+                        {m.prescriber && <p className="text-xs text-slate-400">Prescribed by: {m.prescriber}</p>}
+                      </div>
+                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 ${
+                        m.status === 'Active' ? 'bg-emerald-100 text-emerald-700' :
+                        m.status === 'PRN' ? 'bg-blue-100 text-blue-700' :
+                        'bg-slate-100 text-slate-600'
+                      }`}>{m.status}</span>
+                    </div>
+                    {m.side_effects && <p className="text-xs text-amber-600 mt-3 bg-amber-50 px-3 py-2 rounded-lg">⚠️ Side effects: {m.side_effects}</p>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* SESSION NOTES TAB */}
+        {activeTab === "reports" && (
+          <div className="space-y-4">
+            {progressNotes.filter(n => n.status === "Finalised").length === 0 ? (
+              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
+                <FileText size={36} className="text-slate-300 mx-auto mb-3" />
+                <h3 className="font-black text-slate-800 mb-1">No Session Notes Yet</h3>
+                <p className="text-sm text-slate-500">Finalised progress notes from your support worker will appear here.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {progressNotes.filter(n => n.status === "Finalised").map(n => (
+                  <div key={n.id} className="bg-white border border-slate-200 rounded-2xl p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <p className="font-black text-slate-900">{n.note_date}</p>
+                        <p className="text-xs text-slate-500">{n.template_type} · {n.staff_name}</p>
+                      </div>
+                      <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Finalised</span>
+                    </div>
+                    {n.activities_delivered && <div className="mb-2"><p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Activities</p><p className="text-sm text-slate-700">{n.activities_delivered}</p></div>}
+                    {n.outcomes && <div className="mb-2"><p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Outcomes</p><p className="text-sm text-slate-700">{n.outcomes}</p></div>}
+                    {n.participant_response && <div><p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Participant Response</p><p className="text-sm text-slate-700">{n.participant_response}</p></div>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* COMPLAINT TAB */}
+        {activeTab === "complaint" && (
+          <div className="space-y-4">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6">
+              <h3 className="font-black text-slate-900 text-lg mb-1">Lodge a Complaint</h3>
+              <p className="text-sm text-slate-500 mb-5">Your feedback is important. All complaints are handled confidentially.</p>
+              {complaintSubmitted && (
+                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-4 flex items-center gap-2">
+                  <CheckCircle size={16} className="text-emerald-600" />
+                  <p className="text-sm text-emerald-700 font-bold">Complaint submitted successfully. We will respond within 5 business days.</p>
+                </div>
+              )}
+              <div className="space-y-4">
+                <div>
+                  <Label className="text-xs">Type of Complaint</Label>
+                  <Select value={complaintForm.complaint_type} onValueChange={v => setComplaintForm({...complaintForm, complaint_type: v})}>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {["Service Delivery","Staff Conduct","Communication","Safety","Billing","Other"].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs">Priority</Label>
+                  <Select value={complaintForm.priority} onValueChange={v => setComplaintForm({...complaintForm, priority: v})}>
+                    <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {["Low","Medium","High","Critical"].map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs">Description *</Label>
+                  <Textarea value={complaintForm.description} onChange={e => setComplaintForm({...complaintForm, description: e.target.value})} placeholder="Please describe your concern in detail..." className="mt-1 min-h-[120px]" />
+                </div>
+                <Button onClick={submitComplaint} disabled={!complaintForm.description || submittingComplaint} className="w-full rounded-xl font-bold gap-2">
+                  {submittingComplaint ? <Loader2 size={15} className="animate-spin" /> : <CheckCircle size={15} />}
+                  Submit Complaint
+                </Button>
+              </div>
+            </div>
+            {complaints.length > 0 && (
+              <div className="bg-white border border-slate-200 rounded-2xl p-6">
+                <h4 className="font-black text-slate-900 mb-4">My Previous Complaints</h4>
+                <div className="space-y-3">
+                  {complaints.map(c => (
+                    <div key={c.id} className="bg-slate-50 rounded-xl p-4">
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="text-sm font-black text-slate-900">{c.complaint_type}</p>
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                          c.status === 'Resolved' ? 'bg-emerald-100 text-emerald-700' :
+                          c.status === 'Escalated' ? 'bg-rose-100 text-rose-700' :
+                          'bg-amber-100 text-amber-700'
+                        }`}>{c.status}</span>
+                      </div>
+                      <p className="text-xs text-slate-500">{c.date_received} · {c.priority} priority</p>
+                      <p className="text-sm text-slate-700 mt-2 line-clamp-2">{c.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         <p className="text-[10px] text-slate-400 text-center pb-4">
           Secured · NDIS PRO Participant Portal · Your data is encrypted and protected
         </p>
