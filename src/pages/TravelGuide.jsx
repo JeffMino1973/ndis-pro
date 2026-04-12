@@ -141,8 +141,9 @@ Provide 2-3 realistic route options. Make steps very detailed and beginner-frien
           #travel-guide-print, #travel-guide-print * { visibility: visible; }
           #travel-guide-print { position: absolute; left: 0; top: 0; width: 100%; }
           .no-print { display: none !important; }
-          .route-card { break-inside: avoid; border: 1px solid #ddd; margin-bottom: 16px; }
+          .route-card { break-inside: avoid; border: 1px solid #ddd; margin-bottom: 20px; }
         }
+        .step-border { border-left: 3px solid #e5e7eb; margin-left: 14px; }
       `}</style>
 
       {/* Header */}
@@ -203,87 +204,100 @@ Provide 2-3 realistic route options. Make steps very detailed and beginner-frien
       {guide && (
         <>
           <div className="flex justify-between items-center no-print">
-            <p className="font-black text-lg text-foreground">Travel Guide Ready</p>
+            <div className="flex items-center gap-3">
+              <p className="font-black text-lg text-foreground">Travel Guide Ready</p>
+              <Button variant="outline" size="sm" onClick={() => { setGuide(null); setOrigin(""); setDestination(""); }} className="rounded-xl gap-1.5 text-xs">
+                + Plan New Journey
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => { setGuide(null); }} className="rounded-xl gap-1.5 text-xs text-muted-foreground">
+                Modify This Journey
+              </Button>
+            </div>
             <Button variant="outline" onClick={() => window.print()} className="rounded-xl gap-2 font-bold">
               <Printer size={15} /> Print / Save PDF
             </Button>
           </div>
 
           <div id="travel-guide-print" className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
-            {/* Report header */}
-            <div className="bg-slate-800 text-white px-8 py-6 text-center">
-              <h1 className="text-2xl font-black mb-1">{guide.title || "Travel Itinerary"}</h1>
-              <p className="text-slate-300 text-sm">{guide.summary}</p>
+            {/* Header */}
+            <div className="text-center py-8 px-6 border-b border-slate-200">
+              <h1 className="text-3xl font-black text-slate-800 mb-1">{guide.title || "Travel Itinerary"}</h1>
+              <p className="text-slate-500 text-sm">{guide.summary}</p>
             </div>
 
-            {/* Meta row */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 border-b border-slate-200 divide-x divide-slate-200">
+            {/* Participant info row */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 bg-slate-50 border-b border-slate-200 divide-x divide-slate-200">
               {[
                 { label: "Participant", value: guide.participant },
                 { label: "From", value: guide.origin },
                 { label: "To", value: guide.destination },
-                { label: "Generated", value: guide.generated_date },
+                { label: "Date", value: guide.generated_date },
               ].map(f => (
-                <div key={f.label} className="px-5 py-4">
+                <div key={f.label} className="px-5 py-3">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-0.5">{f.label}</p>
                   <p className="text-sm font-bold text-slate-800">{f.value}</p>
                 </div>
               ))}
             </div>
 
-            <div className="p-6 lg:p-8 space-y-8">
+            <div className="p-6 lg:p-8 space-y-6">
               {/* Routes */}
               {(guide.routes || []).map((route, ri) => (
                 <div key={ri} className="route-card border border-slate-200 rounded-2xl overflow-hidden">
                   {/* Route header */}
-                  <div className="bg-slate-50 px-6 py-4 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200">
+                  <div className="bg-slate-800 text-white px-5 py-3 flex flex-wrap items-center justify-between gap-2">
                     <div>
-                      <h2 className="font-black text-slate-900 text-base">{route.label}</h2>
-                      <p className="text-xs text-slate-500">{route.best_for}</p>
+                      <p className="font-black text-sm">{route.label}</p>
+                      {route.best_for && <p className="text-slate-400 text-xs">{route.best_for}</p>}
                     </div>
-                    <div className="flex flex-wrap gap-2">
-                      <span className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-700">
-                        <Clock size={12} className="text-slate-400" /> {route.total_time}
-                      </span>
-                      <span className="flex items-center gap-1.5 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs font-bold text-slate-700">
-                        💳 {route.total_cost}
-                      </span>
-                      <span className={`rounded-lg px-3 py-1.5 text-xs font-bold ${accessColor(route.accessibility)}`}>
-                        ♿ {route.accessibility}
-                      </span>
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      <span className="bg-white/10 rounded px-2 py-1 font-bold">⏱ {route.total_time}</span>
+                      <span className="bg-white/10 rounded px-2 py-1 font-bold">💳 {route.total_cost}</span>
+                      <span className={`rounded px-2 py-1 font-bold ${
+                        route.accessibility?.toLowerCase().includes("fully") ? "bg-emerald-500" :
+                        route.accessibility?.toLowerCase().includes("partial") ? "bg-amber-500" : "bg-rose-500"
+                      }`}>♿ {route.accessibility}</span>
                     </div>
                   </div>
 
                   {/* Steps */}
-                  <div className="px-6 py-4 space-y-0">
+                  <div className="px-5 py-4 space-y-0">
                     {(route.steps || []).map((step, si) => (
-                      <div key={si} className="flex gap-4">
-                        {/* Timeline */}
-                        <div className="flex flex-col items-center">
-                          <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-black text-slate-600 shrink-0 z-10">
-                            {si + 1}
-                          </div>
-                          {si < route.steps.length - 1 && (
-                            <div className="w-0.5 flex-1 bg-slate-200 my-1" />
-                          )}
+                      <div key={si} className="flex gap-4 step-border pl-4 pb-5 last:pb-0">
+                        <div className="w-7 h-7 rounded-full bg-slate-800 text-white flex items-center justify-center text-xs font-black shrink-0 -ml-7 relative z-10">
+                          {si + 1}
                         </div>
-
-                        {/* Content */}
-                        <div className="pb-5 flex-1 min-w-0">
+                        <div className="flex-1 min-w-0">
                           <div className="flex flex-wrap items-center gap-2 mb-1">
-                            {typeIcon(step.type)}
+                            {step.type === "bus" && (
+                              <span className="text-white text-xs font-black px-2 py-0.5 rounded flex items-center gap-1" style={{ backgroundColor: "#002664" }}>
+                                <Bus size={10} /> Bus
+                              </span>
+                            )}
+                            {step.type === "train" && (
+                              <span className="text-white text-xs font-black px-2 py-0.5 rounded flex items-center gap-1" style={{ backgroundColor: "#F0521F" }}>
+                                <Train size={10} /> Train
+                              </span>
+                            )}
+                            {step.type === "walk" && (
+                              <span className="bg-slate-200 text-slate-700 text-xs font-black px-2 py-0.5 rounded">🚶 Walk</span>
+                            )}
+                            {step.type === "ferry" && (
+                              <span className="text-white text-xs font-black px-2 py-0.5 rounded" style={{ backgroundColor: "#00A9CE" }}>⛴ Ferry</span>
+                            )}
+                            {step.type === "light_rail" && (
+                              <span className="text-white text-xs font-black px-2 py-0.5 rounded" style={{ backgroundColor: "#78BE20" }}>🚊 Light Rail</span>
+                            )}
                             {step.line && (
-                              <span className="inline-block px-2 py-0.5 rounded text-white text-xs font-black" style={{ backgroundColor: step.type === "bus" ? "#002664" : step.type === "train" ? "#F0521F" : "#555" }}>
+                              <span className="text-white text-xs font-black px-2 py-0.5 rounded" style={{ backgroundColor: step.type === "bus" ? "#002664" : step.type === "train" ? "#F0521F" : "#555" }}>
                                 {step.line}
                               </span>
                             )}
                             {step.towards && (
-                              <span className="text-xs text-slate-500 flex items-center gap-1">
-                                <ChevronRight size={11} /> {step.towards}
-                              </span>
+                              <span className="text-xs text-slate-500">→ {step.towards}</span>
                             )}
                             {step.duration && (
-                              <span className="text-xs text-slate-400 ml-auto flex items-center gap-1"><Clock size={10} /> {step.duration}</span>
+                              <span className="text-xs text-slate-400 ml-auto">⏱ {step.duration}</span>
                             )}
                           </div>
                           <p className="text-sm font-bold text-slate-800">{step.instruction}</p>
@@ -295,13 +309,11 @@ Provide 2-3 realistic route options. Make steps very detailed and beginner-frien
 
                   {/* Tips */}
                   {route.tips && route.tips.length > 0 && (
-                    <div className="bg-blue-50 border-t border-slate-200 px-6 py-3">
-                      <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest mb-1.5">Tips for this route</p>
+                    <div className="bg-blue-50 border-t border-slate-200 px-5 py-3">
+                      <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-1">Tips</p>
                       <ul className="space-y-1">
                         {route.tips.map((tip, ti) => (
-                          <li key={ti} className="text-xs text-blue-700 flex items-start gap-1.5">
-                            <span className="text-blue-400 mt-0.5 shrink-0">•</span> {tip}
-                          </li>
+                          <li key={ti} className="text-xs text-blue-700 flex gap-1.5"><span>•</span>{tip}</li>
                         ))}
                       </ul>
                     </div>
@@ -310,14 +322,12 @@ Provide 2-3 realistic route options. Make steps very detailed and beginner-frien
               ))}
 
               {/* Accessibility notes */}
-              {guide.accessibility_notes && guide.accessibility_notes.length > 0 && (
+              {guide.accessibility_notes?.length > 0 && (
                 <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-                  <p className="font-black text-amber-800 mb-2 flex items-center gap-2"><AlertTriangle size={15} /> Accessibility Notes</p>
+                  <p className="font-black text-amber-800 mb-2 flex items-center gap-2"><AlertTriangle size={14} /> Accessibility Notes</p>
                   <ul className="space-y-1">
                     {guide.accessibility_notes.map((n, i) => (
-                      <li key={i} className="text-sm text-amber-700 flex items-start gap-1.5">
-                        <span className="shrink-0 mt-0.5">♿</span> {n}
-                      </li>
+                      <li key={i} className="text-sm text-amber-700 flex gap-1.5"><span>♿</span>{n}</li>
                     ))}
                   </ul>
                 </div>
@@ -339,10 +349,9 @@ Provide 2-3 realistic route options. Make steps very detailed and beginner-frien
                 )}
               </div>
 
-              {/* Footer */}
               <div className="text-center text-xs text-slate-400 pt-4 border-t border-slate-100">
-                Generated by NDIS PRO · Travel Guide for {guide.participant} · {guide.generated_date}
-                <br />Always verify times with Transport for NSW or the Opal app before travel.
+                Generated by NDIS PRO · Travel Guide for {guide.participant} · {guide.generated_date}<br />
+                Always verify times with Transport for NSW or the Opal app before travel.
               </div>
             </div>
           </div>
