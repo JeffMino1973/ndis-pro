@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import {
   ShieldCheck, FileText, Receipt, ClipboardList, CheckCircle, PenLine,
   Loader2, User, Target, AlertTriangle, MessageSquareWarning, Navigation,
-  ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File
+  ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File, Pencil
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -167,6 +167,7 @@ export default function ParticipantPortal() {
   // Document upload
   const [participantDocuments, setParticipantDocuments] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [editingDoc, setEditingDoc] = useState(null);
 
   const handleLookup = async () => {
     setError("");
@@ -461,6 +462,32 @@ export default function ParticipantPortal() {
                   </label>
                 </div>
 
+                {/* Document Edit Modal */}
+                {editingDoc && (
+                  <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
+                      <div className="flex justify-between items-center mb-6">
+                        <h2 className="text-lg font-black text-slate-900">Edit Document</h2>
+                        <button onClick={() => setEditingDoc(null)} className="text-slate-400 hover:text-slate-700"><X size={18} /></button>
+                      </div>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Document Name</label>
+                          <input value={editingDoc.document_name} onChange={e => setEditingDoc({...editingDoc, document_name: e.target.value})} className="w-full h-9 px-3 rounded-md border border-slate-200 text-sm" />
+                        </div>
+                        <div>
+                          <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Document Type</label>
+                          <input value={editingDoc.document_type} onChange={e => setEditingDoc({...editingDoc, document_type: e.target.value})} className="w-full h-9 px-3 rounded-md border border-slate-200 text-sm" />
+                        </div>
+                        <div className="flex gap-2 pt-4">
+                          <button onClick={() => setEditingDoc(null)} className="flex-1 border border-slate-200 rounded-xl py-2 text-sm font-bold text-slate-600">Cancel</button>
+                          <button onClick={async () => { await base44.entities.Document.update(editingDoc.id, {document_name: editingDoc.document_name, document_type: editingDoc.document_type}); const docs = await base44.entities.Document.filter({participant_name: participant.name}, "-created_date").catch(() => []); setParticipantDocuments(docs || []); setEditingDoc(null); }} className="flex-1 bg-primary text-white rounded-xl py-2 text-sm font-bold">Save</button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Document List */}
                 {participantDocuments && participantDocuments.length > 0 ? (
                   <div className="space-y-2">
@@ -476,6 +503,7 @@ export default function ParticipantPortal() {
                         <div className="flex items-center justify-between mt-3">
                           <span className="text-xs text-slate-600 font-semibold">{doc.file_size || "—"}</span>
                           <div className="flex gap-1.5">
+                            <button onClick={() => setEditingDoc(doc)} className="bg-slate-100 text-slate-600 hover:bg-primary hover:text-white rounded-lg p-2 transition-colors" title="Edit"><Pencil size={14} /></button>
                             <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg p-2 transition-colors"><Download size={14} /></a>
                             {base44.entities.Document && <button onClick={() => handleDeleteDocument(doc.id)} className="bg-slate-200 text-slate-600 hover:bg-rose-200 hover:text-rose-600 rounded-lg p-2 transition-colors"><Trash2 size={14} /></button>}
                           </div>
