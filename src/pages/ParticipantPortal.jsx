@@ -12,54 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-// ── Risk Assessment constants (copied from RiskAssessments page) ──
-const RA_LIKELIHOODS = ["Almost Certain", "Likely", "Possible", "Unlikely", "Rare"];
-const RA_CONSEQUENCES = ["Catastrophic", "Major", "Moderate", "Minor", "Insignificant"];
-const RA_RISK_MATRIX = {
-  "Almost Certain": { Catastrophic: "Extreme", Major: "Extreme", Moderate: "High", Minor: "High", Insignificant: "Medium" },
-  "Likely":         { Catastrophic: "Extreme", Major: "High",   Moderate: "High", Minor: "Medium", Insignificant: "Low" },
-  "Possible":       { Catastrophic: "High",    Major: "High",   Moderate: "Medium", Minor: "Low", Insignificant: "Low" },
-  "Unlikely":       { Catastrophic: "High",    Major: "Medium", Moderate: "Low",  Minor: "Low", Insignificant: "Low" },
-  "Rare":           { Catastrophic: "Medium",  Major: "Low",    Moderate: "Low",  Minor: "Low", Insignificant: "Low" },
-};
-const RA_RISK_COLORS = { Low: "bg-green-100 text-green-800", Medium: "bg-orange-100 text-orange-800", High: "bg-red-100 text-red-800", Extreme: "bg-red-900 text-white" };
-function raGetRating(likelihood, consequence) { return RA_RISK_MATRIX[likelihood]?.[consequence] || "Medium"; }
-const RA_DEFAULT_HAZARDS = [
-  { hazard: "Participant getting lost or disoriented", initial_likelihood: "Possible", initial_consequence: "Major", initial_rating: "High", controls: "", residual_likelihood: "Unlikely", residual_consequence: "Minor", residual_rating: "Low", person_responsible: "" },
-  { hazard: "Traffic hazards / Crossing roads unsafely", initial_likelihood: "Unlikely", initial_consequence: "Major", initial_rating: "Medium", controls: "", residual_likelihood: "Rare", residual_consequence: "Minor", residual_rating: "Low", person_responsible: "" },
-  { hazard: "Sensory overload (loud crowds/noise)", initial_likelihood: "Likely", initial_consequence: "Moderate", initial_rating: "High", controls: "", residual_likelihood: "Possible", residual_consequence: "Minor", residual_rating: "Low", person_responsible: "" },
-];
-
-// ── Implementation Program constants ──
 const IP_PHASE_COLORS = ["bg-blue-600", "bg-amber-500", "bg-emerald-500", "bg-purple-600"];
-const IP_BRONWYN_TEMPLATE = {
-  participant_name: "Bronwyn Chau", ndis_number: "430117666",
-  primary_goal: "Independent travel between Coogee and Botany",
-  focus: "Community participation & transport independence",
-  program_overview: "A phased support worker implementation program designed to build Bronwyn's confidence and independence in community travel. Staff will progressively reduce support from full guidance to supervised independence, tracking skill development at each stage.",
-  session_structure: "1. Pre-journey check-in (5 min): Review route, check Opal card balance, confirm destination.\n2. Journey execution: Follow the route with agreed support level.\n3. Post-journey debrief (5–10 min): Discuss what went well, any challenges, and goals for next session.\n4. Progress note: Complete NDIS-compliant note in the app.",
-  data_collection_notes: "Record support level used each session (%), skills demonstrated independently, any safety incidents, participant mood/confidence rating (1–5), and next session focus area.",
-  status: "Active", start_date: new Date().toISOString().split("T")[0],
-  phases: [
-    { phase_number: 1, name: "FULL SUPPORT", weeks: "Week 1–2", goal: "Build familiarity and confidence with the route", support_level: "100%", worker_role: "Instructor + Model", completed: false },
-    { phase_number: 2, name: "GUIDED PRACTICE", weeks: "Week 2–4", goal: "Build active participation and route recall", support_level: "50–70%", worker_role: "Coach", completed: false },
-    { phase_number: 3, name: "SUPERVISED INDEPENDENCE", weeks: "Week 4–6", goal: "Independent execution with backup available", support_level: "10–30%", worker_role: "Observer", completed: false },
-    { phase_number: 4, name: "INDEPENDENT TRIAL", weeks: "Week 6+", goal: "Confirm independence and exit support", support_level: "0–10%", worker_role: "Standby only", completed: false },
-  ],
-  skill_targets: [
-    { skill: "Read and interpret bus timetables", achieved: false },
-    { skill: "Tap on/off with Opal card correctly", achieved: false },
-    { skill: "Navigate to correct bus stop independently", achieved: false },
-    { skill: "Identify correct bus number and direction", achieved: false },
-    { skill: "Manage delays or route changes calmly", achieved: false },
-    { skill: "Use mobile phone for Opal app / Google Maps", achieved: false },
-    { skill: "Communicate with driver or passengers if needed", achieved: false },
-    { skill: "Arrive at destination safely and on time", achieved: false },
-  ],
-  required_tools: ["Opal Card", "Mobile phone with Opal App", "Emergency contact list", "Visual route guide (optional)"],
-  risk_strategies: ["Support worker carries participant's emergency contact card", "Agree on a 'safe word' or signal if participant feels overwhelmed", "Worker remains within visual range during Phase 3", "Participant has support worker number saved on speed dial", "Risk assessment completed prior to first independent trial"],
-  session_logs: [],
-};
 
 const statusColor = {
   Draft: "bg-slate-100 text-slate-600",
@@ -174,6 +127,7 @@ const TABS = [
   { id: "pbsp", label: "Behaviour Plan", icon: MessageSquareWarning },
   { id: "risk_assessment", label: "Travel Risk Assessment", icon: AlertTriangle },
   { id: "implementation", label: "Implementation Program", icon: Target },
+  { id: "travel", label: "Travel Guides", icon: Navigation },
   { id: "reports", label: "Session Notes", icon: Navigation },
   { id: "complaint", label: "Lodge Complaint", icon: MessageSquareWarning },
 ];
@@ -198,110 +152,24 @@ export default function ParticipantPortal() {
   const [signingDoc, setSigningDoc] = useState(null);
   const [activeTab, setActiveTab] = useState("documents");
 
-  // Inline edit state for portal
-  const [editingMed, setEditingMed] = useState(null);
-  const [editingEpilepsy, setEditingEpilepsy] = useState(null);
-  const [editingHealth, setEditingHealth] = useState(null);
-  const [creatingMed, setCreatingMed] = useState(false);
-  const [creatingEpilepsy, setCreatingEpilepsy] = useState(false);
-  const [creatingHealth, setCreatingHealth] = useState(false);
-  const [portalSaving, setPortalSaving] = useState(false);
-
-  // Profile editing
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({});
   const [savingProfile, setSavingProfile] = useState(false);
 
-  // Epilepsy plan editing
   const [editingEpilepsyId, setEditingEpilepsyId] = useState(null);
   const [epilepsyForm, setEpilepsyForm] = useState({});
   const [savingEpilepsy, setSavingEpilepsy] = useState(false);
 
-  // Complaint form
   const [complaintForm, setComplaintForm] = useState({ complaint_type: "Service Delivery", description: "", priority: "Medium" });
   const [submittingComplaint, setSubmittingComplaint] = useState(false);
   const [complaintSubmitted, setComplaintSubmitted] = useState(false);
 
-  // Document upload
   const [participantDocuments, setParticipantDocuments] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [editingDoc, setEditingDoc] = useState(null);
 
-  // Menu
   const [menuOpen, setMenuOpen] = useState(false);
-
-  // Risk Assessment tab state
   const [raAssessments, setRaAssessments] = useState([]);
-  const [raLoading, setRaLoading] = useState(false);
-  const [raSaving, setRaSaving] = useState(false);
-  const [raPrintData, setRaPrintData] = useState(null);
-  const [raRenameId, setRaRenameId] = useState(null);
-  const [raRenameVal, setRaRenameVal] = useState("");
-  const [raHazards, setRaHazards] = useState(RA_DEFAULT_HAZARDS.map(h => ({ ...h })));
-  const [raParticipants, setRaParticipants] = useState([]);
-  const [raForm, setRaForm] = useState({ title: "", participant_id: "", participant_name: "", participant_dob: "", ndis_number: "", home_address: "", destination: "", assessor_name: "", assessor_role: "", activity_description: "", assessment_date: new Date().toISOString().split("T")[0], review_date: "", emergency_contact_1_name: "", emergency_contact_1_phone: "", emergency_contact_1_rel: "", emergency_contact_2_name: "", emergency_contact_2_phone: "", emergency_contact_2_rel: "" });
-
-  // Implementation Program tab state
-  const [ipPrograms, setIpPrograms] = useState([]);
-  const [ipSelected, setIpSelected] = useState(null);
-  const [ipView, setIpView] = useState("list");
-  const [ipEditingId, setIpEditingId] = useState(null);
-  const [ipForm, setIpForm] = useState(null);
-  const [ipSaving, setIpSaving] = useState(false);
-  const [ipExpandedSections, setIpExpandedSections] = useState({ phases: true, skills: true, logs: true });
-  const [ipNewLog, setIpNewLog] = useState({ date: new Date().toISOString().split("T")[0], phase: "Phase 1", support_level_used: "", skills_practiced: "", participant_response: "", incidents: "", next_session_focus: "", logged_by: "" });
-
-  // ── Risk Assessment helpers ──
-  const raLoadAssessments = async () => {
-    setRaLoading(true);
-    const [data, parts] = await Promise.all([base44.entities.RiskAssessment.list("-created_date"), base44.entities.Participant.list()]);
-    setRaAssessments(data); setRaParticipants(parts); setRaLoading(false);
-  };
-  const raSaveRename = async (id) => { await base44.entities.RiskAssessment.update(id, { title: raRenameVal }); setRaRenameId(null); raLoadAssessments(); };
-  const raSet = (f, v) => setRaForm(p => ({ ...p, [f]: v }));
-  const raSelectParticipant = (id) => { const p = raParticipants.find(x => x.id === id); if (!p) return; setRaForm(prev => ({ ...prev, participant_id: p.id, participant_name: p.name, participant_dob: p.date_of_birth || "", ndis_number: p.ndis_number || "", home_address: p.address || "", emergency_contact_1_name: p.emergency_contact_name || "", emergency_contact_1_phone: p.emergency_contact_phone || "", emergency_contact_1_rel: p.emergency_contact_relationship || "" })); };
-  const raUpdateHazard = (i, field, value) => { setRaHazards(prev => prev.map((h, idx) => { if (idx !== i) return h; const updated = { ...h, [field]: value }; if (field === "initial_likelihood" || field === "initial_consequence") { const l = field === "initial_likelihood" ? value : h.initial_likelihood; const c = field === "initial_consequence" ? value : h.initial_consequence; updated.initial_rating = raGetRating(l, c); } if (field === "residual_likelihood" || field === "residual_consequence") { const l = field === "residual_likelihood" ? value : h.residual_likelihood; const c = field === "residual_consequence" ? value : h.residual_consequence; updated.residual_rating = raGetRating(l, c); } return updated; })); };
-  const raAddHazard = () => setRaHazards(prev => [...prev, { hazard: "", initial_likelihood: "Possible", initial_consequence: "Moderate", initial_rating: "Medium", controls: "", residual_likelihood: "Unlikely", residual_consequence: "Minor", residual_rating: "Low", person_responsible: "" }]);
-  const raRemoveHazard = (i) => setRaHazards(prev => prev.filter((_, idx) => idx !== i));
-  const raOverallRisk = () => { const order = ["Extreme", "High", "Medium", "Low"]; for (const level of order) { if (raHazards.some(h => h.residual_rating === level)) return level; } return "Low"; };
-  const raSaveAssessment = async () => { setRaSaving(true); await base44.entities.RiskAssessment.create({ ...raForm, hazards: raHazards, overall_risk_level: raOverallRisk(), status: "Draft" }); await raLoadAssessments(); setRaSaving(false); };
-
-  // ── Implementation Program helpers ──
-  const [ipLoading, setIpLoading] = useState(false);
-  const ipLoad = async () => { setIpLoading(true); const data = await base44.entities.ImplementationProgram.list("-created_date"); setIpPrograms(data); setIpLoading(false); };
-  const ipStartNew = (template = null) => { setIpForm(template ? { ...template } : { participant_name: "", ndis_number: "", primary_goal: "", focus: "", program_overview: "", session_structure: "", data_collection_notes: "", status: "Active", start_date: new Date().toISOString().split("T")[0], phases: [{ phase_number: 1, name: "FULL SUPPORT", weeks: "Week 1–2", goal: "", support_level: "100%", worker_role: "Instructor", completed: false }, { phase_number: 2, name: "GUIDED PRACTICE", weeks: "Week 2–4", goal: "", support_level: "50–70%", worker_role: "Coach", completed: false }, { phase_number: 3, name: "SUPERVISED INDEPENDENCE", weeks: "Week 4–6", goal: "", support_level: "10–30%", worker_role: "Observer", completed: false }, { phase_number: 4, name: "INDEPENDENT TRIAL", weeks: "Week 6+", goal: "", support_level: "0–10%", worker_role: "Standby", completed: false }], skill_targets: [{ skill: "", achieved: false }], required_tools: [""], risk_strategies: [""], session_logs: [] }); setIpView("form"); };
-  const ipSave = async () => { 
-    setIpSaving(true); 
-    if (ipEditingId) {
-      await base44.entities.ImplementationProgram.update(ipEditingId, ipForm);
-    } else {
-      await base44.entities.ImplementationProgram.create(ipForm);
-    }
-    const saved = await base44.entities.ImplementationProgram.filter({ participant_name: ipForm.participant_name });
-    const prog = saved.find(p => p.participant_name === ipForm.participant_name);
-    setIpEditingId(null);
-    await ipLoad();
-    setIpSelected(prog);
-    setIpView("detail");
-    setIpSaving(false);
-  };
-  const ipDelete = async (progId, progName) => {
-    if (!window.confirm(`Delete "${progName}"?`)) return;
-    await base44.entities.ImplementationProgram.delete(progId);
-    await ipLoad();
-    setIpView("list");
-  };
-  const ipEditProgram = (prog) => {
-    setIpForm({ ...prog });
-    setIpEditingId(prog.id);
-    setIpView("form");
-  };
-  const ipAddLog = async () => { const updated = { ...ipSelected, session_logs: [...(ipSelected.session_logs || []), ipNewLog] }; await base44.entities.ImplementationProgram.update(ipSelected.id, { session_logs: updated.session_logs }); setIpSelected(updated); setIpNewLog({ date: new Date().toISOString().split("T")[0], phase: "Phase 1", support_level_used: "", skills_practiced: "", participant_response: "", incidents: "", next_session_focus: "", logged_by: "" }); await ipLoad(); };
-  const ipToggleSkill = async (i) => { const skills = ipSelected.skill_targets.map((s, idx) => idx === i ? { ...s, achieved: !s.achieved } : s); const updated = { ...ipSelected, skill_targets: skills }; await base44.entities.ImplementationProgram.update(ipSelected.id, { skill_targets: skills }); setIpSelected(updated); };
-  const ipTogglePhase = async (i) => { const phases = ipSelected.phases.map((p, idx) => idx === i ? { ...p, completed: !p.completed } : p); const updated = { ...ipSelected, phases }; await base44.entities.ImplementationProgram.update(ipSelected.id, { phases }); setIpSelected(updated); };
-  const ipToggleSection = (key) => setIpExpandedSections(prev => ({ ...prev, [key]: !prev[key] }));
-  const ipCompletedSkills = (p) => (p.skill_targets || []).filter(s => s.achieved).length;
-  const ipCompletedPhases = (p) => (p.phases || []).filter(ph => ph.completed).length;
 
   const handleLookup = async () => {
     setError("");
@@ -337,13 +205,7 @@ export default function ParticipantPortal() {
     setMedications(dedup(meds)); setEpilepsyPlans(dedup(epilepsy)); setPbsps(dedup(pbsp));
     setHealthPlans(dedup(hcp)); setParticipantDocuments(dedup(docs));
     setImplementationPrograms(dedup(impPrograms));
-    // Pre-fill RA participants list
-    const allParts = await base44.entities.Participant.list();
-    setRaParticipants(allParts);
-    // Pre-load RA assessments for this participant
     setRaAssessments(dedup(risks));
-    // Pre-load IP programs for this participant
-    setIpPrograms(dedup(impPrograms));
     setLoading(false);
   };
 
@@ -384,7 +246,6 @@ export default function ParticipantPortal() {
     setComplaintSubmitted(true);
     setComplaintForm({ complaint_type: "Service Delivery", description: "", priority: "Medium" });
     setSubmittingComplaint(false);
-    // Refresh complaints
     const comp = await base44.entities.Complaint.filter({ participant_name: participant.name }, "-created_date");
     setComplaints(comp);
   };
@@ -495,7 +356,6 @@ export default function ParticipantPortal() {
           </button>
         </div>
 
-        {/* Dropdown */}
         {menuOpen && (
           <div className="absolute top-full left-0 right-0 bg-white border-b border-slate-200 shadow-lg z-50">
             <div className="grid grid-cols-2 gap-px bg-slate-100">
@@ -579,13 +439,9 @@ export default function ParticipantPortal() {
               </section>
             )}
 
-
-
-            {/* Document Upload & View */}
             <section>
               <h3 className="font-black text-slate-800 flex items-center gap-2 mb-3"><File size={16} className="text-blue-600" /> Your Documents</h3>
               <div className="space-y-3">
-                {/* Upload */}
                 <div className="bg-white border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center">
                   <input type="file" onChange={handleDocumentUpload} disabled={uploading} className="hidden" id="doc-upload" />
                   <label htmlFor="doc-upload" className="cursor-pointer">
@@ -598,7 +454,6 @@ export default function ParticipantPortal() {
                   </label>
                 </div>
 
-                {/* Document Edit Modal */}
                 {editingDoc && (
                   <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
                     <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl">
@@ -624,7 +479,6 @@ export default function ParticipantPortal() {
                   </div>
                 )}
 
-                {/* Document List */}
                 {participantDocuments && participantDocuments.length > 0 ? (
                   <div className="space-y-2">
                     {participantDocuments.map(doc => (
@@ -679,7 +533,6 @@ export default function ParticipantPortal() {
                 )}
               </div>
 
-              {/* Read-only fields */}
               <div className="space-y-3 mb-4">
                 <div className="bg-slate-50 rounded-xl p-3">
                   <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Full Name</p>
@@ -701,7 +554,6 @@ export default function ParticipantPortal() {
                 )}
               </div>
 
-              {/* Editable fields */}
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Contact Information</p>
               {editingProfile ? (
                 <div className="space-y-3">
@@ -774,7 +626,7 @@ export default function ParticipantPortal() {
                   {participant.goals.map((goal, i) => {
                     const g = typeof goal === "string" ? { text: goal, progress: 0, status: "In Progress" } : goal;
                     const pct = g.progress || 0;
-                    const statusColor = g.status === "Achieved" ? "bg-emerald-100 text-emerald-700" : g.status === "On Track" ? "bg-blue-100 text-blue-700" : g.status === "Discontinued" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700";
+                    const sc = g.status === "Achieved" ? "bg-emerald-100 text-emerald-700" : g.status === "On Track" ? "bg-blue-100 text-blue-700" : g.status === "Discontinued" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700";
                     const barColor = pct >= 80 ? "bg-emerald-500" : pct >= 40 ? "bg-amber-500" : "bg-blue-500";
                     return (
                       <div key={i} className="p-4 bg-primary/5 border border-primary/10 rounded-xl space-y-2">
@@ -783,7 +635,7 @@ export default function ParticipantPortal() {
                             <div className="w-7 h-7 bg-primary text-white rounded-lg flex items-center justify-center text-xs font-black shrink-0 mt-0.5">{i + 1}</div>
                             <p className="text-sm text-slate-800 font-medium leading-relaxed">{g.text}</p>
                           </div>
-                          {g.status && <span className={`text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 ${statusColor}`}>{g.status}</span>}
+                          {g.status && <span className={`text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 ${sc}`}>{g.status}</span>}
                         </div>
                         <div className="flex items-center gap-3 pl-10">
                           <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
@@ -797,28 +649,10 @@ export default function ParticipantPortal() {
                 </div>
               )}
             </div>
-
-            {progressNotes.filter(n => n.status === "Finalised").length > 0 && (
-              <div className="bg-white border border-slate-200 rounded-2xl p-6">
-                <h3 className="font-black text-slate-900 text-lg mb-4">Recent Progress Notes</h3>
-                <div className="space-y-3">
-                  {progressNotes.filter(n => n.status === "Finalised").slice(0, 5).map(n => (
-                    <div key={n.id} className="p-4 bg-slate-50 rounded-xl">
-                      <div className="flex items-center justify-between mb-2">
-                        <p className="text-xs font-black text-slate-500 uppercase">{n.note_date} · {n.template_type}</p>
-                        <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Finalised</span>
-                      </div>
-                      {n.outcomes && <p className="text-sm text-slate-700"><span className="font-bold">Outcomes: </span>{n.outcomes}</p>}
-                      {n.activities_delivered && <p className="text-xs text-slate-500 mt-1">{n.activities_delivered}</p>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         )}
 
-        {/* EPILEPSY PLAN TAB - FULL DOCUMENT */}
+        {/* EPILEPSY PLAN TAB */}
         {activeTab === "epilepsy" && (
           <div className="space-y-6 max-w-4xl">
             {epilepsyPlans.length === 0 ? (
@@ -830,177 +664,171 @@ export default function ParticipantPortal() {
               const isEditing = editingEpilepsyId === plan.id;
               const form = isEditing ? epilepsyForm : plan;
               return (
-              <div key={plan.id} className="space-y-6">
-                {editingEpilepsyId === plan.id && (
-                  <div className="flex gap-2 mb-4">
-                    <Button size="sm" onClick={async () => { setSavingEpilepsy(true); await base44.entities.EpilepsyPlan.update(editingEpilepsyId, epilepsyForm); await handleLookup(); setEditingEpilepsyId(null); setSavingEpilepsy(false); }} className="rounded-lg gap-1 font-bold" disabled={savingEpilepsy}><Save size={14} /> Save</Button>
-                    <Button size="sm" variant="outline" onClick={() => setEditingEpilepsyId(null)} className="rounded-lg">Cancel</Button>
-                  </div>
-                )}
-                {!isEditing && (
-                  <div className="flex justify-end">
-                    <Button size="sm" onClick={() => { setEditingEpilepsyId(plan.id); setEpilepsyForm({...plan}); }} className="rounded-lg gap-1 font-bold"><Pencil size={14} /> Edit Plan</Button>
-                  </div>
-                )}
-                {/* Header */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                  <div className="p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                    <div>
+                <div key={plan.id} className="space-y-6">
+                  {isEditing && (
+                    <div className="flex gap-2 mb-4">
+                      <Button size="sm" onClick={async () => { setSavingEpilepsy(true); await base44.entities.EpilepsyPlan.update(editingEpilepsyId, epilepsyForm); await handleLookup(); setEditingEpilepsyId(null); setSavingEpilepsy(false); }} className="rounded-lg gap-1 font-bold" disabled={savingEpilepsy}><Save size={14} /> Save</Button>
+                      <Button size="sm" variant="outline" onClick={() => setEditingEpilepsyId(null)} className="rounded-lg">Cancel</Button>
+                    </div>
+                  )}
+                  {!isEditing && (
+                    <div className="flex justify-end">
+                      <Button size="sm" onClick={() => { setEditingEpilepsyId(plan.id); setEpilepsyForm({...plan}); }} className="rounded-lg gap-1 font-bold"><Pencil size={14} /> Edit Plan</Button>
+                    </div>
+                  )}
+
+                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="p-6 sm:p-8">
                       <h1 className="text-2xl sm:text-3xl font-black text-slate-800 flex items-center gap-3">
                         <span>🧠</span> EPILEPSY HEALTH CARE MANAGEMENT PLAN
                       </h1>
                       <p className="text-blue-600 font-bold mt-1">NDIS / School / Support Worker Ready</p>
                     </div>
                   </div>
-                </div>
 
-                {/* 1. Participant Details */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                  <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
-                    <h2 className="font-black text-lg flex items-center gap-2">🧍 1. PARTICIPANT DETAILS</h2>
-                  </div>
-                  <div className="p-6 space-y-4">
-                  {isEditing ? (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div><Label className="text-xs">Participant Name</Label><Input value={form.participant_name} onChange={e => setEpilepsyForm({...form, participant_name: e.target.value})} className="mt-1" /></div>
-                      <div><Label className="text-xs">NDIS Number</Label><Input value={form.ndis_number} onChange={e => setEpilepsyForm({...form, ndis_number: e.target.value})} className="mt-1" /></div>
-                      <div><Label className="text-xs">Date of Birth</Label><Input type="date" value={form.date_of_birth} onChange={e => setEpilepsyForm({...form, date_of_birth: e.target.value})} className="mt-1" /></div>
-                      <div><Label className="text-xs">Diagnosis</Label><Input value={form.diagnosis} onChange={e => setEpilepsyForm({...form, diagnosis: e.target.value})} className="mt-1" /></div>
-                      <div><Label className="text-xs">Neurologist / GP</Label><Input value={form.neurologist} onChange={e => setEpilepsyForm({...form, neurologist: e.target.value})} className="mt-1" /></div>
-                      <div><Label className="text-xs">Neurologist Phone</Label><Input value={form.neurologist_phone} onChange={e => setEpilepsyForm({...form, neurologist_phone: e.target.value})} className="mt-1" /></div>
-                      <div className="md:col-span-2"><Label className="text-xs">Review Date</Label><Input type="date" value={form.review_date} onChange={e => setEpilepsyForm({...form, review_date: e.target.value})} className="mt-1" /></div>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                      <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Participant Name</span><span className="font-black">{form.participant_name}</span></div>
-                      <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">NDIS Number</span><span className="font-bold">{form.ndis_number || "—"}</span></div>
-                      <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Date of Birth</span><span className="font-bold">{form.date_of_birth || "—"}</span></div>
-                      <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Primary Diagnosis</span><span className="font-bold text-blue-700">{form.diagnosis}</span></div>
-                      <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Neurologist / GP</span><span className="font-bold">{form.neurologist || "—"}</span></div>
-                      <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Review Date</span><span className="font-bold text-rose-600">{form.review_date || "—"}</span></div>
-                    </div>
-                  )}
-                  </div>
-                </div>
-
-                {/* 2. Seizure Profile */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                  <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
-                    <h2 className="font-black text-lg flex items-center gap-2">⚠️ 2. SEIZURE PROFILE</h2>
-                  </div>
-                  {isEditing ? (
-                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div><Label className="text-xs">Seizure Types</Label><Textarea value={form.seizure_types} onChange={e => setEpilepsyForm({...form, seizure_types: e.target.value})} className="mt-1 min-h-[60px]" /></div>
-                      <div><Label className="text-xs">Typical Duration</Label><Input value={form.typical_duration} onChange={e => setEpilepsyForm({...form, typical_duration: e.target.value})} className="mt-1" /></div>
-                      <div><Label className="text-xs">Warning Signs / Aura</Label><Textarea value={form.warning_signs} onChange={e => setEpilepsyForm({...form, warning_signs: e.target.value})} className="mt-1 min-h-[60px]" /></div>
-                      <div><Label className="text-xs">Known Triggers</Label><Textarea value={form.known_triggers} onChange={e => setEpilepsyForm({...form, known_triggers: e.target.value})} className="mt-1 min-h-[60px]" /></div>
-                      <div className="md:col-span-2"><Label className="text-xs">Post-Seizure Description</Label><Textarea value={form.postictal_description} onChange={e => setEpilepsyForm({...form, postictal_description: e.target.value})} className="mt-1 min-h-[60px]" /></div>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left">
-                        <tbody className="divide-y divide-slate-100">
-                          {form.typical_duration && <tr><td className="px-6 py-4 font-bold text-slate-600 w-1/3">Typical Duration</td><td className="px-6 py-4">{form.typical_duration}</td></tr>}
-                          {form.known_triggers && <tr><td className="px-6 py-4 font-bold text-slate-600">Known Triggers</td><td className="px-6 py-4">{form.known_triggers}</td></tr>}
-                          {form.warning_signs && <tr><td className="px-6 py-4 font-bold text-slate-600">Warning Signs (Aura)</td><td className="px-6 py-4 italic text-amber-700">{form.warning_signs}</td></tr>}
-                          {form.postictal_description && <tr><td className="px-6 py-4 font-bold text-slate-600">Post-Seizure Symptoms</td><td className="px-6 py-4">{form.postictal_description}</td></tr>}
-                        </tbody>
-                      </table>
-                    </div>
-                  )}
-                </div>
-
-                {/* 3. Emergency Response Plan */}
-                <div className="bg-white rounded-2xl shadow-md border-2 border-rose-200 overflow-hidden">
-                  <div className="bg-gradient-to-r from-rose-600 to-rose-900 text-white px-6 py-4">
-                    <h2 className="font-black text-xl flex items-center gap-2">🚨 3. EMERGENCY RESPONSE PLAN (CRITICAL)</h2>
-                  </div>
-                  {isEditing ? (
-                    <div className="p-6 space-y-4">
-                      <div><Label className="text-xs">Emergency Steps (one per line)</Label><Textarea value={(form.emergency_steps || []).join('\n')} onChange={e => setEpilepsyForm({...form, emergency_steps: e.target.value.split('\n').filter(Boolean)})} className="mt-1 min-h-[100px]" /></div>
-                      <div><Label className="text-xs">Call 000 If... (one per line)</Label><Textarea value={(form.call_000_if || []).join('\n')} onChange={e => setEpilepsyForm({...form, call_000_if: e.target.value.split('\n').filter(Boolean)})} className="mt-1 min-h-[80px]" /></div>
-                      <div><Label className="text-xs">Do NOT Do (one per line)</Label><Textarea value={(form.do_not_do || []).join('\n')} onChange={e => setEpilepsyForm({...form, do_not_do: e.target.value.split('\n').filter(Boolean)})} className="mt-1 min-h-[80px]" /></div>
-                    </div>
-                  ) : (
-                    <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-8">
-                      <div>
-                        <h3 className="text-rose-700 font-black uppercase tracking-wider mb-4 border-b pb-2">🔴 IF SEIZURE OCCURS:</h3>
-                        <ol className="space-y-3 list-decimal list-inside font-medium text-sm">
-                          {(form.emergency_steps || []).map((step, i) => <li key={i} className="pl-2 text-slate-700">{step}</li>)}
-                        </ol>
-                      </div>
-                      <div className="bg-rose-50 p-5 rounded-lg border border-rose-100">
-                        <h3 className="text-rose-800 font-black uppercase tracking-wider mb-4 flex items-center gap-2">🚑 CALL 000 IF:</h3>
-                        <ul className="space-y-2 font-bold text-rose-900 text-sm">
-                          {(form.call_000_if || []).map((cond, i) => <li key={i} className="flex gap-2"><span>•</span>{cond}</li>)}
-                        </ul>
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {/* 4. Medication Management */}
-                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                  <div className="bg-blue-50 px-6 py-3 border-b border-blue-100">
-                    <h2 className="font-black text-lg text-blue-900 flex items-center gap-2">💊 4. MEDICATION MANAGEMENT</h2>
-                  </div>
-                  <div className="p-6 space-y-6">
-                    {isEditing ? (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div><Label className="text-xs">Rescue Medication Name</Label><Input value={form.rescue_medication_name} onChange={e => setEpilepsyForm({...form, rescue_medication_name: e.target.value})} className="mt-1" /></div>
-                        <div><Label className="text-xs">Dose</Label><Input value={form.rescue_dose} onChange={e => setEpilepsyForm({...form, rescue_dose: e.target.value})} className="mt-1" /></div>
-                        <div><Label className="text-xs">Route</Label><Input value={form.rescue_route} onChange={e => setEpilepsyForm({...form, rescue_route: e.target.value})} className="mt-1" /></div>
-                        <div><Label className="text-xs">When to Give</Label><Input value={form.rescue_when} onChange={e => setEpilepsyForm({...form, rescue_when: e.target.value})} className="mt-1" /></div>
-                      </div>
-                    ) : (
-                      form.rescue_medication_name && (
-                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
-                          <h3 className="font-black text-amber-800 mb-3 flex items-center gap-2">🔹 RESCUE MEDICATION (Emergency Only)</h3>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                            <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Medication</span><span className="font-black">{form.rescue_medication_name}</span></div>
-                            <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Trigger</span><span className="font-black text-rose-700">{form.rescue_when || "> 5 mins seizure"}</span></div>
-                            <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Dose</span><span className="font-black">{form.rescue_dose}</span></div>
-                            <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Method</span><span className="font-black">{form.rescue_route}</span></div>
-                          </div>
-                        </div>
-                      )
-                    )}
-                  </div>
-                </div>
-
-                {/* 5 & 6. Strategies and Risk */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
-                      <h2 className="font-black text-lg flex items-center gap-2">🧠 5. DAILY SUPPORT</h2>
+                      <h2 className="font-black text-lg">🧍 1. PARTICIPANT DETAILS</h2>
                     </div>
-                    <div className="p-6 space-y-3 text-sm text-slate-700">
+                    <div className="p-6">
                       {isEditing ? (
-                        <Textarea value={(form.daily_strategies || []).join('\n')} onChange={e => setEpilepsyForm({...form, daily_strategies: e.target.value.split('\n').filter(Boolean)})} className="min-h-[80px]" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div><Label className="text-xs">Participant Name</Label><Input value={form.participant_name} onChange={e => setEpilepsyForm({...form, participant_name: e.target.value})} className="mt-1" /></div>
+                          <div><Label className="text-xs">NDIS Number</Label><Input value={form.ndis_number} onChange={e => setEpilepsyForm({...form, ndis_number: e.target.value})} className="mt-1" /></div>
+                          <div><Label className="text-xs">Date of Birth</Label><Input type="date" value={form.date_of_birth} onChange={e => setEpilepsyForm({...form, date_of_birth: e.target.value})} className="mt-1" /></div>
+                          <div><Label className="text-xs">Diagnosis</Label><Input value={form.diagnosis} onChange={e => setEpilepsyForm({...form, diagnosis: e.target.value})} className="mt-1" /></div>
+                          <div><Label className="text-xs">Neurologist / GP</Label><Input value={form.neurologist} onChange={e => setEpilepsyForm({...form, neurologist: e.target.value})} className="mt-1" /></div>
+                          <div><Label className="text-xs">Neurologist Phone</Label><Input value={form.neurologist_phone} onChange={e => setEpilepsyForm({...form, neurologist_phone: e.target.value})} className="mt-1" /></div>
+                          <div className="md:col-span-2"><Label className="text-xs">Review Date</Label><Input type="date" value={form.review_date} onChange={e => setEpilepsyForm({...form, review_date: e.target.value})} className="mt-1" /></div>
+                        </div>
                       ) : (
-                        (form.daily_strategies || []).map((s, i) => <p key={i}><strong>{s.split(":")[0]}:</strong> {s.split(":")[1] || s}</p>)
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                          <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Participant Name</span><span className="font-black">{form.participant_name}</span></div>
+                          <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">NDIS Number</span><span className="font-bold">{form.ndis_number || "—"}</span></div>
+                          <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Date of Birth</span><span className="font-bold">{form.date_of_birth || "—"}</span></div>
+                          <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Primary Diagnosis</span><span className="font-bold text-blue-700">{form.diagnosis}</span></div>
+                          <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Neurologist / GP</span><span className="font-bold">{form.neurologist || "—"}</span></div>
+                          <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Review Date</span><span className="font-bold text-rose-600">{form.review_date || "—"}</span></div>
+                        </div>
                       )}
                     </div>
+                  </div>
+
+                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
+                      <h2 className="font-black text-lg">⚠️ 2. SEIZURE PROFILE</h2>
+                    </div>
+                    {isEditing ? (
+                      <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><Label className="text-xs">Seizure Types</Label><Textarea value={form.seizure_types} onChange={e => setEpilepsyForm({...form, seizure_types: e.target.value})} className="mt-1 min-h-[60px]" /></div>
+                        <div><Label className="text-xs">Typical Duration</Label><Input value={form.typical_duration} onChange={e => setEpilepsyForm({...form, typical_duration: e.target.value})} className="mt-1" /></div>
+                        <div><Label className="text-xs">Warning Signs / Aura</Label><Textarea value={form.warning_signs} onChange={e => setEpilepsyForm({...form, warning_signs: e.target.value})} className="mt-1 min-h-[60px]" /></div>
+                        <div><Label className="text-xs">Known Triggers</Label><Textarea value={form.known_triggers} onChange={e => setEpilepsyForm({...form, known_triggers: e.target.value})} className="mt-1 min-h-[60px]" /></div>
+                        <div className="md:col-span-2"><Label className="text-xs">Post-Seizure Description</Label><Textarea value={form.postictal_description} onChange={e => setEpilepsyForm({...form, postictal_description: e.target.value})} className="mt-1 min-h-[60px]" /></div>
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left">
+                          <tbody className="divide-y divide-slate-100">
+                            {form.typical_duration && <tr><td className="px-6 py-4 font-bold text-slate-600 w-1/3">Typical Duration</td><td className="px-6 py-4">{form.typical_duration}</td></tr>}
+                            {form.known_triggers && <tr><td className="px-6 py-4 font-bold text-slate-600">Known Triggers</td><td className="px-6 py-4">{form.known_triggers}</td></tr>}
+                            {form.warning_signs && <tr><td className="px-6 py-4 font-bold text-slate-600">Warning Signs (Aura)</td><td className="px-6 py-4 italic text-amber-700">{form.warning_signs}</td></tr>}
+                            {form.postictal_description && <tr><td className="px-6 py-4 font-bold text-slate-600">Post-Seizure Symptoms</td><td className="px-6 py-4">{form.postictal_description}</td></tr>}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="bg-white rounded-2xl shadow-md border-2 border-rose-200 overflow-hidden">
+                    <div className="bg-gradient-to-r from-rose-600 to-rose-900 text-white px-6 py-4">
+                      <h2 className="font-black text-xl">🚨 3. EMERGENCY RESPONSE PLAN (CRITICAL)</h2>
+                    </div>
+                    {isEditing ? (
+                      <div className="p-6 space-y-4">
+                        <div><Label className="text-xs">Emergency Steps (one per line)</Label><Textarea value={(form.emergency_steps || []).join('\n')} onChange={e => setEpilepsyForm({...form, emergency_steps: e.target.value.split('\n').filter(Boolean)})} className="mt-1 min-h-[100px]" /></div>
+                        <div><Label className="text-xs">Call 000 If... (one per line)</Label><Textarea value={(form.call_000_if || []).join('\n')} onChange={e => setEpilepsyForm({...form, call_000_if: e.target.value.split('\n').filter(Boolean)})} className="mt-1 min-h-[80px]" /></div>
+                        <div><Label className="text-xs">Do NOT Do (one per line)</Label><Textarea value={(form.do_not_do || []).join('\n')} onChange={e => setEpilepsyForm({...form, do_not_do: e.target.value.split('\n').filter(Boolean)})} className="mt-1 min-h-[80px]" /></div>
+                      </div>
+                    ) : (
+                      <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-8">
+                        <div>
+                          <h3 className="text-rose-700 font-black uppercase tracking-wider mb-4 border-b pb-2">🔴 IF SEIZURE OCCURS:</h3>
+                          <ol className="space-y-3 list-decimal list-inside font-medium text-sm">
+                            {(form.emergency_steps || []).map((step, i) => <li key={i} className="pl-2 text-slate-700">{step}</li>)}
+                          </ol>
+                        </div>
+                        <div className="bg-rose-50 p-5 rounded-lg border border-rose-100">
+                          <h3 className="text-rose-800 font-black uppercase tracking-wider mb-4">🚑 CALL 000 IF:</h3>
+                          <ul className="space-y-2 font-bold text-rose-900 text-sm">
+                            {(form.call_000_if || []).map((cond, i) => <li key={i} className="flex gap-2"><span>•</span>{cond}</li>)}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="bg-blue-50 px-6 py-3 border-b border-blue-100">
+                      <h2 className="font-black text-lg text-blue-900">💊 4. MEDICATION MANAGEMENT</h2>
+                    </div>
+                    <div className="p-6">
+                      {isEditing ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div><Label className="text-xs">Rescue Medication Name</Label><Input value={form.rescue_medication_name} onChange={e => setEpilepsyForm({...form, rescue_medication_name: e.target.value})} className="mt-1" /></div>
+                          <div><Label className="text-xs">Dose</Label><Input value={form.rescue_dose} onChange={e => setEpilepsyForm({...form, rescue_dose: e.target.value})} className="mt-1" /></div>
+                          <div><Label className="text-xs">Route</Label><Input value={form.rescue_route} onChange={e => setEpilepsyForm({...form, rescue_route: e.target.value})} className="mt-1" /></div>
+                          <div><Label className="text-xs">When to Give</Label><Input value={form.rescue_when} onChange={e => setEpilepsyForm({...form, rescue_when: e.target.value})} className="mt-1" /></div>
+                        </div>
+                      ) : (
+                        form.rescue_medication_name && (
+                          <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+                            <h3 className="font-black text-amber-800 mb-3">🔹 RESCUE MEDICATION (Emergency Only)</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                              <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Medication</span><span className="font-black">{form.rescue_medication_name}</span></div>
+                              <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Trigger</span><span className="font-black text-rose-700">{form.rescue_when || "> 5 mins seizure"}</span></div>
+                              <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Dose</span><span className="font-black">{form.rescue_dose}</span></div>
+                              <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Method</span><span className="font-black">{form.rescue_route}</span></div>
+                            </div>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                      <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
+                        <h2 className="font-black text-lg">🧠 5. DAILY SUPPORT</h2>
+                      </div>
+                      <div className="p-6 space-y-3 text-sm text-slate-700">
+                        {isEditing ? (
+                          <Textarea value={(form.daily_strategies || []).join('\n')} onChange={e => setEpilepsyForm({...form, daily_strategies: e.target.value.split('\n').filter(Boolean)})} className="min-h-[80px]" />
+                        ) : (
+                          (form.daily_strategies || []).map((s, i) => <p key={i}><strong>{s.split(":")[0]}:</strong> {s.split(":")[1] || s}</p>)
+                        )}
+                      </div>
                     </div>
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
-                      <h2 className="font-black text-lg flex items-center gap-2">🛡️ 6. RISK MANAGEMENT</h2>
+                      <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
+                        <h2 className="font-black text-lg">🛡️ 6. RISK MANAGEMENT</h2>
+                      </div>
+                      <div className="p-6 space-y-3 text-sm text-slate-700">
+                        {isEditing ? (
+                          <Textarea value={(form.risk_strategies || []).join('\n')} onChange={e => setEpilepsyForm({...form, risk_strategies: e.target.value.split('\n').filter(Boolean)})} className="min-h-[80px]" />
+                        ) : (
+                          (form.risk_strategies || []).map((s, i) => <p key={i}><span className="inline-block w-4 h-4 bg-amber-200 rounded mr-2"></span><strong>{s.split(":")[0]}:</strong> {s.split(":")[1] || s}</p>)
+                        )}
+                      </div>
                     </div>
-                    <div className="p-6 space-y-3 text-sm text-slate-700">
-                      {isEditing ? (
-                        <Textarea value={(form.risk_strategies || []).join('\n')} onChange={e => setEpilepsyForm({...form, risk_strategies: e.target.value.split('\n').filter(Boolean)})} className="min-h-[80px]" />
-                      ) : (
-                        (form.risk_strategies || []).map((s, i) => <p key={i}><span className="inline-block w-4 h-4 bg-amber-200 rounded mr-2"></span><strong>{s.split(":")[0]}:</strong> {s.split(":")[1] || s}</p>)
-                      )}
-                    </div>
-                    </div>
-                    </div>
-                    );
-                    })}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
 
-        {/* PBSP TAB - FULL DOCUMENT */}
+        {/* PBSP TAB */}
         {activeTab === "pbsp" && (
           <div className="space-y-4">
             {pbsps.length === 0 ? (
@@ -1020,15 +848,41 @@ export default function ParticipantPortal() {
                   ))}
                 </div>
                 <div className="p-6 space-y-6">
-                  {[{id:"green",label:"🟢 Green Zone — Proactive Strategies",items:[...(plan.green_zone_environmental||[]),...(plan.green_zone_skills||[])],cls:"bg-emerald-50 border-emerald-200 text-emerald-900"},{id:"yellow",label:"🟡 Yellow Zone — Warning Signs & Responses",items:[...(plan.yellow_zone_signs||[]),...(plan.yellow_zone_responses||[])],cls:"bg-amber-50 border-amber-200 text-amber-900"},{id:"red",label:"🔴 Red Zone — Reactive Crisis Strategies",items:plan.red_zone_strategies||[],cls:"bg-rose-50 border-rose-200 text-rose-900"},{id:"blue",label:"🔵 Blue Zone — Post-Crisis Recovery",items:plan.blue_zone_recovery||[],cls:"bg-blue-50 border-blue-200 text-blue-900"}].filter(z=>(z.items||[]).filter(Boolean).length>0).map(z => <div key={z.id}><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">{z.label}</h2><div className={`border-2 rounded-xl p-4 ${z.cls}`}><ul className="space-y-2">{z.items.filter(Boolean).map((item,i) => <li key={i} className="text-sm flex gap-2.5 font-medium"><span className="font-black">•</span>{item}</li>)}</ul></div></div>)}
-                  {(plan.communication_board||[]).length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Communication Board</h2><div className="grid grid-cols-3 sm:grid-cols-4 gap-2">{plan.communication_board.map((item,i) => <div key={i} className="bg-slate-100 border border-slate-300 rounded-lg p-3 flex flex-col items-center justify-center text-center"><span className="text-2xl mb-1">{item.emoji}</span><p className="text-[11px] font-bold text-slate-800 leading-tight">{item.label}</p></div>)}</div></div>}
-                  </div>
-                  </div>
-                  ))
+                  {[
+                    {id:"green", label:"🟢 Green Zone — Proactive Strategies", items:[...(plan.green_zone_environmental||[]),...(plan.green_zone_skills||[])], cls:"bg-emerald-50 border-emerald-200 text-emerald-900"},
+                    {id:"yellow", label:"🟡 Yellow Zone — Warning Signs & Responses", items:[...(plan.yellow_zone_signs||[]),...(plan.yellow_zone_responses||[])], cls:"bg-amber-50 border-amber-200 text-amber-900"},
+                    {id:"red", label:"🔴 Red Zone — Reactive Crisis Strategies", items:plan.red_zone_strategies||[], cls:"bg-rose-50 border-rose-200 text-rose-900"},
+                    {id:"blue", label:"🔵 Blue Zone — Post-Crisis Recovery", items:plan.blue_zone_recovery||[], cls:"bg-blue-50 border-blue-200 text-blue-900"}
+                  ].filter(z => (z.items||[]).filter(Boolean).length > 0).map(z => (
+                    <div key={z.id}>
+                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">{z.label}</h2>
+                      <div className={`border-2 rounded-xl p-4 ${z.cls}`}>
+                        <ul className="space-y-2">
+                          {z.items.filter(Boolean).map((item, i) => (
+                            <li key={i} className="text-sm flex gap-2.5 font-medium"><span className="font-black">•</span>{item}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
+                  {(plan.communication_board||[]).length > 0 && (
+                    <div>
+                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Communication Board</h2>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                        {plan.communication_board.map((item, i) => (
+                          <div key={i} className="bg-slate-100 border border-slate-300 rounded-lg p-3 flex flex-col items-center justify-center text-center">
+                            <span className="text-2xl mb-1">{item.emoji}</span>
+                            <p className="text-[11px] font-bold text-slate-800 leading-tight">{item.label}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         )}
-
-
 
         {/* TRAVEL RISK ASSESSMENT TAB */}
         {activeTab === "risk_assessment" && (
@@ -1038,126 +892,85 @@ export default function ParticipantPortal() {
                 <AlertTriangle size={36} className="text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500 text-sm">No risk assessment on file.</p>
               </div>
-            ) : (
-              raAssessments.slice(0, 1).map(assessment => (
-                <div key={assessment.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-                  {/* Header */}
-                  <div className="bg-slate-800 text-white px-8 py-6">
-                    <h1 className="text-2xl font-black mb-1">NDIS Travel Risk Assessment</h1>
-                    <p className="text-slate-300 text-sm">{assessment.activity_description}</p>
+            ) : raAssessments.slice(0, 1).map(assessment => (
+              <div key={assessment.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <div className="bg-slate-800 text-white px-8 py-6">
+                  <h1 className="text-2xl font-black mb-1">NDIS Travel Risk Assessment</h1>
+                  <p className="text-slate-300 text-sm">{assessment.activity_description}</p>
+                </div>
+                <div className="p-8 space-y-6">
+                  <div>
+                    <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Participant Details</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                      {[
+                        { label: "Name", value: assessment.participant_name },
+                        { label: "Date of Birth", value: assessment.participant_dob || "—" },
+                        { label: "NDIS Number", value: assessment.ndis_number || "—" },
+                        { label: "Home Address", value: assessment.home_address || "—" },
+                        { label: "Destination", value: assessment.destination || "—" },
+                        { label: "Assessment Date", value: assessment.assessment_date || "—" },
+                      ].map(f => (
+                        <div key={f.label} className="bg-slate-50 rounded-xl p-3">
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{f.label}</p>
+                          <p className="text-xs font-bold text-slate-800">{f.value}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
-                  <div className="p-8 space-y-6">
-                    {/* Participant Details */}
-                    <div>
-                      <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Participant Details</h2>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {[
-                          { label: "Name", value: assessment.participant_name },
-                          { label: "Date of Birth", value: assessment.participant_dob || "—" },
-                          { label: "NDIS Number", value: assessment.ndis_number || "—" },
-                          { label: "Home Address", value: assessment.home_address || "—" },
-                          { label: "Destination", value: assessment.destination || "—" },
-                          { label: "Assessment Date", value: assessment.assessment_date || "—" },
-                        ].map(f => (
-                          <div key={f.label} className="bg-slate-50 rounded-xl p-3">
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{f.label}</p>
-                            <p className="text-xs font-bold text-slate-800">{f.value}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Risk Matrix */}
-                    <div>
-                      <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Risk Rating Matrix</h2>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
-                          <thead className="bg-slate-700 text-white">
-                            <tr>
-                              <th className="px-2 py-2 text-left">Likelihood \ Consequence</th>
-                              {["Catastrophic", "Major", "Moderate", "Minor", "Insignificant"].map(c => <th key={c} className="px-2 py-2 text-center text-[8px]">{c}</th>)}
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-200">
-                            {[["Almost Certain", "Extreme", "Extreme", "High", "High", "Medium"], ["Likely", "Extreme", "High", "High", "Medium", "Low"], ["Possible", "High", "High", "Medium", "Low", "Low"], ["Unlikely", "High", "Medium", "Low", "Low", "Low"], ["Rare", "Medium", "Low", "Low", "Low", "Low"]].map((row, ri) => (
-                              <tr key={ri} className="bg-slate-50">
-                                <td className="px-2 py-2 text-[9px] font-bold">{row[0]}</td>
-                                {row.slice(1).map((cell, ci) => {
-                                  const colors = { "Low": "bg-green-100 text-green-800", "Medium": "bg-orange-100 text-orange-800", "High": "bg-red-100 text-red-800", "Extreme": "bg-red-900 text-white" };
-                                  return <td key={ci} className={`px-2 py-2 text-center text-[9px] font-black ${colors[cell]}`}>{cell}</td>;
-                                })}
+                  <div>
+                    <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Comprehensive Risk Assessment</h2>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
+                        <thead className="bg-slate-700 text-white">
+                          <tr>
+                            <th className="px-3 py-2 text-left">Hazard</th>
+                            <th className="px-2 py-2 text-center">Initial Rating</th>
+                            <th className="px-3 py-2 text-left">Controls</th>
+                            <th className="px-2 py-2 text-center">Residual Rating</th>
+                            <th className="px-2 py-2 text-left">Responsible</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-200">
+                          {(assessment.hazards || []).map((h, i) => {
+                            const initialColor = { Low: "bg-green-100 text-green-800", Medium: "bg-orange-100 text-orange-800", High: "bg-red-100 text-red-800", Extreme: "bg-red-900 text-white" }[h.initial_rating] || "bg-slate-50";
+                            const residualColor = { Low: "bg-green-100 text-green-800", Medium: "bg-orange-100 text-orange-800", High: "bg-red-100 text-red-800", Extreme: "bg-red-900 text-white" }[h.residual_rating] || "bg-slate-50";
+                            return (
+                              <tr key={i} className="bg-slate-50">
+                                <td className="px-3 py-2 font-semibold text-slate-800">{h.hazard}</td>
+                                <td className={`px-2 py-2 text-center text-[9px] font-black ${initialColor}`}>{h.initial_rating}</td>
+                                <td className="px-3 py-2 text-[9px] text-slate-600">{h.controls}</td>
+                                <td className={`px-2 py-2 text-center text-[9px] font-black ${residualColor}`}>{h.residual_rating}</td>
+                                <td className="px-2 py-2 text-[9px]">{h.person_responsible}</td>
                               </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
+                            );
+                          })}
+                        </tbody>
+                      </table>
                     </div>
+                  </div>
 
-                    {/* Hazard Assessment */}
-                    <div>
-                      <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Comprehensive Risk Assessment</h2>
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
-                          <thead className="bg-slate-700 text-white">
-                            <tr>
-                              <th className="px-3 py-2 text-left">Hazard</th>
-                              <th className="px-2 py-2 text-center">Initial L</th>
-                              <th className="px-2 py-2 text-center">Initial C</th>
-                              <th className="px-2 py-2 text-center">Rating</th>
-                              <th className="px-3 py-2 text-left">Controls</th>
-                              <th className="px-2 py-2 text-center">Residual L</th>
-                              <th className="px-2 py-2 text-center">Residual C</th>
-                              <th className="px-2 py-2 text-center">Rating</th>
-                              <th className="px-2 py-2 text-left">Responsible</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-200">
-                            {(assessment.hazards || []).map((h, i) => {
-                              const initialColor = { Low: "bg-green-100", Medium: "bg-orange-100", High: "bg-red-100", Extreme: "bg-red-900 text-white" }[h.initial_rating] || "bg-slate-50";
-                              const residualColor = { Low: "bg-green-100", Medium: "bg-orange-100", High: "bg-red-100", Extreme: "bg-red-900 text-white" }[h.residual_rating] || "bg-slate-50";
-                              return (
-                                <tr key={i} className="bg-slate-50">
-                                  <td className="px-3 py-2 font-semibold text-slate-800">{h.hazard}</td>
-                                  <td className="px-2 py-2 text-center text-[9px]">{h.initial_likelihood}</td>
-                                  <td className="px-2 py-2 text-center text-[9px]">{h.initial_consequence}</td>
-                                  <td className={`px-2 py-2 text-center text-[9px] font-black ${initialColor}`}>{h.initial_rating}</td>
-                                  <td className="px-3 py-2 text-[9px] text-slate-600">{h.controls}</td>
-                                  <td className="px-2 py-2 text-center text-[9px]">{h.residual_likelihood}</td>
-                                  <td className="px-2 py-2 text-center text-[9px]">{h.residual_consequence}</td>
-                                  <td className={`px-2 py-2 text-center text-[9px] font-black ${residualColor}`}>{h.residual_rating}</td>
-                                  <td className="px-2 py-2 text-[9px]">{h.person_responsible}</td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Emergency Contacts */}
-                    <div>
-                      <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Emergency Contacts</h2>
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {[
-                          { label: "Primary Contact", value: assessment.emergency_contact_1_name },
-                          { label: "Phone", value: assessment.emergency_contact_1_phone },
-                          { label: "Relationship", value: assessment.emergency_contact_1_rel },
-                          { label: "Secondary Contact", value: assessment.emergency_contact_2_name },
-                          { label: "Phone", value: assessment.emergency_contact_2_phone },
-                          { label: "Relationship", value: assessment.emergency_contact_2_rel },
-                        ].filter(f => f.value).map(f => (
-                          <div key={f.label} className="bg-rose-50 border border-rose-200 rounded-xl p-3">
-                            <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest mb-1">{f.label}</p>
-                            <p className="text-xs font-bold text-slate-800">{f.value}</p>
-                          </div>
-                        ))}
-                      </div>
+                  <div>
+                    <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Emergency Contacts</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                      {[
+                        { label: "Primary Contact", value: assessment.emergency_contact_1_name },
+                        { label: "Phone", value: assessment.emergency_contact_1_phone },
+                        { label: "Relationship", value: assessment.emergency_contact_1_rel },
+                        { label: "Secondary Contact", value: assessment.emergency_contact_2_name },
+                        { label: "Phone", value: assessment.emergency_contact_2_phone },
+                        { label: "Relationship", value: assessment.emergency_contact_2_rel },
+                      ].filter(f => f.value).map(f => (
+                        <div key={f.label} className="bg-rose-50 border border-rose-200 rounded-xl p-3">
+                          <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest mb-1">{f.label}</p>
+                          <p className="text-xs font-bold text-slate-800">{f.value}</p>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 </div>
-              ))
-            )}
+              </div>
+            ))}
           </div>
         )}
 
@@ -1174,7 +987,6 @@ export default function ParticipantPortal() {
               const phasePct = (prog.phases || []).length > 0 ? Math.round((prog.phases || []).filter(p => p.completed).length / (prog.phases || []).length * 100) : 0;
               return (
                 <div key={prog.id} className="space-y-6">
-                  {/* Header */}
                   <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                       <div>
@@ -1187,42 +999,30 @@ export default function ParticipantPortal() {
                     </div>
                   </div>
 
-                  {/* KPI Strip */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
-                      <p className="text-2xl font-black text-primary">{(prog.phases || []).filter(p => p.completed).length}/{(prog.phases || []).length}</p>
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Phases Complete</p>
-                    </div>
-                    <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
-                      <p className="text-2xl font-black text-emerald-600">{(prog.skill_targets || []).filter(s => s.achieved).length}/{(prog.skill_targets || []).length}</p>
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Skills Achieved</p>
-                    </div>
-                    <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
-                      <p className="text-2xl font-black text-amber-600">{phasePct}%</p>
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Phase Progress</p>
-                    </div>
-                    <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
-                      <p className="text-2xl font-black text-blue-600">{(prog.session_logs || []).length}</p>
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Sessions Logged</p>
-                    </div>
-                  </div>
-
-                  {/* Overview */}
-                  <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-3">
-                    <h2 className="font-black text-lg text-slate-900">Program Overview</h2>
-                    <p className="text-sm text-slate-700 leading-relaxed">{prog.program_overview}</p>
-                    {prog.session_structure && (
-                      <div className="bg-slate-50 rounded-xl p-4 mt-4">
-                        <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Session Structure</p>
-                        <p className="text-xs text-slate-700 whitespace-pre-line leading-relaxed">{prog.session_structure}</p>
+                    {[
+                      { label: "Phases Complete", value: `${(prog.phases||[]).filter(p=>p.completed).length}/${(prog.phases||[]).length}`, color: "text-primary" },
+                      { label: "Skills Achieved", value: `${(prog.skill_targets||[]).filter(s=>s.achieved).length}/${(prog.skill_targets||[]).length}`, color: "text-emerald-600" },
+                      { label: "Phase Progress", value: `${phasePct}%`, color: "text-amber-600" },
+                      { label: "Sessions Logged", value: (prog.session_logs||[]).length, color: "text-blue-600" },
+                    ].map(k => (
+                      <div key={k.label} className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
+                        <p className={`text-2xl font-black ${k.color}`}>{k.value}</p>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">{k.label}</p>
                       </div>
-                    )}
+                    ))}
                   </div>
 
-                  {/* Implementation Phases */}
+                  {prog.program_overview && (
+                    <div className="bg-white border border-slate-200 rounded-2xl p-6">
+                      <h2 className="font-black text-lg text-slate-900 mb-3">Program Overview</h2>
+                      <p className="text-sm text-slate-700 leading-relaxed">{prog.program_overview}</p>
+                    </div>
+                  )}
+
                   <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
                     <div className="bg-slate-100 px-6 py-4 border-b">
-                      <h2 className="font-black text-lg flex items-center gap-2">📊 IMPLEMENTATION PHASES</h2>
+                      <h2 className="font-black text-lg">📊 IMPLEMENTATION PHASES</h2>
                     </div>
                     <div className="p-6 space-y-4">
                       {(prog.phases || []).map((ph, i) => (
@@ -1237,7 +1037,7 @@ export default function ParticipantPortal() {
                             </div>
                             {ph.completed ? <CheckCircle size={18} className="text-emerald-600" /> : <Circle size={18} className="text-slate-300" />}
                           </div>
-                          <div className="ml-0 space-y-1.5 text-xs">
+                          <div className="space-y-1 text-xs">
                             <p><span className="font-bold text-slate-600">Goal:</span> {ph.goal}</p>
                             <p><span className="font-bold text-slate-600">Support Level:</span> {ph.support_level}</p>
                             <p><span className="font-bold text-slate-600">Worker Role:</span> {ph.worker_role}</p>
@@ -1247,51 +1047,19 @@ export default function ParticipantPortal() {
                     </div>
                   </div>
 
-                  {/* Skills & Tools */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-                      <div className="bg-slate-100 px-6 py-4 border-b">
-                        <h2 className="font-black text-lg flex items-center gap-2">🎯 SKILL TARGETS ({(prog.skill_targets || []).filter(s => s.achieved).length}/{(prog.skill_targets || []).length})</h2>
-                      </div>
-                      <div className="p-6 space-y-2">
-                        {(prog.skill_targets || []).map((s, i) => (
-                          <div key={i} className={`flex items-center gap-2.5 p-2.5 rounded-lg text-xs font-medium ${s.achieved ? "bg-emerald-50 text-emerald-700" : "bg-slate-50 text-slate-700"}`}>
-                            {s.achieved ? <CheckCircle size={14} /> : <Circle size={14} className="text-slate-300" />}
-                            <span className={s.achieved ? "line-through" : ""}>{s.skill}</span>
-                          </div>
-                        ))}
-                      </div>
+                  <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                    <div className="bg-slate-100 px-6 py-4 border-b">
+                      <h2 className="font-black text-lg">🎯 SKILL TARGETS ({(prog.skill_targets||[]).filter(s=>s.achieved).length}/{(prog.skill_targets||[]).length})</h2>
                     </div>
-
-                    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-                      <div className="bg-slate-100 px-6 py-4 border-b">
-                        <h2 className="font-black text-lg">⚙️ REQUIRED TOOLS</h2>
-                      </div>
-                      <div className="p-6 space-y-2">
-                        {(prog.required_tools || []).map((t, i) => (
-                          <div key={i} className="flex items-center gap-2.5 text-xs font-medium text-slate-700 bg-slate-50 p-2.5 rounded-lg">
-                            <span className="w-1.5 h-1.5 bg-blue-600 rounded-full shrink-0" />
-                            {t}
-                          </div>
-                        ))}
-                      </div>
+                    <div className="p-6 space-y-2">
+                      {(prog.skill_targets || []).map((s, i) => (
+                        <div key={i} className={`flex items-center gap-2.5 p-2.5 rounded-lg text-xs font-medium ${s.achieved ? "bg-emerald-50 text-emerald-700" : "bg-slate-50 text-slate-700"}`}>
+                          {s.achieved ? <CheckCircle size={14} /> : <Circle size={14} className="text-slate-300" />}
+                          <span className={s.achieved ? "line-through" : ""}>{s.skill}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
-
-                  {/* Risk Strategies */}
-                  {(prog.risk_strategies || []).length > 0 && (
-                    <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6">
-                      <h2 className="font-black text-lg text-amber-900 mb-4 flex items-center gap-2">🛡️ RISK MANAGEMENT STRATEGIES</h2>
-                      <ul className="space-y-2">
-                        {(prog.risk_strategies || []).map((r, i) => (
-                          <li key={i} className="flex items-start gap-2.5 text-sm text-amber-800">
-                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full shrink-0 mt-1.5" />
-                            {r}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
                 </div>
               );
             })}
@@ -1396,7 +1164,7 @@ export default function ParticipantPortal() {
                   )}
                   {plan.health_support_procedures && <div className="bg-slate-50 rounded-xl p-4"><p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Support Procedures</p><p className="text-sm text-slate-700 whitespace-pre-line">{plan.health_support_procedures}</p></div>}
                   {plan.emergency_response && <div className="bg-amber-50 border border-amber-200 rounded-xl p-4"><p className="text-xs font-black text-amber-500 uppercase tracking-widest mb-2">Emergency Response</p><p className="text-sm text-amber-800">{plan.emergency_response}</p></div>}
-                  <div className="grid grid-cols-2 gap-3 text-xs text-muted-foreground">
+                  <div className="grid grid-cols-2 gap-3 text-xs">
                     {plan.doctor_name && <div className="bg-slate-50 rounded-xl p-3"><p className="font-black text-slate-400 uppercase tracking-widest mb-1">Doctor</p><p className="text-slate-700 font-bold">{plan.doctor_name}</p>{plan.doctor_phone && <p className="text-slate-500">{plan.doctor_phone}</p>}</div>}
                     {plan.review_date && <div className="bg-slate-50 rounded-xl p-3"><p className="font-black text-slate-400 uppercase tracking-widest mb-1">Review Date</p><p className="text-slate-700 font-bold">{plan.review_date}</p></div>}
                   </div>
