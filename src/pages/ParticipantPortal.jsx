@@ -326,18 +326,19 @@ export default function ParticipantPortal() {
       base44.entities.Document ? base44.entities.Document.filter({ participant_name: p.name }, "-created_date").catch(() => []) : Promise.resolve([]),
       base44.entities.ImplementationProgram.filter({ participant_name: p.name }).catch(() => []),
     ]);
-    setAgreements(agr); setQuotes(quo); setInvoices(inv); setSupportPlans(plans || []);
-    setRiskAssessments(risks); setProgressNotes(notes); setComplaints(comp);
-    setMedications(meds || []); setEpilepsyPlans(epilepsy || []); setPbsps(pbsp || []);
-    setHealthPlans(hcp || []); setParticipantDocuments(docs || []);
-    setImplementationPrograms(impPrograms || []);
+    const dedup = (arr) => { const seen = new Set(); return (arr || []).filter(x => { if (seen.has(x.id)) return false; seen.add(x.id); return true; }); };
+    setAgreements(dedup(agr)); setQuotes(dedup(quo)); setInvoices(dedup(inv)); setSupportPlans(dedup(plans));
+    setRiskAssessments(dedup(risks)); setProgressNotes(dedup(notes)); setComplaints(dedup(comp));
+    setMedications(dedup(meds)); setEpilepsyPlans(dedup(epilepsy)); setPbsps(dedup(pbsp));
+    setHealthPlans(dedup(hcp)); setParticipantDocuments(dedup(docs));
+    setImplementationPrograms(dedup(impPrograms));
     // Pre-fill RA participants list
     const allParts = await base44.entities.Participant.list();
     setRaParticipants(allParts);
     // Pre-load RA assessments for this participant
-    setRaAssessments(risks || []);
+    setRaAssessments(dedup(risks));
     // Pre-load IP programs for this participant
-    setIpPrograms(impPrograms || []);
+    setIpPrograms(dedup(impPrograms));
     setLoading(false);
   };
 
