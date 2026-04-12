@@ -229,16 +229,23 @@ function AgreementPreview({ agreement, onBack }) {
 
   const total = (agreement.services || []).reduce((a, s) => a + (Number(s.amount) || 0), 0);
 
-  // Resolve rate from stored value or lookup from NDIS_ITEMS
-  const getRate = (s) => {
-    if (s.rate && Number(s.rate) > 0) return Number(s.rate);
+  // Resolve rate and code from stored value or lookup from NDIS_ITEMS
+  const resolveItem = (s) => {
     const code = s.ndis_code || s.support_item_code;
+    // Try by code first
     if (code) {
       const found = NDIS_ITEMS.find(n => n.code === code);
-      if (found) return found.rate;
+      if (found) return { code: found.code, rate: found.rate };
     }
-    if (s.amount && s.hours && Number(s.hours) > 0) return Number(s.amount) / Number(s.hours);
-    return 0;
+    // Try by description match
+    if (s.description) {
+      const found = NDIS_ITEMS.find(n => n.name === s.description || s.description.startsWith(n.name.substring(0, 20)));
+      if (found) return { code: found.code, rate: found.rate };
+    }
+    // Fallback: stored rate
+    if (s.rate && Number(s.rate) > 0) return { code: code || "—", rate: Number(s.rate) };
+    if (s.amount && s.hours && Number(s.hours) > 0) return { code: code || "—", rate: Number(s.amount) / Number(s.hours) };
+    return { code: code || "—", rate: 0 };
   };
 
   return (
@@ -314,35 +321,20 @@ function AgreementPreview({ agreement, onBack }) {
                 <th className="px-4 py-3">Item Code</th>
                 <th className="px-4 py-3">Support Description</th>
                 <th className="px-4 py-3 text-right">Rate (per hr)</th>
-                <th className="px-4 py-3 text-right">Hours</th>
-                <th className="px-4 py-3 text-right">Total</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {(agreement.services || []).map((s, i) => {
-                const rate = getRate(s);
-                const code = s.ndis_code || s.support_item_code;
-                const hasHours = s.hours && Number(s.hours) > 0;
-                const lineTotal = hasHours ? Number(s.amount || 0) : null;
+                const { code, rate } = resolveItem(s);
                 return (
                   <tr key={i}>
-                    <td className="px-4 py-3 font-mono text-xs text-slate-500">{code || "—"}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-slate-500 whitespace-nowrap">{code}</td>
                     <td className="px-4 py-3 font-semibold text-slate-800">{s.description}</td>
                     <td className="px-4 py-3 text-right">${rate.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right">{hasHours ? s.hours : "—"}</td>
-                    <td className="px-4 py-3 text-right font-black">{lineTotal !== null ? `$${lineTotal.toFixed(2)}` : "—"}</td>
                   </tr>
                 );
               })}
             </tbody>
-            {(agreement.services || []).some(s => s.hours && Number(s.hours) > 0) && (
-              <tfoot className="bg-slate-50">
-                <tr>
-                  <td colSpan={4} className="px-4 py-3 text-right font-black text-slate-700">Total Agreement Value</td>
-                  <td className="px-4 py-3 text-right font-black text-primary text-base">${total.toFixed(2)}</td>
-                </tr>
-              </tfoot>
-            )}
           </table>
         </section>
 
