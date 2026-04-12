@@ -707,87 +707,6 @@ export default function ParticipantPortal() {
           </div>
         )}
 
-        {/* RISK ASSESSMENTS TAB - FULL DOCUMENT */}
-        {activeTab === "risks" && (
-          <div className="space-y-4 max-w-4xl">
-            {riskAssessments.length === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-                <AlertTriangle size={36} className="text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-500 text-sm">No risk assessments on file.</p>
-              </div>
-            ) : riskAssessments.map(ra => {
-              const RISK_COLORS = { Low: "bg-emerald-100 text-emerald-800", Medium: "bg-orange-100 text-orange-800", High: "bg-red-100 text-red-800", Extreme: "bg-red-900 text-white" };
-              return (
-                <div key={ra.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-                  <div className="bg-slate-800 text-white px-6 py-6">
-                    <h1 className="text-2xl font-black text-white mb-2">Risk Assessment</h1>
-                    <p className="text-slate-300 text-sm">{ra.activity_description || ra.title}</p>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 px-6 py-4 border-t border-slate-200">
-                    {[{l: "Participant", v: ra.participant_name}, {l: "From", v: ra.home_address}, {l: "To", v: ra.destination}, {l: "Date", v: ra.assessment_date}].filter(f => f.v).map(f => (
-                      <div key={f.l}>
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p>
-                        <p className="text-sm font-bold text-slate-900">{f.v}</p>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="p-6 space-y-6">
-                    <div className="overflow-x-auto border border-slate-200 rounded-xl">
-                      <table className="w-full text-left text-xs">
-                        <thead className="bg-slate-800 text-white">
-                          <tr>
-                            <th className="px-4 py-2 font-black">Hazard</th>
-                            <th className="px-4 py-2 font-black text-center">Initial Risk</th>
-                            <th className="px-4 py-2 font-black">Controls</th>
-                            <th className="px-4 py-2 font-black text-center">Residual Risk</th>
-                            <th className="px-4 py-2 font-black">Owner</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-200">
-                          {(ra.hazards || []).map((h, i) => (
-                            <tr key={i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
-                              <td className="px-4 py-3 font-bold text-slate-900">{h.hazard}</td>
-                              <td className="px-4 py-3 text-center"><span className={`inline-block px-2 py-1 rounded text-[10px] font-black ${RISK_COLORS[h.initial_rating] || ""}`}>{h.initial_rating}</span></td>
-                              <td className="px-4 py-3 text-slate-700 max-w-xs">{h.controls || "—"}</td>
-                              <td className="px-4 py-3 text-center"><span className={`inline-block px-2 py-1 rounded text-[10px] font-black ${RISK_COLORS[h.residual_rating] || ""}`}>{h.residual_rating}</span></td>
-                              <td className="px-4 py-3 text-slate-600">{h.person_responsible || "—"}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                    <div className="bg-slate-800 text-white p-4 rounded-xl flex justify-between items-center">
-                      <p className="text-xs font-black uppercase">Overall Residual Risk</p>
-                      <span className={`px-4 py-2 rounded-full text-sm font-black ${RISK_COLORS[ra.overall_risk_level] || "bg-slate-100 text-slate-600"}`}>{ra.overall_risk_level}</span>
-                    </div>
-                    <div>
-                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Emergency Management</h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {ra.emergency_contact_1_name && (
-                          <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-4">
-                            <p className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-1">Primary Contact</p>
-                            <p className="font-black text-orange-900 text-sm">{ra.emergency_contact_1_name}</p>
-                            <p className="text-xs text-orange-700 mt-1">{ra.emergency_contact_1_rel}</p>
-                            <p className="text-sm font-bold text-orange-800 mt-1.5">{ra.emergency_contact_1_phone}</p>
-                          </div>
-                        )}
-                        {ra.emergency_contact_2_name && (
-                          <div className="bg-orange-50 border-2 border-orange-200 rounded-xl p-4">
-                            <p className="text-[10px] font-black text-orange-600 uppercase tracking-widest mb-1">Secondary Contact</p>
-                            <p className="font-black text-orange-900 text-sm">{ra.emergency_contact_2_name}</p>
-                            <p className="text-xs text-orange-700 mt-1">{ra.emergency_contact_2_rel}</p>
-                            <p className="text-sm font-bold text-orange-800 mt-1.5">{ra.emergency_contact_2_phone}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
         {/* EPILEPSY PLAN TAB - FULL DOCUMENT */}
         {activeTab === "epilepsy" && (
           <div className="space-y-6 max-w-4xl">
@@ -997,39 +916,6 @@ export default function ParticipantPortal() {
                 </div>
               ))
             )}
-          </div>
-        )}
-
-        {/* IMPLEMENTATION PROGRAMS TAB - FULL DOCUMENT */}
-        {activeTab === "implementation" && (
-          <div className="space-y-4 max-w-4xl">
-            {implementationPrograms.length === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-                <ClipboardList size={36} className="text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-500 text-sm">No implementation programs on file.</p>
-              </div>
-            ) : implementationPrograms.map(program => (
-              <div key={program.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-                <div className="bg-blue-700 text-white px-6 py-8">
-                  <h1 className="text-2xl font-black mb-1">IMPLEMENTATION PROGRAM</h1>
-                  <p className="text-blue-200">{program.primary_goal}</p>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 px-6 py-4 border-t border-slate-200">
-                  {[{l: "Participant", v: program.participant_name}, {l: "Focus", v: program.focus}, {l: "Start Date", v: program.start_date}, {l: "Status", v: program.status}].filter(f => f.v).map(f => (
-                    <div key={f.l}><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p><p className="text-sm font-bold text-slate-900">{f.v}</p></div>
-                  ))}
-                </div>
-                <div className="p-6 space-y-6">
-                  {program.program_overview && <div className="bg-blue-50 border border-blue-200 rounded-xl p-4"><p className="text-[10px] font-black text-blue-700 uppercase tracking-widest mb-2">Program Overview</p><p className="text-sm text-blue-900 leading-relaxed">{program.program_overview}</p></div>}
-                  {program.focus && <div className="bg-slate-50 border border-slate-200 rounded-xl p-4"><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Focus Area</p><p className="text-sm font-bold text-slate-800">{program.focus}</p></div>}
-                  {program.phases && program.phases.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-4">Detailed Implementation Phases</h2><div className="space-y-4 border-l-4 border-blue-400 pl-4">{program.phases.map((phase, idx) => <div key={idx} className="bg-white border border-slate-200 rounded-xl p-4"><div className="flex items-center justify-between mb-3"><div><p className="text-sm font-black text-slate-900">Phase {phase.phase_number}: {phase.name}</p>{phase.goal && <p className="text-xs text-slate-600 mt-1">{phase.goal}</p>}</div>{phase.completed && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full font-black">✓ Completed</span>}</div><div className="grid grid-cols-2 sm:grid-cols-4 gap-2"><div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Duration</p><p className="font-bold text-slate-800">{phase.weeks}</p></div><div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Support Level</p><p className="font-bold text-slate-800 text-xs">{phase.support_level}</p></div><div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Worker Role</p><p className="font-bold text-slate-800 text-xs">{phase.worker_role || "—"}</p></div></div></div>)}</div></div>}
-                  {program.required_tools && program.required_tools.length > 0 && <div className="bg-amber-50 border border-amber-200 rounded-xl p-4"><p className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-2">Required Tools & Resources</p><ul className="space-y-1"><li className="flex gap-2 items-start"><span className="text-amber-600 font-bold">•</span><span className="text-sm text-amber-900">{program.required_tools.join(", ")}</span></li></ul></div>}
-                  {program.risk_strategies && program.risk_strategies.length > 0 && <div className="bg-rose-50 border border-rose-200 rounded-xl p-4"><p className="text-[10px] font-black text-rose-700 uppercase tracking-widest mb-2">Risk Management Strategies</p><ul className="space-y-1">{program.risk_strategies.map((rs, idx) => <li key={idx} className="flex gap-2 items-start text-sm"><span className="text-rose-600 font-black">⚠</span><span className="text-rose-900">{rs}</span></li>)}</ul></div>}
-                  {program.skill_targets && program.skill_targets.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Skill Development Targets</h2><div className="space-y-2">{program.skill_targets.map((target, idx) => <div key={idx} className="flex items-center gap-3 bg-white border border-slate-200 p-3 rounded-lg">{target.achieved ? <CheckCircle size={16} className="text-emerald-600 shrink-0" /> : <Circle size={16} className="text-slate-300 shrink-0" />}<span className="text-sm font-medium text-slate-800">{target.skill}</span></div>)}</div></div>}
-                  {program.session_logs && program.session_logs.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Complete Session History</h2><div className="space-y-2">{program.session_logs.map((log, i) => <div key={i} className="bg-white border border-slate-200 rounded-lg p-3 text-xs"><div className="flex justify-between items-start gap-2"><div><p className="font-black text-slate-900">{log.date}</p><p className="text-slate-500 text-[10px] mt-0.5">Phase {log.phase} • {log.support_level_used || "—"}</p></div></div>{log.skills_practiced && <p className="text-slate-700 mt-1"><span className="font-bold">Skills:</span> {log.skills_practiced}</p>}{log.participant_response && <p className="text-slate-700 mt-1"><span className="font-bold">Response:</span> {log.participant_response}</p>}{log.incidents && <p className="text-rose-700 mt-1"><span className="font-bold">Incidents:</span> {log.incidents}</p>}{log.next_session_focus && <p className="text-blue-700 mt-1"><span className="font-bold">Next Focus:</span> {log.next_session_focus}</p>}{log.logged_by && <p className="text-slate-500 mt-2 text-[10px]">Logged by {log.logged_by}</p>}</div>)}</div></div>}
-                </div>
-              </div>
-            ))}
           </div>
         )}
 
