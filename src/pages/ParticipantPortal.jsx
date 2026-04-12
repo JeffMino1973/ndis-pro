@@ -955,55 +955,14 @@ export default function ParticipantPortal() {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 px-6 py-4 border-t border-slate-200">
                   {[{l: "Participant", v: plan.participant_name}, {l: "Diagnosis", v: plan.diagnosis}, {l: "Primary Goal", v: plan.primary_goal}, {l: "Status", v: plan.status}].filter(f => f.v).map(f => (
-                    <div key={f.l}>
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p>
-                      <p className="text-sm font-bold text-slate-900">{f.v}</p>
-                    </div>
+                    <div key={f.l}><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p><p className="text-sm font-bold text-slate-900">{f.v}</p></div>
                   ))}
                 </div>
                 <div className="p-6 space-y-6">
-                  {[{id:"green",label:"🟢 Green Zone — Proactive Strategies",items:[...(plan.green_zone_environmental||[]),...(plan.green_zone_skills||[])],cls:"bg-emerald-50 border-emerald-200 text-emerald-900"},{id:"yellow",label:"🟡 Yellow Zone — Warning Signs & Responses",items:[...(plan.yellow_zone_signs||[]),...(plan.yellow_zone_responses||[])],cls:"bg-amber-50 border-amber-200 text-amber-900"},{id:"red",label:"🔴 Red Zone — Reactive Crisis Strategies",items:plan.red_zone_strategies||[],cls:"bg-rose-50 border-rose-200 text-rose-900"},{id:"blue",label:"🔵 Blue Zone — Post-Crisis Recovery",items:plan.blue_zone_recovery||[],cls:"bg-blue-50 border-blue-200 text-blue-900"}].filter(z=>(z.items||[]).filter(Boolean).length>0).map(z => (
-                    <div key={z.id}>
-                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">{z.label}</h2>
-                      <div className={`border-2 rounded-xl p-4 ${z.cls}`}>
-                        <ul className="space-y-2">
-                          {z.items.filter(Boolean).map((item,i) => <li key={i} className="text-sm flex gap-2.5 font-medium"><span className="font-black">•</span>{item}</li>)}
-                        </ul>
-                      </div>
-                    </div>
-                  ))}
-                  {(plan.communication_board||[]).length > 0 && (
-                    <div>
-                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Communication Board</h2>
-                      <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                        {plan.communication_board.map((item,i) => (
-                          <div key={i} className="bg-slate-100 border border-slate-300 rounded-lg p-3 flex flex-col items-center justify-center text-center">
-                            <span className="text-2xl mb-1">{item.emoji}</span>
-                            <p className="text-[11px] font-bold text-slate-800 leading-tight">{item.label}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {plan.social_story_steps && plan.social_story_steps.length > 0 && (
-                    <div>
-                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Social Story</h2>
-                      <div className="space-y-2">
-                        {plan.social_story_steps.map((step, i) => (
-                          <div key={i} className="flex gap-3 bg-slate-50 p-3 rounded-lg">
-                            <span className="w-6 h-6 bg-slate-800 text-white rounded text-xs font-bold flex items-center justify-center shrink-0">{i + 1}</span>
-                            <p className="text-sm text-slate-700">{step}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {plan.review_notes && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                      <p className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-2">Review & Ethics Notes</p>
-                      <p className="text-sm text-amber-800">{plan.review_notes}</p>
-                    </div>
-                  )}
+                  {[{id:"green",label:"🟢 Green Zone — Proactive Strategies",items:[...(plan.green_zone_environmental||[]),...(plan.green_zone_skills||[])],cls:"bg-emerald-50 border-emerald-200 text-emerald-900"},{id:"yellow",label:"🟡 Yellow Zone — Warning Signs & Responses",items:[...(plan.yellow_zone_signs||[]),...(plan.yellow_zone_responses||[])],cls:"bg-amber-50 border-amber-200 text-amber-900"},{id:"red",label:"🔴 Red Zone — Reactive Crisis Strategies",items:plan.red_zone_strategies||[],cls:"bg-rose-50 border-rose-200 text-rose-900"},{id:"blue",label:"🔵 Blue Zone — Post-Crisis Recovery",items:plan.blue_zone_recovery||[],cls:"bg-blue-50 border-blue-200 text-blue-900"}].filter(z=>(z.items||[]).filter(Boolean).length>0).map(z => <div key={z.id}><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">{z.label}</h2><div className={`border-2 rounded-xl p-4 ${z.cls}`}><ul className="space-y-2">{z.items.filter(Boolean).map((item,i) => <li key={i} className="text-sm flex gap-2.5 font-medium"><span className="font-black">•</span>{item}</li>)}</ul></div></div>)}
+                  {(plan.communication_board||[]).length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Communication Board</h2><div className="grid grid-cols-3 sm:grid-cols-4 gap-2">{plan.communication_board.map((item,i) => <div key={i} className="bg-slate-100 border border-slate-300 rounded-lg p-3 flex flex-col items-center justify-center text-center"><span className="text-2xl mb-1">{item.emoji}</span><p className="text-[11px] font-bold text-slate-800 leading-tight">{item.label}</p></div>)}</div></div>}
+                  {plan.social_story_steps && plan.social_story_steps.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Social Story</h2><div className="space-y-2">{plan.social_story_steps.map((step, i) => <div key={i} className="flex gap-3 bg-slate-50 p-3 rounded-lg"><span className="w-6 h-6 bg-slate-800 text-white rounded text-xs font-bold flex items-center justify-center shrink-0">{i + 1}</span><p className="text-sm text-slate-700">{step}</p></div>)}</div></div>}
+                  {plan.review_notes && <div className="bg-amber-50 border border-amber-200 rounded-xl p-4"><p className="text-[10px] font-black text-amber-700 uppercase tracking-widest mb-2">Review & Ethics Notes</p><p className="text-sm text-amber-800">{plan.review_notes}</p></div>}
                 </div>
               </div>
             ))}
@@ -1092,73 +1051,15 @@ export default function ParticipantPortal() {
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 px-6 py-4 border-t border-slate-200">
                     {[{l: "Participant", v: program.participant_name}, {l: "Focus", v: program.focus}, {l: "Start Date", v: program.start_date}, {l: "Status", v: program.status}].filter(f => f.v).map(f => (
-                      <div key={f.l}>
-                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p>
-                        <p className="text-sm font-bold text-slate-900">{f.v}</p>
-                      </div>
+                      <div key={f.l}><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p><p className="text-sm font-bold text-slate-900">{f.v}</p></div>
                     ))}
                   </div>
                   <div className="p-6 space-y-6">
-                    {program.program_overview && (
-                      <div>
-                        <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Program Overview</h2>
-                        <p className="text-sm text-slate-700 leading-relaxed bg-slate-50 rounded-xl p-4">{program.program_overview}</p>
-                      </div>
-                    )}
-                    {program.phases && program.phases.length > 0 && (
-                      <div>
-                        <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Implementation Phases</h2>
-                        <div className="space-y-3">
-                          {program.phases.map((phase, idx) => (
-                            <div key={idx} className="border border-slate-200 rounded-xl p-4">
-                              <div className="flex items-center justify-between mb-2">
-                                <p className="font-bold text-slate-900">Phase {phase.phase_number}: {phase.name}</p>
-                                {phase.completed && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Completed</span>}
-                              </div>
-                              <div className="grid grid-cols-3 gap-3 text-xs">
-                                <div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Duration</p><p className="font-bold text-slate-800">{phase.weeks}</p></div>
-                                <div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Support Level</p><p className="font-bold text-slate-800">{phase.support_level}</p></div>
-                                <div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Worker Role</p><p className="font-bold text-slate-800">{phase.worker_role || "—"}</p></div>
-                              </div>
-                              {phase.goal && <p className="text-xs text-slate-600 mt-2"><span className="font-bold">Goal:</span> {phase.goal}</p>}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {program.skill_targets && program.skill_targets.length > 0 && (
-                      <div>
-                        <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Skill Development Targets</h2>
-                        <div className="space-y-1.5">
-                          {program.skill_targets.map((target, idx) => (
-                            <div key={idx} className="flex items-center gap-2.5 bg-slate-50 p-3 rounded-lg">
-                              {target.achieved ? <CheckCircle size={14} className="text-emerald-600 shrink-0" /> : <Circle size={14} className="text-slate-400 shrink-0" />}
-                              <span className="text-sm text-slate-700">{target.skill}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    {program.required_tools && program.required_tools.length > 0 && (
-                      <div>
-                        <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Required Tools</h2>
-                        <div className="bg-slate-50 rounded-xl p-4"><ul className="space-y-1 text-sm text-slate-700">{program.required_tools.map((t, i) => <li key={i} className="flex gap-2"><span>•</span>{t}</li>)}</ul></div>
-                      </div>
-                    )}
-                    {program.session_logs && program.session_logs.length > 0 && (
-                      <div>
-                        <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Session History</h2>
-                        <div className="space-y-2">
-                          {program.session_logs.slice(-5).reverse().map((log, i) => (
-                            <div key={i} className="border border-slate-200 rounded-lg p-3 text-xs">
-                              <p className="font-bold text-slate-800">{log.date} — Phase {log.phase}</p>
-                              {log.participant_response && <p className="text-slate-600 mt-1"><span className="font-bold">Response:</span> {log.participant_response}</p>}
-                              {log.logged_by && <p className="text-slate-500 mt-1 text-[10px]">By {log.logged_by}</p>}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+                    {program.program_overview && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Program Overview</h2><p className="text-sm text-slate-700 leading-relaxed bg-slate-50 rounded-xl p-4">{program.program_overview}</p></div>}
+                    {program.phases && program.phases.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Implementation Phases</h2><div className="space-y-3">{program.phases.map((phase, idx) => <div key={idx} className="border border-slate-200 rounded-xl p-4"><div className="flex items-center justify-between mb-2"><p className="font-bold text-slate-900">Phase {phase.phase_number}: {phase.name}</p>{phase.completed && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Completed</span>}</div><div className="grid grid-cols-3 gap-3 text-xs"><div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Duration</p><p className="font-bold text-slate-800">{phase.weeks}</p></div><div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Support Level</p><p className="font-bold text-slate-800">{phase.support_level}</p></div><div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Worker Role</p><p className="font-bold text-slate-800">{phase.worker_role || "—"}</p></div></div>{phase.goal && <p className="text-xs text-slate-600 mt-2"><span className="font-bold">Goal:</span> {phase.goal}</p>}</div>)}</div></div>}
+                    {program.skill_targets && program.skill_targets.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Skill Development Targets</h2><div className="space-y-1.5">{program.skill_targets.map((target, idx) => <div key={idx} className="flex items-center gap-2.5 bg-slate-50 p-3 rounded-lg">{target.achieved ? <CheckCircle size={14} className="text-emerald-600 shrink-0" /> : <Circle size={14} className="text-slate-400 shrink-0" />}<span className="text-sm text-slate-700">{target.skill}</span></div>)}</div></div>}
+                    {program.required_tools && program.required_tools.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Required Tools</h2><div className="bg-slate-50 rounded-xl p-4"><ul className="space-y-1 text-sm text-slate-700">{program.required_tools.map((t, i) => <li key={i} className="flex gap-2"><span>•</span>{t}</li>)}</ul></div></div>}
+                    {program.session_logs && program.session_logs.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Session History</h2><div className="space-y-2">{program.session_logs.slice(-5).reverse().map((log, i) => <div key={i} className="border border-slate-200 rounded-lg p-3 text-xs"><p className="font-bold text-slate-800">{log.date} — Phase {log.phase}</p>{log.participant_response && <p className="text-slate-600 mt-1"><span className="font-bold">Response:</span> {log.participant_response}</p>}{log.logged_by && <p className="text-slate-500 mt-1 text-[10px]">By {log.logged_by}</p>}</div>)}</div></div>}
                   </div>
                 </div>
               ))
