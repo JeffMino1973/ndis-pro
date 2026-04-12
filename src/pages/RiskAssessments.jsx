@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Trash2, Save, Printer } from "lucide-react";
+import { Plus, Trash2, Save, Printer, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -40,6 +40,14 @@ export default function RiskAssessments() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [printData, setPrintData] = useState(null);
+  const [renameId, setRenameId] = useState(null);
+  const [renameVal, setRenameVal] = useState("");
+
+  const saveRename = async (id) => {
+    await base44.entities.RiskAssessment.update(id, { title: renameVal });
+    setRenameId(null);
+    load();
+  };
   const [hazards, setHazards] = useState(DEFAULT_HAZARDS.map(h => ({ ...h })));
   const [participants, setParticipants] = useState([]);
   const [form, setForm] = useState({
@@ -52,7 +60,7 @@ export default function RiskAssessments() {
     emergency_contact_2_name: "", emergency_contact_2_phone: "", emergency_contact_2_rel: "",
   });
 
-  useEffect(() => {
+  const load = () => {
     Promise.all([
       base44.entities.RiskAssessment.list("-created_date"),
       base44.entities.Participant.list(),
@@ -61,7 +69,9 @@ export default function RiskAssessments() {
       setParticipants(parts);
       setLoading(false);
     });
-  }, []);
+  };
+
+  useEffect(() => { load(); }, []);
 
   const set = (f, v) => setForm(p => ({ ...p, [f]: v }));
 
@@ -331,10 +341,37 @@ export default function RiskAssessments() {
             ) : (
               <div className="space-y-3">
                 {assessments.slice(0, 8).map(a => (
-                  <div key={a.id} className="p-3 bg-secondary rounded-xl cursor-pointer hover:bg-primary/5 transition-colors"
-                    onClick={() => setPrintData({ ...a, overallRisk: a.overall_risk_level })}>
-                    <p className="text-xs font-bold text-foreground truncate">{a.activity_description || "Untitled"}</p>
-                    <div className="flex justify-between mt-1">
+                  <div key={a.id} className="p-3 bg-secondary rounded-xl">
+                    {renameId === a.id ? (
+                      <div className="flex gap-1 mb-1">
+                        <input
+                          value={renameVal}
+                          onChange={e => setRenameVal(e.target.value)}
+                          onKeyDown={e => e.key === "Enter" && saveRename(a.id)}
+                          className="flex-1 text-xs h-7 px-2 rounded border border-primary outline-none"
+                          autoFocus
+                        />
+                        <button onClick={() => saveRename(a.id)} className="text-xs text-primary font-black px-2">Save</button>
+                        <button onClick={() => setRenameId(null)} className="text-xs text-muted-foreground px-1">✕</button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1 mb-1">
+                        <p
+                          className="text-xs font-bold text-foreground truncate flex-1 cursor-pointer hover:text-primary"
+                          onClick={() => setPrintData({ ...a, overallRisk: a.overall_risk_level })}
+                        >
+                          {a.title || a.activity_description || "Untitled"}
+                        </p>
+                        <button
+                          onClick={() => { setRenameId(a.id); setRenameVal(a.title || a.activity_description || ""); }}
+                          className="text-muted-foreground hover:text-primary shrink-0"
+                          title="Rename"
+                        >
+                          <Pencil size={11} />
+                        </button>
+                      </div>
+                    )}
+                    <div className="flex justify-between">
                       <p className="text-[10px] text-muted-foreground">{a.participant_name || a.assessor_name}</p>
                       <span className={`text-[10px] font-black px-2 py-0.5 rounded ${RISK_COLORS[a.overall_risk_level] || "bg-slate-100 text-slate-600"}`}>{a.overall_risk_level}</span>
                     </div>
