@@ -1,0 +1,92 @@
+{
+  "name": "SupportPlan",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Plan Title"
+    },
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "primary_goal": {
+      "type": "string",
+      "title": "Primary Goal"
+    },
+    "support_focus": {
+      "type": "string",
+      "title": "Support Focus"
+    },
+    "goals": {
+      "type": "array",
+      "title": "Goals",
+      "items": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "steps": {
+            "type": "string"
+          },
+          "support": {
+            "type": "string"
+          },
+          "success": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "budget_items": {
+      "type": "array",
+      "title": "Budget Items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "amount": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "total_budget": {
+      "type": "number",
+      "title": "Total Budget"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Draft",
+        "Active",
+        "Reviewed",
+        "Archived"
+      ],
+      "default": "Draft"
+    },
+    "date_created": {
+      "type": "string",
+      "title": "Date Created",
+      "format": "date"
+    }
+  },
+  "required": [
+    "participant_name",
+    "title"
+  ]
+}

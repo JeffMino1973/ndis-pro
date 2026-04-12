@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Target, Plus, Trash2, Printer } from "lucide-react";
+import { Target, Plus, Trash2, Printer, Save, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,12 +21,16 @@ export default function SupportPlans() {
   const [loading, setLoading] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
   const [config, setConfig] = useState({});
+  const [savedPlans, setSavedPlans] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const [planTitle, setPlanTitle] = useState("");
 
   useEffect(() => {
     async function load() {
-      const [data, me] = await Promise.all([base44.entities.Participant.list(), base44.auth.me()]);
+      const [data, me, plans] = await Promise.all([base44.entities.Participant.list(), base44.auth.me(), base44.entities.SupportPlan.list("-created_date")]);
       setParticipants(data);
       setConfig(me?.businessConfig || {});
+      setSavedPlans(plans);
       setLoading(false);
     }
     load();
@@ -41,6 +45,35 @@ export default function SupportPlans() {
 
   const totalBudget = budgetItems.reduce((acc, b) => acc + (Number(b.amount) || 0), 0);
 
+  const savePlan = async () => {
+    if (!participant || !planTitle) return;
+    setSaving(true);
+    await base44.entities.SupportPlan.create({
+      title: planTitle,
+      participant_id: selectedParticipant,
+      participant_name: participant.name,
+      primary_goal: primaryGoal,
+      support_focus: supportFocus,
+      goals,
+      budget_items: budgetItems,
+      total_budget: totalBudget,
+      status: "Draft",
+      date_created: new Date().toISOString().split("T")[0],
+    });
+    const plans = await base44.entities.SupportPlan.list("-created_date");
+    setSavedPlans(plans);
+    setSaving(false);
+  };
+
+  const loadPlan = (plan) => {
+    setSelectedParticipant(plan.participant_id || "");
+    setPrimaryGoal(plan.primary_goal || "");
+    setSupportFocus(plan.support_focus || "");
+    setGoals(plan.goals?.length ? plan.goals : [{ text: "", steps: "", support: "", success: "" }]);
+    setBudgetItems(plan.budget_items?.length ? plan.budget_items : [{ category: "", description: "", provider: "", amount: 0 }]);
+    setPlanTitle(plan.title || "");
+  };
+
   const participant = participants.find((p) => p.id === selectedParticipant);
 
   if (showPreview) {
@@ -54,21 +87,32 @@ export default function SupportPlans() {
           <h2 className="text-3xl font-black tracking-tight">Support Plan Builder</h2>
           <p className="text-muted-foreground text-sm">Goal-focused strategy and budget allocation.</p>
         </div>
-        <Button onClick={() => setShowPreview(true)} disabled={!participant} variant="outline" className="rounded-xl font-bold gap-2">
-          <Printer size={16} /> Preview / Print
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={savePlan} disabled={!participant || !planTitle || saving} className="rounded-xl font-bold gap-2">
+            <Save size={15} /> {saving ? "Saving..." : "Save Plan"}
+          </Button>
+          <Button onClick={() => setShowPreview(true)} disabled={!participant} variant="outline" className="rounded-xl font-bold gap-2">
+            <Printer size={16} /> Preview / Print
+          </Button>
+        </div>
       </div>
 
       {/* Select Participant */}
       <div className="bg-card border border-border rounded-3xl p-6 space-y-4">
-        <div>
-          <Label>Select Participant</Label>
-          <Select value={selectedParticipant} onValueChange={setSelectedParticipant}>
-            <SelectTrigger className="max-w-md mt-1"><SelectValue placeholder="Choose a participant..." /></SelectTrigger>
-            <SelectContent>
-              {participants.map((p) => <SelectItem key={p.id} value={p.id}>{p.name} — {p.ndis_number}</SelectItem>)}
-            </SelectContent>
-          </Select>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <Label>Plan Title *</Label>
+            <Input value={planTitle} onChange={e => setPlanTitle(e.target.value)} placeholder="e.g. 2026 Support Plan — John Smith" className="mt-1" />
+          </div>
+          <div>
+            <Label>Select Participant</Label>
+            <Select value={selectedParticipant} onValueChange={setSelectedParticipant}>
+              <SelectTrigger className="mt-1"><SelectValue placeholder="Choose a participant..." /></SelectTrigger>
+              <SelectContent>
+                {participants.map((p) => <SelectItem key={p.id} value={p.id}>{p.name} — {p.ndis_number}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <div className="grid grid-cols-2 gap-4 max-w-2xl">
           <div>
@@ -149,7 +193,7 @@ export default function SupportPlans() {
           </div>
         </div>
 
-        {/* Funding Summary */}
+        {/* Funding Summary + Saved Plans */}
         <div className="space-y-6">
           <div className="bg-card border border-border rounded-3xl p-6 sticky top-4">
             <h4 className="font-black text-lg mb-6">Funding Summary</h4>
@@ -177,6 +221,20 @@ export default function SupportPlans() {
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Total Plan Budget</p>
             </div>
           </div>
+
+          {savedPlans.length > 0 && (
+            <div className="bg-card border border-border rounded-3xl p-6">
+              <h4 className="font-black mb-4 flex items-center gap-2"><FolderOpen size={16} className="text-primary" /> Saved Plans</h4>
+              <div className="space-y-2">
+                {savedPlans.slice(0, 8).map(plan => (
+                  <div key={plan.id} onClick={() => loadPlan(plan)} className="p-3 bg-secondary rounded-xl cursor-pointer hover:bg-primary/5 transition-colors">
+                    <p className="text-xs font-bold text-foreground truncate">{plan.title}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">{plan.participant_name} · {plan.date_created}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>

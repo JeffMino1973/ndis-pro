@@ -41,7 +41,9 @@ export default function RiskAssessments() {
   const [saving, setSaving] = useState(false);
   const [printData, setPrintData] = useState(null);
   const [hazards, setHazards] = useState(DEFAULT_HAZARDS.map(h => ({ ...h })));
+  const [participants, setParticipants] = useState([]);
   const [form, setForm] = useState({
+    title: "", participant_id: "",
     participant_name: "", participant_dob: "", ndis_number: "",
     home_address: "", destination: "",
     assessor_name: "", assessor_role: "",
@@ -51,13 +53,33 @@ export default function RiskAssessments() {
   });
 
   useEffect(() => {
-    base44.entities.RiskAssessment.list("-created_date").then(data => {
+    Promise.all([
+      base44.entities.RiskAssessment.list("-created_date"),
+      base44.entities.Participant.list(),
+    ]).then(([data, parts]) => {
       setAssessments(data);
+      setParticipants(parts);
       setLoading(false);
     });
   }, []);
 
   const set = (f, v) => setForm(p => ({ ...p, [f]: v }));
+
+  const selectParticipant = (id) => {
+    const p = participants.find(x => x.id === id);
+    if (!p) return;
+    setForm(prev => ({
+      ...prev,
+      participant_id: p.id,
+      participant_name: p.name,
+      participant_dob: p.date_of_birth || "",
+      ndis_number: p.ndis_number || "",
+      home_address: p.address || "",
+      emergency_contact_1_name: p.emergency_contact_name || "",
+      emergency_contact_1_phone: p.emergency_contact_phone || "",
+      emergency_contact_1_rel: p.emergency_contact_relationship || "",
+    }));
+  };
 
   const updateHazard = (i, field, value) => {
     setHazards(prev => prev.map((h, idx) => {
@@ -109,10 +131,10 @@ export default function RiskAssessments() {
     return <RiskAssessmentPrint data={printData} onBack={() => setPrintData(null)} />;
   }
 
-  const F = ({ label, field, type = "text", placeholder = "" }) => (
+  const F = ({ label, field, type = "text", placeholder = "", readOnly = false }) => (
     <div>
       <Label className="text-xs">{label}</Label>
-      <Input type={type} value={form[field]} onChange={e => set(field, e.target.value)} placeholder={placeholder} className="mt-1" />
+      <Input type={type} value={form[field]} onChange={e => set(field, e.target.value)} placeholder={placeholder} className="mt-1" readOnly={readOnly} />
     </div>
   );
 
@@ -128,7 +150,21 @@ export default function RiskAssessments() {
 
           {/* Participant & Assessment Details */}
           <div className="bg-card border border-border rounded-3xl p-6 space-y-4">
-            <h3 className="font-black text-lg">Participant Details</h3>
+            <h3 className="font-black text-lg">Assessment Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="md:col-span-2">
+                <Label className="text-xs">Assessment Title *</Label>
+                <Input value={form.title} onChange={e => set("title", e.target.value)} placeholder="e.g. Travel Risk Assessment — Coogee to Botany" className="mt-1 font-semibold" />
+              </div>
+              <div className="md:col-span-2">
+                <Label className="text-xs">Link to Participant</Label>
+                <select value={form.participant_id} onChange={e => selectParticipant(e.target.value)} className="mt-1 flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm">
+                  <option value="">Select participant (auto-fills details)...</option>
+                  {participants.map(p => <option key={p.id} value={p.id}>{p.name} — {p.ndis_number}</option>)}
+                </select>
+              </div>
+            </div>
+            <h3 className="font-black text-lg pt-2">Participant Details</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <F label="Participant Full Name" field="participant_name" />
               <F label="Date of Birth" field="participant_dob" type="date" />
