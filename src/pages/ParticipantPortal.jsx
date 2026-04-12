@@ -173,6 +173,7 @@ const TABS = [
   { id: "medications", label: "Medications", icon: Star },
   { id: "epilepsy", label: "Epilepsy Plan", icon: AlertTriangle },
   { id: "pbsp", label: "Behaviour Plan", icon: MessageSquareWarning },
+  { id: "risk_assessment", label: "Travel Risk Assessment", icon: AlertTriangle },
   { id: "reports", label: "Session Notes", icon: Navigation },
   { id: "complaint", label: "Lodge Complaint", icon: MessageSquareWarning },
 ];
@@ -977,6 +978,137 @@ export default function ParticipantPortal() {
         )}
 
 
+
+        {/* TRAVEL RISK ASSESSMENT TAB */}
+        {activeTab === "risk_assessment" && (
+          <div className="space-y-4">
+            {raAssessments.length === 0 ? (
+              <div className="bg-white rounded-2xl p-12 text-center border border-slate-200">
+                <AlertTriangle size={36} className="text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500 text-sm">No risk assessment on file.</p>
+              </div>
+            ) : (
+              raAssessments.map(assessment => (
+                <div key={assessment.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                  {/* Header */}
+                  <div className="bg-slate-800 text-white px-8 py-6">
+                    <h1 className="text-2xl font-black mb-1">NDIS Travel Risk Assessment</h1>
+                    <p className="text-slate-300 text-sm">{assessment.activity_description}</p>
+                  </div>
+
+                  <div className="p-8 space-y-6">
+                    {/* Participant Details */}
+                    <div>
+                      <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Participant Details</h2>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {[
+                          { label: "Name", value: assessment.participant_name },
+                          { label: "Date of Birth", value: assessment.participant_dob || "—" },
+                          { label: "NDIS Number", value: assessment.ndis_number || "—" },
+                          { label: "Home Address", value: assessment.home_address || "—" },
+                          { label: "Destination", value: assessment.destination || "—" },
+                          { label: "Assessment Date", value: assessment.assessment_date || "—" },
+                        ].map(f => (
+                          <div key={f.label} className="bg-slate-50 rounded-xl p-3">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{f.label}</p>
+                            <p className="text-xs font-bold text-slate-800">{f.value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Risk Matrix */}
+                    <div>
+                      <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Risk Rating Matrix</h2>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
+                          <thead className="bg-slate-700 text-white">
+                            <tr>
+                              <th className="px-2 py-2 text-left">Likelihood \ Consequence</th>
+                              {["Catastrophic", "Major", "Moderate", "Minor", "Insignificant"].map(c => <th key={c} className="px-2 py-2 text-center text-[8px]">{c}</th>)}
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-200">
+                            {[["Almost Certain", "Extreme", "Extreme", "High", "High", "Medium"], ["Likely", "Extreme", "High", "High", "Medium", "Low"], ["Possible", "High", "High", "Medium", "Low", "Low"], ["Unlikely", "High", "Medium", "Low", "Low", "Low"], ["Rare", "Medium", "Low", "Low", "Low", "Low"]].map((row, ri) => (
+                              <tr key={ri} className="bg-slate-50">
+                                <td className="px-2 py-2 text-[9px] font-bold">{row[0]}</td>
+                                {row.slice(1).map((cell, ci) => {
+                                  const colors = { "Low": "bg-green-100 text-green-800", "Medium": "bg-orange-100 text-orange-800", "High": "bg-red-100 text-red-800", "Extreme": "bg-red-900 text-white" };
+                                  return <td key={ci} className={`px-2 py-2 text-center text-[9px] font-black ${colors[cell]}`}>{cell}</td>;
+                                })}
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Hazard Assessment */}
+                    <div>
+                      <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Comprehensive Risk Assessment</h2>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-xs border border-slate-200 rounded-lg overflow-hidden">
+                          <thead className="bg-slate-700 text-white">
+                            <tr>
+                              <th className="px-3 py-2 text-left">Hazard</th>
+                              <th className="px-2 py-2 text-center">Initial L</th>
+                              <th className="px-2 py-2 text-center">Initial C</th>
+                              <th className="px-2 py-2 text-center">Rating</th>
+                              <th className="px-3 py-2 text-left">Controls</th>
+                              <th className="px-2 py-2 text-center">Residual L</th>
+                              <th className="px-2 py-2 text-center">Residual C</th>
+                              <th className="px-2 py-2 text-center">Rating</th>
+                              <th className="px-2 py-2 text-left">Responsible</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-200">
+                            {(assessment.hazards || []).map((h, i) => {
+                              const initialColor = { Low: "bg-green-100", Medium: "bg-orange-100", High: "bg-red-100", Extreme: "bg-red-900 text-white" }[h.initial_rating] || "bg-slate-50";
+                              const residualColor = { Low: "bg-green-100", Medium: "bg-orange-100", High: "bg-red-100", Extreme: "bg-red-900 text-white" }[h.residual_rating] || "bg-slate-50";
+                              return (
+                                <tr key={i} className="bg-slate-50">
+                                  <td className="px-3 py-2 font-semibold text-slate-800">{h.hazard}</td>
+                                  <td className="px-2 py-2 text-center text-[9px]">{h.initial_likelihood}</td>
+                                  <td className="px-2 py-2 text-center text-[9px]">{h.initial_consequence}</td>
+                                  <td className={`px-2 py-2 text-center text-[9px] font-black ${initialColor}`}>{h.initial_rating}</td>
+                                  <td className="px-3 py-2 text-[9px] text-slate-600">{h.controls}</td>
+                                  <td className="px-2 py-2 text-center text-[9px]">{h.residual_likelihood}</td>
+                                  <td className="px-2 py-2 text-center text-[9px]">{h.residual_consequence}</td>
+                                  <td className={`px-2 py-2 text-center text-[9px] font-black ${residualColor}`}>{h.residual_rating}</td>
+                                  <td className="px-2 py-2 text-[9px]">{h.person_responsible}</td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+
+                    {/* Emergency Contacts */}
+                    <div>
+                      <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Emergency Contacts</h2>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                        {[
+                          { label: "Primary Contact", value: assessment.emergency_contact_1_name },
+                          { label: "Phone", value: assessment.emergency_contact_1_phone },
+                          { label: "Relationship", value: assessment.emergency_contact_1_rel },
+                          { label: "Secondary Contact", value: assessment.emergency_contact_2_name },
+                          { label: "Phone", value: assessment.emergency_contact_2_phone },
+                          { label: "Relationship", value: assessment.emergency_contact_2_rel },
+                        ].filter(f => f.value).map(f => (
+                          <div key={f.label} className="bg-rose-50 border border-rose-200 rounded-xl p-3">
+                            <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest mb-1">{f.label}</p>
+                            <p className="text-xs font-bold text-slate-800">{f.value}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
 
         {/* IMPLEMENTATION PROGRAMS TAB */}
         {activeTab === "implementation" && (() => {
