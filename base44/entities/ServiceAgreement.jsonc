@@ -26,11 +26,23 @@
       "items": {
         "type": "object",
         "properties": {
+          "ndis_code": {
+            "type": "string"
+          },
+          "support_item_code": {
+            "type": "string"
+          },
           "description": {
             "type": "string"
           },
           "category": {
             "type": "string"
+          },
+          "hours": {
+            "type": "number"
+          },
+          "rate": {
+            "type": "number"
           },
           "amount": {
             "type": "number"
