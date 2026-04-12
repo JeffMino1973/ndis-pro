@@ -955,7 +955,7 @@ export default function ParticipantPortal() {
                     <div className="grid grid-cols-3 gap-4">
                       {[
                         { label: "Contact Name", value: assessment.emergency_contact_1_name || "—" },
-                        { label: "Phone", value: "0424 377 062" },
+                        { label: "Phone", value: assessment.emergency_contact_1_phone || "—" },
                         { label: "Relationship", value: assessment.emergency_contact_1_rel || "—" },
                       ].map(f => (
                         <div key={f.label} className="bg-rose-50 border border-rose-200 rounded-xl p-3">
@@ -965,9 +965,6 @@ export default function ParticipantPortal() {
                       ))}
                     </div>
                   </div>
-                </div>
-              </div>
-            ))}
           </div>
         )}
 
