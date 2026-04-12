@@ -173,6 +173,7 @@ const TABS = [
   { id: "epilepsy", label: "Epilepsy Plan", icon: AlertTriangle },
   { id: "pbsp", label: "Behaviour Plan", icon: MessageSquareWarning },
   { id: "risk_assessment", label: "Travel Risk Assessment", icon: AlertTriangle },
+  { id: "implementation", label: "Implementation Program", icon: Target },
   { id: "reports", label: "Session Notes", icon: Navigation },
   { id: "complaint", label: "Lodge Complaint", icon: MessageSquareWarning },
 ];
@@ -1106,6 +1107,143 @@ export default function ParticipantPortal() {
                 </div>
               ))
             )}
+          </div>
+        )}
+
+        {/* IMPLEMENTATION PROGRAM TAB */}
+        {activeTab === "implementation" && (
+          <div className="space-y-4">
+            {implementationPrograms.length === 0 ? (
+              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
+                <Target size={36} className="text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500 text-sm">No implementation program on file.</p>
+              </div>
+            ) : implementationPrograms.map(prog => {
+              const skillPct = (prog.skill_targets || []).length > 0 ? Math.round((prog.skill_targets || []).filter(s => s.achieved).length / (prog.skill_targets || []).length * 100) : 0;
+              const phasePct = (prog.phases || []).length > 0 ? Math.round((prog.phases || []).filter(p => p.completed).length / (prog.phases || []).length * 100) : 0;
+              return (
+                <div key={prog.id} className="space-y-6">
+                  {/* Header */}
+                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                      <div>
+                        <h1 className="text-2xl sm:text-3xl font-black text-slate-800 flex items-center gap-3">
+                          <span>📋</span> IMPLEMENTATION PROGRAM
+                        </h1>
+                        <p className="text-primary font-bold mt-1">{prog.participant_name} · {prog.primary_goal}</p>
+                      </div>
+                      <span className={`text-[10px] font-black px-3 py-1.5 rounded-full ${prog.status === "Active" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>{prog.status}</span>
+                    </div>
+                  </div>
+
+                  {/* KPI Strip */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
+                      <p className="text-2xl font-black text-primary">{(prog.phases || []).filter(p => p.completed).length}/{(prog.phases || []).length}</p>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Phases Complete</p>
+                    </div>
+                    <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
+                      <p className="text-2xl font-black text-emerald-600">{(prog.skill_targets || []).filter(s => s.achieved).length}/{(prog.skill_targets || []).length}</p>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Skills Achieved</p>
+                    </div>
+                    <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
+                      <p className="text-2xl font-black text-amber-600">{phasePct}%</p>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Phase Progress</p>
+                    </div>
+                    <div className="bg-white border border-slate-200 rounded-2xl p-4 text-center">
+                      <p className="text-2xl font-black text-blue-600">{(prog.session_logs || []).length}</p>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">Sessions Logged</p>
+                    </div>
+                  </div>
+
+                  {/* Overview */}
+                  <div className="bg-white border border-slate-200 rounded-2xl p-6 space-y-3">
+                    <h2 className="font-black text-lg text-slate-900">Program Overview</h2>
+                    <p className="text-sm text-slate-700 leading-relaxed">{prog.program_overview}</p>
+                    {prog.session_structure && (
+                      <div className="bg-slate-50 rounded-xl p-4 mt-4">
+                        <p className="text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Session Structure</p>
+                        <p className="text-xs text-slate-700 whitespace-pre-line leading-relaxed">{prog.session_structure}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Implementation Phases */}
+                  <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                    <div className="bg-slate-100 px-6 py-4 border-b">
+                      <h2 className="font-black text-lg flex items-center gap-2">📊 IMPLEMENTATION PHASES</h2>
+                    </div>
+                    <div className="p-6 space-y-4">
+                      {(prog.phases || []).map((ph, i) => (
+                        <div key={i} className={`border-2 rounded-2xl p-4 ${ph.completed ? "border-emerald-200 bg-emerald-50" : "border-slate-200"}`}>
+                          <div className="flex items-start justify-between gap-3 mb-2">
+                            <div className="flex items-center gap-3">
+                              <span className={`text-white text-[10px] font-black px-2.5 py-1.5 rounded-full ${IP_PHASE_COLORS[i] || "bg-slate-500"}`}>Phase {ph.phase_number}</span>
+                              <div>
+                                <p className="font-black text-sm text-slate-900">{ph.name}</p>
+                                <p className="text-[10px] text-slate-500">{ph.weeks}</p>
+                              </div>
+                            </div>
+                            {ph.completed ? <CheckCircle size={18} className="text-emerald-600" /> : <Circle size={18} className="text-slate-300" />}
+                          </div>
+                          <div className="ml-0 space-y-1.5 text-xs">
+                            <p><span className="font-bold text-slate-600">Goal:</span> {ph.goal}</p>
+                            <p><span className="font-bold text-slate-600">Support Level:</span> {ph.support_level}</p>
+                            <p><span className="font-bold text-slate-600">Worker Role:</span> {ph.worker_role}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Skills & Tools */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                      <div className="bg-slate-100 px-6 py-4 border-b">
+                        <h2 className="font-black text-lg flex items-center gap-2">🎯 SKILL TARGETS ({(prog.skill_targets || []).filter(s => s.achieved).length}/{(prog.skill_targets || []).length})</h2>
+                      </div>
+                      <div className="p-6 space-y-2">
+                        {(prog.skill_targets || []).map((s, i) => (
+                          <div key={i} className={`flex items-center gap-2.5 p-2.5 rounded-lg text-xs font-medium ${s.achieved ? "bg-emerald-50 text-emerald-700" : "bg-slate-50 text-slate-700"}`}>
+                            {s.achieved ? <CheckCircle size={14} /> : <Circle size={14} className="text-slate-300" />}
+                            <span className={s.achieved ? "line-through" : ""}>{s.skill}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                      <div className="bg-slate-100 px-6 py-4 border-b">
+                        <h2 className="font-black text-lg">⚙️ REQUIRED TOOLS</h2>
+                      </div>
+                      <div className="p-6 space-y-2">
+                        {(prog.required_tools || []).map((t, i) => (
+                          <div key={i} className="flex items-center gap-2.5 text-xs font-medium text-slate-700 bg-slate-50 p-2.5 rounded-lg">
+                            <span className="w-1.5 h-1.5 bg-blue-600 rounded-full shrink-0" />
+                            {t}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Risk Strategies */}
+                  {(prog.risk_strategies || []).length > 0 && (
+                    <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6">
+                      <h2 className="font-black text-lg text-amber-900 mb-4 flex items-center gap-2">🛡️ RISK MANAGEMENT STRATEGIES</h2>
+                      <ul className="space-y-2">
+                        {(prog.risk_strategies || []).map((r, i) => (
+                          <li key={i} className="flex items-start gap-2.5 text-sm text-amber-800">
+                            <span className="w-1.5 h-1.5 bg-amber-500 rounded-full shrink-0 mt-1.5" />
+                            {r}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
 
