@@ -24,6 +24,7 @@ import {
   BarChart3,
   BookTemplate,
   Play,
+  Zap,
 } from "lucide-react";
 
 const NAV_SECTIONS = [
@@ -82,6 +83,12 @@ const NAV_SECTIONS = [
     title: "Stationery",
     items: [
       { path: "/stationery", label: "Templates & Stationery", icon: BookTemplate },
+    ],
+  },
+  {
+    title: "AI & Intelligence",
+    items: [
+      { path: "/ai-reports", label: "AI Report Centre", icon: Zap },
     ],
   },
   {
