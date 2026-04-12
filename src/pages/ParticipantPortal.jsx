@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import {
   ShieldCheck, FileText, Receipt, ClipboardList, CheckCircle, PenLine,
   Loader2, User, Target, AlertTriangle, MessageSquareWarning, Navigation, Pencil,
-  ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File, Circle
+  ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File, Circle, Menu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -170,6 +170,9 @@ export default function ParticipantPortal() {
   const [participantDocuments, setParticipantDocuments] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [editingDoc, setEditingDoc] = useState(null);
+
+  // Menu
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLookup = async () => {
     setError("");
@@ -348,29 +351,47 @@ export default function ParticipantPortal() {
         </div>
       </div>
 
-      {/* Tab Nav */}
-      <div className="bg-white border-b border-slate-200 overflow-x-auto">
-        <div className="flex min-w-max px-4">
-          {TABS.map(tab => {
-            const Icon = tab.icon;
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3.5 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
-                  isActive ? "border-primary text-primary" : "border-transparent text-slate-500 hover:text-slate-700"
-                }`}
-              >
-                <Icon size={15} />
-                {tab.label}
-                {tab.id === "documents" && pendingCount > 0 && (
-                  <span className="w-4 h-4 bg-rose-500 text-white text-[9px] rounded-full flex items-center justify-center font-black">{pendingCount}</span>
-                )}
-              </button>
-            );
-          })}
+      {/* Tab Nav - Hamburger */}
+      <div className="bg-white border-b border-slate-200 sticky top-16 z-30">
+        <div className="px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {(() => { const activeTabObj = TABS.find(t => t.id === activeTab); const Icon = activeTabObj?.icon; return Icon ? <><Icon size={16} className="text-primary" /><span className="text-sm font-bold text-slate-800">{activeTabObj.label}</span></> : null; })()}
+            {pendingCount > 0 && activeTab === "documents" && (
+              <span className="w-5 h-5 bg-rose-500 text-white text-[9px] rounded-full flex items-center justify-center font-black">{pendingCount}</span>
+            )}
+          </div>
+          <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 transition-colors">
+            <Menu size={18} className="text-slate-700" />
+            <span className="text-sm font-bold text-slate-700">Menu</span>
+          </button>
         </div>
+
+        {/* Dropdown */}
+        {menuOpen && (
+          <div className="absolute top-full left-0 right-0 bg-white border-b border-slate-200 shadow-lg z-50">
+            <div className="grid grid-cols-2 gap-px bg-slate-100">
+              {TABS.map(tab => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => { setActiveTab(tab.id); setMenuOpen(false); }}
+                    className={`flex items-center gap-2.5 px-4 py-3 text-sm font-semibold transition-all bg-white ${
+                      isActive ? "text-primary bg-primary/5" : "text-slate-600 hover:bg-slate-50"
+                    }`}
+                  >
+                    <Icon size={15} className={isActive ? "text-primary" : "text-slate-400"} />
+                    <span className="truncate">{tab.label}</span>
+                    {tab.id === "documents" && pendingCount > 0 && (
+                      <span className="ml-auto w-4 h-4 bg-rose-500 text-white text-[9px] rounded-full flex items-center justify-center font-black shrink-0">{pendingCount}</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="max-w-2xl mx-auto p-4 py-6 space-y-4">
