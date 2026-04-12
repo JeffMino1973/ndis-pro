@@ -90,7 +90,7 @@ export default function NDISItemSelect({ value, onSelect, placeholder = "Search 
                 <button
                   key={n.code}
                   type="button"
-                  onClick={() => { onSelect(n); setOpen(false); setSearch(""); }}
+                  onMouseDown={(e) => { e.preventDefault(); onSelect(n); setOpen(false); setSearch(""); }}
                   className={`w-full text-left px-3 py-2 text-xs hover:bg-accent transition-colors ${value === n.code ? "bg-primary/10" : ""}`}
                 >
                   <span className="font-mono text-muted-foreground">{n.code}</span>
