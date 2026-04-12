@@ -321,24 +321,28 @@ function AgreementPreview({ agreement, onBack }) {
             <tbody className="divide-y divide-slate-100">
               {(agreement.services || []).map((s, i) => {
                 const rate = getRate(s);
-                const code = s.ndis_code || s.support_item_code || "—";
+                const code = s.ndis_code || s.support_item_code;
+                const hasHours = s.hours && Number(s.hours) > 0;
+                const lineTotal = hasHours ? Number(s.amount || 0) : null;
                 return (
                   <tr key={i}>
-                    <td className="px-4 py-3 font-mono text-xs text-slate-500">{code}</td>
+                    <td className="px-4 py-3 font-mono text-xs text-slate-500">{code || "—"}</td>
                     <td className="px-4 py-3 font-semibold text-slate-800">{s.description}</td>
                     <td className="px-4 py-3 text-right">${rate.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-right">{s.hours || "—"}</td>
-                    <td className="px-4 py-3 text-right font-black">${Number(s.amount || 0).toFixed(2)}</td>
+                    <td className="px-4 py-3 text-right">{hasHours ? s.hours : "—"}</td>
+                    <td className="px-4 py-3 text-right font-black">{lineTotal !== null ? `$${lineTotal.toFixed(2)}` : "—"}</td>
                   </tr>
                 );
               })}
             </tbody>
-            <tfoot className="bg-slate-50">
-              <tr>
-                <td colSpan={4} className="px-4 py-3 text-right font-black text-slate-700">Total Agreement Value</td>
-                <td className="px-4 py-3 text-right font-black text-primary text-base">${total.toFixed(2)}</td>
-              </tr>
-            </tfoot>
+            {(agreement.services || []).some(s => s.hours && Number(s.hours) > 0) && (
+              <tfoot className="bg-slate-50">
+                <tr>
+                  <td colSpan={4} className="px-4 py-3 text-right font-black text-slate-700">Total Agreement Value</td>
+                  <td className="px-4 py-3 text-right font-black text-primary text-base">${total.toFixed(2)}</td>
+                </tr>
+              </tfoot>
+            )}
           </table>
         </section>
 
