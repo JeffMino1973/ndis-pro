@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import {
   ShieldCheck, FileText, Receipt, ClipboardList, CheckCircle, PenLine,
   Loader2, User, Target, AlertTriangle, MessageSquareWarning, Navigation, Pencil,
-  ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File, Circle, Menu
+  ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File, Circle, Menu, Pill
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -817,153 +817,120 @@ export default function ParticipantPortal() {
           </div>
         )}
 
-        {/* HEALTH SUPPORT PLAN TAB */}
+        {/* HEALTH SUPPORT PLAN TAB - FULL DOCUMENT */}
         {activeTab === "health" && (
           <div className="space-y-4">
-            {creatingHealth && (
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
-                <div className="flex justify-between items-center">
-                  <p className="font-black text-slate-900">Create Health Support Plan</p>
-                  <button onClick={() => setCreatingHealth(false)} className="text-slate-400 hover:text-slate-700"><X size={16} /></button>
-                </div>
-                {[{f:"health_conditions",l:"Health Conditions"},{f:"doctor_name",l:"Doctor / GP Name"},{f:"doctor_phone",l:"Doctor Phone"},{f:"doctor_address",l:"Doctor Address"},{f:"parent_carer_name",l:"Parent / Carer Name"},{f:"parent_carer_phone",l:"Parent / Carer Phone"},{f:"parent_carer_email",l:"Parent / Carer Email"},{f:"emergency_contact_name",l:"Emergency Contact Name"},{f:"emergency_contact_phone",l:"Emergency Contact Phone"},{f:"emergency_contact_relationship",l:"Relationship"}].map(({f,l}) => (
-                  <div key={f}>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">{l}</label>
-                    <input value={editingHealth[f]||""} onChange={e => setEditingHealth(p=>({...p,[f]:e.target.value}))} className="w-full h-9 px-3 rounded-md border border-slate-200 text-sm" />
-                  </div>
-                ))}
-                <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Additional Support Required</label>
-                  <textarea value={editingHealth.additional_support||""} onChange={e => setEditingHealth(p=>({...p,additional_support:e.target.value}))} className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm min-h-[60px]" />
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={() => { setCreatingHealth(false); setEditingHealth(null); }} className="flex-1 border border-slate-200 rounded-xl py-2 text-sm font-bold text-slate-600">Cancel</button>
-                  <button disabled={portalSaving || !editingHealth.doctor_name} onClick={async () => { setPortalSaving(true); await base44.entities.HealthCarePlan.create({...editingHealth, participant_name: participant.name, participant_id: participant.id, ndis_number: participant.ndis_number, status: "Active"}); const hp = await base44.entities.HealthCarePlan.filter({participant_name: participant.name}).catch(()=>[]); setHealthPlans(hp); setCreatingHealth(false); setEditingHealth(null); setPortalSaving(false); }} className="flex-1 bg-primary text-white rounded-xl py-2 text-sm font-bold">{portalSaving ? "Creating..." : "Create Plan"}</button>
-                </div>
-              </div>
-            )}
-            {editingHealth && !creatingHealth && (
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
-                <div className="flex justify-between items-center">
-                  <p className="font-black text-slate-900">Edit Health Support Plan</p>
-                  <button onClick={() => setEditingHealth(null)} className="text-slate-400 hover:text-slate-700"><X size={16} /></button>
-                </div>
-                <p className="text-xs text-slate-500">You can update contact and care details below. Medical information changes should be confirmed with your provider.</p>
-                {[
-                  {f:"doctor_name",l:"Doctor / GP Name"},
-                  {f:"doctor_phone",l:"Doctor Phone"},
-                  {f:"doctor_address",l:"Doctor Address"},
-                  {f:"parent_carer_name",l:"Parent / Carer Name"},
-                  {f:"parent_carer_phone",l:"Parent / Carer Phone"},
-                  {f:"parent_carer_email",l:"Parent / Carer Email"},
-                  {f:"emergency_contact_name",l:"Emergency Contact Name"},
-                  {f:"emergency_contact_phone",l:"Emergency Contact Phone"},
-                  {f:"emergency_contact_relationship",l:"Relationship"},
-                ].map(({f,l}) => (
-                  <div key={f}>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">{l}</label>
-                    <input value={editingHealth[f]||""} onChange={e => setEditingHealth(p=>({...p,[f]:e.target.value}))} className="w-full h-9 px-3 rounded-md border border-slate-200 text-sm" />
-                  </div>
-                ))}
-                <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Additional Support Required</label>
-                  <textarea value={editingHealth.additional_support||""} onChange={e => setEditingHealth(p=>({...p,additional_support:e.target.value}))} className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm min-h-[60px]" />
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={() => setEditingHealth(null)} className="flex-1 border border-slate-200 rounded-xl py-2 text-sm font-bold text-slate-600">Cancel</button>
-                  <button disabled={portalSaving} onClick={async () => { setPortalSaving(true); await base44.entities.HealthCarePlan.update(editingHealth.id, editingHealth); const hp = await base44.entities.HealthCarePlan.filter({participant_name: participant.name}).catch(()=>[]); setHealthPlans(hp); setEditingHealth(null); setPortalSaving(false); }} className="flex-1 bg-primary text-white rounded-xl py-2 text-sm font-bold">{portalSaving ? "Saving..." : "Save Changes"}</button>
-                </div>
-              </div>
-            )}
-            {!creatingHealth && (
-              <div className="bg-white border border-dashed border-slate-300 rounded-2xl p-6 text-center">
-                <button onClick={() => { setCreatingHealth(true); setEditingHealth({health_conditions:"",doctor_name:"",doctor_phone:"",doctor_address:"",parent_carer_name:"",parent_carer_phone:"",parent_carer_email:"",emergency_contact_name:"",emergency_contact_phone:"",emergency_contact_relationship:"",additional_support:""}); }} className="w-full flex flex-col items-center gap-2 text-center">
-                  <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center"><Plus size={18} /></div>
-                  <p className="text-sm font-bold text-slate-900">Create Health Support Plan</p>
-                  <p className="text-xs text-slate-500">Add a new health plan to your profile</p>
-                </button>
-              </div>
-            )}
-
-            {healthPlans.length === 0 && !creatingHealth ? (
+            {healthPlans.length === 0 ? (
               <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
                 <Heart size={36} className="text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500 text-sm">No health support plan on file.</p>
               </div>
             ) : healthPlans.map(plan => (
               <div key={plan.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-                <div className="bg-emerald-700 text-white px-5 py-4 flex justify-between items-start">
-                  <div>
-                    <p className="font-black text-lg">Individual Health Support Plan (IHSP)</p>
-                    <p className="text-emerald-200 text-xs mt-0.5">{plan.participant_name}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${plan.status==="Active"?"bg-white text-emerald-700":"bg-emerald-800 text-emerald-200"}`}>{plan.status}</span>
-                    <button onClick={() => setEditingHealth({...plan})} className="text-white/70 hover:text-white"><Edit size={14} /></button>
-                  </div>
+                <div className="bg-emerald-700 text-white px-6 py-8">
+                  <h1 className="text-2xl font-black mb-1">Individual Health Support Plan (IHSP)</h1>
+                  <p className="text-emerald-200">Comprehensive health care documentation</p>
                 </div>
-                {plan.emergency_alert && (
-                  <div className="bg-rose-50 border-b border-rose-200 px-5 py-3 flex items-center gap-2">
-                    <AlertTriangle size={14} className="text-rose-600 shrink-0" />
-                    <span className="text-rose-700 font-black text-sm">{plan.emergency_alert}</span>
-                  </div>
-                )}
-                <div className="p-5 space-y-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 px-6 py-4 border-t border-slate-200">
+                  {[{l: "Participant", v: plan.participant_name}, {l: "NDIS", v: plan.ndis_number}, {l: "DOB", v: plan.date_of_birth}, {l: "Status", v: plan.status}].filter(f => f.v).map(f => (
+                    <div key={f.l}>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p>
+                      <p className="text-sm font-bold text-slate-900">{f.v}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="p-6 space-y-6">
                   {plan.health_conditions && (
-                    <div className="bg-slate-50 rounded-xl p-4">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Health Conditions</p>
-                      <p className="text-sm text-slate-800 leading-relaxed">{plan.health_conditions}</p>
+                    <div>
+                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Health Conditions</h2>
+                      <div className="bg-slate-50 rounded-xl p-4 text-sm text-slate-700 leading-relaxed border border-slate-200">{plan.health_conditions}</div>
                     </div>
                   )}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {[
-                      {l:"Doctor / GP",v:plan.doctor_name},
-                      {l:"Doctor Phone",v:plan.doctor_phone},
-                      {l:"Doctor Address",v:plan.doctor_address},
-                      {l:"Parent / Carer",v:plan.parent_carer_name},
-                      {l:"Carer Phone",v:plan.parent_carer_phone},
-                      {l:"Carer Email",v:plan.parent_carer_email},
-                      {l:"Emergency Contact",v:plan.emergency_contact_name},
-                      {l:"Emergency Phone",v:plan.emergency_contact_phone},
-                      {l:"Relationship",v:plan.emergency_contact_relationship},
-                      {l:"Review Date",v:plan.review_date},
-                    ].filter(x=>x.v).map(({l,v}) => (
-                      <div key={l} className="bg-slate-50 rounded-xl p-3">
-                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{l}</p>
-                        <p className="text-sm font-bold text-slate-800">{v}</p>
+                  {plan.doctor_name && (
+                    <div>
+                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Healthcare Providers</h2>
+                      <div className="space-y-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                            <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Doctor / GP</p>
+                            <p className="text-sm font-bold text-slate-900">{plan.doctor_name}</p>
+                            {plan.doctor_phone && <p className="text-xs text-slate-600 mt-1">{plan.doctor_phone}</p>}
+                            {plan.doctor_address && <p className="text-xs text-slate-600">{plan.doctor_address}</p>}
+                          </div>
+                          {plan.parent_carer_name && (
+                            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                              <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Parent / Carer</p>
+                              <p className="text-sm font-bold text-slate-900">{plan.parent_carer_name}</p>
+                              {plan.parent_carer_phone && <p className="text-xs text-slate-600 mt-1">{plan.parent_carer_phone}</p>}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                  {plan.health_support_procedures && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                      <p className="text-[10px] font-black text-blue-600 uppercase tracking-widest mb-2">Health Support Procedures</p>
-                      <p className="text-sm text-blue-800 leading-relaxed whitespace-pre-line">{plan.health_support_procedures}</p>
-                    </div>
-                  )}
-                  {plan.emergency_response && (
-                    <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-                      <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest mb-2">Emergency Response Plan</p>
-                      <p className="text-sm text-rose-800 leading-relaxed whitespace-pre-line">{plan.emergency_response}</p>
                     </div>
                   )}
                   {plan.medications && plan.medications.length > 0 && (
                     <div>
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Medications</p>
+                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Current Medications</h2>
                       <div className="space-y-2">
-                        {plan.medications.map((m,i) => (
-                          <div key={i} className="bg-slate-50 rounded-xl p-3 text-xs">
-                            <p className="font-black text-slate-800">{m.name} — {m.dose}</p>
-                            <p className="text-slate-500">{m.frequency} · {m.route}{m.time ? ` · ${m.time}` : ""}</p>
-                            {m.notes && <p className="text-slate-400 mt-0.5">{m.notes}</p>}
+                        {plan.medications.map((m, i) => (
+                          <div key={i} className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                            <p className="font-bold text-slate-900">{m.name} — {m.dose}</p>
+                            <div className="grid grid-cols-2 gap-2 mt-2 text-xs text-slate-600">
+                              <p><span className="font-black">Frequency:</span> {m.frequency}</p>
+                              <p><span className="font-black">Route:</span> {m.route}</p>
+                              {m.time && <p className="col-span-2"><span className="font-black">Time:</span> {m.time}</p>}
+                            </div>
+                            {m.notes && <p className="text-xs text-slate-600 mt-2 italic">{m.notes}</p>}
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
-                  {plan.additional_support && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                      <p className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-2">Additional Support</p>
-                      <p className="text-sm text-amber-800 leading-relaxed">{plan.additional_support}</p>
+                  {plan.health_support_procedures && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                      <p className="text-sm font-black text-blue-700 mb-2 uppercase tracking-widest">Health Support Procedures</p>
+                      <p className="text-sm text-blue-800 leading-relaxed whitespace-pre-line">{plan.health_support_procedures}</p>
+                    </div>
+                  )}
+                  {plan.emergency_response && (
+                    <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
+                      <p className="text-sm font-black text-rose-700 mb-2 uppercase tracking-widest">Emergency Response Plan</p>
+                      <p className="text-sm text-rose-800 leading-relaxed whitespace-pre-line">{plan.emergency_response}</p>
+                    </div>
+                  )}
+                  {plan.emergency_alert && (
+                    <div className="bg-amber-50 border border-amber-300 rounded-xl p-4">
+                      <p className="text-sm font-black text-amber-800 uppercase tracking-widest">⚠️ Medical Alerts</p>
+                      <p className="text-sm text-amber-900 font-semibold mt-2">{plan.emergency_alert}</p>
+                    </div>
+                  )}
+                  {(plan.emergency_contact_name || plan.parent_carer_name) && (
+                    <div>
+                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Emergency Contacts</h2>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {plan.emergency_contact_name && (
+                          <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
+                            <p className="text-[10px] font-black text-orange-700 uppercase mb-1">Emergency Contact</p>
+                            <p className="text-sm font-bold text-orange-900">{plan.emergency_contact_name}</p>
+                            <p className="text-xs text-orange-800 mt-1">{plan.emergency_contact_relationship}</p>
+                            {plan.emergency_contact_phone && <p className="text-xs text-orange-800">{plan.emergency_contact_phone}</p>}
+                          </div>
+                        )}
+                        {plan.parent_carer_name && (
+                          <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
+                            <p className="text-[10px] font-black text-orange-700 uppercase mb-1">Parent / Carer</p>
+                            <p className="text-sm font-bold text-orange-900">{plan.parent_carer_name}</p>
+                            {plan.parent_carer_phone && <p className="text-xs text-orange-800 mt-1">{plan.parent_carer_phone}</p>}
+                            {plan.parent_carer_email && <p className="text-xs text-orange-800">{plan.parent_carer_email}</p>}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {plan.review_date && (
+                    <div className="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center">
+                      <p className="text-sm font-black">Next Review</p>
+                      <p className="text-lg font-bold">{plan.review_date}</p>
                     </div>
                   )}
                 </div>
@@ -972,200 +939,215 @@ export default function ParticipantPortal() {
           </div>
         )}
 
-        {/* MEDICATIONS TAB */}
+        {/* MEDICATIONS TAB - FULL DOCUMENT */}
         {activeTab === "medications" && (
           <div className="space-y-4">
-            {creatingMed && (
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
-                <div className="flex justify-between items-center">
-                  <p className="font-black text-slate-900">Add New Medication</p>
-                  <button onClick={() => setCreatingMed(false)} className="text-slate-400 hover:text-slate-700"><X size={16} /></button>
-                </div>
-                {[{f:"medication_name",l:"Medication Name"},{f:"dose",l:"Dose"},{f:"frequency",l:"Frequency"},{f:"route",l:"Route"},{f:"prescriber",l:"Prescriber"},{f:"indication",l:"Indication"},{f:"side_effects",l:"Side Effects"},{f:"storage",l:"Storage"}].map(({f,l}) => (
-                  <div key={f}>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">{l}</label>
-                    <input value={editingMed[f]||""} onChange={e => setEditingMed(p=>({...p,[f]:e.target.value}))} className="w-full h-9 px-3 rounded-md border border-slate-200 text-sm" />
-                  </div>
-                ))}
-                <div className="flex gap-2">
-                  <button onClick={() => { setCreatingMed(false); setEditingMed(null); }} className="flex-1 border border-slate-200 rounded-xl py-2 text-sm font-bold text-slate-600">Cancel</button>
-                  <button disabled={portalSaving || !editingMed.medication_name || !editingMed.dose} onClick={async () => { setPortalSaving(true); await base44.entities.Medication.create({...editingMed, participant_name: participant.name, participant_id: participant.id, status: "Active"}); const m = await base44.entities.Medication.filter({participant_name: participant.name}); setMedications(m); setCreatingMed(false); setEditingMed(null); setPortalSaving(false); }} className="flex-1 bg-primary text-white rounded-xl py-2 text-sm font-bold">{portalSaving ? "Adding..." : "Add Medication"}</button>
-                </div>
-              </div>
-            )}
-            {editingMed && !creatingMed && (
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
-                <div className="flex justify-between items-center">
-                  <p className="font-black text-slate-900">Edit: {editingMed.medication_name}</p>
-                  <button onClick={() => setEditingMed(null)} className="text-slate-400 hover:text-slate-700"><X size={16} /></button>
-                </div>
-                {[{f:"dose",l:"Dose"},{f:"frequency",l:"Frequency"},{f:"prescriber",l:"Prescriber"},{f:"indication",l:"Indication"},{f:"side_effects",l:"Side Effects"},{f:"storage",l:"Storage"}].map(({f,l}) => (
-                  <div key={f}>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">{l}</label>
-                    <input value={editingMed[f]||""} onChange={e => setEditingMed(p=>({...p,[f]:e.target.value}))} className="w-full h-9 px-3 rounded-md border border-slate-200 text-sm" />
-                  </div>
-                ))}
-                <div className="flex gap-2">
-                  <button onClick={() => setEditingMed(null)} className="flex-1 border border-slate-200 rounded-xl py-2 text-sm font-bold text-slate-600">Cancel</button>
-                  <button disabled={portalSaving} onClick={async () => { setPortalSaving(true); await base44.entities.Medication.update(editingMed.id, editingMed); const m = await base44.entities.Medication.filter({participant_name: participant.name}); setMedications(m); setEditingMed(null); setPortalSaving(false); }} className="flex-1 bg-primary text-white rounded-xl py-2 text-sm font-bold">{portalSaving ? "Saving..." : "Save Changes"}</button>
-                </div>
-              </div>
-            )}
-            {!creatingMed && (
-              <div className="bg-white border border-dashed border-slate-300 rounded-2xl p-6 text-center">
-                <button onClick={() => { setCreatingMed(true); setEditingMed({medication_name:"",dose:"",frequency:"",route:"Oral",prescriber:"",indication:"",side_effects:"",storage:"Room temperature"}); }} className="w-full flex flex-col items-center gap-2 text-center">
-                  <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center"><Plus size={18} /></div>
-                  <p className="text-sm font-bold text-slate-900">Add New Medication</p>
-                  <p className="text-xs text-slate-500">Record a medication to your profile</p>
-                </button>
-              </div>
-            )}
-
-            {medications.length === 0 && !creatingMed ? (
+            {medications.length === 0 ? (
               <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-                <Star size={36} className="text-slate-300 mx-auto mb-3" />
+                <Pill size={36} className="text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500 text-sm">No medications on file.</p>
               </div>
-            ) : medications.map(med => (
-              <div key={med.id} className={`bg-white border rounded-2xl p-5 ${med.is_rescue ? "border-rose-300" : "border-slate-200"}`}>
-                <div className="flex items-start justify-between mb-2">
-                  <div>
-                    <p className="font-black text-slate-900">{med.medication_name} {med.is_rescue && <span className="text-rose-600">🚨 Rescue</span>}</p>
-                    <p className="text-xs text-slate-500">{med.dose} · {med.route} · {med.frequency}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${med.status==="Active"?"bg-emerald-100 text-emerald-700":"bg-slate-100 text-slate-600"}`}>{med.status}</span>
-                    <button onClick={() => setEditingMed({...med})} className="text-slate-400 hover:text-primary"><Edit size={14} /></button>
-                  </div>
-                </div>
-                {med.prescriber && <p className="text-xs text-slate-500 mb-1">Prescriber: {med.prescriber}</p>}
-                {med.indication && <p className="text-xs text-slate-600">{med.indication}</p>}
-                {med.is_rescue && med.rescue_instructions && (
-                  <div className="mt-3 bg-rose-50 border border-rose-200 rounded-xl p-3">
-                    <p className="text-xs font-black text-rose-700 mb-1">Rescue Instructions</p>
-                    <p className="text-xs text-rose-600 leading-relaxed">{med.rescue_instructions}</p>
-                  </div>
-                )}
-                {(med.dose_logs||[]).length > 0 && (
-                  <div className="mt-3 border-t border-slate-100 pt-3">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Recent Doses</p>
-                    {[...(med.dose_logs||[])].reverse().slice(0,3).map((log,i) => (
-                      <div key={i} className="text-xs text-slate-500 flex justify-between">
-                        <span>{new Date(log.given_at).toLocaleString("en-AU")}</span>
-                        <span>{log.dose_given} — {log.given_by}</span>
+            ) : (
+              <div className="space-y-3">
+                {medications.map(med => (
+                  <div key={med.id} className={`bg-white border rounded-2xl overflow-hidden ${med.is_rescue ? "border-rose-300 shadow-lg" : "border-slate-200"}`}>
+                    <div className={`px-6 py-4 text-white ${med.is_rescue ? "bg-rose-600" : "bg-slate-700"}`}>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <h3 className="text-lg font-black">{med.medication_name}</h3>
+                          <p className="text-xs opacity-90 mt-0.5">{med.generic_name && `(${med.generic_name})`}</p>
+                        </div>
+                        {med.is_rescue && <span className="bg-white text-rose-600 font-black text-[11px] px-3 py-1 rounded-full">🚨 RESCUE</span>}
                       </div>
-                    ))}
+                    </div>
+                    <div className="p-6 space-y-4">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        <div className="bg-slate-50 rounded-lg p-3">
+                          <p className="text-[10px] font-black text-slate-500 uppercase">Dose</p>
+                          <p className="text-sm font-bold text-slate-900 mt-1">{med.dose}</p>
+                        </div>
+                        <div className="bg-slate-50 rounded-lg p-3">
+                          <p className="text-[10px] font-black text-slate-500 uppercase">Route</p>
+                          <p className="text-sm font-bold text-slate-900 mt-1">{med.route}</p>
+                        </div>
+                        <div className="bg-slate-50 rounded-lg p-3">
+                          <p className="text-[10px] font-black text-slate-500 uppercase">Frequency</p>
+                          <p className="text-sm font-bold text-slate-900 mt-1">{med.frequency}</p>
+                        </div>
+                        {med.prescriber && (
+                          <div className="bg-slate-50 rounded-lg p-3">
+                            <p className="text-[10px] font-black text-slate-500 uppercase">Prescriber</p>
+                            <p className="text-sm font-bold text-slate-900 mt-1">{med.prescriber}</p>
+                          </div>
+                        )}
+                        {med.start_date && (
+                          <div className="bg-slate-50 rounded-lg p-3">
+                            <p className="text-[10px] font-black text-slate-500 uppercase">Start Date</p>
+                            <p className="text-sm font-bold text-slate-900 mt-1">{med.start_date}</p>
+                          </div>
+                        )}
+                        <div className="bg-slate-50 rounded-lg p-3">
+                          <p className="text-[10px] font-black text-slate-500 uppercase">Status</p>
+                          <p className={`text-sm font-bold mt-1 ${med.status === "Active" ? "text-emerald-700" : "text-slate-600"}`}>{med.status}</p>
+                        </div>
+                      </div>
+                      {med.indication && (
+                        <div>
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Indication / Purpose</p>
+                          <p className="text-sm text-slate-700 bg-slate-50 rounded-lg p-3">{med.indication}</p>
+                        </div>
+                      )}
+                      {med.is_rescue && med.rescue_instructions && (
+                        <div className="bg-rose-50 border border-rose-200 rounded-lg p-4">
+                          <p className="text-[10px] font-black text-rose-700 uppercase mb-2">🚨 Rescue Instructions</p>
+                          <p className="text-sm text-rose-800 leading-relaxed">{med.rescue_instructions}</p>
+                        </div>
+                      )}
+                      {med.side_effects && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                          <p className="text-[10px] font-black text-amber-700 uppercase mb-2">Side Effects</p>
+                          <p className="text-sm text-amber-800">{med.side_effects}</p>
+                        </div>
+                      )}
+                      {med.storage && (
+                        <div>
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Storage</p>
+                          <p className="text-sm text-slate-700">{med.storage}</p>
+                        </div>
+                      )}
+                      {med.dose_logs && med.dose_logs.length > 0 && (
+                        <div>
+                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Recent Dose Log</p>
+                          <div className="space-y-1 max-h-32 overflow-y-auto">
+                            {[...(med.dose_logs || [])].reverse().slice(0, 5).map((log, i) => (
+                              <div key={i} className="bg-slate-50 rounded p-2 text-xs">
+                                <p className="font-bold text-slate-800">{new Date(log.given_at).toLocaleDateString("en-AU")} {new Date(log.given_at).toLocaleTimeString("en-AU", {hour: "2-digit", minute: "2-digit"})}</p>
+                                <p className="text-slate-600">{log.dose_given} · {log.given_by}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                )}
+                ))}
               </div>
-            ))}
+            )}
           </div>
         )}
 
-        {/* EPILEPSY PLAN TAB */}
+        {/* EPILEPSY PLAN TAB - FULL DOCUMENT */}
         {activeTab === "epilepsy" && (
           <div className="space-y-4">
-            {creatingEpilepsy && (
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
-                <div className="flex justify-between items-center">
-                  <p className="font-black text-slate-900">Create Epilepsy Management Plan</p>
-                  <button onClick={() => setCreatingEpilepsy(false)} className="text-slate-400 hover:text-slate-700"><X size={16} /></button>
-                </div>
-                {[{f:"diagnosis",l:"Diagnosis"},{f:"neurologist",l:"Neurologist"},{f:"neurologist_phone",l:"Neurologist Phone"},{f:"seizure_types",l:"Seizure Types"},{f:"typical_duration",l:"Typical Duration"},{f:"warning_signs",l:"Warning Signs / Aura"},{f:"known_triggers",l:"Known Triggers"},{f:"rescue_medication_name",l:"Rescue Medication"},{f:"rescue_dose",l:"Rescue Dose"},{f:"rescue_route",l:"Rescue Route"},{f:"rescue_when",l:"When to Give"}].map(({f,l}) => (
-                  <div key={f}>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">{l}</label>
-                    <input value={editingEpilepsy[f]||""} onChange={e => setEditingEpilepsy(p=>({...p,[f]:e.target.value}))} className="w-full h-9 px-3 rounded-md border border-slate-200 text-sm" />
-                  </div>
-                ))}
-                <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Post-Ictal Description</label>
-                  <textarea value={editingEpilepsy.postictal_description||""} onChange={e => setEditingEpilepsy(p=>({...p,postictal_description:e.target.value}))} className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm min-h-[60px]" />
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={() => { setCreatingEpilepsy(false); setEditingEpilepsy(null); }} className="flex-1 border border-slate-200 rounded-xl py-2 text-sm font-bold text-slate-600">Cancel</button>
-                  <button disabled={portalSaving || !editingEpilepsy.diagnosis} onClick={async () => { setPortalSaving(true); await base44.entities.EpilepsyPlan.create({...editingEpilepsy, participant_name: participant.name, participant_id: participant.id, ndis_number: participant.ndis_number, status: "Active"}); const ep = await base44.entities.EpilepsyPlan.filter({participant_name: participant.name}); setEpilepsyPlans(ep); setCreatingEpilepsy(false); setEditingEpilepsy(null); setPortalSaving(false); }} className="flex-1 bg-primary text-white rounded-xl py-2 text-sm font-bold">{portalSaving ? "Creating..." : "Create Plan"}</button>
-                </div>
-              </div>
-            )}
-            {editingEpilepsy && !creatingEpilepsy && (
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
-                <div className="flex justify-between items-center">
-                  <p className="font-black text-slate-900">Edit Epilepsy Plan</p>
-                  <button onClick={() => setEditingEpilepsy(null)} className="text-slate-400 hover:text-slate-700"><X size={16} /></button>
-                </div>
-                {[{f:"diagnosis",l:"Diagnosis"},{f:"neurologist",l:"Neurologist"},{f:"neurologist_phone",l:"Neurologist Phone"},{f:"seizure_types",l:"Seizure Types"},{f:"typical_duration",l:"Typical Duration"},{f:"warning_signs",l:"Warning Signs / Aura"},{f:"known_triggers",l:"Known Triggers"},{f:"rescue_medication_name",l:"Rescue Medication"},{f:"rescue_dose",l:"Rescue Dose"},{f:"rescue_route",l:"Rescue Route"},{f:"rescue_when",l:"When to Give"}].map(({f,l}) => (
-                  <div key={f}>
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">{l}</label>
-                    <input value={editingEpilepsy[f]||""} onChange={e => setEditingEpilepsy(p=>({...p,[f]:e.target.value}))} className="w-full h-9 px-3 rounded-md border border-slate-200 text-sm" />
-                  </div>
-                ))}
-                <div>
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Post-Ictal Description</label>
-                  <textarea value={editingEpilepsy.postictal_description||""} onChange={e => setEditingEpilepsy(p=>({...p,postictal_description:e.target.value}))} className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm min-h-[60px]" />
-                </div>
-                <div className="flex gap-2">
-                  <button onClick={() => setEditingEpilepsy(null)} className="flex-1 border border-slate-200 rounded-xl py-2 text-sm font-bold text-slate-600">Cancel</button>
-                  <button disabled={portalSaving} onClick={async () => { setPortalSaving(true); await base44.entities.EpilepsyPlan.update(editingEpilepsy.id, editingEpilepsy); const ep = await base44.entities.EpilepsyPlan.filter({participant_name: participant.name}); setEpilepsyPlans(ep); setEditingEpilepsy(null); setPortalSaving(false); }} className="flex-1 bg-primary text-white rounded-xl py-2 text-sm font-bold">{portalSaving ? "Saving..." : "Save Changes"}</button>
-                </div>
-              </div>
-            )}
-            {!creatingEpilepsy && (
-              <div className="bg-white border border-dashed border-slate-300 rounded-2xl p-6 text-center">
-                <button onClick={() => { setCreatingEpilepsy(true); setEditingEpilepsy({diagnosis:"",neurologist:"",neurologist_phone:"",seizure_types:"",typical_duration:"",warning_signs:"",known_triggers:"",rescue_medication_name:"",rescue_dose:"",rescue_route:"",rescue_when:"",postictal_description:""}); }} className="w-full flex flex-col items-center gap-2 text-center">
-                  <div className="w-10 h-10 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center"><Plus size={18} /></div>
-                  <p className="text-sm font-bold text-slate-900">Create Epilepsy Management Plan</p>
-                  <p className="text-xs text-slate-500">Add a new epilepsy management plan</p>
-                </button>
-              </div>
-            )}
-
-            {epilepsyPlans.length === 0 && !creatingEpilepsy ? (
+            {epilepsyPlans.length === 0 ? (
               <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
                 <AlertTriangle size={36} className="text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500 text-sm">No epilepsy management plan on file.</p>
               </div>
             ) : epilepsyPlans.map(plan => (
               <div key={plan.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-                <div className="bg-rose-700 text-white px-5 py-4 flex justify-between items-start">
-                  <div>
-                    <p className="font-black text-lg">Epilepsy Management Plan</p>
-                    <p className="text-rose-200 text-xs mt-0.5">{plan.diagnosis}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${plan.status==="Active"?"bg-white text-rose-700":"bg-rose-800 text-rose-200"}`}>{plan.status}</span>
-                    <button onClick={() => setEditingEpilepsy({...plan})} className="text-white/70 hover:text-white"><Edit size={14} /></button>
-                  </div>
+                <div className="bg-rose-700 text-white px-6 py-8">
+                  <h1 className="text-2xl font-black mb-1">Epilepsy Management Plan</h1>
+                  <p className="text-rose-200">{plan.diagnosis}</p>
                 </div>
-                {plan.rescue_medication_name && (
-                  <div className="bg-rose-50 border-b border-rose-200 px-5 py-3 flex items-center gap-2">
-                    <span className="text-rose-600 font-black text-sm">🚨 Rescue: {plan.rescue_medication_name} {plan.rescue_dose} — {plan.rescue_route}</span>
-                  </div>
-                )}
-                <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[{l:"Neurologist",v:plan.neurologist},{l:"Phone",v:plan.neurologist_phone},{l:"Seizure Types",v:plan.seizure_types},{l:"Typical Duration",v:plan.typical_duration},{l:"Warning Signs",v:plan.warning_signs},{l:"Known Triggers",v:plan.known_triggers},{l:"Approved By",v:plan.approved_by},{l:"Review Date",v:plan.review_date}].filter(x=>x.v).map(({l,v}) => (
-                    <div key={l} className="bg-slate-50 rounded-xl p-3">
-                      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{l}</p>
-                      <p className="text-sm font-bold text-slate-800">{v}</p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 px-6 py-4 border-t border-slate-200">
+                  {[{l: "Neurologist", v: plan.neurologist}, {l: "Seizure Types", v: plan.seizure_types}, {l: "Typical Duration", v: plan.typical_duration}, {l: "Status", v: plan.status}].filter(f => f.v).map(f => (
+                    <div key={f.l}>
+                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p>
+                      <p className="text-sm font-bold text-slate-900">{f.v}</p>
                     </div>
                   ))}
                 </div>
-                {(plan.emergency_steps||[]).length > 0 && (
-                  <div className="px-5 pb-5">
-                    <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mb-2">Emergency Response Steps</p>
-                    <ol className="space-y-1">
-                      {plan.emergency_steps.map((s,i) => <li key={i} className="text-xs text-slate-700 flex gap-2"><span className="font-black text-rose-500">{i+1}.</span>{s}</li>)}
-                    </ol>
-                  </div>
-                )}
-                {(plan.call_000_if||[]).length > 0 && (
-                  <div className="px-5 pb-5 bg-rose-50">
-                    <p className="text-[10px] font-black text-rose-600 uppercase tracking-widest pt-3 mb-2">📞 Call 000 If...</p>
-                    <ul className="space-y-1">
-                      {plan.call_000_if.map((c,i) => <li key={i} className="text-xs text-rose-700 flex gap-1.5"><span>•</span>{c}</li>)}
-                    </ul>
-                    <div className="pb-3" />
-                  </div>
-                )}
+                <div className="p-6 space-y-6">
+                  {plan.warning_signs && (
+                    <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-4">
+                      <p className="text-[10px] font-black text-amber-800 uppercase mb-2">⚠️ Warning Signs / Aura</p>
+                      <p className="text-sm text-amber-900 font-medium">{plan.warning_signs}</p>
+                    </div>
+                  )}
+                  {plan.known_triggers && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                      <p className="text-[10px] font-black text-blue-700 uppercase mb-2">Known Triggers</p>
+                      <p className="text-sm text-blue-800">{plan.known_triggers}</p>
+                    </div>
+                  )}
+                  {plan.postictal_description && (
+                    <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
+                      <p className="text-[10px] font-black text-purple-700 uppercase mb-2">Post-Ictal State</p>
+                      <p className="text-sm text-purple-800">{plan.postictal_description}</p>
+                    </div>
+                  )}
+                  {plan.emergency_steps && plan.emergency_steps.length > 0 && (
+                    <div>
+                      <h2 className="text-sm font-black text-rose-700 uppercase tracking-widest mb-3">🚨 Emergency Response Steps</h2>
+                      <ol className="space-y-2">
+                        {plan.emergency_steps.map((step, i) => (
+                          <li key={i} className="flex gap-3 bg-rose-50 rounded-lg p-3">
+                            <span className="w-6 h-6 bg-rose-600 text-white rounded text-xs font-black flex items-center justify-center shrink-0">{i + 1}</span>
+                            <span className="text-sm text-rose-900">{step}</span>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  )}
+                  {plan.rescue_medication_name && (
+                    <div className="bg-red-50 border-2 border-red-500 rounded-xl p-4">
+                      <p className="text-[10px] font-black text-red-700 uppercase mb-2">💊 Rescue Medication</p>
+                      <div className="space-y-1">
+                        <p className="font-black text-red-900">{plan.rescue_medication_name}</p>
+                        <p className="text-sm text-red-800"><span className="font-bold">Dose:</span> {plan.rescue_dose}</p>
+                        <p className="text-sm text-red-800"><span className="font-bold">Route:</span> {plan.rescue_route}</p>
+                        {plan.rescue_when && <p className="text-sm text-red-800"><span className="font-bold">When:</span> {plan.rescue_when}</p>}
+                      </div>
+                    </div>
+                  )}
+                  {plan.call_000_if && plan.call_000_if.length > 0 && (
+                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                      <p className="text-[10px] font-black text-red-700 uppercase mb-3">📞 Call 000 If...</p>
+                      <ul className="space-y-1.5">
+                        {plan.call_000_if.map((cond, i) => (
+                          <li key={i} className="flex gap-2 text-sm text-red-800"><span className="font-black">•</span>{cond}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {plan.do_not_do && plan.do_not_do.length > 0 && (
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+                      <p className="text-[10px] font-black text-slate-700 uppercase mb-3">⛔ Do NOT Do</p>
+                      <ul className="space-y-1.5">
+                        {plan.do_not_do.map((item, i) => (
+                          <li key={i} className="flex gap-2 text-sm text-slate-700"><span className="font-black">✗</span>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {plan.daily_strategies && plan.daily_strategies.length > 0 && (
+                    <div>
+                      <h2 className="text-sm font-black text-emerald-700 uppercase tracking-widest mb-3">Daily Support Strategies</h2>
+                      <ul className="space-y-2">
+                        {plan.daily_strategies.map((strategy, i) => (
+                          <li key={i} className="flex gap-2.5 bg-emerald-50 rounded-lg p-3 text-sm text-emerald-900"><span className="text-lg">✓</span>{strategy}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {plan.risk_strategies && plan.risk_strategies.length > 0 && (
+                    <div>
+                      <h2 className="text-sm font-black text-orange-700 uppercase tracking-widest mb-3">Risk Management</h2>
+                      <ul className="space-y-2">
+                        {plan.risk_strategies.map((strategy, i) => (
+                          <li key={i} className="flex gap-2.5 bg-orange-50 rounded-lg p-3 text-sm text-orange-900"><span className="text-lg">🛡️</span>{strategy}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {plan.approved_by && (
+                    <div className="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center">
+                      <p className="text-sm font-black">Approved By</p>
+                      <p className="text-base font-bold">{plan.approved_by}</p>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
