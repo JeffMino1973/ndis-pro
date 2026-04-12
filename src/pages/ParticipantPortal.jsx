@@ -149,6 +149,9 @@ export default function ParticipantPortal() {
   const [editingMed, setEditingMed] = useState(null);
   const [editingEpilepsy, setEditingEpilepsy] = useState(null);
   const [editingHealth, setEditingHealth] = useState(null);
+  const [creatingMed, setCreatingMed] = useState(false);
+  const [creatingEpilepsy, setCreatingEpilepsy] = useState(false);
+  const [creatingHealth, setCreatingHealth] = useState(false);
   const [portalSaving, setPortalSaving] = useState(false);
 
   // Profile editing
@@ -784,7 +787,29 @@ export default function ParticipantPortal() {
         {/* HEALTH SUPPORT PLAN TAB */}
         {activeTab === "health" && (
           <div className="space-y-4">
-            {editingHealth && (
+            {creatingHealth && (
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
+                <div className="flex justify-between items-center">
+                  <p className="font-black text-slate-900">Create Health Support Plan</p>
+                  <button onClick={() => setCreatingHealth(false)} className="text-slate-400 hover:text-slate-700"><X size={16} /></button>
+                </div>
+                {[{f:"health_conditions",l:"Health Conditions"},{f:"doctor_name",l:"Doctor / GP Name"},{f:"doctor_phone",l:"Doctor Phone"},{f:"doctor_address",l:"Doctor Address"},{f:"parent_carer_name",l:"Parent / Carer Name"},{f:"parent_carer_phone",l:"Parent / Carer Phone"},{f:"parent_carer_email",l:"Parent / Carer Email"},{f:"emergency_contact_name",l:"Emergency Contact Name"},{f:"emergency_contact_phone",l:"Emergency Contact Phone"},{f:"emergency_contact_relationship",l:"Relationship"}].map(({f,l}) => (
+                  <div key={f}>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">{l}</label>
+                    <input value={editingHealth[f]||""} onChange={e => setEditingHealth(p=>({...p,[f]:e.target.value}))} className="w-full h-9 px-3 rounded-md border border-slate-200 text-sm" />
+                  </div>
+                ))}
+                <div>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Additional Support Required</label>
+                  <textarea value={editingHealth.additional_support||""} onChange={e => setEditingHealth(p=>({...p,additional_support:e.target.value}))} className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm min-h-[60px]" />
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => { setCreatingHealth(false); setEditingHealth(null); }} className="flex-1 border border-slate-200 rounded-xl py-2 text-sm font-bold text-slate-600">Cancel</button>
+                  <button disabled={portalSaving || !editingHealth.doctor_name} onClick={async () => { setPortalSaving(true); await base44.entities.HealthCarePlan.create({...editingHealth, participant_name: participant.name, participant_id: participant.id, ndis_number: participant.ndis_number, status: "Active"}); const hp = await base44.entities.HealthCarePlan.filter({participant_name: participant.name}).catch(()=>[]); setHealthPlans(hp); setCreatingHealth(false); setEditingHealth(null); setPortalSaving(false); }} className="flex-1 bg-primary text-white rounded-xl py-2 text-sm font-bold">{portalSaving ? "Creating..." : "Create Plan"}</button>
+                </div>
+              </div>
+            )}
+            {editingHealth && !creatingHealth && (
               <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
                 <div className="flex justify-between items-center">
                   <p className="font-black text-slate-900">Edit Health Support Plan</p>
@@ -817,7 +842,17 @@ export default function ParticipantPortal() {
                 </div>
               </div>
             )}
-            {healthPlans.length === 0 ? (
+            {!creatingHealth && (
+              <div className="bg-white border border-dashed border-slate-300 rounded-2xl p-6 text-center">
+                <button onClick={() => { setCreatingHealth(true); setEditingHealth({health_conditions:"",doctor_name:"",doctor_phone:"",doctor_address:"",parent_carer_name:"",parent_carer_phone:"",parent_carer_email:"",emergency_contact_name:"",emergency_contact_phone:"",emergency_contact_relationship:"",additional_support:""}); }} className="w-full flex flex-col items-center gap-2 text-center">
+                  <div className="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center"><Plus size={18} /></div>
+                  <p className="text-sm font-bold text-slate-900">Create Health Support Plan</p>
+                  <p className="text-xs text-slate-500">Add a new health plan to your profile</p>
+                </button>
+              </div>
+            )}
+
+            {healthPlans.length === 0 && !creatingHealth ? (
               <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
                 <Heart size={36} className="text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500 text-sm">No health support plan on file.</p>
@@ -907,7 +942,25 @@ export default function ParticipantPortal() {
         {/* MEDICATIONS TAB */}
         {activeTab === "medications" && (
           <div className="space-y-4">
-            {editingMed && (
+            {creatingMed && (
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
+                <div className="flex justify-between items-center">
+                  <p className="font-black text-slate-900">Add New Medication</p>
+                  <button onClick={() => setCreatingMed(false)} className="text-slate-400 hover:text-slate-700"><X size={16} /></button>
+                </div>
+                {[{f:"medication_name",l:"Medication Name"},{f:"dose",l:"Dose"},{f:"frequency",l:"Frequency"},{f:"route",l:"Route"},{f:"prescriber",l:"Prescriber"},{f:"indication",l:"Indication"},{f:"side_effects",l:"Side Effects"},{f:"storage",l:"Storage"}].map(({f,l}) => (
+                  <div key={f}>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">{l}</label>
+                    <input value={editingMed[f]||""} onChange={e => setEditingMed(p=>({...p,[f]:e.target.value}))} className="w-full h-9 px-3 rounded-md border border-slate-200 text-sm" />
+                  </div>
+                ))}
+                <div className="flex gap-2">
+                  <button onClick={() => { setCreatingMed(false); setEditingMed(null); }} className="flex-1 border border-slate-200 rounded-xl py-2 text-sm font-bold text-slate-600">Cancel</button>
+                  <button disabled={portalSaving || !editingMed.medication_name || !editingMed.dose} onClick={async () => { setPortalSaving(true); await base44.entities.Medication.create({...editingMed, participant_name: participant.name, participant_id: participant.id, status: "Active"}); const m = await base44.entities.Medication.filter({participant_name: participant.name}); setMedications(m); setCreatingMed(false); setEditingMed(null); setPortalSaving(false); }} className="flex-1 bg-primary text-white rounded-xl py-2 text-sm font-bold">{portalSaving ? "Adding..." : "Add Medication"}</button>
+                </div>
+              </div>
+            )}
+            {editingMed && !creatingMed && (
               <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
                 <div className="flex justify-between items-center">
                   <p className="font-black text-slate-900">Edit: {editingMed.medication_name}</p>
@@ -925,7 +978,17 @@ export default function ParticipantPortal() {
                 </div>
               </div>
             )}
-            {medications.length === 0 ? (
+            {!creatingMed && (
+              <div className="bg-white border border-dashed border-slate-300 rounded-2xl p-6 text-center">
+                <button onClick={() => { setCreatingMed(true); setEditingMed({medication_name:"",dose:"",frequency:"",route:"Oral",prescriber:"",indication:"",side_effects:"",storage:"Room temperature"}); }} className="w-full flex flex-col items-center gap-2 text-center">
+                  <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center"><Plus size={18} /></div>
+                  <p className="text-sm font-bold text-slate-900">Add New Medication</p>
+                  <p className="text-xs text-slate-500">Record a medication to your profile</p>
+                </button>
+              </div>
+            )}
+
+            {medications.length === 0 && !creatingMed ? (
               <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
                 <Star size={36} className="text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500 text-sm">No medications on file.</p>
@@ -969,7 +1032,29 @@ export default function ParticipantPortal() {
         {/* EPILEPSY PLAN TAB */}
         {activeTab === "epilepsy" && (
           <div className="space-y-4">
-            {editingEpilepsy && (
+            {creatingEpilepsy && (
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
+                <div className="flex justify-between items-center">
+                  <p className="font-black text-slate-900">Create Epilepsy Management Plan</p>
+                  <button onClick={() => setCreatingEpilepsy(false)} className="text-slate-400 hover:text-slate-700"><X size={16} /></button>
+                </div>
+                {[{f:"diagnosis",l:"Diagnosis"},{f:"neurologist",l:"Neurologist"},{f:"neurologist_phone",l:"Neurologist Phone"},{f:"seizure_types",l:"Seizure Types"},{f:"typical_duration",l:"Typical Duration"},{f:"warning_signs",l:"Warning Signs / Aura"},{f:"known_triggers",l:"Known Triggers"},{f:"rescue_medication_name",l:"Rescue Medication"},{f:"rescue_dose",l:"Rescue Dose"},{f:"rescue_route",l:"Rescue Route"},{f:"rescue_when",l:"When to Give"}].map(({f,l}) => (
+                  <div key={f}>
+                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">{l}</label>
+                    <input value={editingEpilepsy[f]||""} onChange={e => setEditingEpilepsy(p=>({...p,[f]:e.target.value}))} className="w-full h-9 px-3 rounded-md border border-slate-200 text-sm" />
+                  </div>
+                ))}
+                <div>
+                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1">Post-Ictal Description</label>
+                  <textarea value={editingEpilepsy.postictal_description||""} onChange={e => setEditingEpilepsy(p=>({...p,postictal_description:e.target.value}))} className="w-full px-3 py-2 rounded-md border border-slate-200 text-sm min-h-[60px]" />
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={() => { setCreatingEpilepsy(false); setEditingEpilepsy(null); }} className="flex-1 border border-slate-200 rounded-xl py-2 text-sm font-bold text-slate-600">Cancel</button>
+                  <button disabled={portalSaving || !editingEpilepsy.diagnosis} onClick={async () => { setPortalSaving(true); await base44.entities.EpilepsyPlan.create({...editingEpilepsy, participant_name: participant.name, participant_id: participant.id, ndis_number: participant.ndis_number, status: "Active"}); const ep = await base44.entities.EpilepsyPlan.filter({participant_name: participant.name}); setEpilepsyPlans(ep); setCreatingEpilepsy(false); setEditingEpilepsy(null); setPortalSaving(false); }} className="flex-1 bg-primary text-white rounded-xl py-2 text-sm font-bold">{portalSaving ? "Creating..." : "Create Plan"}</button>
+                </div>
+              </div>
+            )}
+            {editingEpilepsy && !creatingEpilepsy && (
               <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-3">
                 <div className="flex justify-between items-center">
                   <p className="font-black text-slate-900">Edit Epilepsy Plan</p>
@@ -991,7 +1076,17 @@ export default function ParticipantPortal() {
                 </div>
               </div>
             )}
-            {epilepsyPlans.length === 0 ? (
+            {!creatingEpilepsy && (
+              <div className="bg-white border border-dashed border-slate-300 rounded-2xl p-6 text-center">
+                <button onClick={() => { setCreatingEpilepsy(true); setEditingEpilepsy({diagnosis:"",neurologist:"",neurologist_phone:"",seizure_types:"",typical_duration:"",warning_signs:"",known_triggers:"",rescue_medication_name:"",rescue_dose:"",rescue_route:"",rescue_when:"",postictal_description:""}); }} className="w-full flex flex-col items-center gap-2 text-center">
+                  <div className="w-10 h-10 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center"><Plus size={18} /></div>
+                  <p className="text-sm font-bold text-slate-900">Create Epilepsy Management Plan</p>
+                  <p className="text-xs text-slate-500">Add a new epilepsy management plan</p>
+                </button>
+              </div>
+            )}
+
+            {epilepsyPlans.length === 0 && !creatingEpilepsy ? (
               <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
                 <AlertTriangle size={36} className="text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500 text-sm">No epilepsy management plan on file.</p>
