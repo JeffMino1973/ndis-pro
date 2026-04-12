@@ -954,10 +954,10 @@ export default function ParticipantPortal() {
                     <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3">Emergency Contact</h2>
                     <div className="grid grid-cols-3 gap-4">
                       {[
-                        { label: "Contact Name", value: assessment.emergency_contact_1_name },
+                        { label: "Contact Name", value: assessment.emergency_contact_1_name || "—" },
                         { label: "Phone", value: "0424 377 062" },
-                        { label: "Relationship", value: assessment.emergency_contact_1_rel },
-                      ].filter(f => f.value).map(f => (
+                        { label: "Relationship", value: assessment.emergency_contact_1_rel || "—" },
+                      ].map(f => (
                         <div key={f.label} className="bg-rose-50 border border-rose-200 rounded-xl p-3">
                           <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest mb-1">{f.label}</p>
                           <p className="text-xs font-bold text-slate-800">{f.value}</p>
