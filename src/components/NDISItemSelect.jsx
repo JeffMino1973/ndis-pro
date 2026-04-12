@@ -1,15 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import ReactDOM from "react-dom";
 import { NDIS_ITEMS } from "@/utils/ndisItems";
 import { Search, ChevronDown } from "lucide-react";
 
 export default function NDISItemSelect({ value, onSelect, placeholder = "Search NDIS item..." }) {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [dropdownStyle, setDropdownStyle] = useState({});
-  const ref = useRef(null);
-  const buttonRef = useRef(null);
-  const dropdownRef = useRef(null);
+  const containerRef = useRef(null);
 
   const filtered = search.length > 0
     ? NDIS_ITEMS.filter(
@@ -17,43 +13,32 @@ export default function NDISItemSelect({ value, onSelect, placeholder = "Search 
           n.code.toLowerCase().includes(search.toLowerCase()) ||
           n.name.toLowerCase().includes(search.toLowerCase()) ||
           n.category.toLowerCase().includes(search.toLowerCase())
-      ).slice(0, 50)
-    : NDIS_ITEMS.slice(0, 50);
+      )
+    : NDIS_ITEMS;
 
   const selected = value ? NDIS_ITEMS.find((n) => n.code === value) : null;
 
   useEffect(() => {
     const handleClick = (e) => {
-      if (
-        ref.current && !ref.current.contains(e.target) &&
-        dropdownRef.current && !dropdownRef.current.contains(e.target)
-      ) setOpen(false);
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setOpen(false);
+      }
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
 
-  const handleOpen = () => {
-    if (buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect();
-      setDropdownStyle({
-        position: "fixed",
-        top: rect.bottom + 4,
-        left: rect.left,
-        width: rect.width,
-        zIndex: 9999,
-      });
-    }
-    setOpen((o) => !o);
+  const handleSelect = (n) => {
+    onSelect(n);
+    setOpen(false);
     setSearch("");
   };
 
   return (
-    <div className="relative" ref={ref}>
+    <div ref={containerRef} style={{ position: "relative" }}>
       <button
-        ref={buttonRef}
         type="button"
-        onClick={handleOpen}
+        onClick={() => { setOpen((o) => !o); setSearch(""); }}
         className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-ring"
       >
         {selected ? (
@@ -68,8 +53,18 @@ export default function NDISItemSelect({ value, onSelect, placeholder = "Search 
         <ChevronDown className="h-4 w-4 opacity-50 shrink-0 ml-2" />
       </button>
 
-      {open && ReactDOM.createPortal(
-        <div ref={dropdownRef} style={dropdownStyle} className="bg-popover border border-border rounded-md shadow-lg">
+      {open && (
+        <div
+          style={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            right: 0,
+            zIndex: 99999,
+            marginTop: 4,
+          }}
+          className="bg-white border border-border rounded-md shadow-xl"
+        >
           <div className="p-2 border-b border-border">
             <div className="flex items-center gap-2 px-2">
               <Search size={14} className="text-muted-foreground shrink-0" />
@@ -87,27 +82,20 @@ export default function NDISItemSelect({ value, onSelect, placeholder = "Search 
               <p className="text-xs text-muted-foreground p-3 text-center">No items found</p>
             ) : (
               filtered.map((n) => (
-                <button
+                <div
                   key={n.code}
-                  type="button"
-                  onMouseDown={(e) => { e.preventDefault(); onSelect(n); setOpen(false); setSearch(""); }}
-                  className={`w-full text-left px-3 py-2 text-xs hover:bg-accent transition-colors ${value === n.code ? "bg-primary/10" : ""}`}
+                  onClick={() => handleSelect(n)}
+                  className={`w-full text-left px-3 py-2 text-xs cursor-pointer hover:bg-blue-50 transition-colors ${value === n.code ? "bg-blue-100" : ""}`}
                 >
-                  <span className="font-mono text-muted-foreground">{n.code}</span>
-                  <span className="mx-1 text-muted-foreground">—</span>
-                  <span className="text-foreground">{n.name}</span>
-                  <span className="ml-2 text-muted-foreground">(${n.rate?.toFixed(2)})</span>
-                </button>
+                  <span className="font-mono text-slate-500">{n.code}</span>
+                  <span className="mx-1 text-slate-400">—</span>
+                  <span className="text-slate-800">{n.name}</span>
+                  <span className="ml-2 text-slate-400">(${n.rate?.toFixed(2)}/hr)</span>
+                </div>
               ))
             )}
-            {search.length === 0 && NDIS_ITEMS.length > 50 && (
-              <p className="text-[10px] text-muted-foreground text-center py-2">
-                Showing 50 of {NDIS_ITEMS.length} — type to search all
-              </p>
-            )}
           </div>
-        </div>,
-        document.body
+        </div>
       )}
     </div>
   );
