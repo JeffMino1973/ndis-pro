@@ -25,6 +25,7 @@ import KPIDashboard from './pages/KPIDashboard';
 import OnboardingRequests from './pages/OnboardingRequests';
 import TobyProfile from './pages/TobyProfile';
 import OnboardingPublicForm from './pages/OnboardingPublicForm';
+import Stationery from './pages/Stationery';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -72,6 +73,7 @@ const AuthenticatedApp = () => {
         <Route path="/onboarding" element={<OnboardingRequests />} />
         <Route path="/toby" element={<TobyProfile />} />
         <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
+        <Route path="/stationery" element={<Stationery />} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

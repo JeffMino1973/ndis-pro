@@ -21,6 +21,7 @@ import {
   MessageSquareWarning,
   CheckSquare,
   BarChart3,
+  BookTemplate,
 } from "lucide-react";
 
 const NAV_SECTIONS = [
@@ -69,6 +70,12 @@ const NAV_SECTIONS = [
     title: "Team",
     items: [
       { path: "/toby", label: "Toby's Profile", icon: UserCircle },
+    ],
+  },
+  {
+    title: "Stationery",
+    items: [
+      { path: "/stationery", label: "Templates & Stationery", icon: BookTemplate },
     ],
   },
   {

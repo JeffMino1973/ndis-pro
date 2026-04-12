@@ -1,0 +1,33 @@
+{
+  "name": "StationeryTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Template Name"
+    },
+    "template_type": {
+      "type": "string",
+      "title": "Template Type",
+      "enum": [
+        "Email Template",
+        "Letter Template",
+        "Form Template",
+        "Notice",
+        "Other"
+      ]
+    },
+    "subject": {
+      "type": "string",
+      "title": "Subject / Heading"
+    },
+    "body": {
+      "type": "string",
+      "title": "Body / Content"
+    }
+  },
+  "required": [
+    "name",
+    "template_type"
+  ]
+}

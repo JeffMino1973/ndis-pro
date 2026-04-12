@@ -9,6 +9,7 @@ export default function NDISItemSelect({ value, onSelect, placeholder = "Search 
   const [dropdownStyle, setDropdownStyle] = useState({});
   const ref = useRef(null);
   const buttonRef = useRef(null);
+  const dropdownRef = useRef(null);
 
   const filtered = search.length > 0
     ? NDIS_ITEMS.filter(
@@ -23,7 +24,10 @@ export default function NDISItemSelect({ value, onSelect, placeholder = "Search 
 
   useEffect(() => {
     const handleClick = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false);
+      if (
+        ref.current && !ref.current.contains(e.target) &&
+        dropdownRef.current && !dropdownRef.current.contains(e.target)
+      ) setOpen(false);
     };
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -65,7 +69,7 @@ export default function NDISItemSelect({ value, onSelect, placeholder = "Search 
       </button>
 
       {open && ReactDOM.createPortal(
-        <div style={dropdownStyle} className="bg-popover border border-border rounded-md shadow-lg">
+        <div ref={dropdownRef} style={dropdownStyle} className="bg-popover border border-border rounded-md shadow-lg">
           <div className="p-2 border-b border-border">
             <div className="flex items-center gap-2 px-2">
               <Search size={14} className="text-muted-foreground shrink-0" />

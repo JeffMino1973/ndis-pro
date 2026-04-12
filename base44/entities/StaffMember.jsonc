@@ -18,6 +18,19 @@
       "type": "string",
       "title": "Phone"
     },
+    "address": {
+      "type": "string",
+      "title": "Address"
+    },
+    "photo_url": {
+      "type": "string",
+      "title": "Photo URL"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "title": "Date of Birth",
+      "format": "date"
+    },
     "wwcc_expiry": {
       "type": "string",
       "title": "WWCC Expiry Date",
@@ -55,6 +68,42 @@
         "Inactive"
       ],
       "default": "Active"
+    },
+    "emergency_contact_name": {
+      "type": "string",
+      "title": "Emergency Contact Name"
+    },
+    "emergency_contact_phone": {
+      "type": "string",
+      "title": "Emergency Contact Phone"
+    },
+    "emergency_contact_relationship": {
+      "type": "string",
+      "title": "Emergency Contact Relationship"
+    },
+    "tfn": {
+      "type": "string",
+      "title": "Tax File Number (TFN)"
+    },
+    "abn": {
+      "type": "string",
+      "title": "ABN (if contractor)"
+    },
+    "bank_name": {
+      "type": "string",
+      "title": "Bank Name"
+    },
+    "bank_account_name": {
+      "type": "string",
+      "title": "Bank Account Name"
+    },
+    "bank_bsb": {
+      "type": "string",
+      "title": "BSB"
+    },
+    "bank_account_number": {
+      "type": "string",
+      "title": "Account Number"
     }
   },
   "required": [

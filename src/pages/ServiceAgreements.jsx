@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Printer, Plus, Trash2 } from "lucide-react";
+import { Printer, Plus, Trash2, Pencil } from "lucide-react";
 import { NDIS_ITEMS } from "@/utils/ndisItems";
 import NDISItemSelect from "@/components/NDISItemSelect";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ export default function ServiceAgreements() {
   const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   const [preview, setPreview] = useState(null);
   const [form, setForm] = useState({
     participant_name: "",
@@ -64,10 +65,29 @@ export default function ServiceAgreements() {
     setForm((prev) => ({ ...prev, services: prev.services.filter((_, idx) => idx !== i) }));
   };
 
+  const EMPTY_FORM = { participant_name: "", start_date: "", end_date: "", services: [{ ndis_code: "", description: "", category: "Core Support", hours: 1, rate: 0, amount: 0 }], status: "Draft" };
+
+  const openEdit = (a) => {
+    setEditingId(a.id);
+    setForm({ participant_name: a.participant_name, start_date: a.start_date || "", end_date: a.end_date || "", services: a.services || [], status: a.status });
+    setShowForm(true);
+  };
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this service agreement?")) return;
+    await base44.entities.ServiceAgreement.delete(id);
+    load();
+  };
+
   const handleSave = async () => {
-    await base44.entities.ServiceAgreement.create(form);
+    if (editingId) {
+      await base44.entities.ServiceAgreement.update(editingId, form);
+    } else {
+      await base44.entities.ServiceAgreement.create(form);
+    }
     setShowForm(false);
-    setForm({ participant_name: "", start_date: "", end_date: "", services: [{ description: "", category: "Core Support", amount: 0 }], status: "Draft" });
+    setEditingId(null);
+    setForm(EMPTY_FORM);
     load();
   };
 
@@ -106,9 +126,9 @@ export default function ServiceAgreements() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {agreements.map((a) => (
-            <div key={a.id} onClick={() => setPreview(a)} className="bg-card border border-border rounded-2xl p-6 cursor-pointer hover:shadow-lg hover:border-primary/30 transition-all">
+            <div key={a.id} className="bg-card border border-border rounded-2xl p-6 hover:shadow-lg hover:border-primary/30 transition-all">
               <div className="flex justify-between items-start mb-4">
-                <h3 className="font-black text-foreground">{a.participant_name}</h3>
+                <h3 className="font-black text-foreground cursor-pointer" onClick={() => setPreview(a)}>{a.participant_name}</h3>
                 <span className={`text-[10px] font-black px-2 py-1 rounded-full ${statusColor[a.status] || ""}`}>{a.status}</span>
               </div>
               <div className="flex gap-3 text-xs text-muted-foreground mb-3">
@@ -118,14 +138,19 @@ export default function ServiceAgreements() {
               </div>
               <p className="text-lg font-black text-primary">${totalValue(a.services).toLocaleString()}</p>
               <p className="text-[10px] text-muted-foreground font-bold uppercase">Total Value</p>
+              <div className="flex gap-2 mt-4 pt-4 border-t border-border">
+                <Button variant="ghost" size="sm" onClick={() => setPreview(a)} className="rounded-lg gap-1 flex-1"><Printer size={14} /> View</Button>
+                <Button variant="ghost" size="sm" onClick={() => openEdit(a)} className="rounded-lg gap-1 flex-1"><Pencil size={14} /> Edit</Button>
+                <Button variant="ghost" size="sm" onClick={() => handleDelete(a.id)} className="rounded-lg gap-1 flex-1 text-destructive hover:text-destructive"><Trash2 size={14} /> Delete</Button>
+              </div>
             </div>
           ))}
         </div>
       )}
 
-      <Dialog open={showForm} onOpenChange={setShowForm}>
+      <Dialog open={showForm} onOpenChange={(open) => { setShowForm(open); if (!open) setEditingId(null); }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>New Service Agreement</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{editingId ? "Edit Service Agreement" : "New Service Agreement"}</DialogTitle></DialogHeader>
           <div className="space-y-5">
             <div>
               <Label>Participant</Label>
@@ -190,7 +215,7 @@ export default function ServiceAgreements() {
               </div>
             </div>
 
-            <Button onClick={handleSave} disabled={!form.participant_name} className="w-full rounded-xl font-bold">Create Agreement</Button>
+            <Button onClick={handleSave} disabled={!form.participant_name} className="w-full rounded-xl font-bold">{editingId ? "Save Changes" : "Create Agreement"}</Button>
           </div>
         </DialogContent>
       </Dialog>
