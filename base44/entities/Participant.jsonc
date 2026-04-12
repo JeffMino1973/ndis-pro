@@ -135,7 +135,24 @@
       "type": "array",
       "title": "Goals",
       "items": {
-        "type": "string"
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string"
+          },
+          "progress": {
+            "type": "number"
+          },
+          "status": {
+            "type": "string"
+          },
+          "milestones": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
       }
     },
     "notes": {

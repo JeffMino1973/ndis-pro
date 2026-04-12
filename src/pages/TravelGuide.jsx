@@ -66,7 +66,7 @@ Provide 2-3 realistic route options. Make steps very detailed and beginner-frien
     const result = await base44.integrations.Core.InvokeLLM({
       prompt,
       add_context_from_internet: true,
-      model: "gemini_3_1_pro",
+      model: "gemini_3_flash",
       response_json_schema: {
         type: "object",
         properties: {
@@ -187,7 +187,7 @@ Provide 2-3 realistic route options. Make steps very detailed and beginner-frien
           {loading ? "Searching live trip data..." : "Generate Travel Guide"}
         </Button>
         <p className="text-xs text-muted-foreground text-center">Uses live internet data to find real routes · Sydney public transport</p>
-        <p className="text-xs text-amber-600 text-center">⚡ Uses Gemini Pro with web search — uses more integration credits</p>
+        <p className="text-xs text-amber-600 text-center">⚡ Uses Gemini with web search — uses more integration credits</p>
       </div>
 
       {/* Loading state */}
