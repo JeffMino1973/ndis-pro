@@ -183,7 +183,7 @@ export default function DocumentVault() {
                 </label>
               </div>
             </div>
-            <Button onClick={save} disabled={!form.title || uploading} className="w-full rounded-xl font-bold">Save Document</Button>
+            <Button onClick={save} disabled={!form.title || !form.file_url || uploading} className="w-full rounded-xl font-bold">Save Document</Button>
           </div>
         </DialogContent>
       </Dialog>
