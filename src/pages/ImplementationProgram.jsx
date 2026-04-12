@@ -136,23 +136,18 @@ export default function ImplementationProgram() {
             <h2 className="text-3xl font-black tracking-tight">Implementation Programs</h2>
             <p className="text-muted-foreground text-sm">Support worker phased implementation & skill tracking.</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => startNew(BRONWYN_TEMPLATE)} className="rounded-xl font-bold gap-2 text-sm">
-              <BookOpen size={15} /> Import Bronwyn's Program
-            </Button>
-            <Button onClick={() => startNew()} className="rounded-xl font-bold gap-2">
-              <Plus size={15} /> New Program
-            </Button>
-          </div>
+          <Button onClick={() => startNew()} className="rounded-xl font-bold gap-2">
+            <Plus size={15} /> New Program
+          </Button>
         </div>
 
         {programs.length === 0 ? (
           <div className="bg-card border border-dashed border-border rounded-3xl p-16 text-center">
             <ClipboardList size={48} className="text-muted-foreground/30 mx-auto mb-4" />
             <h3 className="font-black text-xl mb-2">No Programs Yet</h3>
-            <p className="text-muted-foreground text-sm mb-6">Create a new program or import Bronwyn's existing program from the document.</p>
-            <Button onClick={() => startNew(BRONWYN_TEMPLATE)} className="rounded-xl font-bold gap-2">
-              <BookOpen size={15} /> Import Bronwyn's Program
+            <p className="text-muted-foreground text-sm mb-6">Create a new program to get started.</p>
+            <Button onClick={() => startNew()} className="rounded-xl font-bold gap-2">
+              <Plus size={15} /> New Program
             </Button>
           </div>
         ) : (
@@ -310,8 +305,9 @@ export default function ImplementationProgram() {
 
     return (
       <div className="space-y-6">
+        <style>{`@media print { .no-print { display: none !important; } }`}</style>
         {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
+        <div className="flex flex-col sm:flex-row justify-between items-start gap-4 no-print">
           <div>
             <button onClick={() => setView("list")} className="text-primary text-sm font-bold hover:underline">← All Programs</button>
             <h2 className="text-2xl font-black mt-1">{selected.participant_name}</h2>
