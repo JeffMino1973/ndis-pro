@@ -965,6 +965,9 @@ export default function ParticipantPortal() {
                       ))}
                     </div>
                   </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
