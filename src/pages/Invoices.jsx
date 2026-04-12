@@ -60,7 +60,7 @@ export default function Invoices() {
         const updated = { ...line, [field]: value };
         if (field === "support_item_code") {
           const found = NDIS_ITEMS.find((n) => n.code === value);
-          if (found) { updated.description = found.name; updated.rate = found.rate; }
+          if (found) { updated.description = found.name; updated.rate = found.rate; updated.amount = parseFloat(((updated.hours || 0) * found.rate).toFixed(2)); }
         }
         if (field === "hours" || field === "rate") {
           updated.amount = parseFloat(((updated.hours || 0) * (updated.rate || 0)).toFixed(2));
