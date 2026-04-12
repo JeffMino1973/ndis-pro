@@ -328,7 +328,7 @@ function AgreementPreview({ agreement, onBack }) {
                 const { code, rate } = resolveItem(s);
                 return (
                   <tr key={i}>
-                    <td className="px-4 py-3 font-mono text-xs text-slate-500 whitespace-nowrap">{code}</td>
+                    <td className="px-4 py-3 text-slate-800 whitespace-nowrap">{code}</td>
                     <td className="px-4 py-3 font-semibold text-slate-800">{s.description}</td>
                     <td className="px-4 py-3 text-right">${rate.toFixed(2)}</td>
                   </tr>
