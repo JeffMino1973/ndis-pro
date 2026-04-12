@@ -465,17 +465,20 @@ export default function ParticipantPortal() {
                 {participantDocuments && participantDocuments.length > 0 ? (
                   <div className="space-y-2">
                     {participantDocuments.map(doc => (
-                      <div key={doc.id} className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
-                          <div className="w-9 h-9 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center shrink-0"><File size={16} /></div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-bold text-slate-900 truncate">{doc.document_name}</p>
-                            <p className="text-xs text-slate-500">{doc.upload_date} · {doc.file_size}</p>
+                      <div key={doc.id} className="bg-slate-50 border border-slate-200 rounded-2xl p-4 hover:shadow-md transition-shadow">
+                        <div className="flex items-start gap-3 mb-2">
+                          <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center shrink-0"><File size={18} /></div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-black text-slate-900 truncate">{doc.document_name || "Document"}</p>
+                            <p className="text-[11px] text-slate-500 mt-0.5">{doc.upload_date || "—"}</p>
                           </div>
                         </div>
-                        <div className="flex gap-2 shrink-0">
-                          <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 p-1.5"><Download size={14} /></a>
-                          {base44.entities.Document && <button onClick={() => handleDeleteDocument(doc.id)} className="text-slate-400 hover:text-rose-600 p-1.5"><Trash2 size={14} /></button>}
+                        <div className="flex items-center justify-between mt-3">
+                          <span className="text-xs text-slate-600 font-semibold">{doc.file_size || "—"}</span>
+                          <div className="flex gap-1.5">
+                            <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-lg p-2 transition-colors"><Download size={14} /></a>
+                            {base44.entities.Document && <button onClick={() => handleDeleteDocument(doc.id)} className="bg-slate-200 text-slate-600 hover:bg-rose-200 hover:text-rose-600 rounded-lg p-2 transition-colors"><Trash2 size={14} /></button>}
+                          </div>
                         </div>
                       </div>
                     ))}
