@@ -36,6 +36,10 @@ import TravelGuide from './pages/TravelGuide';
 import ImplementationProgram from './pages/ImplementationProgram';
 import MedicationDashboard from './pages/MedicationDashboard';
 import EpilepsyPlans from './pages/EpilepsyPlans';
+import HealthCarePlan from './pages/HealthCarePlan';
+import BehaviourContinuum from './pages/BehaviourContinuum';
+import BehaviourSupportPlan from './pages/BehaviourSupportPlan';
+
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -94,6 +98,9 @@ const AuthenticatedApp = () => {
       <Route path="/implementation-programs" element={<ImplementationProgram />} />
       <Route path="/medications" element={<MedicationDashboard />} />
       <Route path="/epilepsy-plans" element={<EpilepsyPlans />} />
+      <Route path="/health-care-plans" element={<HealthCarePlan />} />
+      <Route path="/behaviour-continuum" element={<BehaviourContinuum />} />
+      <Route path="/behaviour-support-plans" element={<BehaviourSupportPlan />} />
       <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

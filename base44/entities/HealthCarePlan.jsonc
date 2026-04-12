@@ -1,0 +1,145 @@
+{
+  "name": "HealthCarePlan",
+  "type": "object",
+  "properties": {
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "ndis_number": {
+      "type": "string",
+      "title": "NDIS Number"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "title": "Date of Birth",
+      "format": "date"
+    },
+    "address": {
+      "type": "string",
+      "title": "Address"
+    },
+    "health_conditions": {
+      "type": "string",
+      "title": "Health Conditions"
+    },
+    "doctor_name": {
+      "type": "string",
+      "title": "Doctor / GP Name"
+    },
+    "doctor_phone": {
+      "type": "string",
+      "title": "Doctor Phone"
+    },
+    "doctor_address": {
+      "type": "string",
+      "title": "Doctor Address"
+    },
+    "parent_carer_name": {
+      "type": "string",
+      "title": "Parent / Carer Name"
+    },
+    "parent_carer_phone": {
+      "type": "string",
+      "title": "Parent / Carer Phone"
+    },
+    "parent_carer_email": {
+      "type": "string",
+      "title": "Parent / Carer Email"
+    },
+    "emergency_contact_name": {
+      "type": "string",
+      "title": "Emergency Contact Name"
+    },
+    "emergency_contact_phone": {
+      "type": "string",
+      "title": "Emergency Contact Phone"
+    },
+    "emergency_contact_relationship": {
+      "type": "string",
+      "title": "Relationship"
+    },
+    "medications": {
+      "type": "array",
+      "title": "Medications",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "dose": {
+            "type": "string"
+          },
+          "frequency": {
+            "type": "string"
+          },
+          "route": {
+            "type": "string"
+          },
+          "time": {
+            "type": "string"
+          },
+          "prescriber": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "health_support_procedures": {
+      "type": "string",
+      "title": "Health Support Procedures"
+    },
+    "emergency_response": {
+      "type": "string",
+      "title": "Emergency Care / Response Plan"
+    },
+    "emergency_alert": {
+      "type": "string",
+      "title": "Emergency Alert (critical info)"
+    },
+    "additional_support": {
+      "type": "string",
+      "title": "Additional Support Required"
+    },
+    "parent_consent": {
+      "type": "boolean",
+      "title": "Parent Consent Given",
+      "default": false
+    },
+    "consent_date": {
+      "type": "string",
+      "title": "Consent Date",
+      "format": "date"
+    },
+    "plan_developed_by": {
+      "type": "string",
+      "title": "Plan Developed By"
+    },
+    "review_date": {
+      "type": "string",
+      "title": "Review Date",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Active",
+        "Under Review",
+        "Archived"
+      ],
+      "default": "Active"
+    }
+  },
+  "required": [
+    "participant_name"
+  ]
+}

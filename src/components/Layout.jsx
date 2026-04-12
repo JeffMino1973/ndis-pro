@@ -6,6 +6,7 @@ import {
   ShieldCheck,
   Brain,
   Pill,
+  Heart,
   ShieldAlert,
   ClipboardCheck,
   UserCircle,
@@ -93,6 +94,14 @@ const NAV_SECTIONS = [
     title: "Stationery",
     items: [
       { path: "/stationery", label: "Templates & Stationery", icon: BookTemplate },
+    ],
+  },
+  {
+    title: "Health & Behaviour",
+    items: [
+      { path: "/health-care-plans", label: "Health Support Plans (IHSP)", icon: Heart },
+      { path: "/behaviour-continuum", label: "Behaviour Continuum", icon: BarChart3 },
+      { path: "/behaviour-support-plans", label: "Behaviour Support Plans", icon: Brain },
     ],
   },
   {

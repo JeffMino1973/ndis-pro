@@ -1,0 +1,94 @@
+{
+  "name": "BehaviourIncident",
+  "type": "object",
+  "properties": {
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "staff_name": {
+      "type": "string",
+      "title": "Staff Name"
+    },
+    "incident_date": {
+      "type": "string",
+      "title": "Date",
+      "format": "date"
+    },
+    "incident_time": {
+      "type": "string",
+      "title": "Time"
+    },
+    "location": {
+      "type": "string",
+      "title": "Location"
+    },
+    "level": {
+      "type": "string",
+      "title": "Behaviour Level",
+      "enum": [
+        "Low",
+        "Minor",
+        "Major",
+        "Extreme",
+        "Crisis"
+      ]
+    },
+    "behaviours": {
+      "type": "array",
+      "title": "Behaviours Observed",
+      "items": {
+        "type": "string"
+      }
+    },
+    "antecedent": {
+      "type": "string",
+      "title": "Antecedent / Trigger"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "action_taken": {
+      "type": "string",
+      "title": "Action Taken"
+    },
+    "restorative_notes": {
+      "type": "string",
+      "title": "Restorative Conversation Notes"
+    },
+    "outcome": {
+      "type": "string",
+      "title": "Outcome"
+    },
+    "follow_up_required": {
+      "type": "boolean",
+      "title": "Follow-up Required",
+      "default": false
+    },
+    "notified_supervisor": {
+      "type": "boolean",
+      "title": "Supervisor Notified",
+      "default": false
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Open",
+        "Resolved",
+        "Escalated"
+      ],
+      "default": "Open"
+    }
+  },
+  "required": [
+    "participant_name",
+    "level",
+    "incident_date"
+  ]
+}
