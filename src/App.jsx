@@ -28,6 +28,9 @@ import OnboardingPublicForm from './pages/OnboardingPublicForm';
 import Stationery from './pages/Stationery';
 import Quotes from './pages/Quotes';
 import ParticipantPortal from './pages/ParticipantPortal';
+import ShiftLogger from './pages/ShiftLogger';
+import ProgressNotes from './pages/ProgressNotes';
+import RestrictivePractices from './pages/RestrictivePractices';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -78,6 +81,9 @@ const AuthenticatedApp = () => {
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/stationery" element={<Stationery />} />
       <Route path="/quotes" element={<Quotes />} />
+      <Route path="/shift-logger" element={<ShiftLogger />} />
+      <Route path="/progress-notes" element={<ProgressNotes />} />
+      <Route path="/restrictive-practices" element={<RestrictivePractices />} />
       <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

@@ -1,0 +1,119 @@
+{
+  "name": "RestrictivePractice",
+  "type": "object",
+  "properties": {
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "practice_type": {
+      "type": "string",
+      "title": "Practice Type",
+      "enum": [
+        "Chemical Restraint",
+        "Mechanical Restraint",
+        "Physical Restraint",
+        "Environmental Restraint",
+        "Seclusion"
+      ]
+    },
+    "description": {
+      "type": "string",
+      "title": "Description of Practice"
+    },
+    "authorisation_date": {
+      "type": "string",
+      "title": "Authorisation Date",
+      "format": "date"
+    },
+    "authorised_by": {
+      "type": "string",
+      "title": "Authorised By"
+    },
+    "authorisation_expiry": {
+      "type": "string",
+      "title": "Authorisation Expiry",
+      "format": "date"
+    },
+    "bsp_in_place": {
+      "type": "boolean",
+      "title": "Behaviour Support Plan in Place"
+    },
+    "bsp_practitioner": {
+      "type": "string",
+      "title": "BSP Practitioner"
+    },
+    "bsp_expiry": {
+      "type": "string",
+      "title": "BSP Expiry Date",
+      "format": "date"
+    },
+    "episode_date": {
+      "type": "string",
+      "title": "Episode Date",
+      "format": "date"
+    },
+    "episode_time": {
+      "type": "string",
+      "title": "Episode Time"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "title": "Duration (minutes)"
+    },
+    "trigger": {
+      "type": "string",
+      "title": "Trigger / Antecedent"
+    },
+    "action_taken": {
+      "type": "string",
+      "title": "Action Taken"
+    },
+    "post_incident_support": {
+      "type": "string",
+      "title": "Post-Incident Support Provided"
+    },
+    "reported_to_commission": {
+      "type": "boolean",
+      "title": "Reported to NDIS Commission",
+      "default": false
+    },
+    "commission_report_date": {
+      "type": "string",
+      "title": "Commission Report Date",
+      "format": "date"
+    },
+    "commission_reference": {
+      "type": "string",
+      "title": "Commission Reference Number"
+    },
+    "staff_name": {
+      "type": "string",
+      "title": "Staff Member"
+    },
+    "witness_name": {
+      "type": "string",
+      "title": "Witness Name"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Draft",
+        "Submitted",
+        "Under Review",
+        "Closed"
+      ],
+      "default": "Draft"
+    }
+  },
+  "required": [
+    "participant_name",
+    "practice_type",
+    "episode_date"
+  ]
+}

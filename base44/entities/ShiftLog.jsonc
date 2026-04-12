@@ -1,0 +1,97 @@
+{
+  "name": "ShiftLog",
+  "type": "object",
+  "properties": {
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "staff_name": {
+      "type": "string",
+      "title": "Staff Name"
+    },
+    "start_time": {
+      "type": "string",
+      "title": "Start Time"
+    },
+    "end_time": {
+      "type": "string",
+      "title": "End Time"
+    },
+    "duration_minutes": {
+      "type": "number",
+      "title": "Duration (minutes)"
+    },
+    "support_type": {
+      "type": "string",
+      "title": "Support Type"
+    },
+    "support_item_code": {
+      "type": "string",
+      "title": "Support Item Code"
+    },
+    "location": {
+      "type": "string",
+      "title": "Location"
+    },
+    "gps_start": {
+      "type": "string",
+      "title": "GPS Start Coordinates"
+    },
+    "gps_end": {
+      "type": "string",
+      "title": "GPS End Coordinates"
+    },
+    "activities": {
+      "type": "string",
+      "title": "Activities Delivered"
+    },
+    "outcomes": {
+      "type": "string",
+      "title": "Outcomes"
+    },
+    "goals_linked": {
+      "type": "array",
+      "title": "Linked Goals",
+      "items": {
+        "type": "string"
+      }
+    },
+    "progress_note": {
+      "type": "string",
+      "title": "Progress Note"
+    },
+    "client_signature": {
+      "type": "string",
+      "title": "Client Signature (name)"
+    },
+    "client_signed_at": {
+      "type": "string",
+      "title": "Client Signed At"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Active",
+        "Completed",
+        "Cancelled"
+      ],
+      "default": "Active"
+    },
+    "km_travelled": {
+      "type": "number",
+      "title": "KM Travelled",
+      "default": 0
+    }
+  },
+  "required": [
+    "participant_name",
+    "staff_name",
+    "start_time"
+  ]
+}

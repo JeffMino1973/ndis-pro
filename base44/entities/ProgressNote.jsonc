@@ -1,0 +1,96 @@
+{
+  "name": "ProgressNote",
+  "type": "object",
+  "properties": {
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "staff_name": {
+      "type": "string",
+      "title": "Staff Name"
+    },
+    "shift_log_id": {
+      "type": "string",
+      "title": "Shift Log ID"
+    },
+    "note_date": {
+      "type": "string",
+      "title": "Note Date",
+      "format": "date"
+    },
+    "note_time": {
+      "type": "string",
+      "title": "Note Time"
+    },
+    "template_type": {
+      "type": "string",
+      "title": "Template Type",
+      "enum": [
+        "Daily Support",
+        "Community Access",
+        "Personal Care",
+        "Therapy Support",
+        "Crisis/Incident",
+        "Custom"
+      ]
+    },
+    "service_location": {
+      "type": "string",
+      "title": "Service Location"
+    },
+    "gps_coordinates": {
+      "type": "string",
+      "title": "GPS Coordinates"
+    },
+    "activities_delivered": {
+      "type": "string",
+      "title": "Activities Delivered"
+    },
+    "participant_response": {
+      "type": "string",
+      "title": "Participant Response"
+    },
+    "goals_addressed": {
+      "type": "array",
+      "title": "Goals Addressed",
+      "items": {
+        "type": "string"
+      }
+    },
+    "outcomes": {
+      "type": "string",
+      "title": "Outcomes Achieved"
+    },
+    "concerns": {
+      "type": "string",
+      "title": "Concerns / Follow-up Required"
+    },
+    "client_signature": {
+      "type": "string",
+      "title": "Client Signature (name)"
+    },
+    "client_signed_at": {
+      "type": "string",
+      "title": "Client Signed At"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Draft",
+        "Finalised"
+      ],
+      "default": "Draft"
+    }
+  },
+  "required": [
+    "participant_name",
+    "staff_name",
+    "note_date"
+  ]
+}

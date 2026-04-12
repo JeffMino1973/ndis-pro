@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   Users,
   ShieldCheck,
+  ShieldAlert,
   ClipboardCheck,
   UserCircle,
   AlertTriangle,
@@ -22,6 +23,7 @@ import {
   CheckSquare,
   BarChart3,
   BookTemplate,
+  Play,
 } from "lucide-react";
 
 const NAV_SECTIONS = [
@@ -39,6 +41,8 @@ const NAV_SECTIONS = [
     items: [
       { path: "/rostering", label: "Rostering", icon: Calendar },
       { path: "/timesheets", label: "Timesheets & Travel", icon: Clock },
+      { path: "/shift-logger", label: "Shift Logger", icon: Play },
+      { path: "/progress-notes", label: "Progress Notes", icon: FileText },
     ],
   },
   {
@@ -56,6 +60,7 @@ const NAV_SECTIONS = [
       { path: "/incidents", label: "Incidents", icon: Flame },
       { path: "/audit-checklists", label: "Audit Checklists", icon: CheckSquare },
       { path: "/complaints", label: "Complaints Register", icon: MessageSquareWarning },
+      { path: "/restrictive-practices", label: "Restrictive Practices", icon: ShieldAlert },
     ],
   },
   {
