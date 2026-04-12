@@ -833,106 +833,18 @@ export default function ParticipantPortal() {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 px-6 py-4 border-t border-slate-200">
                   {[{l: "Participant", v: plan.participant_name}, {l: "NDIS", v: plan.ndis_number}, {l: "DOB", v: plan.date_of_birth}, {l: "Status", v: plan.status}].filter(f => f.v).map(f => (
-                    <div key={f.l}>
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p>
-                      <p className="text-sm font-bold text-slate-900">{f.v}</p>
-                    </div>
+                    <div key={f.l}><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p><p className="text-sm font-bold text-slate-900">{f.v}</p></div>
                   ))}
                 </div>
                 <div className="p-6 space-y-6">
-                  {plan.health_conditions && (
-                    <div>
-                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Health Conditions</h2>
-                      <div className="bg-slate-50 rounded-xl p-4 text-sm text-slate-700 leading-relaxed border border-slate-200">{plan.health_conditions}</div>
-                    </div>
-                  )}
-                  {plan.doctor_name && (
-                    <div>
-                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Healthcare Providers</h2>
-                      <div className="space-y-2">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                            <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Doctor / GP</p>
-                            <p className="text-sm font-bold text-slate-900">{plan.doctor_name}</p>
-                            {plan.doctor_phone && <p className="text-xs text-slate-600 mt-1">{plan.doctor_phone}</p>}
-                            {plan.doctor_address && <p className="text-xs text-slate-600">{plan.doctor_address}</p>}
-                          </div>
-                          {plan.parent_carer_name && (
-                            <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                              <p className="text-[10px] font-black text-slate-500 uppercase mb-1">Parent / Carer</p>
-                              <p className="text-sm font-bold text-slate-900">{plan.parent_carer_name}</p>
-                              {plan.parent_carer_phone && <p className="text-xs text-slate-600 mt-1">{plan.parent_carer_phone}</p>}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                  {plan.medications && plan.medications.length > 0 && (
-                    <div>
-                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Current Medications</h2>
-                      <div className="space-y-2">
-                        {plan.medications.map((m, i) => (
-                          <div key={i} className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-                            <p className="font-bold text-slate-900">{m.name} — {m.dose}</p>
-                            <div className="grid grid-cols-2 gap-2 mt-2 text-xs text-slate-600">
-                              <p><span className="font-black">Frequency:</span> {m.frequency}</p>
-                              <p><span className="font-black">Route:</span> {m.route}</p>
-                              {m.time && <p className="col-span-2"><span className="font-black">Time:</span> {m.time}</p>}
-                            </div>
-                            {m.notes && <p className="text-xs text-slate-600 mt-2 italic">{m.notes}</p>}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {plan.health_support_procedures && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                      <p className="text-sm font-black text-blue-700 mb-2 uppercase tracking-widest">Health Support Procedures</p>
-                      <p className="text-sm text-blue-800 leading-relaxed whitespace-pre-line">{plan.health_support_procedures}</p>
-                    </div>
-                  )}
-                  {plan.emergency_response && (
-                    <div className="bg-rose-50 border border-rose-200 rounded-xl p-4">
-                      <p className="text-sm font-black text-rose-700 mb-2 uppercase tracking-widest">Emergency Response Plan</p>
-                      <p className="text-sm text-rose-800 leading-relaxed whitespace-pre-line">{plan.emergency_response}</p>
-                    </div>
-                  )}
-                  {plan.emergency_alert && (
-                    <div className="bg-amber-50 border border-amber-300 rounded-xl p-4">
-                      <p className="text-sm font-black text-amber-800 uppercase tracking-widest">⚠️ Medical Alerts</p>
-                      <p className="text-sm text-amber-900 font-semibold mt-2">{plan.emergency_alert}</p>
-                    </div>
-                  )}
-                  {(plan.emergency_contact_name || plan.parent_carer_name) && (
-                    <div>
-                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Emergency Contacts</h2>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        {plan.emergency_contact_name && (
-                          <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-                            <p className="text-[10px] font-black text-orange-700 uppercase mb-1">Emergency Contact</p>
-                            <p className="text-sm font-bold text-orange-900">{plan.emergency_contact_name}</p>
-                            <p className="text-xs text-orange-800 mt-1">{plan.emergency_contact_relationship}</p>
-                            {plan.emergency_contact_phone && <p className="text-xs text-orange-800">{plan.emergency_contact_phone}</p>}
-                          </div>
-                        )}
-                        {plan.parent_carer_name && (
-                          <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-                            <p className="text-[10px] font-black text-orange-700 uppercase mb-1">Parent / Carer</p>
-                            <p className="text-sm font-bold text-orange-900">{plan.parent_carer_name}</p>
-                            {plan.parent_carer_phone && <p className="text-xs text-orange-800 mt-1">{plan.parent_carer_phone}</p>}
-                            {plan.parent_carer_email && <p className="text-xs text-orange-800">{plan.parent_carer_email}</p>}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-                  {plan.review_date && (
-                    <div className="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center">
-                      <p className="text-sm font-black">Next Review</p>
-                      <p className="text-lg font-bold">{plan.review_date}</p>
-                    </div>
-                  )}
+                  {plan.health_conditions && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Health Conditions</h2><div className="bg-slate-50 rounded-xl p-4 text-sm text-slate-700 leading-relaxed border border-slate-200">{plan.health_conditions}</div></div>}
+                  {plan.doctor_name && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Healthcare Providers</h2><div className="space-y-2"><div className="grid grid-cols-1 sm:grid-cols-2 gap-3"><div className="bg-slate-50 rounded-xl p-4 border border-slate-200"><p className="text-[10px] font-black text-slate-500 uppercase mb-1">Doctor / GP</p><p className="text-sm font-bold text-slate-900">{plan.doctor_name}</p>{plan.doctor_phone && <p className="text-xs text-slate-600 mt-1">{plan.doctor_phone}</p>}{plan.doctor_address && <p className="text-xs text-slate-600">{plan.doctor_address}</p>}</div>{plan.parent_carer_name && <div className="bg-slate-50 rounded-xl p-4 border border-slate-200"><p className="text-[10px] font-black text-slate-500 uppercase mb-1">Parent / Carer</p><p className="text-sm font-bold text-slate-900">{plan.parent_carer_name}</p>{plan.parent_carer_phone && <p className="text-xs text-slate-600 mt-1">{plan.parent_carer_phone}</p>}</div>}</div></div></div>}
+                  {plan.medications && plan.medications.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Current Medications</h2><div className="space-y-2">{plan.medications.map((m, i) => <div key={i} className="bg-slate-50 rounded-xl p-4 border border-slate-200"><p className="font-bold text-slate-900">{m.name} — {m.dose}</p><div className="grid grid-cols-2 gap-2 mt-2 text-xs text-slate-600"><p><span className="font-black">Frequency:</span> {m.frequency}</p><p><span className="font-black">Route:</span> {m.route}</p>{m.time && <p className="col-span-2"><span className="font-black">Time:</span> {m.time}</p>}</div>{m.notes && <p className="text-xs text-slate-600 mt-2 italic">{m.notes}</p>}</div>)}</div></div>}
+                  {plan.health_support_procedures && <div className="bg-blue-50 border border-blue-200 rounded-xl p-4"><p className="text-sm font-black text-blue-700 mb-2 uppercase tracking-widest">Health Support Procedures</p><p className="text-sm text-blue-800 leading-relaxed whitespace-pre-line">{plan.health_support_procedures}</p></div>}
+                  {plan.emergency_response && <div className="bg-rose-50 border border-rose-200 rounded-xl p-4"><p className="text-sm font-black text-rose-700 mb-2 uppercase tracking-widest">Emergency Response Plan</p><p className="text-sm text-rose-800 leading-relaxed whitespace-pre-line">{plan.emergency_response}</p></div>}
+                  {plan.emergency_alert && <div className="bg-amber-50 border border-amber-300 rounded-xl p-4"><p className="text-sm font-black text-amber-800 uppercase tracking-widest">⚠️ Medical Alerts</p><p className="text-sm text-amber-900 font-semibold mt-2">{plan.emergency_alert}</p></div>}
+                  {(plan.emergency_contact_name || plan.parent_carer_name) && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Emergency Contacts</h2><div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{plan.emergency_contact_name && <div className="bg-orange-50 border border-orange-200 rounded-xl p-4"><p className="text-[10px] font-black text-orange-700 uppercase mb-1">Emergency Contact</p><p className="text-sm font-bold text-orange-900">{plan.emergency_contact_name}</p><p className="text-xs text-orange-800 mt-1">{plan.emergency_contact_relationship}</p>{plan.emergency_contact_phone && <p className="text-xs text-orange-800">{plan.emergency_contact_phone}</p>}</div>}{plan.parent_carer_name && <div className="bg-orange-50 border border-orange-200 rounded-xl p-4"><p className="text-[10px] font-black text-orange-700 uppercase mb-1">Parent / Carer</p><p className="text-sm font-bold text-orange-900">{plan.parent_carer_name}</p>{plan.parent_carer_phone && <p className="text-xs text-orange-800 mt-1">{plan.parent_carer_phone}</p>}{plan.parent_carer_email && <p className="text-xs text-orange-800">{plan.parent_carer_email}</p>}</div>}</div></div>}
+                  {plan.review_date && <div className="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center"><p className="text-sm font-black">Next Review</p><p className="text-lg font-bold">{plan.review_date}</p></div>}
                 </div>
               </div>
             ))}
@@ -974,60 +886,15 @@ export default function ParticipantPortal() {
                           <p className="text-[10px] font-black text-slate-500 uppercase">Frequency</p>
                           <p className="text-sm font-bold text-slate-900 mt-1">{med.frequency}</p>
                         </div>
-                        {med.prescriber && (
-                          <div className="bg-slate-50 rounded-lg p-3">
-                            <p className="text-[10px] font-black text-slate-500 uppercase">Prescriber</p>
-                            <p className="text-sm font-bold text-slate-900 mt-1">{med.prescriber}</p>
-                          </div>
-                        )}
-                        {med.start_date && (
-                          <div className="bg-slate-50 rounded-lg p-3">
-                            <p className="text-[10px] font-black text-slate-500 uppercase">Start Date</p>
-                            <p className="text-sm font-bold text-slate-900 mt-1">{med.start_date}</p>
-                          </div>
-                        )}
-                        <div className="bg-slate-50 rounded-lg p-3">
-                          <p className="text-[10px] font-black text-slate-500 uppercase">Status</p>
-                          <p className={`text-sm font-bold mt-1 ${med.status === "Active" ? "text-emerald-700" : "text-slate-600"}`}>{med.status}</p>
-                        </div>
+                        {med.prescriber && <div className="bg-slate-50 rounded-lg p-3"><p className="text-[10px] font-black text-slate-500 uppercase">Prescriber</p><p className="text-sm font-bold text-slate-900 mt-1">{med.prescriber}</p></div>}
+                        {med.start_date && <div className="bg-slate-50 rounded-lg p-3"><p className="text-[10px] font-black text-slate-500 uppercase">Start Date</p><p className="text-sm font-bold text-slate-900 mt-1">{med.start_date}</p></div>}
+                        <div className="bg-slate-50 rounded-lg p-3"><p className="text-[10px] font-black text-slate-500 uppercase">Status</p><p className={`text-sm font-bold mt-1 ${med.status === "Active" ? "text-emerald-700" : "text-slate-600"}`}>{med.status}</p></div>
                       </div>
-                      {med.indication && (
-                        <div>
-                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Indication / Purpose</p>
-                          <p className="text-sm text-slate-700 bg-slate-50 rounded-lg p-3">{med.indication}</p>
-                        </div>
-                      )}
-                      {med.is_rescue && med.rescue_instructions && (
-                        <div className="bg-rose-50 border border-rose-200 rounded-lg p-4">
-                          <p className="text-[10px] font-black text-rose-700 uppercase mb-2">🚨 Rescue Instructions</p>
-                          <p className="text-sm text-rose-800 leading-relaxed">{med.rescue_instructions}</p>
-                        </div>
-                      )}
-                      {med.side_effects && (
-                        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                          <p className="text-[10px] font-black text-amber-700 uppercase mb-2">Side Effects</p>
-                          <p className="text-sm text-amber-800">{med.side_effects}</p>
-                        </div>
-                      )}
-                      {med.storage && (
-                        <div>
-                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Storage</p>
-                          <p className="text-sm text-slate-700">{med.storage}</p>
-                        </div>
-                      )}
-                      {med.dose_logs && med.dose_logs.length > 0 && (
-                        <div>
-                          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Recent Dose Log</p>
-                          <div className="space-y-1 max-h-32 overflow-y-auto">
-                            {[...(med.dose_logs || [])].reverse().slice(0, 5).map((log, i) => (
-                              <div key={i} className="bg-slate-50 rounded p-2 text-xs">
-                                <p className="font-bold text-slate-800">{new Date(log.given_at).toLocaleDateString("en-AU")} {new Date(log.given_at).toLocaleTimeString("en-AU", {hour: "2-digit", minute: "2-digit"})}</p>
-                                <p className="text-slate-600">{log.dose_given} · {log.given_by}</p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                      {med.indication && <div><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Indication / Purpose</p><p className="text-sm text-slate-700 bg-slate-50 rounded-lg p-3">{med.indication}</p></div>}
+                      {med.is_rescue && med.rescue_instructions && <div className="bg-rose-50 border border-rose-200 rounded-lg p-4"><p className="text-[10px] font-black text-rose-700 uppercase mb-2">🚨 Rescue Instructions</p><p className="text-sm text-rose-800 leading-relaxed">{med.rescue_instructions}</p></div>}
+                      {med.side_effects && <div className="bg-amber-50 border border-amber-200 rounded-lg p-4"><p className="text-[10px] font-black text-amber-700 uppercase mb-2">Side Effects</p><p className="text-sm text-amber-800">{med.side_effects}</p></div>}
+                      {med.storage && <div><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Storage</p><p className="text-sm text-slate-700">{med.storage}</p></div>}
+                      {med.dose_logs && med.dose_logs.length > 0 && <div><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Recent Dose Log</p><div className="space-y-1 max-h-32 overflow-y-auto">{[...(med.dose_logs || [])].reverse().slice(0, 5).map((log, i) => <div key={i} className="bg-slate-50 rounded p-2 text-xs"><p className="font-bold text-slate-800">{new Date(log.given_at).toLocaleDateString("en-AU")} {new Date(log.given_at).toLocaleTimeString("en-AU", {hour: "2-digit", minute: "2-digit"})}</p><p className="text-slate-600">{log.dose_given} · {log.given_by}</p></div>)}</div></div>}
                     </div>
                   </div>
                 ))}
@@ -1052,101 +919,20 @@ export default function ParticipantPortal() {
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 px-6 py-4 border-t border-slate-200">
                   {[{l: "Neurologist", v: plan.neurologist}, {l: "Seizure Types", v: plan.seizure_types}, {l: "Typical Duration", v: plan.typical_duration}, {l: "Status", v: plan.status}].filter(f => f.v).map(f => (
-                    <div key={f.l}>
-                      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p>
-                      <p className="text-sm font-bold text-slate-900">{f.v}</p>
-                    </div>
+                    <div key={f.l}><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p><p className="text-sm font-bold text-slate-900">{f.v}</p></div>
                   ))}
                 </div>
                 <div className="p-6 space-y-6">
-                  {plan.warning_signs && (
-                    <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-4">
-                      <p className="text-[10px] font-black text-amber-800 uppercase mb-2">⚠️ Warning Signs / Aura</p>
-                      <p className="text-sm text-amber-900 font-medium">{plan.warning_signs}</p>
-                    </div>
-                  )}
-                  {plan.known_triggers && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                      <p className="text-[10px] font-black text-blue-700 uppercase mb-2">Known Triggers</p>
-                      <p className="text-sm text-blue-800">{plan.known_triggers}</p>
-                    </div>
-                  )}
-                  {plan.postictal_description && (
-                    <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
-                      <p className="text-[10px] font-black text-purple-700 uppercase mb-2">Post-Ictal State</p>
-                      <p className="text-sm text-purple-800">{plan.postictal_description}</p>
-                    </div>
-                  )}
-                  {plan.emergency_steps && plan.emergency_steps.length > 0 && (
-                    <div>
-                      <h2 className="text-sm font-black text-rose-700 uppercase tracking-widest mb-3">🚨 Emergency Response Steps</h2>
-                      <ol className="space-y-2">
-                        {plan.emergency_steps.map((step, i) => (
-                          <li key={i} className="flex gap-3 bg-rose-50 rounded-lg p-3">
-                            <span className="w-6 h-6 bg-rose-600 text-white rounded text-xs font-black flex items-center justify-center shrink-0">{i + 1}</span>
-                            <span className="text-sm text-rose-900">{step}</span>
-                          </li>
-                        ))}
-                      </ol>
-                    </div>
-                  )}
-                  {plan.rescue_medication_name && (
-                    <div className="bg-red-50 border-2 border-red-500 rounded-xl p-4">
-                      <p className="text-[10px] font-black text-red-700 uppercase mb-2">💊 Rescue Medication</p>
-                      <div className="space-y-1">
-                        <p className="font-black text-red-900">{plan.rescue_medication_name}</p>
-                        <p className="text-sm text-red-800"><span className="font-bold">Dose:</span> {plan.rescue_dose}</p>
-                        <p className="text-sm text-red-800"><span className="font-bold">Route:</span> {plan.rescue_route}</p>
-                        {plan.rescue_when && <p className="text-sm text-red-800"><span className="font-bold">When:</span> {plan.rescue_when}</p>}
-                      </div>
-                    </div>
-                  )}
-                  {plan.call_000_if && plan.call_000_if.length > 0 && (
-                    <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                      <p className="text-[10px] font-black text-red-700 uppercase mb-3">📞 Call 000 If...</p>
-                      <ul className="space-y-1.5">
-                        {plan.call_000_if.map((cond, i) => (
-                          <li key={i} className="flex gap-2 text-sm text-red-800"><span className="font-black">•</span>{cond}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {plan.do_not_do && plan.do_not_do.length > 0 && (
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
-                      <p className="text-[10px] font-black text-slate-700 uppercase mb-3">⛔ Do NOT Do</p>
-                      <ul className="space-y-1.5">
-                        {plan.do_not_do.map((item, i) => (
-                          <li key={i} className="flex gap-2 text-sm text-slate-700"><span className="font-black">✗</span>{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {plan.daily_strategies && plan.daily_strategies.length > 0 && (
-                    <div>
-                      <h2 className="text-sm font-black text-emerald-700 uppercase tracking-widest mb-3">Daily Support Strategies</h2>
-                      <ul className="space-y-2">
-                        {plan.daily_strategies.map((strategy, i) => (
-                          <li key={i} className="flex gap-2.5 bg-emerald-50 rounded-lg p-3 text-sm text-emerald-900"><span className="text-lg">✓</span>{strategy}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {plan.risk_strategies && plan.risk_strategies.length > 0 && (
-                    <div>
-                      <h2 className="text-sm font-black text-orange-700 uppercase tracking-widest mb-3">Risk Management</h2>
-                      <ul className="space-y-2">
-                        {plan.risk_strategies.map((strategy, i) => (
-                          <li key={i} className="flex gap-2.5 bg-orange-50 rounded-lg p-3 text-sm text-orange-900"><span className="text-lg">🛡️</span>{strategy}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  {plan.approved_by && (
-                    <div className="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center">
-                      <p className="text-sm font-black">Approved By</p>
-                      <p className="text-base font-bold">{plan.approved_by}</p>
-                    </div>
-                  )}
+                  {plan.warning_signs && <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-4"><p className="text-[10px] font-black text-amber-800 uppercase mb-2">⚠️ Warning Signs / Aura</p><p className="text-sm text-amber-900 font-medium">{plan.warning_signs}</p></div>}
+                  {plan.known_triggers && <div className="bg-blue-50 border border-blue-200 rounded-xl p-4"><p className="text-[10px] font-black text-blue-700 uppercase mb-2">Known Triggers</p><p className="text-sm text-blue-800">{plan.known_triggers}</p></div>}
+                  {plan.postictal_description && <div className="bg-purple-50 border border-purple-200 rounded-xl p-4"><p className="text-[10px] font-black text-purple-700 uppercase mb-2">Post-Ictal State</p><p className="text-sm text-purple-800">{plan.postictal_description}</p></div>}
+                  {plan.emergency_steps && plan.emergency_steps.length > 0 && <div><h2 className="text-sm font-black text-rose-700 uppercase tracking-widest mb-3">🚨 Emergency Response Steps</h2><ol className="space-y-2">{plan.emergency_steps.map((step, i) => <li key={i} className="flex gap-3 bg-rose-50 rounded-lg p-3"><span className="w-6 h-6 bg-rose-600 text-white rounded text-xs font-black flex items-center justify-center shrink-0">{i + 1}</span><span className="text-sm text-rose-900">{step}</span></li>)}</ol></div>}
+                  {plan.rescue_medication_name && <div className="bg-red-50 border-2 border-red-500 rounded-xl p-4"><p className="text-[10px] font-black text-red-700 uppercase mb-2">💊 Rescue Medication</p><div className="space-y-1"><p className="font-black text-red-900">{plan.rescue_medication_name}</p><p className="text-sm text-red-800"><span className="font-bold">Dose:</span> {plan.rescue_dose}</p><p className="text-sm text-red-800"><span className="font-bold">Route:</span> {plan.rescue_route}</p>{plan.rescue_when && <p className="text-sm text-red-800"><span className="font-bold">When:</span> {plan.rescue_when}</p>}</div></div>}
+                  {plan.call_000_if && plan.call_000_if.length > 0 && <div className="bg-red-50 border border-red-200 rounded-xl p-4"><p className="text-[10px] font-black text-red-700 uppercase mb-3">📞 Call 000 If...</p><ul className="space-y-1.5">{plan.call_000_if.map((cond, i) => <li key={i} className="flex gap-2 text-sm text-red-800"><span className="font-black">•</span>{cond}</li>)}</ul></div>}
+                  {plan.do_not_do && plan.do_not_do.length > 0 && <div className="bg-slate-50 border border-slate-200 rounded-xl p-4"><p className="text-[10px] font-black text-slate-700 uppercase mb-3">⛔ Do NOT Do</p><ul className="space-y-1.5">{plan.do_not_do.map((item, i) => <li key={i} className="flex gap-2 text-sm text-slate-700"><span className="font-black">✗</span>{item}</li>)}</ul></div>}
+                  {plan.daily_strategies && plan.daily_strategies.length > 0 && <div><h2 className="text-sm font-black text-emerald-700 uppercase tracking-widest mb-3">Daily Support Strategies</h2><ul className="space-y-2">{plan.daily_strategies.map((strategy, i) => <li key={i} className="flex gap-2.5 bg-emerald-50 rounded-lg p-3 text-sm text-emerald-900"><span className="text-lg">✓</span>{strategy}</li>)}</ul></div>}
+                  {plan.risk_strategies && plan.risk_strategies.length > 0 && <div><h2 className="text-sm font-black text-orange-700 uppercase tracking-widest mb-3">Risk Management</h2><ul className="space-y-2">{plan.risk_strategies.map((strategy, i) => <li key={i} className="flex gap-2.5 bg-orange-50 rounded-lg p-3 text-sm text-orange-900"><span className="text-lg">🛡️</span>{strategy}</li>)}</ul></div>}
+                  {plan.approved_by && <div className="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center"><p className="text-sm font-black">Approved By</p><p className="text-base font-bold">{plan.approved_by}</p></div>}
                 </div>
               </div>
             ))}
