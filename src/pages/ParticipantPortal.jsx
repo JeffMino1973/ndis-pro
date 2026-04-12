@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import {
   ShieldCheck, FileText, Receipt, ClipboardList, CheckCircle, PenLine,
   Loader2, User, Target, AlertTriangle, MessageSquareWarning, Navigation, Pencil,
-  ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File
+  ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File, Circle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,6 +116,7 @@ const TABS = [
   { id: "documents", label: "My Documents", icon: FileText },
   { id: "profile", label: "My Profile", icon: User },
   { id: "goals", label: "My Goals", icon: Target },
+  { id: "implementation", label: "Implementation Programs", icon: ClipboardList },
   { id: "health", label: "Health Plan", icon: Heart },
   { id: "medications", label: "Medications", icon: Star },
   { id: "epilepsy", label: "Epilepsy Plan", icon: AlertTriangle },
@@ -140,6 +141,7 @@ export default function ParticipantPortal() {
   const [epilepsyPlans, setEpilepsyPlans] = useState([]);
   const [pbsps, setPbsps] = useState([]);
   const [healthPlans, setHealthPlans] = useState([]);
+  const [implementationPrograms, setImplementationPrograms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [signingDoc, setSigningDoc] = useState(null);
@@ -182,7 +184,7 @@ export default function ParticipantPortal() {
     setParticipant(p);
     setProfileForm({ phone: p.phone || "", email: p.email || "", address: p.address || "", emergency_contact_name: p.emergency_contact_name || "", emergency_contact_phone: p.emergency_contact_phone || "", emergency_contact_relationship: p.emergency_contact_relationship || "" });
 
-    const [agr, quo, inv, plans, risks, notes, comp, meds, epilepsy, pbsp, hcp, docs] = await Promise.all([
+    const [agr, quo, inv, plans, risks, notes, comp, meds, epilepsy, pbsp, hcp, docs, impPrograms] = await Promise.all([
       base44.entities.ServiceAgreement.filter({ participant_name: p.name }),
       base44.entities.Quote.filter({ participant_name: p.name }),
       base44.entities.Invoice.filter({ participant_name: p.name }),
@@ -195,6 +197,7 @@ export default function ParticipantPortal() {
       base44.entities.PositiveBehaviourSupportPlan.filter({ participant_name: p.name }).catch(() => []),
       base44.entities.HealthCarePlan.filter({ participant_name: p.name }).catch(() => []),
       base44.entities.Document ? base44.entities.Document.filter({ participant_name: p.name }, "-created_date").catch(() => []) : Promise.resolve([]),
+      base44.entities.ImplementationProgram.filter({ participant_name: p.name }).catch(() => []),
     ]);
     setAgreements(agr);
     setQuotes(quo);
@@ -208,6 +211,7 @@ export default function ParticipantPortal() {
     setPbsps(pbsp || []);
     setHealthPlans(hcp || []);
     setParticipantDocuments(docs || []);
+    setImplementationPrograms(impPrograms || []);
     setLoading(false);
   };
 
@@ -1267,6 +1271,78 @@ export default function ParticipantPortal() {
                       <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
                         <p className="text-xs font-black text-slate-700 mb-1">💳 Opal Card</p>
                         <p className="text-xs text-slate-600">{guide.opal_info}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* IMPLEMENTATION PROGRAMS TAB */}
+        {activeTab === "implementation" && (
+          <div className="space-y-4">
+            {implementationPrograms.length === 0 ? (
+              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
+                <ClipboardList size={36} className="text-slate-300 mx-auto mb-3" />
+                <p className="text-slate-500 text-sm">No implementation programs on file.</p>
+              </div>
+            ) : (
+              implementationPrograms.map(program => (
+                <div key={program.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                  <div className="bg-blue-700 text-white px-5 py-4">
+                    <p className="font-black text-lg">{program.primary_goal}</p>
+                    <p className="text-blue-200 text-xs mt-0.5">Focus: {program.focus}</p>
+                  </div>
+                  <div className="p-5 space-y-4">
+                    {program.program_overview && (
+                      <div className="bg-slate-50 rounded-xl p-4">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Program Overview</p>
+                        <p className="text-sm text-slate-700 leading-relaxed">{program.program_overview}</p>
+                      </div>
+                    )}
+                    {program.start_date && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="bg-slate-50 rounded-xl p-3">
+                          <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Start Date</p>
+                          <p className="text-sm font-bold text-slate-800">{program.start_date}</p>
+                        </div>
+                        {program.status && (
+                          <div className="bg-slate-50 rounded-xl p-3">
+                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
+                            <p className="text-sm font-bold text-slate-800">{program.status}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    {program.phases && program.phases.length > 0 && (
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Implementation Phases</p>
+                        <div className="space-y-2">
+                          {program.phases.map((phase, idx) => (
+                            <div key={idx} className="bg-slate-50 rounded-xl p-3">
+                              <div className="flex items-center justify-between">
+                                <p className="text-xs font-bold text-slate-800">Phase {phase.phase_number}: {phase.name}</p>
+                                {phase.completed && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Completed</span>}
+                              </div>
+                              <p className="text-xs text-slate-500 mt-1">{phase.weeks} weeks • {phase.support_level}</p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {program.skill_targets && program.skill_targets.length > 0 && (
+                      <div>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Skill Targets</p>
+                        <ul className="space-y-1">
+                          {program.skill_targets.map((target, idx) => (
+                            <li key={idx} className="text-xs text-slate-600 flex items-center gap-2">
+                              {target.achieved ? <CheckCircle size={13} className="text-emerald-600" /> : <Circle size={13} className="text-slate-400" />}
+                              {target.skill}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     )}
                   </div>
