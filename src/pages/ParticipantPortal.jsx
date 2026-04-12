@@ -905,34 +905,136 @@ export default function ParticipantPortal() {
 
         {/* EPILEPSY PLAN TAB - FULL DOCUMENT */}
         {activeTab === "epilepsy" && (
-          <div className="space-y-4">
+          <div className="space-y-6 max-w-4xl">
             {epilepsyPlans.length === 0 ? (
               <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
                 <AlertTriangle size={36} className="text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500 text-sm">No epilepsy management plan on file.</p>
               </div>
             ) : epilepsyPlans.map(plan => (
-              <div key={plan.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-                <div className="bg-rose-700 text-white px-6 py-8">
-                  <h1 className="text-2xl font-black mb-1">Epilepsy Management Plan</h1>
-                  <p className="text-rose-200">{plan.diagnosis}</p>
+              <div key={plan.id} className="space-y-6">
+                {/* Header */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                  <div className="p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                    <div>
+                      <h1 className="text-2xl sm:text-3xl font-black text-slate-800 flex items-center gap-3">
+                        <span>🧠</span> EPILEPSY HEALTH CARE MANAGEMENT PLAN
+                      </h1>
+                      <p className="text-blue-600 font-bold mt-1">NDIS / School / Support Worker Ready</p>
+                    </div>
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 px-6 py-4 border-t border-slate-200">
-                  {[{l: "Neurologist", v: plan.neurologist}, {l: "Seizure Types", v: plan.seizure_types}, {l: "Typical Duration", v: plan.typical_duration}, {l: "Status", v: plan.status}].filter(f => f.v).map(f => (
-                    <div key={f.l}><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p><p className="text-sm font-bold text-slate-900">{f.v}</p></div>
-                  ))}
+
+                {/* 1. Participant Details */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                  <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
+                    <h2 className="font-black text-lg flex items-center gap-2">🧍 1. PARTICIPANT DETAILS</h2>
+                  </div>
+                  <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                    <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Participant Name</span><span className="font-black">{plan.participant_name}</span></div>
+                    <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">NDIS Number</span><span className="font-bold">{plan.ndis_number || "—"}</span></div>
+                    <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Date of Birth</span><span className="font-bold">{plan.date_of_birth || "—"}</span></div>
+                    <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Primary Diagnosis</span><span className="font-bold text-blue-700">{plan.diagnosis}</span></div>
+                    <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Neurologist / GP</span><span className="font-bold">{plan.neurologist || "—"}</span></div>
+                    <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Review Date</span><span className="font-bold text-rose-600">{plan.review_date || "—"}</span></div>
+                  </div>
                 </div>
-                <div className="p-6 space-y-6">
-                  {plan.warning_signs && <div className="bg-amber-50 border-2 border-amber-300 rounded-xl p-4"><p className="text-[10px] font-black text-amber-800 uppercase mb-2">⚠️ Warning Signs / Aura</p><p className="text-sm text-amber-900 font-medium">{plan.warning_signs}</p></div>}
-                  {plan.known_triggers && <div className="bg-blue-50 border border-blue-200 rounded-xl p-4"><p className="text-[10px] font-black text-blue-700 uppercase mb-2">Known Triggers</p><p className="text-sm text-blue-800">{plan.known_triggers}</p></div>}
-                  {plan.postictal_description && <div className="bg-purple-50 border border-purple-200 rounded-xl p-4"><p className="text-[10px] font-black text-purple-700 uppercase mb-2">Post-Ictal State</p><p className="text-sm text-purple-800">{plan.postictal_description}</p></div>}
-                  {plan.emergency_steps && plan.emergency_steps.length > 0 && <div><h2 className="text-sm font-black text-rose-700 uppercase tracking-widest mb-3">🚨 Emergency Response Steps</h2><ol className="space-y-2">{plan.emergency_steps.map((step, i) => <li key={i} className="flex gap-3 bg-rose-50 rounded-lg p-3"><span className="w-6 h-6 bg-rose-600 text-white rounded text-xs font-black flex items-center justify-center shrink-0">{i + 1}</span><span className="text-sm text-rose-900">{step}</span></li>)}</ol></div>}
-                  {plan.rescue_medication_name && <div className="bg-red-50 border-2 border-red-500 rounded-xl p-4"><p className="text-[10px] font-black text-red-700 uppercase mb-2">💊 Rescue Medication</p><div className="space-y-1"><p className="font-black text-red-900">{plan.rescue_medication_name}</p><p className="text-sm text-red-800"><span className="font-bold">Dose:</span> {plan.rescue_dose}</p><p className="text-sm text-red-800"><span className="font-bold">Route:</span> {plan.rescue_route}</p>{plan.rescue_when && <p className="text-sm text-red-800"><span className="font-bold">When:</span> {plan.rescue_when}</p>}</div></div>}
-                  {plan.call_000_if && plan.call_000_if.length > 0 && <div className="bg-red-50 border border-red-200 rounded-xl p-4"><p className="text-[10px] font-black text-red-700 uppercase mb-3">📞 Call 000 If...</p><ul className="space-y-1.5">{plan.call_000_if.map((cond, i) => <li key={i} className="flex gap-2 text-sm text-red-800"><span className="font-black">•</span>{cond}</li>)}</ul></div>}
-                  {plan.do_not_do && plan.do_not_do.length > 0 && <div className="bg-slate-50 border border-slate-200 rounded-xl p-4"><p className="text-[10px] font-black text-slate-700 uppercase mb-3">⛔ Do NOT Do</p><ul className="space-y-1.5">{plan.do_not_do.map((item, i) => <li key={i} className="flex gap-2 text-sm text-slate-700"><span className="font-black">✗</span>{item}</li>)}</ul></div>}
-                  {plan.daily_strategies && plan.daily_strategies.length > 0 && <div><h2 className="text-sm font-black text-emerald-700 uppercase tracking-widest mb-3">Daily Support Strategies</h2><ul className="space-y-2">{plan.daily_strategies.map((strategy, i) => <li key={i} className="flex gap-2.5 bg-emerald-50 rounded-lg p-3 text-sm text-emerald-900"><span className="text-lg">✓</span>{strategy}</li>)}</ul></div>}
-                  {plan.risk_strategies && plan.risk_strategies.length > 0 && <div><h2 className="text-sm font-black text-orange-700 uppercase tracking-widest mb-3">Risk Management</h2><ul className="space-y-2">{plan.risk_strategies.map((strategy, i) => <li key={i} className="flex gap-2.5 bg-orange-50 rounded-lg p-3 text-sm text-orange-900"><span className="text-lg">🛡️</span>{strategy}</li>)}</ul></div>}
-                  {plan.approved_by && <div className="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center"><p className="text-sm font-black">Approved By</p><p className="text-base font-bold">{plan.approved_by}</p></div>}
+
+                {/* 2. Seizure Profile */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                  <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
+                    <h2 className="font-black text-lg flex items-center gap-2">⚠️ 2. SEIZURE PROFILE</h2>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                      <tbody className="divide-y divide-slate-100">
+                        {plan.typical_duration && <tr><td className="px-6 py-4 font-bold text-slate-600 w-1/3">Typical Duration</td><td className="px-6 py-4">{plan.typical_duration}</td></tr>}
+                        {plan.known_triggers && <tr><td className="px-6 py-4 font-bold text-slate-600">Known Triggers</td><td className="px-6 py-4">{plan.known_triggers}</td></tr>}
+                        {plan.warning_signs && <tr><td className="px-6 py-4 font-bold text-slate-600">Warning Signs (Aura)</td><td className="px-6 py-4 italic text-amber-700">{plan.warning_signs}</td></tr>}
+                        {plan.postictal_description && <tr><td className="px-6 py-4 font-bold text-slate-600">Post-Seizure Symptoms</td><td className="px-6 py-4">{plan.postictal_description}</td></tr>}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* 3. Emergency Response Plan */}
+                <div className="bg-white rounded-2xl shadow-md border-2 border-rose-200 overflow-hidden">
+                  <div className="bg-gradient-to-r from-rose-600 to-rose-900 text-white px-6 py-4">
+                    <h2 className="font-black text-xl flex items-center gap-2">🚨 3. EMERGENCY RESPONSE PLAN (CRITICAL)</h2>
+                  </div>
+                  <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    <div>
+                      <h3 className="text-rose-700 font-black uppercase tracking-wider mb-4 border-b pb-2">🔴 IF SEIZURE OCCURS:</h3>
+                      <ol className="space-y-3 list-decimal list-inside font-medium text-sm">
+                        {(plan.emergency_steps || []).map((step, i) => <li key={i} className="pl-2 text-slate-700">{step}</li>)}
+                      </ol>
+                    </div>
+                    <div className="bg-rose-50 p-5 rounded-lg border border-rose-100">
+                      <h3 className="text-rose-800 font-black uppercase tracking-wider mb-4 flex items-center gap-2">🚑 CALL 000 IF:</h3>
+                      <ul className="space-y-2 font-bold text-rose-900 text-sm">
+                        {(plan.call_000_if || []).map((cond, i) => <li key={i} className="flex gap-2"><span>•</span>{cond}</li>)}
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Medication Management */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                  <div className="bg-blue-50 px-6 py-3 border-b border-blue-100">
+                    <h2 className="font-black text-lg text-blue-900 flex items-center gap-2">💊 4. MEDICATION MANAGEMENT</h2>
+                  </div>
+                  <div className="p-6 space-y-6">
+                    {plan.rescue_medication_name && (
+                      <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+                        <h3 className="font-black text-amber-800 mb-3 flex items-center gap-2">🔹 RESCUE MEDICATION (Emergency Only)</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                          <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Medication</span><span className="font-black">{plan.rescue_medication_name}</span></div>
+                          <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Trigger</span><span className="font-black text-rose-700">{plan.rescue_when || "> 5 mins seizure"}</span></div>
+                          <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Dose</span><span className="font-black">{plan.rescue_dose}</span></div>
+                          <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Method</span><span className="font-black">{plan.rescue_route}</span></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* 5 & 6. Strategies and Risk */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
+                      <h2 className="font-black text-lg flex items-center gap-2">🧠 5. DAILY SUPPORT</h2>
+                    </div>
+                    <div className="p-6 space-y-3 text-sm text-slate-700">
+                      {(plan.daily_strategies || []).slice(0, 3).map((s, i) => <p key={i}><strong>{s.split(":")[0]}:</strong> {s.split(":")[1] || s}</p>)}
+                    </div>
+                  </div>
+                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
+                      <h2 className="font-black text-lg flex items-center gap-2">🛡️ 6. RISK MANAGEMENT</h2>
+                    </div>
+                    <div className="p-6 space-y-3 text-sm text-slate-700">
+                      {(plan.risk_strategies || []).slice(0, 3).map((s, i) => <p key={i}><span className="inline-block w-4 h-4 bg-amber-200 rounded mr-2"></span><strong>{s.split(":")[0]}:</strong> {s.split(":")[1] || s}</p>)}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 8. Signatures */}
+                <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+                  <h2 className="font-black text-lg mb-6 border-b pb-2">✍️ 8. APPROVAL & SIGN-OFF</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-12">
+                    <div className="border-t border-slate-300 pt-2">
+                      <p className="text-xs font-black text-slate-500 uppercase">Practitioner</p>
+                      <div className="h-12"></div>
+                    </div>
+                    <div className="border-t border-slate-300 pt-2">
+                      <p className="text-xs font-black text-slate-500 uppercase">Doctor / Neurologist</p>
+                      <div className="h-12"></div>
+                    </div>
+                    <div className="border-t border-slate-300 pt-2">
+                      <p className="text-xs font-black text-slate-500 uppercase">Support Worker</p>
+                      <div className="h-12"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
