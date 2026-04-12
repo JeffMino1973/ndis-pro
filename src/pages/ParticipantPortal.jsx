@@ -4,7 +4,7 @@ import {
   ShieldCheck, FileText, Receipt, ClipboardList, CheckCircle, PenLine,
   Loader2, User, Target, AlertTriangle, MessageSquareWarning, Navigation, Pencil,
   ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File, Circle, Menu, Pill,
-  ChevronDown, ChevronUp, BarChart3, BookOpen, Printer, Pencil as PencilIcon
+  ChevronDown, ChevronUp, BarChart3, BookOpen, Printer
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -211,6 +211,11 @@ export default function ParticipantPortal() {
   const [editingProfile, setEditingProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({});
   const [savingProfile, setSavingProfile] = useState(false);
+
+  // Epilepsy plan editing
+  const [editingEpilepsyId, setEditingEpilepsyId] = useState(null);
+  const [epilepsyForm, setEpilepsyForm] = useState({});
+  const [savingEpilepsy, setSavingEpilepsy] = useState(false);
 
   // Complaint form
   const [complaintForm, setComplaintForm] = useState({ complaint_type: "Service Delivery", description: "", priority: "Medium" });
@@ -821,8 +826,22 @@ export default function ParticipantPortal() {
                 <AlertTriangle size={36} className="text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500 text-sm">No epilepsy management plan on file.</p>
               </div>
-            ) : epilepsyPlans.map(plan => (
+            ) : epilepsyPlans.map(plan => {
+              const isEditing = editingEpilepsyId === plan.id;
+              const form = isEditing ? epilepsyForm : plan;
+              return (
               <div key={plan.id} className="space-y-6">
+                {editingEpilepsyId === plan.id && (
+                  <div className="flex gap-2 mb-4">
+                    <Button size="sm" onClick={async () => { setSavingEpilepsy(true); await base44.entities.EpilepsyPlan.update(editingEpilepsyId, epilepsyForm); await handleLookup(); setEditingEpilepsyId(null); setSavingEpilepsy(false); }} className="rounded-lg gap-1 font-bold" disabled={savingEpilepsy}><Save size={14} /> Save</Button>
+                    <Button size="sm" variant="outline" onClick={() => setEditingEpilepsyId(null)} className="rounded-lg">Cancel</Button>
+                  </div>
+                )}
+                {!isEditing && (
+                  <div className="flex justify-end">
+                    <Button size="sm" onClick={() => { setEditingEpilepsyId(plan.id); setEpilepsyForm({...plan}); }} className="rounded-lg gap-1 font-bold"><Pencil size={14} /> Edit Plan</Button>
+                  </div>
+                )}
                 {/* Header */}
                 <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                   <div className="p-6 sm:p-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -840,13 +859,27 @@ export default function ParticipantPortal() {
                   <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
                     <h2 className="font-black text-lg flex items-center gap-2">🧍 1. PARTICIPANT DETAILS</h2>
                   </div>
-                  <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                    <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Participant Name</span><span className="font-black">{plan.participant_name}</span></div>
-                    <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">NDIS Number</span><span className="font-bold">{plan.ndis_number || "—"}</span></div>
-                    <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Date of Birth</span><span className="font-bold">{plan.date_of_birth || "—"}</span></div>
-                    <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Primary Diagnosis</span><span className="font-bold text-blue-700">{plan.diagnosis}</span></div>
-                    <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Neurologist / GP</span><span className="font-bold">{plan.neurologist || "—"}</span></div>
-                    <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Review Date</span><span className="font-bold text-rose-600">{plan.review_date || "—"}</span></div>
+                  <div className="p-6 space-y-4">
+                  {isEditing ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div><Label className="text-xs">Participant Name</Label><Input value={form.participant_name} onChange={e => setEpilepsyForm({...form, participant_name: e.target.value})} className="mt-1" /></div>
+                      <div><Label className="text-xs">NDIS Number</Label><Input value={form.ndis_number} onChange={e => setEpilepsyForm({...form, ndis_number: e.target.value})} className="mt-1" /></div>
+                      <div><Label className="text-xs">Date of Birth</Label><Input type="date" value={form.date_of_birth} onChange={e => setEpilepsyForm({...form, date_of_birth: e.target.value})} className="mt-1" /></div>
+                      <div><Label className="text-xs">Diagnosis</Label><Input value={form.diagnosis} onChange={e => setEpilepsyForm({...form, diagnosis: e.target.value})} className="mt-1" /></div>
+                      <div><Label className="text-xs">Neurologist / GP</Label><Input value={form.neurologist} onChange={e => setEpilepsyForm({...form, neurologist: e.target.value})} className="mt-1" /></div>
+                      <div><Label className="text-xs">Neurologist Phone</Label><Input value={form.neurologist_phone} onChange={e => setEpilepsyForm({...form, neurologist_phone: e.target.value})} className="mt-1" /></div>
+                      <div className="md:col-span-2"><Label className="text-xs">Review Date</Label><Input type="date" value={form.review_date} onChange={e => setEpilepsyForm({...form, review_date: e.target.value})} className="mt-1" /></div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                      <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Participant Name</span><span className="font-black">{form.participant_name}</span></div>
+                      <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">NDIS Number</span><span className="font-bold">{form.ndis_number || "—"}</span></div>
+                      <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Date of Birth</span><span className="font-bold">{form.date_of_birth || "—"}</span></div>
+                      <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Primary Diagnosis</span><span className="font-bold text-blue-700">{form.diagnosis}</span></div>
+                      <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Neurologist / GP</span><span className="font-bold">{form.neurologist || "—"}</span></div>
+                      <div className="flex justify-between border-b border-slate-100 pb-2"><span className="font-bold text-slate-600">Review Date</span><span className="font-bold text-rose-600">{form.review_date || "—"}</span></div>
+                    </div>
+                  )}
                   </div>
                 </div>
 
@@ -855,16 +888,26 @@ export default function ParticipantPortal() {
                   <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
                     <h2 className="font-black text-lg flex items-center gap-2">⚠️ 2. SEIZURE PROFILE</h2>
                   </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left">
-                      <tbody className="divide-y divide-slate-100">
-                        {plan.typical_duration && <tr><td className="px-6 py-4 font-bold text-slate-600 w-1/3">Typical Duration</td><td className="px-6 py-4">{plan.typical_duration}</td></tr>}
-                        {plan.known_triggers && <tr><td className="px-6 py-4 font-bold text-slate-600">Known Triggers</td><td className="px-6 py-4">{plan.known_triggers}</td></tr>}
-                        {plan.warning_signs && <tr><td className="px-6 py-4 font-bold text-slate-600">Warning Signs (Aura)</td><td className="px-6 py-4 italic text-amber-700">{plan.warning_signs}</td></tr>}
-                        {plan.postictal_description && <tr><td className="px-6 py-4 font-bold text-slate-600">Post-Seizure Symptoms</td><td className="px-6 py-4">{plan.postictal_description}</td></tr>}
-                      </tbody>
-                    </table>
-                  </div>
+                  {isEditing ? (
+                    <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div><Label className="text-xs">Seizure Types</Label><Textarea value={form.seizure_types} onChange={e => setEpilepsyForm({...form, seizure_types: e.target.value})} className="mt-1 min-h-[60px]" /></div>
+                      <div><Label className="text-xs">Typical Duration</Label><Input value={form.typical_duration} onChange={e => setEpilepsyForm({...form, typical_duration: e.target.value})} className="mt-1" /></div>
+                      <div><Label className="text-xs">Warning Signs / Aura</Label><Textarea value={form.warning_signs} onChange={e => setEpilepsyForm({...form, warning_signs: e.target.value})} className="mt-1 min-h-[60px]" /></div>
+                      <div><Label className="text-xs">Known Triggers</Label><Textarea value={form.known_triggers} onChange={e => setEpilepsyForm({...form, known_triggers: e.target.value})} className="mt-1 min-h-[60px]" /></div>
+                      <div className="md:col-span-2"><Label className="text-xs">Post-Seizure Description</Label><Textarea value={form.postictal_description} onChange={e => setEpilepsyForm({...form, postictal_description: e.target.value})} className="mt-1 min-h-[60px]" /></div>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left">
+                        <tbody className="divide-y divide-slate-100">
+                          {form.typical_duration && <tr><td className="px-6 py-4 font-bold text-slate-600 w-1/3">Typical Duration</td><td className="px-6 py-4">{form.typical_duration}</td></tr>}
+                          {form.known_triggers && <tr><td className="px-6 py-4 font-bold text-slate-600">Known Triggers</td><td className="px-6 py-4">{form.known_triggers}</td></tr>}
+                          {form.warning_signs && <tr><td className="px-6 py-4 font-bold text-slate-600">Warning Signs (Aura)</td><td className="px-6 py-4 italic text-amber-700">{form.warning_signs}</td></tr>}
+                          {form.postictal_description && <tr><td className="px-6 py-4 font-bold text-slate-600">Post-Seizure Symptoms</td><td className="px-6 py-4">{form.postictal_description}</td></tr>}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
                 </div>
 
                 {/* 3. Emergency Response Plan */}
@@ -872,20 +915,28 @@ export default function ParticipantPortal() {
                   <div className="bg-gradient-to-r from-rose-600 to-rose-900 text-white px-6 py-4">
                     <h2 className="font-black text-xl flex items-center gap-2">🚨 3. EMERGENCY RESPONSE PLAN (CRITICAL)</h2>
                   </div>
-                  <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-8">
-                    <div>
-                      <h3 className="text-rose-700 font-black uppercase tracking-wider mb-4 border-b pb-2">🔴 IF SEIZURE OCCURS:</h3>
-                      <ol className="space-y-3 list-decimal list-inside font-medium text-sm">
-                        {(plan.emergency_steps || []).map((step, i) => <li key={i} className="pl-2 text-slate-700">{step}</li>)}
-                      </ol>
+                  {isEditing ? (
+                    <div className="p-6 space-y-4">
+                      <div><Label className="text-xs">Emergency Steps (one per line)</Label><Textarea value={(form.emergency_steps || []).join('\n')} onChange={e => setEpilepsyForm({...form, emergency_steps: e.target.value.split('\n').filter(Boolean)})} className="mt-1 min-h-[100px]" /></div>
+                      <div><Label className="text-xs">Call 000 If... (one per line)</Label><Textarea value={(form.call_000_if || []).join('\n')} onChange={e => setEpilepsyForm({...form, call_000_if: e.target.value.split('\n').filter(Boolean)})} className="mt-1 min-h-[80px]" /></div>
+                      <div><Label className="text-xs">Do NOT Do (one per line)</Label><Textarea value={(form.do_not_do || []).join('\n')} onChange={e => setEpilepsyForm({...form, do_not_do: e.target.value.split('\n').filter(Boolean)})} className="mt-1 min-h-[80px]" /></div>
                     </div>
-                    <div className="bg-rose-50 p-5 rounded-lg border border-rose-100">
-                      <h3 className="text-rose-800 font-black uppercase tracking-wider mb-4 flex items-center gap-2">🚑 CALL 000 IF:</h3>
-                      <ul className="space-y-2 font-bold text-rose-900 text-sm">
-                        {(plan.call_000_if || []).map((cond, i) => <li key={i} className="flex gap-2"><span>•</span>{cond}</li>)}
-                      </ul>
+                  ) : (
+                    <div className="p-6 grid grid-cols-1 sm:grid-cols-2 gap-8">
+                      <div>
+                        <h3 className="text-rose-700 font-black uppercase tracking-wider mb-4 border-b pb-2">🔴 IF SEIZURE OCCURS:</h3>
+                        <ol className="space-y-3 list-decimal list-inside font-medium text-sm">
+                          {(form.emergency_steps || []).map((step, i) => <li key={i} className="pl-2 text-slate-700">{step}</li>)}
+                        </ol>
+                      </div>
+                      <div className="bg-rose-50 p-5 rounded-lg border border-rose-100">
+                        <h3 className="text-rose-800 font-black uppercase tracking-wider mb-4 flex items-center gap-2">🚑 CALL 000 IF:</h3>
+                        <ul className="space-y-2 font-bold text-rose-900 text-sm">
+                          {(form.call_000_if || []).map((cond, i) => <li key={i} className="flex gap-2"><span>•</span>{cond}</li>)}
+                        </ul>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
 
                 {/* 4. Medication Management */}
@@ -894,16 +945,25 @@ export default function ParticipantPortal() {
                     <h2 className="font-black text-lg text-blue-900 flex items-center gap-2">💊 4. MEDICATION MANAGEMENT</h2>
                   </div>
                   <div className="p-6 space-y-6">
-                    {plan.rescue_medication_name && (
-                      <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
-                        <h3 className="font-black text-amber-800 mb-3 flex items-center gap-2">🔹 RESCUE MEDICATION (Emergency Only)</h3>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                          <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Medication</span><span className="font-black">{plan.rescue_medication_name}</span></div>
-                          <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Trigger</span><span className="font-black text-rose-700">{plan.rescue_when || "> 5 mins seizure"}</span></div>
-                          <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Dose</span><span className="font-black">{plan.rescue_dose}</span></div>
-                          <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Method</span><span className="font-black">{plan.rescue_route}</span></div>
-                        </div>
+                    {isEditing ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div><Label className="text-xs">Rescue Medication Name</Label><Input value={form.rescue_medication_name} onChange={e => setEpilepsyForm({...form, rescue_medication_name: e.target.value})} className="mt-1" /></div>
+                        <div><Label className="text-xs">Dose</Label><Input value={form.rescue_dose} onChange={e => setEpilepsyForm({...form, rescue_dose: e.target.value})} className="mt-1" /></div>
+                        <div><Label className="text-xs">Route</Label><Input value={form.rescue_route} onChange={e => setEpilepsyForm({...form, rescue_route: e.target.value})} className="mt-1" /></div>
+                        <div><Label className="text-xs">When to Give</Label><Input value={form.rescue_when} onChange={e => setEpilepsyForm({...form, rescue_when: e.target.value})} className="mt-1" /></div>
                       </div>
+                    ) : (
+                      form.rescue_medication_name && (
+                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
+                          <h3 className="font-black text-amber-800 mb-3 flex items-center gap-2">🔹 RESCUE MEDICATION (Emergency Only)</h3>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                            <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Medication</span><span className="font-black">{form.rescue_medication_name}</span></div>
+                            <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Trigger</span><span className="font-black text-rose-700">{form.rescue_when || "> 5 mins seizure"}</span></div>
+                            <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Dose</span><span className="font-black">{form.rescue_dose}</span></div>
+                            <div className="flex justify-between border-b border-amber-100 pb-1"><span className="text-amber-700 font-bold">Method</span><span className="font-black">{form.rescue_route}</span></div>
+                          </div>
+                        </div>
+                      )
                     )}
                   </div>
                 </div>
@@ -915,20 +975,28 @@ export default function ParticipantPortal() {
                       <h2 className="font-black text-lg flex items-center gap-2">🧠 5. DAILY SUPPORT</h2>
                     </div>
                     <div className="p-6 space-y-3 text-sm text-slate-700">
-                      {(plan.daily_strategies || []).slice(0, 3).map((s, i) => <p key={i}><strong>{s.split(":")[0]}:</strong> {s.split(":")[1] || s}</p>)}
+                      {isEditing ? (
+                        <Textarea value={(form.daily_strategies || []).join('\n')} onChange={e => setEpilepsyForm({...form, daily_strategies: e.target.value.split('\n').filter(Boolean)})} className="min-h-[80px]" />
+                      ) : (
+                        (form.daily_strategies || []).map((s, i) => <p key={i}><strong>{s.split(":")[0]}:</strong> {s.split(":")[1] || s}</p>)
+                      )}
                     </div>
-                  </div>
-                  <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+                    </div>
+                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                     <div className="bg-slate-100 px-6 py-3 border-b border-slate-200">
                       <h2 className="font-black text-lg flex items-center gap-2">🛡️ 6. RISK MANAGEMENT</h2>
                     </div>
                     <div className="p-6 space-y-3 text-sm text-slate-700">
-                      {(plan.risk_strategies || []).slice(0, 3).map((s, i) => <p key={i}><span className="inline-block w-4 h-4 bg-amber-200 rounded mr-2"></span><strong>{s.split(":")[0]}:</strong> {s.split(":")[1] || s}</p>)}
+                      {isEditing ? (
+                        <Textarea value={(form.risk_strategies || []).join('\n')} onChange={e => setEpilepsyForm({...form, risk_strategies: e.target.value.split('\n').filter(Boolean)})} className="min-h-[80px]" />
+                      ) : (
+                        (form.risk_strategies || []).map((s, i) => <p key={i}><span className="inline-block w-4 h-4 bg-amber-200 rounded mr-2"></span><strong>{s.split(":")[0]}:</strong> {s.split(":")[1] || s}</p>)
+                      )}
                     </div>
-                  </div>
-                </div>
-              </div>
-            ))}
+                    </div>
+                    </div>
+                    );
+                    })}
           </div>
         )}
 
@@ -954,9 +1022,9 @@ export default function ParticipantPortal() {
                 <div className="p-6 space-y-6">
                   {[{id:"green",label:"🟢 Green Zone — Proactive Strategies",items:[...(plan.green_zone_environmental||[]),...(plan.green_zone_skills||[])],cls:"bg-emerald-50 border-emerald-200 text-emerald-900"},{id:"yellow",label:"🟡 Yellow Zone — Warning Signs & Responses",items:[...(plan.yellow_zone_signs||[]),...(plan.yellow_zone_responses||[])],cls:"bg-amber-50 border-amber-200 text-amber-900"},{id:"red",label:"🔴 Red Zone — Reactive Crisis Strategies",items:plan.red_zone_strategies||[],cls:"bg-rose-50 border-rose-200 text-rose-900"},{id:"blue",label:"🔵 Blue Zone — Post-Crisis Recovery",items:plan.blue_zone_recovery||[],cls:"bg-blue-50 border-blue-200 text-blue-900"}].filter(z=>(z.items||[]).filter(Boolean).length>0).map(z => <div key={z.id}><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">{z.label}</h2><div className={`border-2 rounded-xl p-4 ${z.cls}`}><ul className="space-y-2">{z.items.filter(Boolean).map((item,i) => <li key={i} className="text-sm flex gap-2.5 font-medium"><span className="font-black">•</span>{item}</li>)}</ul></div></div>)}
                   {(plan.communication_board||[]).length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Communication Board</h2><div className="grid grid-cols-3 sm:grid-cols-4 gap-2">{plan.communication_board.map((item,i) => <div key={i} className="bg-slate-100 border border-slate-300 rounded-lg p-3 flex flex-col items-center justify-center text-center"><span className="text-2xl mb-1">{item.emoji}</span><p className="text-[11px] font-bold text-slate-800 leading-tight">{item.label}</p></div>)}</div></div>}
-                </div>
-              </div>
-            ))}
+                  </div>
+                  </div>
+                  ))
           </div>
         )}
 
