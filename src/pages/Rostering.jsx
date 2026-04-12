@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, ChevronLeft, ChevronRight, Calendar, Pencil, Trash2 } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Calendar, Pencil, Trash2, Copy, RefreshCw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,6 +23,12 @@ export default function Rostering() {
   const [staff, setStaff] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [showCopyDialog, setShowCopyDialog] = useState(false);
+  const [copySource, setCopySource] = useState(null);
+  const [copyMode, setCopyMode] = useState("date"); // "date" | "nextweek" | "recurring"
+  const [copyDate, setCopyDate] = useState("");
+  const [recurWeeks, setRecurWeeks] = useState(4);
+  const [copying, setCopying] = useState(false);
   const [form, setForm] = useState({ participant_name: "", staff_name: "", date: "", start_time: "09:00", end_time: "11:00", support_type: "", status: "Scheduled", notes: "" });
 
   const load = async () => {
@@ -64,6 +70,37 @@ export default function Rostering() {
   };
 
   const update = (f, v) => setForm(p => ({ ...p, [f]: v }));
+
+  const openCopy = (shift) => {
+    setCopySource(shift);
+    setCopyMode("nextweek");
+    setCopyDate("");
+    setRecurWeeks(4);
+    setShowCopyDialog(true);
+  };
+
+  const executeCopy = async () => {
+    if (!copySource) return;
+    setCopying(true);
+    const base = { participant_name: copySource.participant_name, staff_name: copySource.staff_name, start_time: copySource.start_time, end_time: copySource.end_time, support_type: copySource.support_type || "", status: "Scheduled", notes: copySource.notes || "" };
+    if (copyMode === "date") {
+      await base44.entities.Shift.create({ ...base, date: copyDate });
+    } else if (copyMode === "nextweek") {
+      const next = addDays(parseISO(copySource.date), 7);
+      await base44.entities.Shift.create({ ...base, date: format(next, "yyyy-MM-dd") });
+    } else if (copyMode === "recurring") {
+      const creates = [];
+      for (let w = 1; w <= recurWeeks; w++) {
+        const d = addDays(parseISO(copySource.date), w * 7);
+        creates.push(base44.entities.Shift.create({ ...base, date: format(d, "yyyy-MM-dd") }));
+      }
+      await Promise.all(creates);
+    }
+    setCopying(false);
+    setShowCopyDialog(false);
+    setCopySource(null);
+    load();
+  };
 
   const getShiftsForDay = (day) => shifts.filter(s => {
     try { return isSameDay(parseISO(s.date), day); } catch { return false; }
@@ -109,6 +146,7 @@ export default function Rostering() {
                     <p className="truncate opacity-75">{s.participant_name}</p>
                     <p>{s.start_time}–{s.end_time}</p>
                     <div className="absolute top-1 right-1 hidden group-hover:flex gap-0.5">
+                      <button onClick={e => { e.stopPropagation(); openCopy(s); }} className="p-0.5 bg-white/70 rounded hover:bg-white text-blue-600" title="Copy/Repeat"><Copy size={10} /></button>
                       <button onClick={e => { e.stopPropagation(); openEdit(s); }} className="p-0.5 bg-white/70 rounded hover:bg-white"><Pencil size={10} /></button>
                       <button onClick={e => { e.stopPropagation(); deleteShift(s.id); }} className="p-0.5 bg-white/70 rounded hover:bg-white text-rose-600"><Trash2 size={10} /></button>
                     </div>
@@ -137,6 +175,7 @@ export default function Rostering() {
               </div>
               <div className="flex items-center gap-2">
                 <span className={`text-[10px] font-black px-3 py-1 rounded-full ${STATUS_COLORS[s.status]}`}>{s.status}</span>
+                <button onClick={() => openCopy(s)} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-blue-600" title="Copy/Repeat"><Copy size={14} /></button>
                 <button onClick={() => openEdit(s)} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground"><Pencil size={14} /></button>
                 <button onClick={() => deleteShift(s.id)} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-rose-600"><Trash2 size={14} /></button>
               </div>
@@ -191,6 +230,76 @@ export default function Rostering() {
             </div>
             <Button onClick={save} disabled={!form.staff_name || !form.participant_name || !form.date} className="w-full rounded-xl font-bold">Save Shift</Button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Copy / Recurring Dialog */}
+      <Dialog open={showCopyDialog} onOpenChange={setShowCopyDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Copy size={16} /> Copy / Repeat Shift</DialogTitle>
+          </DialogHeader>
+          {copySource && (
+            <div className="space-y-4">
+              <div className="bg-secondary rounded-xl p-3 text-sm">
+                <p className="font-black">{copySource.staff_name} → {copySource.participant_name}</p>
+                <p className="text-muted-foreground text-xs">{copySource.date} · {copySource.start_time}–{copySource.end_time}</p>
+              </div>
+
+              <div>
+                <Label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2 block">Copy Mode</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: "nextweek", label: "Next Week", icon: ChevronRight },
+                    { id: "date", label: "Specific Date", icon: Calendar },
+                    { id: "recurring", label: "Recurring", icon: RefreshCw },
+                  ].map(m => (
+                    <button key={m.id} onClick={() => setCopyMode(m.id)}
+                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border font-bold text-xs transition-all ${
+                        copyMode === m.id ? "bg-primary/10 border-primary text-primary" : "bg-card border-border text-muted-foreground hover:border-primary/40"
+                      }`}>
+                      <m.icon size={16} />
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {copyMode === "date" && (
+                <div>
+                  <Label>Copy to Date</Label>
+                  <Input type="date" value={copyDate} onChange={e => setCopyDate(e.target.value)} />
+                </div>
+              )}
+
+              {copyMode === "nextweek" && (
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-blue-700">
+                  Will create 1 copy on <strong>{copySource.date ? format(addDays(parseISO(copySource.date), 7), "EEEE d MMM yyyy") : "next week"}</strong>
+                </div>
+              )}
+
+              {copyMode === "recurring" && (
+                <div className="space-y-3">
+                  <div>
+                    <Label>Repeat for how many weeks?</Label>
+                    <Input type="number" min={1} max={52} value={recurWeeks} onChange={e => setRecurWeeks(parseInt(e.target.value) || 1)} />
+                  </div>
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-blue-700">
+                    Will create <strong>{recurWeeks} shifts</strong> every week on the same day/time.
+                  </div>
+                </div>
+              )}
+
+              <Button
+                onClick={executeCopy}
+                disabled={copying || (copyMode === "date" && !copyDate)}
+                className="w-full rounded-xl font-bold gap-2"
+              >
+                {copying ? <Loader2 size={15} className="animate-spin" /> : <Copy size={15} />}
+                {copying ? "Creating shifts..." : `Create ${copyMode === "recurring" ? recurWeeks + " Shifts" : "1 Copy"}`}
+              </Button>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>
