@@ -173,9 +173,8 @@ const TABS = [
   { id: "medications", label: "Medications", icon: Star },
   { id: "epilepsy", label: "Epilepsy Plan", icon: AlertTriangle },
   { id: "pbsp", label: "Behaviour Plan", icon: MessageSquareWarning },
-  { id: "risks", label: "Risk Assessments", icon: AlertTriangle },
+  { id: "travel_risk", label: "Travel Risk Assessment", icon: Navigation },
   { id: "reports", label: "Session Notes", icon: Navigation },
-  { id: "travel", label: "Travel Guides", icon: Navigation },
   { id: "complaint", label: "Lodge Complaint", icon: MessageSquareWarning },
 ];
 
@@ -978,8 +977,8 @@ export default function ParticipantPortal() {
           </div>
         )}
 
-        {/* RISK ASSESSMENTS TAB */}
-        {activeTab === "risks" && (() => {
+        {/* TRAVEL RISK ASSESSMENT TAB */}
+        {activeTab === "travel_risk" && (() => {
           const RaF = ({ label, field, type = "text", placeholder = "" }) => (
             <div><Label className="text-xs">{label}</Label><Input type={type} value={raForm[field]} onChange={e => raSet(field, e.target.value)} placeholder={placeholder} className="mt-1" /></div>
           );
@@ -1112,12 +1111,11 @@ export default function ParticipantPortal() {
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div><h2 className="text-2xl font-black tracking-tight">Implementation Programs</h2><p className="text-slate-500 text-sm">Support worker phased implementation & skill tracking.</p></div>
                 <div className="flex gap-2">
-                  <Button variant="outline" onClick={() => ipStartNew(IP_BRONWYN_TEMPLATE)} className="rounded-xl font-bold gap-2 text-sm"><BookOpen size={15} /> Import Bronwyn's Program</Button>
-                  <Button onClick={() => ipStartNew()} className="rounded-xl font-bold gap-2"><Plus size={15} /> New Program</Button>
-                </div>
+                   <Button onClick={() => ipStartNew()} className="rounded-xl font-bold gap-2"><Plus size={15} /> New Program</Button>
+                 </div>
               </div>
               {ipPrograms.length === 0 ? (
-                <div className="bg-white border border-dashed border-slate-300 rounded-3xl p-16 text-center"><ClipboardList size={48} className="text-slate-300 mx-auto mb-4" /><h3 className="font-black text-xl mb-2">No Programs Yet</h3><p className="text-slate-500 text-sm mb-6">Create a new program or import Bronwyn's template.</p><div className="flex gap-2 justify-center"><Button onClick={() => ipStartNew()} className="rounded-xl font-bold gap-2"><Plus size={15} /> New Program</Button><Button onClick={() => ipStartNew(IP_BRONWYN_TEMPLATE)} variant="outline" className="rounded-xl font-bold gap-2"><BookOpen size={15} /> Import Bronwyn</Button></div></div>
+                 <div className="bg-white border border-dashed border-slate-300 rounded-3xl p-16 text-center"><ClipboardList size={48} className="text-slate-300 mx-auto mb-4" /><h3 className="font-black text-xl mb-2">No Programs Yet</h3><p className="text-slate-500 text-sm mb-6">Create a new program to get started.</p><div className="flex gap-2 justify-center"><Button onClick={() => ipStartNew()} className="rounded-xl font-bold gap-2"><Plus size={15} /> New Program</Button></div></div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">{ipPrograms.map(prog => (<div key={prog.id} className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-blue-300 hover:shadow-lg transition-all group"><div className="flex items-start justify-between gap-2 mb-3"><div className="cursor-pointer flex-1" onClick={() => { setIpSelected(prog); setIpView("detail"); }}><h3 className="font-black text-slate-900">{prog.participant_name}</h3><span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${prog.status === "Active" ? "bg-emerald-100 text-emerald-700" : prog.status === "Completed" ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-600"}`}>{prog.status}</span></div><div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all shrink-0"><button onClick={(e) => { e.stopPropagation(); ipEditProgram(prog); }} className="text-slate-400 hover:text-blue-600 p-1" title="Edit"><Pencil size={14} /></button><button onClick={(e) => { e.stopPropagation(); ipDelete(prog.id, prog.participant_name); }} className="text-slate-400 hover:text-red-600 p-1" title="Delete"><Trash2 size={14} /></button></div></div><div className="cursor-pointer" onClick={() => { setIpSelected(prog); setIpView("detail"); }}><p className="text-xs text-slate-500 mb-4 line-clamp-2">{prog.primary_goal}</p><div className="grid grid-cols-2 gap-3"><div className="bg-slate-100 rounded-xl p-3"><p className="text-xl font-black text-blue-600">{ipCompletedPhases(prog)}/{(prog.phases || []).length}</p><p className="text-[10px] font-bold text-slate-500 uppercase">Phases</p></div><div className="bg-slate-100 rounded-xl p-3"><p className="text-xl font-black text-emerald-600">{ipCompletedSkills(prog)}/{(prog.skill_targets || []).length}</p><p className="text-[10px] font-bold text-slate-500 uppercase">Skills</p></div></div><div className="mt-4"><div className="flex justify-between text-xs text-slate-500 mb-1"><span>Overall Progress</span><span>{(prog.skill_targets || []).length > 0 ? Math.round(ipCompletedSkills(prog) / (prog.skill_targets || []).length * 100) : 0}%</span></div><div className="h-2 bg-slate-200 rounded-full overflow-hidden"><div className="h-full bg-emerald-500 rounded-full transition-all" style={{ width: `${(prog.skill_targets || []).length > 0 ? Math.round(ipCompletedSkills(prog) / (prog.skill_targets || []).length * 100) : 0}%` }} /></div></div></div></div>))}</div>
               )}
