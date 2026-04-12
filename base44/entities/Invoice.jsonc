@@ -74,6 +74,14 @@
     "notes": {
       "type": "string",
       "title": "Notes"
+    },
+    "acknowledged_by": {
+      "type": "string",
+      "title": "Acknowledged By (Participant)"
+    },
+    "acknowledged_at": {
+      "type": "string",
+      "title": "Acknowledged At"
     }
   },
   "required": [

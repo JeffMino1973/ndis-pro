@@ -48,6 +48,18 @@
         "Terminated"
       ],
       "default": "Draft"
+    },
+    "signed_by": {
+      "type": "string",
+      "title": "Signed By (Participant)"
+    },
+    "signed_at": {
+      "type": "string",
+      "title": "Signed At"
+    },
+    "signature_ip": {
+      "type": "string",
+      "title": "Signature IP"
     }
   },
   "required": [

@@ -82,6 +82,7 @@ const NAV_SECTIONS = [
   {
     title: "System",
     items: [
+      { path: "/participant-portal", label: "Participant Portal", icon: UserCircle },
       { path: "/settings", label: "Settings", icon: Settings },
     ],
   },

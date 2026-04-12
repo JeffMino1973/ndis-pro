@@ -27,6 +27,7 @@ import TobyProfile from './pages/TobyProfile';
 import OnboardingPublicForm from './pages/OnboardingPublicForm';
 import Stationery from './pages/Stationery';
 import Quotes from './pages/Quotes';
+import ParticipantPortal from './pages/ParticipantPortal';
 
 const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin } = useAuth();
@@ -54,29 +55,30 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
+      <Route path="/participant-portal" element={<ParticipantPortal />} />
       <Route element={<Layout />}>
-        <Route path="/" element={<Dashboard />} />
-        <Route path="/participants" element={<Participants />} />
-        <Route path="/staff" element={<Staff />} />
-        <Route path="/risk-assessments" element={<RiskAssessments />} />
-        <Route path="/incidents" element={<Incidents />} />
-        <Route path="/support-plans" element={<SupportPlans />} />
-        <Route path="/service-agreements" element={<ServiceAgreements />} />
-        <Route path="/settings" element={<SettingsPage />} />
-        <Route path="/invoices" element={<Invoices />} />
-        <Route path="/rostering" element={<Rostering />} />
-        <Route path="/timesheets" element={<Timesheets />} />
-        <Route path="/goal-tracking" element={<GoalTracking />} />
-        <Route path="/document-vault" element={<DocumentVault />} />
-        <Route path="/complaints" element={<Complaints />} />
-        <Route path="/audit-checklists" element={<AuditChecklists />} />
-        <Route path="/kpi" element={<KPIDashboard />} />
-        <Route path="/onboarding" element={<OnboardingRequests />} />
-        <Route path="/toby" element={<TobyProfile />} />
-        <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
-        <Route path="/stationery" element={<Stationery />} />
-        <Route path="/quotes" element={<Quotes />} />
-        <Route path="*" element={<PageNotFound />} />
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/participants" element={<Participants />} />
+      <Route path="/staff" element={<Staff />} />
+      <Route path="/risk-assessments" element={<RiskAssessments />} />
+      <Route path="/incidents" element={<Incidents />} />
+      <Route path="/support-plans" element={<SupportPlans />} />
+      <Route path="/service-agreements" element={<ServiceAgreements />} />
+      <Route path="/settings" element={<SettingsPage />} />
+      <Route path="/invoices" element={<Invoices />} />
+      <Route path="/rostering" element={<Rostering />} />
+      <Route path="/timesheets" element={<Timesheets />} />
+      <Route path="/goal-tracking" element={<GoalTracking />} />
+      <Route path="/document-vault" element={<DocumentVault />} />
+      <Route path="/complaints" element={<Complaints />} />
+      <Route path="/audit-checklists" element={<AuditChecklists />} />
+      <Route path="/kpi" element={<KPIDashboard />} />
+      <Route path="/onboarding" element={<OnboardingRequests />} />
+      <Route path="/toby" element={<TobyProfile />} />
+      <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
+      <Route path="/stationery" element={<Stationery />} />
+      <Route path="/quotes" element={<Quotes />} />
+      <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
   );

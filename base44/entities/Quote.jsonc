@@ -75,6 +75,14 @@
     "total": {
       "type": "number",
       "title": "Total"
+    },
+    "signed_by": {
+      "type": "string",
+      "title": "Accepted By (Participant)"
+    },
+    "signed_at": {
+      "type": "string",
+      "title": "Accepted At"
     }
   },
   "required": [
