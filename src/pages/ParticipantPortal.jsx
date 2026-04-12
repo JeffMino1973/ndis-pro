@@ -497,13 +497,30 @@ export default function ParticipantPortal() {
               {(!participant.goals || participant.goals.length === 0) ? (
                 <p className="text-sm text-slate-500 italic">No goals have been set yet. Contact your support coordinator.</p>
               ) : (
-                <div className="space-y-3">
-                  {participant.goals.map((goal, i) => (
-                    <div key={i} className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/10 rounded-xl">
-                      <div className="w-7 h-7 bg-primary text-white rounded-lg flex items-center justify-center text-xs font-black shrink-0 mt-0.5">{i + 1}</div>
-                      <p className="text-sm text-slate-800 font-medium leading-relaxed">{goal}</p>
-                    </div>
-                  ))}
+                <div className="space-y-4">
+                  {participant.goals.map((goal, i) => {
+                    const g = typeof goal === "string" ? { text: goal, progress: 0, status: "In Progress" } : goal;
+                    const pct = g.progress || 0;
+                    const statusColor = g.status === "Achieved" ? "bg-emerald-100 text-emerald-700" : g.status === "On Track" ? "bg-blue-100 text-blue-700" : g.status === "Discontinued" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700";
+                    const barColor = pct >= 80 ? "bg-emerald-500" : pct >= 40 ? "bg-amber-500" : "bg-blue-500";
+                    return (
+                      <div key={i} className="p-4 bg-primary/5 border border-primary/10 rounded-xl space-y-2">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="flex items-start gap-3">
+                            <div className="w-7 h-7 bg-primary text-white rounded-lg flex items-center justify-center text-xs font-black shrink-0 mt-0.5">{i + 1}</div>
+                            <p className="text-sm text-slate-800 font-medium leading-relaxed">{g.text}</p>
+                          </div>
+                          {g.status && <span className={`text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 ${statusColor}`}>{g.status}</span>}
+                        </div>
+                        <div className="flex items-center gap-3 pl-10">
+                          <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
+                          </div>
+                          <span className="text-xs font-black text-slate-600 w-8 text-right">{pct}%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -532,7 +549,7 @@ export default function ParticipantPortal() {
         {activeTab === "risks" && (
           <div className="space-y-4">
             <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-              <p className="text-xs text-amber-700 font-semibold">These risk assessments are shared with you and your family for transparency. They are managed by your support provider.</p>
+              <p className="text-xs text-amber-700 font-semibold">These risk assessments are shared with you for transparency. They are managed by your support provider.</p>
             </div>
             {riskAssessments.length === 0 ? (
               <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
@@ -540,32 +557,84 @@ export default function ParticipantPortal() {
                 <p className="text-slate-500 text-sm">No risk assessments on file.</p>
               </div>
             ) : (
-              riskAssessments.map(ra => (
-                <div key={ra.id} className="bg-white border border-slate-200 rounded-2xl p-6">
-                  <div className="flex justify-between items-start mb-4">
-                    <div>
-                      <p className="font-black text-slate-900">{ra.activity_description}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">Assessor: {ra.assessor_name}</p>
-                    </div>
-                    <span className={`text-[10px] font-black px-2 py-1 rounded-full ${
-                      ra.overall_risk_level === "Low" ? "bg-emerald-100 text-emerald-700" :
-                      ra.overall_risk_level === "Medium" ? "bg-amber-100 text-amber-700" :
-                      ra.overall_risk_level === "High" ? "bg-orange-100 text-orange-700" :
-                      "bg-rose-100 text-rose-700"
-                    }`}>{ra.overall_risk_level} Risk</span>
-                  </div>
-                  {(ra.hazards || []).length > 0 && (
-                    <div className="space-y-2">
-                      {ra.hazards.map((h, i) => (
-                        <div key={i} className="p-3 bg-slate-50 rounded-xl text-xs">
-                          <p className="font-bold text-slate-800">{h.hazard}</p>
-                          {h.controls && <p className="text-slate-500 mt-1">Controls: {h.controls}</p>}
+              riskAssessments.map(ra => {
+                const RISK_COLORS = { Low: "bg-emerald-100 text-emerald-800", Medium: "bg-orange-100 text-orange-800", High: "bg-red-100 text-red-800", Extreme: "bg-red-900 text-white" };
+                return (
+                  <div key={ra.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                    {/* Header */}
+                    <div className="bg-slate-800 text-white px-5 py-4">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-black text-base">{ra.activity_description || ra.title}</p>
+                          <p className="text-slate-400 text-xs mt-0.5">Assessor: {ra.assessor_name}{ra.assessor_role ? ` · ${ra.assessor_role}` : ""}</p>
                         </div>
-                      ))}
+                        <span className={`text-[10px] font-black px-3 py-1 rounded-full shrink-0 ${RISK_COLORS[ra.overall_risk_level] || "bg-slate-200 text-slate-700"}`}>{ra.overall_risk_level} Risk</span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3 text-xs">
+                        {ra.participant_dob && <div><p className="text-slate-500">DOB</p><p className="font-bold">{ra.participant_dob}</p></div>}
+                        {ra.ndis_number && <div><p className="text-slate-500">NDIS</p><p className="font-bold">{ra.ndis_number}</p></div>}
+                        {ra.assessment_date && <div><p className="text-slate-500">Assessed</p><p className="font-bold">{ra.assessment_date}</p></div>}
+                        {ra.review_date && <div><p className="text-slate-500">Review</p><p className="font-bold">{ra.review_date}</p></div>}
+                      </div>
                     </div>
-                  )}
-                </div>
-              ))
+
+                    {/* Destination */}
+                    {(ra.home_address || ra.destination) && (
+                      <div className="px-5 py-3 bg-slate-50 border-b border-slate-200 flex gap-6 text-xs">
+                        {ra.home_address && <span><span className="font-black text-slate-500 uppercase tracking-widest">From: </span>{ra.home_address}</span>}
+                        {ra.destination && <span><span className="font-black text-slate-500 uppercase tracking-widest">To: </span>{ra.destination}</span>}
+                      </div>
+                    )}
+
+                    {/* Hazard table */}
+                    {(ra.hazards || []).length > 0 && (
+                      <div className="p-5">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Hazard Assessment</p>
+                        <div className="space-y-3">
+                          {ra.hazards.map((h, i) => (
+                            <div key={i} className="border border-slate-200 rounded-xl overflow-hidden">
+                              <div className="bg-slate-50 px-4 py-2 flex items-center justify-between">
+                                <p className="text-sm font-bold text-slate-800">{h.hazard}</p>
+                                <div className="flex gap-2">
+                                  <span className={`text-[10px] font-black px-2 py-0.5 rounded ${RISK_COLORS[h.initial_rating] || "bg-slate-100 text-slate-600"}`}>Before: {h.initial_rating}</span>
+                                  <span className={`text-[10px] font-black px-2 py-0.5 rounded ${RISK_COLORS[h.residual_rating] || "bg-slate-100 text-slate-600"}`}>After: {h.residual_rating}</span>
+                                </div>
+                              </div>
+                              {h.controls && (
+                                <div className="px-4 py-2">
+                                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Control Measures</p>
+                                  <p className="text-xs text-slate-600 leading-relaxed">{h.controls}</p>
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Emergency contacts */}
+                    {(ra.emergency_contact_1_name || ra.emergency_contact_2_name) && (
+                      <div className="px-5 pb-5">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Emergency Contacts</p>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {ra.emergency_contact_1_name && (
+                            <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 text-xs">
+                              <p className="font-black text-orange-800">{ra.emergency_contact_1_name}</p>
+                              <p className="text-orange-600">{ra.emergency_contact_1_rel} · {ra.emergency_contact_1_phone}</p>
+                            </div>
+                          )}
+                          {ra.emergency_contact_2_name && (
+                            <div className="bg-orange-50 border border-orange-200 rounded-xl p-3 text-xs">
+                              <p className="font-black text-orange-800">{ra.emergency_contact_2_name}</p>
+                              <p className="text-orange-600">{ra.emergency_contact_2_rel} · {ra.emergency_contact_2_phone}</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
             )}
           </div>
         )}
