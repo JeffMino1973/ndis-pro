@@ -59,7 +59,9 @@ export default function NDISItemSelect({ value, onSelect, placeholder = "Search 
             position: "absolute",
             top: "100%",
             left: 0,
-            right: 0,
+            minWidth: "100%",
+            width: "max-content",
+            maxWidth: "600px",
             zIndex: 99999,
             marginTop: 4,
           }}
