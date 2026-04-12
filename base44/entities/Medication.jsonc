@@ -1,0 +1,128 @@
+{
+  "name": "Medication",
+  "type": "object",
+  "properties": {
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "medication_name": {
+      "type": "string",
+      "title": "Medication Name"
+    },
+    "generic_name": {
+      "type": "string",
+      "title": "Generic Name"
+    },
+    "dose": {
+      "type": "string",
+      "title": "Dose"
+    },
+    "route": {
+      "type": "string",
+      "title": "Route",
+      "enum": [
+        "Oral",
+        "Topical",
+        "Inhaled",
+        "Injection",
+        "Sublingual",
+        "Rectal",
+        "Other"
+      ]
+    },
+    "frequency": {
+      "type": "string",
+      "title": "Frequency"
+    },
+    "times": {
+      "type": "array",
+      "title": "Scheduled Times",
+      "items": {
+        "type": "string"
+      }
+    },
+    "prescriber": {
+      "type": "string",
+      "title": "Prescriber"
+    },
+    "indication": {
+      "type": "string",
+      "title": "Indication / Purpose"
+    },
+    "is_rescue": {
+      "type": "boolean",
+      "title": "Rescue / Emergency Medication",
+      "default": false
+    },
+    "rescue_instructions": {
+      "type": "string",
+      "title": "Rescue Instructions"
+    },
+    "side_effects": {
+      "type": "string",
+      "title": "Known Side Effects"
+    },
+    "storage": {
+      "type": "string",
+      "title": "Storage Instructions"
+    },
+    "start_date": {
+      "type": "string",
+      "title": "Start Date",
+      "format": "date"
+    },
+    "end_date": {
+      "type": "string",
+      "title": "End Date",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Active",
+        "Ceased",
+        "On Hold",
+        "PRN"
+      ],
+      "default": "Active"
+    },
+    "dose_logs": {
+      "type": "array",
+      "title": "Dose Logs",
+      "items": {
+        "type": "object",
+        "properties": {
+          "given_at": {
+            "type": "string"
+          },
+          "given_by": {
+            "type": "string"
+          },
+          "dose_given": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "is_emergency": {
+            "type": "boolean"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "participant_name",
+    "medication_name",
+    "dose"
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "name": "EpilepsyPlan",
+  "type": "object",
+  "properties": {
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "ndis_number": {
+      "type": "string",
+      "title": "NDIS Number"
+    },
+    "date_of_birth": {
+      "type": "string",
+      "title": "Date of Birth",
+      "format": "date"
+    },
+    "diagnosis": {
+      "type": "string",
+      "title": "Epilepsy Diagnosis / Syndrome"
+    },
+    "neurologist": {
+      "type": "string",
+      "title": "Neurologist / GP"
+    },
+    "neurologist_phone": {
+      "type": "string",
+      "title": "Neurologist Phone"
+    },
+    "seizure_types": {
+      "type": "string",
+      "title": "Seizure Types"
+    },
+    "typical_duration": {
+      "type": "string",
+      "title": "Typical Seizure Duration"
+    },
+    "warning_signs": {
+      "type": "string",
+      "title": "Warning Signs / Aura"
+    },
+    "known_triggers": {
+      "type": "string",
+      "title": "Known Triggers"
+    },
+    "postictal_description": {
+      "type": "string",
+      "title": "Post-Ictal State Description"
+    },
+    "emergency_steps": {
+      "type": "array",
+      "title": "Emergency Response Steps",
+      "items": {
+        "type": "string"
+      }
+    },
+    "call_000_if": {
+      "type": "array",
+      "title": "Call 000 If...",
+      "items": {
+        "type": "string"
+      }
+    },
+    "do_not_do": {
+      "type": "array",
+      "title": "Do NOT Do",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rescue_medication_name": {
+      "type": "string",
+      "title": "Rescue Medication Name"
+    },
+    "rescue_dose": {
+      "type": "string",
+      "title": "Rescue Dose"
+    },
+    "rescue_route": {
+      "type": "string",
+      "title": "Rescue Route"
+    },
+    "rescue_when": {
+      "type": "string",
+      "title": "When to Give Rescue Medication"
+    },
+    "daily_strategies": {
+      "type": "array",
+      "title": "Daily Support Strategies",
+      "items": {
+        "type": "string"
+      }
+    },
+    "risk_strategies": {
+      "type": "array",
+      "title": "Risk Management Strategies",
+      "items": {
+        "type": "string"
+      }
+    },
+    "approved_by": {
+      "type": "string",
+      "title": "Approved By (Doctor)"
+    },
+    "approval_date": {
+      "type": "string",
+      "title": "Approval Date",
+      "format": "date"
+    },
+    "review_date": {
+      "type": "string",
+      "title": "Review Date",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Active",
+        "Under Review",
+        "Archived"
+      ],
+      "default": "Active"
+    }
+  },
+  "required": [
+    "participant_name",
+    "diagnosis"
+  ]
+}

@@ -4,6 +4,8 @@ import {
   LayoutDashboard,
   Users,
   ShieldCheck,
+  Brain,
+  Pill,
   ShieldAlert,
   ClipboardCheck,
   UserCircle,
@@ -52,6 +54,13 @@ const NAV_SECTIONS = [
     items: [
       { path: "/goal-tracking", label: "Goal Tracking", icon: Target },
       { path: "/document-vault", label: "Document Vault", icon: FolderOpen },
+    ],
+  },
+  {
+    title: "Health & Medication",
+    items: [
+      { path: "/medications", label: "Medication Dashboard", icon: Pill },
+      { path: "/epilepsy-plans", label: "Epilepsy Management Plans", icon: Brain },
     ],
   },
   {
