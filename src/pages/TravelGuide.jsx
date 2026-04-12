@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 export default function TravelGuide() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
+  const [departureDate, setDepartureDate] = useState("");
+  const [departureTime, setDepartureTime] = useState("");
   const [participantName, setParticipantName] = useState("");
   const [participants, setParticipants] = useState([]);
   const [saveParticipantId, setSaveParticipantId] = useState("");
@@ -45,6 +47,8 @@ export default function TravelGuide() {
 Origin: ${origin}
 Destination: ${destination}
 Participant: ${participantName || "NDIS Participant"}
+Departure Date: ${departureDate || "Any day"}
+Departure Time: ${departureTime || "Any time"}
 Additional notes: ${notes || "None"}
 
 Search Google Maps / trip planner for the best public transport routes from "${origin}" to "${destination}" in Sydney.
@@ -191,6 +195,14 @@ Provide 2-3 realistic route options. Make steps very detailed and beginner-frien
           <div>
             <Label className="flex items-center gap-1.5 mb-1"><MapPin size={13} className="text-emerald-500" /> Destination *</Label>
             <Input value={destination} onChange={e => setDestination(e.target.value)} placeholder="e.g. Botany Community Centre" />
+          </div>
+          <div>
+            <Label className="mb-1 block">Departure Date</Label>
+            <Input type="date" value={departureDate} onChange={e => setDepartureDate(e.target.value)} />
+          </div>
+          <div>
+            <Label className="mb-1 block">Departure Time</Label>
+            <Input type="time" value={departureTime} onChange={e => setDepartureTime(e.target.value)} />
           </div>
           <div>
             <Label className="mb-1 block">Participant Name</Label>
