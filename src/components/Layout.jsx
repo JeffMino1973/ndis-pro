@@ -102,6 +102,7 @@ const NAV_SECTIONS = [
       { path: "/health-care-plans", label: "Health Support Plans (IHSP)", icon: Heart },
       { path: "/behaviour-continuum", label: "Behaviour Continuum", icon: BarChart3 },
       { path: "/behaviour-support-plans", label: "Behaviour Support Plans", icon: Brain },
+      { path: "/positive-behaviour-support-plans", label: "Positive Behaviour Support Plans", icon: Heart },
     ],
   },
   {

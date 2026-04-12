@@ -1,0 +1,127 @@
+{
+  "name": "PositiveBehaviourSupportPlan",
+  "type": "object",
+  "properties": {
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "diagnosis": {
+      "type": "string",
+      "title": "Diagnosis"
+    },
+    "target_behaviour": {
+      "type": "string",
+      "title": "Target Behaviour"
+    },
+    "primary_goal": {
+      "type": "string",
+      "title": "Primary Goal"
+    },
+    "behaviour_functions": {
+      "type": "array",
+      "title": "Behaviour Functions (Why)",
+      "items": {
+        "type": "string"
+      }
+    },
+    "green_zone_environmental": {
+      "type": "array",
+      "title": "Green Zone - Environmental Adjustments",
+      "items": {
+        "type": "string"
+      }
+    },
+    "green_zone_skills": {
+      "type": "array",
+      "title": "Green Zone - Skill Building",
+      "items": {
+        "type": "string"
+      }
+    },
+    "yellow_zone_signs": {
+      "type": "array",
+      "title": "Yellow Zone - Warning Signs",
+      "items": {
+        "type": "string"
+      }
+    },
+    "yellow_zone_responses": {
+      "type": "array",
+      "title": "Yellow Zone - Staff Responses",
+      "items": {
+        "type": "string"
+      }
+    },
+    "red_zone_strategies": {
+      "type": "array",
+      "title": "Red Zone - Reactive Strategies",
+      "items": {
+        "type": "string"
+      }
+    },
+    "blue_zone_recovery": {
+      "type": "array",
+      "title": "Blue Zone - Post-Crisis Recovery",
+      "items": {
+        "type": "string"
+      }
+    },
+    "social_story_steps": {
+      "type": "array",
+      "title": "Social Story Steps",
+      "items": {
+        "type": "string"
+      }
+    },
+    "communication_board": {
+      "type": "array",
+      "title": "Communication Board",
+      "items": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string"
+          },
+          "emoji": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "review_notes": {
+      "type": "string",
+      "title": "Review & Ethics Notes"
+    },
+    "plan_created_by": {
+      "type": "string",
+      "title": "Plan Created By"
+    },
+    "review_date": {
+      "type": "string",
+      "title": "Review Date",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Active",
+        "Under Review",
+        "Archived"
+      ],
+      "default": "Active"
+    }
+  },
+  "required": [
+    "participant_name",
+    "target_behaviour"
+  ]
+}
