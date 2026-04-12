@@ -709,201 +709,72 @@ export default function ParticipantPortal() {
 
         {/* RISK ASSESSMENTS TAB - FULL DOCUMENT */}
         {activeTab === "risks" && (
-          <div className="space-y-4">
+          <div className="space-y-4 max-w-4xl">
             {riskAssessments.length === 0 ? (
               <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
                 <AlertTriangle size={36} className="text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500 text-sm">No risk assessments on file.</p>
               </div>
-            ) : (
-              riskAssessments.map(ra => {
-                const RISK_COLORS = { Low: "bg-emerald-100 text-emerald-800", Medium: "bg-orange-100 text-orange-800", High: "bg-red-100 text-red-800", Extreme: "bg-red-900 text-white" };
-                return (
-                  <div key={ra.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-                    <div className="border-b border-slate-200">
-                      <div className="bg-slate-800 text-white px-6 py-6">
-                        <h1 className="text-2xl font-black text-white mb-2">Risk Assessment</h1>
-                        <p className="text-slate-300 text-sm">{ra.activity_description || ra.title}</p>
+            ) : riskAssessments.map(ra => {
+              const RISK_COLORS = { Low: "bg-emerald-100 text-emerald-800", Medium: "bg-orange-100 text-orange-800", High: "bg-red-100 text-red-800", Extreme: "bg-red-900 text-white" };
+              return (
+                <div key={ra.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                  <div className="bg-slate-800 text-white px-6 py-6">
+                    <h1 className="text-2xl font-black text-white mb-2">Risk Assessment</h1>
+                    <p className="text-slate-300 text-sm">{ra.activity_description || ra.title}</p>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 px-6 py-4 border-t border-slate-200">
+                    {[{l: "Participant", v: ra.participant_name}, {l: "From", v: ra.home_address}, {l: "To", v: ra.destination}, {l: "Date", v: ra.assessment_date}].filter(f => f.v).map(f => (
+                      <div key={f.l}>
+                        <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p>
+                        <p className="text-sm font-bold text-slate-900">{f.v}</p>
                       </div>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 px-6 py-4 border-t border-slate-200">
-                        {[{l: "Participant", v: ra.participant_name}, {l: "From", v: ra.home_address}, {l: "To", v: ra.destination}, {l: "Date", v: ra.assessment_date}].filter(f => f.v).map(f => (
-                          <div key={f.l}>
-                            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p>
-                            <p className="text-sm font-bold text-slate-900">{f.v}</p>
+                    ))}
+                  </div>
+                  <div className="p-6 space-y-6">
+                    <div>
+                      <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-4">Hazard Assessment</h2>
+                      <div className="space-y-3">
+                        {(ra.hazards || []).map((h, i) => (
+                          <div key={i} className="border border-slate-200 rounded-xl p-4">
+                            <p className="font-bold text-slate-900 mb-2">{h.hazard}</p>
+                            <div className="grid grid-cols-3 gap-3 mb-3">
+                              <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Initial Rating</p><span className={`text-[10px] font-black px-1.5 py-0.5 rounded ${RISK_COLORS[h.initial_rating] || ""}`}>{h.initial_rating}</span></div>
+                              <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Likelihood</p><p className="text-xs font-bold">{h.initial_likelihood}</p></div>
+                              <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Consequence</p><p className="text-xs font-bold">{h.initial_consequence}</p></div>
+                            </div>
+                            {h.controls && <div className="bg-blue-50 border border-blue-200 rounded p-3 text-xs mb-3"><p className="font-black text-blue-700 mb-1">Control Measures</p><p className="text-blue-800">{h.controls}</p></div>}
+                            <div className="grid grid-cols-3 gap-3">
+                              <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Residual Rating</p><span className={`text-[10px] font-black px-1.5 py-0.5 rounded ${RISK_COLORS[h.residual_rating] || ""}`}>{h.residual_rating}</span></div>
+                              <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Likelihood</p><p className="text-xs font-bold">{h.residual_likelihood}</p></div>
+                              <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Consequence</p><p className="text-xs font-bold">{h.residual_consequence}</p></div>
+                            </div>
+                            {h.person_responsible && <p className="text-xs text-slate-500 mt-2"><span className="font-bold">Responsible:</span> {h.person_responsible}</p>}
                           </div>
                         ))}
                       </div>
                     </div>
-                    <div className="p-6 space-y-6">
+                    <div className="bg-slate-800 text-white p-4 rounded-xl flex justify-between items-center">
+                      <p className="text-xs font-black uppercase">Overall Residual Risk</p>
+                      <span className={`px-4 py-2 rounded-full text-sm font-black ${RISK_COLORS[ra.overall_risk_level] || "bg-slate-100 text-slate-600"}`}>{ra.overall_risk_level}</span>
+                    </div>
+                    {(ra.emergency_contact_1_name || ra.emergency_contact_2_name) && (
                       <div>
-                        <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2"><span className="w-5 h-5 bg-slate-800 text-white rounded text-[10px] flex items-center justify-center">1</span> Comprehensive Risk Assessment</h2>
-                        <div className="space-y-3">
-                          {(ra.hazards || []).map((h, i) => (
-                            <div key={i} className="border border-slate-200 rounded-xl p-4">
-                              <p className="font-bold text-slate-900 mb-2">{h.hazard}</p>
-                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
-                                <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Initial</p><span className={`text-[10px] font-black ${RISK_COLORS[h.initial_rating]}`}>{h.initial_rating}</span></div>
-                                <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Likelihood</p><p className="text-xs font-bold">{h.initial_likelihood}</p></div>
-                                <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Consequence</p><p className="text-xs font-bold">{h.initial_consequence}</p></div>
-                              </div>
-                              {h.controls && <div className="bg-blue-50 border border-blue-200 rounded p-3 text-xs"><p className="font-black text-blue-700 mb-1">Control Measures</p><p className="text-blue-800">{h.controls}</p></div>}
-                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
-                                <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Residual</p><span className={`text-[10px] font-black ${RISK_COLORS[h.residual_rating]}`}>{h.residual_rating}</span></div>
-                                <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Likelihood</p><p className="text-xs font-bold">{h.residual_likelihood}</p></div>
-                                <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Consequence</p><p className="text-xs font-bold">{h.residual_consequence}</p></div>
-                                {h.person_responsible && <div className="bg-slate-50 rounded p-2"><p className="text-[10px] font-black text-slate-400 uppercase">Responsible</p><p className="text-xs font-bold text-slate-800">{h.person_responsible}</p></div>}
-                              </div>
-                            </div>
-                          ))}
+                        <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Emergency Contacts</h2>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {ra.emergency_contact_1_name && <div className="bg-orange-50 border border-orange-200 rounded-xl p-4"><p className="font-black text-orange-800 text-sm">{ra.emergency_contact_1_name}</p><p className="text-xs text-orange-700">{ra.emergency_contact_1_rel} — {ra.emergency_contact_1_phone}</p></div>}
+                          {ra.emergency_contact_2_name && <div className="bg-orange-50 border border-orange-200 rounded-xl p-4"><p className="font-black text-orange-800 text-sm">{ra.emergency_contact_2_name}</p><p className="text-xs text-orange-700">{ra.emergency_contact_2_rel} — {ra.emergency_contact_2_phone}</p></div>}
                         </div>
                       </div>
-                      <div className="bg-slate-800 text-white p-4 rounded-xl flex justify-between items-center">
-                        <p className="text-xs font-black uppercase">Overall Residual Risk</p>
-                        <span className={`px-4 py-2 rounded-full text-sm font-black ${RISK_COLORS[ra.overall_risk_level]}`}>{ra.overall_risk_level}</span>
-                      </div>
-                      {(ra.emergency_contact_1_name || ra.emergency_contact_2_name) && (
-                        <div>
-                          <h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-4">Emergency Management</h2>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            {ra.emergency_contact_1_name && <div className="bg-orange-50 border border-orange-200 rounded-xl p-4"><p className="font-black text-orange-800 text-sm">{ra.emergency_contact_1_name}</p><p className="text-xs text-orange-700">{ra.emergency_contact_1_rel} — {ra.emergency_contact_1_phone}</p></div>}
-                            {ra.emergency_contact_2_name && <div className="bg-orange-50 border border-orange-200 rounded-xl p-4"><p className="font-black text-orange-800 text-sm">{ra.emergency_contact_2_name}</p><p className="text-xs text-orange-700">{ra.emergency_contact_2_rel} — {ra.emergency_contact_2_phone}</p></div>}
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                    )}
                   </div>
-                );
-              })
-            )}
-          </div>
-        )}
-
-        {/* REPORTS & TRAVEL TAB */}
-        {activeTab === "reports" && (
-          <div className="space-y-4">
-            {progressNotes.length === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-                <Navigation size={36} className="text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-500 text-sm">No reports or session notes available yet.</p>
-              </div>
-            ) : (
-              progressNotes.map(n => (
-                <div key={n.id} className="bg-white border border-slate-200 rounded-2xl p-5">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">{n.template_type}</span>
-                      <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${n.status === "Finalised" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>{n.status}</span>
-                    </div>
-                    <p className="text-xs text-slate-500">{n.note_date} · {n.staff_name}</p>
-                  </div>
-                  {n.activities_delivered && (
-                    <div className="mt-2">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Activities</p>
-                      <p className="text-sm text-slate-700">{n.activities_delivered}</p>
-                    </div>
-                  )}
-                  {n.outcomes && (
-                    <div className="mt-2">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Outcomes</p>
-                      <p className="text-sm text-slate-700">{n.outcomes}</p>
-                    </div>
-                  )}
-                  {n.service_location && (
-                    <p className="text-xs text-slate-400 mt-2 flex items-center gap-1"><MapPin size={10} /> {n.service_location}</p>
-                  )}
                 </div>
-              ))
-            )}
-          </div>
-        )}
-
-        {/* HEALTH SUPPORT PLAN TAB - FULL DOCUMENT */}
-        {activeTab === "health" && (
-          <div className="space-y-4">
-            {healthPlans.length === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-                <Heart size={36} className="text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-500 text-sm">No health support plan on file.</p>
-              </div>
-            ) : healthPlans.map(plan => (
-              <div key={plan.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-                <div className="bg-emerald-700 text-white px-6 py-8">
-                  <h1 className="text-2xl font-black mb-1">Individual Health Support Plan (IHSP)</h1>
-                  <p className="text-emerald-200">Comprehensive health care documentation</p>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 px-6 py-4 border-t border-slate-200">
-                  {[{l: "Participant", v: plan.participant_name}, {l: "NDIS", v: plan.ndis_number}, {l: "DOB", v: plan.date_of_birth}, {l: "Status", v: plan.status}].filter(f => f.v).map(f => (
-                    <div key={f.l}><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p><p className="text-sm font-bold text-slate-900">{f.v}</p></div>
-                  ))}
-                </div>
-                <div className="p-6 space-y-6">
-                  {plan.health_conditions && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Health Conditions</h2><div className="bg-slate-50 rounded-xl p-4 text-sm text-slate-700 leading-relaxed border border-slate-200">{plan.health_conditions}</div></div>}
-                  {plan.doctor_name && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Healthcare Providers</h2><div className="space-y-2"><div className="grid grid-cols-1 sm:grid-cols-2 gap-3"><div className="bg-slate-50 rounded-xl p-4 border border-slate-200"><p className="text-[10px] font-black text-slate-500 uppercase mb-1">Doctor / GP</p><p className="text-sm font-bold text-slate-900">{plan.doctor_name}</p>{plan.doctor_phone && <p className="text-xs text-slate-600 mt-1">{plan.doctor_phone}</p>}{plan.doctor_address && <p className="text-xs text-slate-600">{plan.doctor_address}</p>}</div>{plan.parent_carer_name && <div className="bg-slate-50 rounded-xl p-4 border border-slate-200"><p className="text-[10px] font-black text-slate-500 uppercase mb-1">Parent / Carer</p><p className="text-sm font-bold text-slate-900">{plan.parent_carer_name}</p>{plan.parent_carer_phone && <p className="text-xs text-slate-600 mt-1">{plan.parent_carer_phone}</p>}</div>}</div></div></div>}
-                  {plan.medications && plan.medications.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Current Medications</h2><div className="space-y-2">{plan.medications.map((m, i) => <div key={i} className="bg-slate-50 rounded-xl p-4 border border-slate-200"><p className="font-bold text-slate-900">{m.name} — {m.dose}</p><div className="grid grid-cols-2 gap-2 mt-2 text-xs text-slate-600"><p><span className="font-black">Frequency:</span> {m.frequency}</p><p><span className="font-black">Route:</span> {m.route}</p>{m.time && <p className="col-span-2"><span className="font-black">Time:</span> {m.time}</p>}</div>{m.notes && <p className="text-xs text-slate-600 mt-2 italic">{m.notes}</p>}</div>)}</div></div>}
-                  {plan.health_support_procedures && <div className="bg-blue-50 border border-blue-200 rounded-xl p-4"><p className="text-sm font-black text-blue-700 mb-2 uppercase tracking-widest">Health Support Procedures</p><p className="text-sm text-blue-800 leading-relaxed whitespace-pre-line">{plan.health_support_procedures}</p></div>}
-                  {plan.emergency_response && <div className="bg-rose-50 border border-rose-200 rounded-xl p-4"><p className="text-sm font-black text-rose-700 mb-2 uppercase tracking-widest">Emergency Response Plan</p><p className="text-sm text-rose-800 leading-relaxed whitespace-pre-line">{plan.emergency_response}</p></div>}
-                  {plan.emergency_alert && <div className="bg-amber-50 border border-amber-300 rounded-xl p-4"><p className="text-sm font-black text-amber-800 uppercase tracking-widest">⚠️ Medical Alerts</p><p className="text-sm text-amber-900 font-semibold mt-2">{plan.emergency_alert}</p></div>}
-                  {(plan.emergency_contact_name || plan.parent_carer_name) && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Emergency Contacts</h2><div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{plan.emergency_contact_name && <div className="bg-orange-50 border border-orange-200 rounded-xl p-4"><p className="text-[10px] font-black text-orange-700 uppercase mb-1">Emergency Contact</p><p className="text-sm font-bold text-orange-900">{plan.emergency_contact_name}</p><p className="text-xs text-orange-800 mt-1">{plan.emergency_contact_relationship}</p>{plan.emergency_contact_phone && <p className="text-xs text-orange-800">{plan.emergency_contact_phone}</p>}</div>}{plan.parent_carer_name && <div className="bg-orange-50 border border-orange-200 rounded-xl p-4"><p className="text-[10px] font-black text-orange-700 uppercase mb-1">Parent / Carer</p><p className="text-sm font-bold text-orange-900">{plan.parent_carer_name}</p>{plan.parent_carer_phone && <p className="text-xs text-orange-800 mt-1">{plan.parent_carer_phone}</p>}{plan.parent_carer_email && <p className="text-xs text-orange-800">{plan.parent_carer_email}</p>}</div>}</div></div>}
-                  {plan.review_date && <div className="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center"><p className="text-sm font-black">Next Review</p><p className="text-lg font-bold">{plan.review_date}</p></div>}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
         {/* MEDICATIONS TAB - FULL DOCUMENT */}
-        {activeTab === "medications" && (
-          <div className="space-y-4">
-            {medications.length === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-                <Pill size={36} className="text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-500 text-sm">No medications on file.</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                {medications.map(med => (
-                  <div key={med.id} className={`bg-white border rounded-2xl overflow-hidden ${med.is_rescue ? "border-rose-300 shadow-lg" : "border-slate-200"}`}>
-                    <div className={`px-6 py-4 text-white ${med.is_rescue ? "bg-rose-600" : "bg-slate-700"}`}>
-                      <div className="flex items-start justify-between">
-                        <div>
-                          <h3 className="text-lg font-black">{med.medication_name}</h3>
-                          <p className="text-xs opacity-90 mt-0.5">{med.generic_name && `(${med.generic_name})`}</p>
-                        </div>
-                        {med.is_rescue && <span className="bg-white text-rose-600 font-black text-[11px] px-3 py-1 rounded-full">🚨 RESCUE</span>}
-                      </div>
-                    </div>
-                    <div className="p-6 space-y-4">
-                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        <div className="bg-slate-50 rounded-lg p-3">
-                          <p className="text-[10px] font-black text-slate-500 uppercase">Dose</p>
-                          <p className="text-sm font-bold text-slate-900 mt-1">{med.dose}</p>
-                        </div>
-                        <div className="bg-slate-50 rounded-lg p-3">
-                          <p className="text-[10px] font-black text-slate-500 uppercase">Route</p>
-                          <p className="text-sm font-bold text-slate-900 mt-1">{med.route}</p>
-                        </div>
-                        <div className="bg-slate-50 rounded-lg p-3">
-                          <p className="text-[10px] font-black text-slate-500 uppercase">Frequency</p>
-                          <p className="text-sm font-bold text-slate-900 mt-1">{med.frequency}</p>
-                        </div>
-                        {med.prescriber && <div className="bg-slate-50 rounded-lg p-3"><p className="text-[10px] font-black text-slate-500 uppercase">Prescriber</p><p className="text-sm font-bold text-slate-900 mt-1">{med.prescriber}</p></div>}
-                        {med.start_date && <div className="bg-slate-50 rounded-lg p-3"><p className="text-[10px] font-black text-slate-500 uppercase">Start Date</p><p className="text-sm font-bold text-slate-900 mt-1">{med.start_date}</p></div>}
-                        <div className="bg-slate-50 rounded-lg p-3"><p className="text-[10px] font-black text-slate-500 uppercase">Status</p><p className={`text-sm font-bold mt-1 ${med.status === "Active" ? "text-emerald-700" : "text-slate-600"}`}>{med.status}</p></div>
-                      </div>
-                      {med.indication && <div><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Indication / Purpose</p><p className="text-sm text-slate-700 bg-slate-50 rounded-lg p-3">{med.indication}</p></div>}
-                      {med.is_rescue && med.rescue_instructions && <div className="bg-rose-50 border border-rose-200 rounded-lg p-4"><p className="text-[10px] font-black text-rose-700 uppercase mb-2">🚨 Rescue Instructions</p><p className="text-sm text-rose-800 leading-relaxed">{med.rescue_instructions}</p></div>}
-                      {med.side_effects && <div className="bg-amber-50 border border-amber-200 rounded-lg p-4"><p className="text-[10px] font-black text-amber-700 uppercase mb-2">Side Effects</p><p className="text-sm text-amber-800">{med.side_effects}</p></div>}
-                      {med.storage && <div><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Storage</p><p className="text-sm text-slate-700">{med.storage}</p></div>}
-                      {med.dose_logs && med.dose_logs.length > 0 && <div><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Recent Dose Log</p><div className="space-y-1 max-h-32 overflow-y-auto">{[...(med.dose_logs || [])].reverse().slice(0, 5).map((log, i) => <div key={i} className="bg-slate-50 rounded p-2 text-xs"><p className="font-bold text-slate-800">{new Date(log.given_at).toLocaleDateString("en-AU")} {new Date(log.given_at).toLocaleTimeString("en-AU", {hour: "2-digit", minute: "2-digit"})}</p><p className="text-slate-600">{log.dose_given} · {log.given_by}</p></div>)}</div></div>}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* EPILEPSY PLAN TAB - FULL DOCUMENT */}
         {activeTab === "epilepsy" && (
           <div className="space-y-6 max-w-4xl">
             {epilepsyPlans.length === 0 ? (
@@ -1117,106 +988,31 @@ export default function ParticipantPortal() {
 
         {/* IMPLEMENTATION PROGRAMS TAB - FULL DOCUMENT */}
         {activeTab === "implementation" && (
-          <div className="space-y-4">
+          <div className="space-y-4 max-w-4xl">
             {implementationPrograms.length === 0 ? (
               <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
                 <ClipboardList size={36} className="text-slate-300 mx-auto mb-3" />
                 <p className="text-slate-500 text-sm">No implementation programs on file.</p>
               </div>
-            ) : (
-              implementationPrograms.map(program => (
-                <div key={program.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-                  <div className="bg-blue-700 text-white px-6 py-8">
-                    <h1 className="text-2xl font-black mb-1">{program.primary_goal}</h1>
-                    <p className="text-blue-200">Implementation Program</p>
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 px-6 py-4 border-t border-slate-200">
-                    {[{l: "Participant", v: program.participant_name}, {l: "Focus", v: program.focus}, {l: "Start Date", v: program.start_date}, {l: "Status", v: program.status}].filter(f => f.v).map(f => (
-                      <div key={f.l}><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p><p className="text-sm font-bold text-slate-900">{f.v}</p></div>
-                    ))}
-                  </div>
-                  <div className="p-6 space-y-6">
-                    {program.program_overview && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Program Overview</h2><p className="text-sm text-slate-700 leading-relaxed bg-slate-50 rounded-xl p-4">{program.program_overview}</p></div>}
-                    {program.phases && program.phases.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Implementation Phases</h2><div className="space-y-3">{program.phases.map((phase, idx) => <div key={idx} className="border border-slate-200 rounded-xl p-4"><div className="flex items-center justify-between mb-2"><p className="font-bold text-slate-900">Phase {phase.phase_number}: {phase.name}</p>{phase.completed && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Completed</span>}</div><div className="grid grid-cols-3 gap-3 text-xs"><div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Duration</p><p className="font-bold text-slate-800">{phase.weeks}</p></div><div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Support Level</p><p className="font-bold text-slate-800">{phase.support_level}</p></div><div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Worker Role</p><p className="font-bold text-slate-800">{phase.worker_role || "—"}</p></div></div>{phase.goal && <p className="text-xs text-slate-600 mt-2"><span className="font-bold">Goal:</span> {phase.goal}</p>}</div>)}</div></div>}
-                    {program.skill_targets && program.skill_targets.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Skill Development Targets</h2><div className="space-y-1.5">{program.skill_targets.map((target, idx) => <div key={idx} className="flex items-center gap-2.5 bg-slate-50 p-3 rounded-lg">{target.achieved ? <CheckCircle size={14} className="text-emerald-600 shrink-0" /> : <Circle size={14} className="text-slate-400 shrink-0" />}<span className="text-sm text-slate-700">{target.skill}</span></div>)}</div></div>}
-                  </div>
+            ) : implementationPrograms.map(program => (
+              <div key={program.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                <div className="bg-blue-700 text-white px-6 py-8">
+                  <h1 className="text-2xl font-black mb-1">IMPLEMENTATION PROGRAM</h1>
+                  <p className="text-blue-200">{program.primary_goal}</p>
                 </div>
-              ))
-            )}
-          </div>
-        )}
-
-        {/* LODGE COMPLAINT TAB */}
-        {activeTab === "complaint" && (
-          <div className="space-y-4">
-            <div className="bg-white border border-slate-200 rounded-2xl p-6">
-              <h3 className="font-black text-slate-900 text-lg mb-2">Lodge a Complaint</h3>
-              <p className="text-sm text-slate-500 mb-5">Your feedback is important. All complaints are reviewed by our management team within 2 business days.</p>
-
-              {complaintSubmitted && (
-                <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 mb-4 flex items-center gap-2 text-emerald-700">
-                  <CheckCircle size={16} />
-                  <p className="text-sm font-bold">Complaint submitted successfully. We'll be in touch soon.</p>
-                </div>
-              )}
-
-              <div className="space-y-4">
-                <div>
-                  <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Type of Complaint</Label>
-                  <select
-                    value={complaintForm.complaint_type}
-                    onChange={e => setComplaintForm({ ...complaintForm, complaint_type: e.target.value })}
-                    className="mt-1 flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
-                  >
-                    {["Service Delivery", "Staff Conduct", "Communication", "Billing", "Safety", "Other"].map(t => (
-                      <option key={t} value={t}>{t}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Priority</Label>
-                  <select
-                    value={complaintForm.priority}
-                    onChange={e => setComplaintForm({ ...complaintForm, priority: e.target.value })}
-                    className="mt-1 flex h-9 w-full rounded-md border border-input bg-transparent px-3 text-sm"
-                  >
-                    {["Low", "Medium", "High", "Critical"].map(p => <option key={p} value={p}>{p}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <Label className="text-xs font-bold text-slate-600 uppercase tracking-wider">Description</Label>
-                  <textarea
-                    value={complaintForm.description}
-                    onChange={e => setComplaintForm({ ...complaintForm, description: e.target.value })}
-                    placeholder="Please describe your concern in detail..."
-                    className="mt-1 flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm min-h-[120px]"
-                  />
-                </div>
-                <Button onClick={submitComplaint} disabled={!complaintForm.description || submittingComplaint} className="w-full rounded-xl font-bold gap-2">
-                  {submittingComplaint ? <Loader2 size={15} className="animate-spin" /> : <MessageSquareWarning size={15} />}
-                  Submit Complaint
-                </Button>
-              </div>
-            </div>
-
-            {complaints.length > 0 && (
-              <div className="bg-white border border-slate-200 rounded-2xl p-6">
-                <h3 className="font-black text-slate-900 mb-4">My Previous Complaints</h3>
-                <div className="space-y-3">
-                  {complaints.map(c => (
-                    <div key={c.id} className="p-4 bg-slate-50 rounded-xl">
-                      <div className="flex justify-between items-start mb-1">
-                        <p className="font-bold text-slate-800 text-sm">{c.complaint_type}</p>
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${statusColor[c.status] || "bg-slate-100 text-slate-600"}`}>{c.status}</span>
-                      </div>
-                      <p className="text-xs text-slate-500 mb-1">{c.date_received}</p>
-                      <p className="text-xs text-slate-600">{c.description}</p>
-                      {c.resolution && <p className="text-xs text-emerald-700 mt-2 font-semibold">Resolution: {c.resolution}</p>}
-                    </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 bg-slate-50 px-6 py-4 border-t border-slate-200">
+                  {[{l: "Participant", v: program.participant_name}, {l: "Focus", v: program.focus}, {l: "Start Date", v: program.start_date}, {l: "Status", v: program.status}].filter(f => f.v).map(f => (
+                    <div key={f.l}><p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">{f.l}</p><p className="text-sm font-bold text-slate-900">{f.v}</p></div>
                   ))}
                 </div>
+                <div className="p-6 space-y-6">
+                  {program.program_overview && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Program Overview</h2><p className="text-sm text-slate-700 leading-relaxed bg-slate-50 rounded-xl p-4">{program.program_overview}</p></div>}
+                  {program.phases && program.phases.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Implementation Phases</h2><div className="space-y-3">{program.phases.map((phase, idx) => <div key={idx} className="border border-slate-200 rounded-xl p-4"><div className="flex items-center justify-between mb-2"><p className="font-bold text-slate-900">Phase {phase.phase_number}: {phase.name}</p>{phase.completed && <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Completed</span>}</div><div className="grid grid-cols-3 gap-3 text-xs"><div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Duration</p><p className="font-bold text-slate-800">{phase.weeks}</p></div><div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Support Level</p><p className="font-bold text-slate-800">{phase.support_level}</p></div><div className="bg-slate-50 rounded p-2"><p className="font-black text-slate-500 uppercase text-[10px]">Worker Role</p><p className="font-bold text-slate-800">{phase.worker_role || "—"}</p></div></div>{phase.goal && <p className="text-xs text-slate-600 mt-2"><span className="font-bold">Goal:</span> {phase.goal}</p>}</div>)}</div></div>}
+                  {program.skill_targets && program.skill_targets.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Skill Development Targets</h2><div className="space-y-1.5">{program.skill_targets.map((target, idx) => <div key={idx} className="flex items-center gap-2.5 bg-slate-50 p-3 rounded-lg">{target.achieved ? <CheckCircle size={14} className="text-emerald-600 shrink-0" /> : <Circle size={14} className="text-slate-400 shrink-0" />}<span className="text-sm text-slate-700">{target.skill}</span></div>)}</div></div>}
+                  {program.session_logs && program.session_logs.length > 0 && <div><h2 className="text-sm font-black text-slate-500 uppercase tracking-widest mb-3">Session History</h2><div className="space-y-2">{program.session_logs.slice(-5).reverse().map((log, i) => <div key={i} className="border border-slate-200 rounded-lg p-3 text-xs"><p className="font-bold text-slate-800">{log.date} — Phase {log.phase}</p>{log.participant_response && <p className="text-slate-600 mt-1"><span className="font-bold">Response:</span> {log.participant_response}</p>}{log.logged_by && <p className="text-slate-500 mt-1 text-[10px]">By {log.logged_by}</p>}</div>)}</div></div>}
+                </div>
               </div>
-            )}
+            ))}
           </div>
         )}
 
