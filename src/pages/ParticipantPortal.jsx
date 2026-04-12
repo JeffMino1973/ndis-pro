@@ -971,7 +971,7 @@ export default function ParticipantPortal() {
                 <p className="text-slate-500 text-sm">No risk assessment on file.</p>
               </div>
             ) : (
-              raAssessments.slice(0, 1).map(assessment => (
+              raAssessments.slice(1).map(assessment => (
                 <div key={assessment.id} className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
                   {/* Header */}
                   <div className="bg-slate-800 text-white px-8 py-6">
