@@ -232,18 +232,14 @@ function AgreementPreview({ agreement, onBack }) {
   // Resolve rate and code from stored value or lookup from NDIS_ITEMS
   const resolveItem = (s) => {
     const code = s.ndis_code || s.support_item_code;
-    // Try by code first
+    // 1. Try exact code lookup
     if (code) {
       const found = NDIS_ITEMS.find(n => n.code === code);
       if (found) return { code: found.code, rate: found.rate };
     }
-    // Try by description match
-    if (s.description) {
-      const found = NDIS_ITEMS.find(n => n.name === s.description || s.description.startsWith(n.name.substring(0, 20)));
-      if (found) return { code: found.code, rate: found.rate };
-    }
-    // Fallback: stored rate
+    // 2. Use stored rate directly (avoids wrong description match across time variants)
     if (s.rate && Number(s.rate) > 0) return { code: code || "—", rate: Number(s.rate) };
+    // 3. Derive rate from amount / hours
     if (s.amount && s.hours && Number(s.hours) > 0) return { code: code || "—", rate: Number(s.amount) / Number(s.hours) };
     return { code: code || "—", rate: 0 };
   };
