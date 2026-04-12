@@ -64,6 +64,7 @@ const NAV_SECTIONS = [
       { path: "/support-plans", label: "Support Plans", icon: ClipboardList },
       { path: "/service-agreements", label: "Service Agreements", icon: FileText },
       { path: "/invoices", label: "Invoices & Claims", icon: Receipt },
+      { path: "/quotes", label: "Quotes", icon: FileText },
     ],
   },
   {
