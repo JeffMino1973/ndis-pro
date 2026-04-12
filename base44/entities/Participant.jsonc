@@ -172,6 +172,51 @@
           }
         }
       }
+    },
+    "travel_itineraries": {
+      "type": "array",
+      "title": "Travel Itineraries",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          },
+          "destination": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "generated_date": {
+            "type": "string"
+          },
+          "saved_date": {
+            "type": "string"
+          },
+          "routes": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "accessibility_notes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "emergency_info": {
+            "type": "string"
+          },
+          "opal_info": {
+            "type": "string"
+          }
+        }
+      }
     }
   },
   "required": [

@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import {
   ShieldCheck, FileText, Receipt, ClipboardList, CheckCircle, PenLine,
   Loader2, User, Target, AlertTriangle, MessageSquareWarning, Navigation,
-  ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star
+  ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -118,6 +118,7 @@ const TABS = [
   { id: "goals", label: "My Goals", icon: Target },
   { id: "risks", label: "Risk Assessments", icon: AlertTriangle },
   { id: "reports", label: "Reports & Travel", icon: Navigation },
+  { id: "travel", label: "Travel Guides", icon: Navigation },
   { id: "complaint", label: "Lodge Complaint", icon: MessageSquareWarning },
 ];
 
@@ -602,6 +603,71 @@ export default function ParticipantPortal() {
                   {n.service_location && (
                     <p className="text-xs text-slate-400 mt-2 flex items-center gap-1"><MapPin size={10} /> {n.service_location}</p>
                   )}
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* TRAVEL GUIDES TAB */}
+        {activeTab === "travel" && (
+          <div className="space-y-4">
+            {(!participant.travel_itineraries || participant.travel_itineraries.length === 0) ? (
+              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
+                <Navigation size={36} className="text-slate-300 mx-auto mb-3" />
+                <h3 className="font-black text-slate-800 mb-1">No Travel Guides Yet</h3>
+                <p className="text-sm text-slate-500">Your support worker hasn't saved any travel guides to your profile yet.</p>
+              </div>
+            ) : (
+              [...participant.travel_itineraries].reverse().map((guide, gi) => (
+                <div key={gi} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                  <div className="bg-slate-800 text-white px-5 py-4">
+                    <h3 className="font-black">{guide.title || `${guide.origin} → ${guide.destination}`}</h3>
+                    <p className="text-slate-400 text-xs mt-0.5">{guide.summary}</p>
+                    <div className="flex gap-3 mt-2 text-xs text-slate-400">
+                      <span>📅 Saved: {guide.saved_date ? new Date(guide.saved_date).toLocaleDateString("en-AU") : guide.generated_date}</span>
+                    </div>
+                  </div>
+                  <div className="p-5 space-y-4">
+                    {(guide.routes || []).map((route, ri) => (
+                      <div key={ri} className="border border-slate-200 rounded-xl overflow-hidden">
+                        <div className="bg-slate-100 px-4 py-2 flex flex-wrap items-center justify-between gap-2">
+                          <p className="font-black text-sm text-slate-800">{route.label}</p>
+                          <div className="flex gap-2 text-xs">
+                            <span className="bg-slate-200 rounded px-2 py-0.5 font-bold">⏱ {route.total_time}</span>
+                            <span className="bg-slate-200 rounded px-2 py-0.5 font-bold">💳 {route.total_cost}</span>
+                          </div>
+                        </div>
+                        <div className="px-4 py-3 space-y-2">
+                          {(route.steps || []).map((step, si) => (
+                            <div key={si} className="flex gap-3 items-start">
+                              <div className="w-5 h-5 bg-slate-800 text-white rounded-full flex items-center justify-center text-[10px] font-black shrink-0 mt-0.5">{si + 1}</div>
+                              <div className="flex-1">
+                                <div className="flex flex-wrap items-center gap-1.5 mb-0.5">
+                                  {step.line && <span className="text-[10px] font-black text-white px-1.5 py-0.5 rounded" style={{backgroundColor: step.type === "bus" ? "#002664" : step.type === "train" ? "#F0521F" : "#555"}}>{step.line}</span>}
+                                  <p className="text-xs font-bold text-slate-800">{step.instruction}</p>
+                                </div>
+                                {step.detail && <p className="text-xs text-slate-500">{step.detail}</p>}
+                              </div>
+                              {step.duration && <span className="text-[10px] text-slate-400 shrink-0">⏱ {step.duration}</span>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                    {guide.emergency_info && (
+                      <div className="bg-rose-50 border border-rose-200 rounded-xl p-3">
+                        <p className="text-xs font-black text-rose-700 mb-1">🆘 If You Need Help</p>
+                        <p className="text-xs text-rose-600">{guide.emergency_info}</p>
+                      </div>
+                    )}
+                    {guide.opal_info && (
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-3">
+                        <p className="text-xs font-black text-slate-700 mb-1">💳 Opal Card</p>
+                        <p className="text-xs text-slate-600">{guide.opal_info}</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ))
             )}

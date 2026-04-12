@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { MapPin, Navigation, Printer, Loader2, Plus, Trash2, Bus, Train, Clock, AlertTriangle, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,11 +9,33 @@ export default function TravelGuide() {
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [participantName, setParticipantName] = useState("");
+  const [participants, setParticipants] = useState([]);
+  const [saveParticipantId, setSaveParticipantId] = useState("");
+  const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    base44.entities.Participant.list().then(setParticipants);
+  }, []);
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [guide, setGuide] = useState(null);
 
+  const saveToProfile = async () => {
+    if (!saveParticipantId || !guide) return;
+    setSaving(true);
+    const participant = participants.find(p => p.id === saveParticipantId);
+    const existing = participant?.travel_itineraries || [];
+    await base44.entities.Participant.update(saveParticipantId, {
+      travel_itineraries: [...existing, { ...guide, saved_date: new Date().toISOString() }],
+    });
+    setSaving(false);
+    setSaved(true);
+  };
+
   const generate = async () => {
+    setSaved(false);
+    setSaveParticipantId("");
     if (!origin || !destination) return;
     setLoading(true);
     setGuide(null);
@@ -203,8 +225,8 @@ Provide 2-3 realistic route options. Make steps very detailed and beginner-frien
       {/* Generated guide */}
       {guide && (
         <>
-          <div className="flex justify-between items-center no-print">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 no-print">
+            <div className="flex items-center gap-3 flex-wrap">
               <p className="font-black text-lg text-foreground">Travel Guide Ready</p>
               <Button variant="outline" size="sm" onClick={() => { setGuide(null); setOrigin(""); setDestination(""); }} className="rounded-xl gap-1.5 text-xs">
                 + Plan New Journey
@@ -216,6 +238,32 @@ Provide 2-3 realistic route options. Make steps very detailed and beginner-frien
             <Button variant="outline" onClick={() => window.print()} className="rounded-xl gap-2 font-bold">
               <Printer size={15} /> Print / Save PDF
             </Button>
+          </div>
+
+          {/* Save to participant profile */}
+          <div className="bg-card border border-border rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 no-print">
+            <div className="flex-1">
+              <p className="text-sm font-black text-foreground mb-1">Save to Participant Profile</p>
+              <p className="text-xs text-muted-foreground">Participant can then access this guide from their portal</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <select
+                value={saveParticipantId}
+                onChange={e => { setSaveParticipantId(e.target.value); setSaved(false); }}
+                className="flex h-9 rounded-md border border-input bg-transparent px-3 text-sm min-w-[180px]"
+              >
+                <option value="">Select participant...</option>
+                {participants.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+              {saved ? (
+                <span className="flex items-center gap-1.5 text-emerald-600 font-black text-sm px-3">✓ Saved!</span>
+              ) : (
+                <Button onClick={saveToProfile} disabled={!saveParticipantId || saving} className="rounded-xl font-bold gap-2">
+                  {saving ? <Loader2 size={14} className="animate-spin" /> : null}
+                  Save to Profile
+                </Button>
+              )}
+            </div>
           </div>
 
           <div id="travel-guide-print" className="bg-white rounded-3xl border border-slate-200 overflow-hidden">
