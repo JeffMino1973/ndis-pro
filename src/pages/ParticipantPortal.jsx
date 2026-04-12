@@ -574,25 +574,7 @@ export default function ParticipantPortal() {
               </section>
             )}
 
-            {supportPlans.length > 0 && (
-              <section>
-                <h3 className="font-black text-slate-800 flex items-center gap-2 mb-3"><Star size={16} className="text-amber-600" /> Support Plans</h3>
-                <div className="space-y-3">
-                  {supportPlans.map(sp => (
-                    <div key={sp.id} className="bg-white border border-slate-200 rounded-2xl p-5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-amber-100 text-amber-700 rounded-xl flex items-center justify-center"><Star size={18} /></div>
-                        <div>
-                          <p className="font-black text-slate-900">{sp.title || "Support Plan"}</p>
-                          <p className="text-xs text-slate-500">{sp.start_date || ""} {sp.end_date ? `→ ${sp.end_date}` : ""}</p>
-                        </div>
-                        <span className={`ml-auto text-[10px] font-black px-2 py-0.5 rounded-full ${statusColor[sp.status] || "bg-slate-100 text-slate-600"}`}>{sp.status}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
+
 
             {/* Document Upload & View */}
             <section>
