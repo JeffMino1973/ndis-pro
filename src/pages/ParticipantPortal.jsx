@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import {
   ShieldCheck, FileText, Receipt, ClipboardList, CheckCircle, PenLine,
   Loader2, User, Target, AlertTriangle, MessageSquareWarning, Navigation,
-  ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart
+  ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -161,6 +161,10 @@ export default function ParticipantPortal() {
   const [submittingComplaint, setSubmittingComplaint] = useState(false);
   const [complaintSubmitted, setComplaintSubmitted] = useState(false);
 
+  // Document upload
+  const [participantDocuments, setParticipantDocuments] = useState([]);
+  const [uploading, setUploading] = useState(false);
+
   const handleLookup = async () => {
     setError("");
     setLoading(true);
@@ -174,7 +178,7 @@ export default function ParticipantPortal() {
     setParticipant(p);
     setProfileForm({ phone: p.phone || "", email: p.email || "", address: p.address || "", emergency_contact_name: p.emergency_contact_name || "", emergency_contact_phone: p.emergency_contact_phone || "", emergency_contact_relationship: p.emergency_contact_relationship || "" });
 
-    const [agr, quo, inv, plans, risks, notes, comp, meds, epilepsy, pbsp, hcp] = await Promise.all([
+    const [agr, quo, inv, plans, risks, notes, comp, meds, epilepsy, pbsp, hcp, docs] = await Promise.all([
       base44.entities.ServiceAgreement.filter({ participant_name: p.name }),
       base44.entities.Quote.filter({ participant_name: p.name }),
       base44.entities.Invoice.filter({ participant_name: p.name }),
@@ -186,6 +190,7 @@ export default function ParticipantPortal() {
       base44.entities.EpilepsyPlan.filter({ participant_name: p.name }),
       base44.entities.PositiveBehaviourSupportPlan.filter({ participant_name: p.name }).catch(() => []),
       base44.entities.HealthCarePlan.filter({ participant_name: p.name }).catch(() => []),
+      base44.entities.Document ? base44.entities.Document.filter({ participant_name: p.name }, "-created_date").catch(() => []) : Promise.resolve([]),
     ]);
     setAgreements(agr);
     setQuotes(quo);
@@ -198,6 +203,7 @@ export default function ParticipantPortal() {
     setEpilepsyPlans(epilepsy || []);
     setPbsps(pbsp || []);
     setHealthPlans(hcp || []);
+    setParticipantDocuments(docs || []);
     setLoading(false);
   };
 
@@ -241,6 +247,39 @@ export default function ParticipantPortal() {
     // Refresh complaints
     const comp = await base44.entities.Complaint.filter({ participant_name: participant.name }, "-created_date");
     setComplaints(comp);
+  };
+
+  const handleDocumentUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      if (base44.entities.Document) {
+        await base44.entities.Document.create({
+          participant_name: participant.name,
+          participant_id: participant.id,
+          document_name: file.name,
+          file_url,
+          document_type: file.type || "Other",
+          file_size: (file.size / 1024).toFixed(2) + " KB",
+          upload_date: new Date().toISOString().split("T")[0],
+        });
+        const docs = await base44.entities.Document.filter({ participant_name: participant.name }, "-created_date").catch(() => []);
+        setParticipantDocuments(docs || []);
+      }
+    } catch (err) {
+      console.error("Upload error:", err);
+    }
+    setUploading(false);
+    e.target.value = "";
+  };
+
+  const handleDeleteDocument = async (docId) => {
+    if (!base44.entities.Document) return;
+    await base44.entities.Document.delete(docId);
+    const docs = await base44.entities.Document.filter({ participant_name: participant.name }, "-created_date").catch(() => []);
+    setParticipantDocuments(docs || []);
   };
 
   if (!participant) {
@@ -402,11 +441,53 @@ export default function ParticipantPortal() {
               </section>
             )}
 
-            {agreements.length === 0 && quotes.length === 0 && invoices.length === 0 && supportPlans.length === 0 && (
+            {/* Document Upload & View */}
+            <section>
+              <h3 className="font-black text-slate-800 flex items-center gap-2 mb-3"><File size={16} className="text-blue-600" /> Your Documents</h3>
+              <div className="space-y-3">
+                {/* Upload */}
+                <div className="bg-white border-2 border-dashed border-slate-300 rounded-2xl p-6 text-center">
+                  <input type="file" onChange={handleDocumentUpload} disabled={uploading} className="hidden" id="doc-upload" />
+                  <label htmlFor="doc-upload" className="cursor-pointer">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center"><Plus size={18} /></div>
+                      <p className="text-sm font-bold text-slate-900">Upload Document</p>
+                      <p className="text-xs text-slate-500">Click to select PDF, image, or other file</p>
+                      {uploading && <Loader2 size={14} className="animate-spin text-blue-600" />}
+                    </div>
+                  </label>
+                </div>
+
+                {/* Document List */}
+                {participantDocuments && participantDocuments.length > 0 ? (
+                  <div className="space-y-2">
+                    {participantDocuments.map(doc => (
+                      <div key={doc.id} className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-between">
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          <div className="w-9 h-9 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center shrink-0"><File size={16} /></div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-bold text-slate-900 truncate">{doc.document_name}</p>
+                            <p className="text-xs text-slate-500">{doc.upload_date} · {doc.file_size}</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-700 p-1.5"><Download size={14} /></a>
+                          {base44.entities.Document && <button onClick={() => handleDeleteDocument(doc.id)} className="text-slate-400 hover:text-rose-600 p-1.5"><Trash2 size={14} /></button>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-slate-500 italic">No documents uploaded yet.</p>
+                )}
+              </div>
+            </section>
+
+            {agreements.length === 0 && quotes.length === 0 && invoices.length === 0 && supportPlans.length === 0 && (!participantDocuments || participantDocuments.length === 0) && (
               <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
                 <CheckCircle size={40} className="text-emerald-400 mx-auto mb-3" />
                 <h3 className="font-black text-slate-800 mb-1">No Documents Yet</h3>
-                <p className="text-sm text-slate-500">Your provider hasn't sent any documents yet. Check back soon.</p>
+                <p className="text-sm text-slate-500">Your provider hasn't sent any documents yet. You can upload your own documents above.</p>
               </div>
             )}
           </div>

@@ -2,50 +2,39 @@
   "name": "Document",
   "type": "object",
   "properties": {
-    "participant_id": {
-      "type": "string",
-      "title": "Participant ID"
-    },
     "participant_name": {
       "type": "string",
       "title": "Participant Name"
     },
-    "document_type": {
+    "participant_id": {
       "type": "string",
-      "title": "Document Type",
-      "enum": [
-        "Care Plan",
-        "NDIS Plan",
-        "Risk Assessment",
-        "Medical Report",
-        "WWCC Certificate",
-        "Police Check",
-        "First Aid Certificate",
-        "Consent Form",
-        "Emergency Plan",
-        "Other"
-      ]
+      "title": "Participant ID"
     },
-    "title": {
+    "document_name": {
       "type": "string",
-      "title": "Document Title"
+      "title": "Document Name"
     },
     "file_url": {
       "type": "string",
       "title": "File URL"
     },
-    "expiry_date": {
+    "document_type": {
       "type": "string",
-      "title": "Expiry Date",
-      "format": "date"
+      "title": "Document Type"
     },
-    "notes": {
+    "file_size": {
       "type": "string",
-      "title": "Notes"
+      "title": "File Size"
+    },
+    "upload_date": {
+      "type": "string",
+      "title": "Upload Date",
+      "format": "date"
     }
   },
   "required": [
-    "title",
-    "document_type"
+    "participant_name",
+    "document_name",
+    "file_url"
   ]
 }
