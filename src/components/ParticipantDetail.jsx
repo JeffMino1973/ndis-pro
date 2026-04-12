@@ -240,12 +240,16 @@ export default function ParticipantDetail({ participant, onBack }) {
               </select>
             </div>
             <div className="flex items-center gap-3">
-              <label className="flex-1 flex items-center gap-2 cursor-pointer border border-dashed border-border rounded-xl px-4 py-2.5 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors">
+              <button
+                type="button"
+                onClick={() => docFileRef.current?.click()}
+                className="flex-1 flex items-center gap-2 cursor-pointer border border-dashed border-border rounded-xl px-4 py-2.5 text-sm text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+              >
                 <Upload size={15} />
                 {pendingDocFile ? pendingDocFile.name : "Choose file..."}
-                <input ref={docFileRef} type="file" className="hidden" onChange={e => setPendingDocFile(e.target.files?.[0] || null)} />
-              </label>
-              <Button onClick={handleDocUpload} disabled={!pendingDocFile || !docForm.title || uploadingDoc} className="rounded-xl font-bold gap-2">
+              </button>
+              <input ref={docFileRef} type="file" className="hidden" onChange={e => setPendingDocFile(e.target.files?.[0] || null)} />
+              <Button type="button" onClick={handleDocUpload} disabled={!pendingDocFile || !docForm.title || uploadingDoc} className="rounded-xl font-bold gap-2">
                 {uploadingDoc ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
                 Upload
               </Button>
