@@ -19,6 +19,7 @@ const INVOICE_TEMPLATE = (vars = {}) => `<!DOCTYPE html>
           <!-- Header -->
           <tr>
             <td style="background-color:#1e3a5f;padding:36px 40px;text-align:center;">
+              <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/434623d58_image.png" alt="NDIS PRO Logo" width="56" height="56" style="display:block;margin:0 auto 16px;border-radius:14px;" />
               <p style="margin:0;color:#93c5fd;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">NDIS PRO</p>
               <h1 style="margin:8px 0 0;color:#ffffff;font-size:26px;font-weight:900;letter-spacing:-0.5px;">Invoice Attached</h1>
             </td>
@@ -140,9 +141,7 @@ const WELCOME_TEMPLATE = (vars = {}) => `<!DOCTYPE html>
           <!-- Header with gradient -->
           <tr>
             <td style="background-color:#1e3a5f;padding:48px 40px;text-align:center;">
-              <div style="width:64px;height:64px;background-color:#2563eb;border-radius:16px;margin:0 auto 20px;display:table;">
-                <p style="display:table-cell;vertical-align:middle;text-align:center;margin:0;color:#ffffff;font-size:28px;font-weight:900;">✦</p>
-              </div>
+              <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/434623d58_image.png" alt="NDIS PRO Logo" width="64" height="64" style="display:block;margin:0 auto 20px;border-radius:16px;" />
               <p style="margin:0 0 6px;color:#93c5fd;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">NDIS PRO</p>
               <h1 style="margin:0;color:#ffffff;font-size:28px;font-weight:900;letter-spacing:-0.5px;">Welcome to Your<br/>Participant Portal</h1>
             </td>
@@ -270,6 +269,7 @@ const GENERAL_TEMPLATE = (vars = {}) => `<!DOCTYPE html>
           <!-- Header -->
           <tr>
             <td style="background-color:#1e3a5f;padding:36px 40px;text-align:center;">
+              <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/434623d58_image.png" alt="NDIS PRO Logo" width="56" height="56" style="display:block;margin:0 auto 16px;border-radius:14px;" />
               <p style="margin:0 0 8px;color:#93c5fd;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">NDIS PRO</p>
               <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:900;letter-spacing:-0.5px;">${vars.subject || "{{Subject}}"}</h1>
             </td>
