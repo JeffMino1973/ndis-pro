@@ -253,6 +253,84 @@ const WELCOME_TEMPLATE = (vars = {}) => `<!DOCTYPE html>
 </body>
 </html>`;
 
+const GENERAL_TEMPLATE = (vars = {}) => `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>${vars.subject || "{{Subject}}"}</title>
+  <!--[if mso]><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml><![endif]-->
+</head>
+<body style="margin:0;padding:0;background-color:#f1f5f9;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f1f5f9;padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#1e3a5f;padding:36px 40px;text-align:center;">
+              <p style="margin:0 0 8px;color:#93c5fd;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;">NDIS PRO</p>
+              <h1 style="margin:0;color:#ffffff;font-size:26px;font-weight:900;letter-spacing:-0.5px;">${vars.subject || "{{Subject}}"}</h1>
+            </td>
+          </tr>
+
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px;">
+              <p style="margin:0 0 20px;color:#475569;font-size:15px;line-height:1.6;">Dear ${vars.recipientName || "{{Recipient Name}}"},</p>
+
+              <p style="margin:0 0 20px;color:#475569;font-size:15px;line-height:1.7;">${vars.bodyParagraph1 || "{{Opening paragraph — introduce the purpose of this email clearly and professionally.}}"}</p>
+
+              <p style="margin:0 0 20px;color:#475569;font-size:15px;line-height:1.7;">${vars.bodyParagraph2 || "{{Second paragraph — provide additional context, details, or next steps the recipient needs to know.}}"}</p>
+
+              <!-- Optional highlight box -->
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f0f9ff;border-left:4px solid #2563eb;border-radius:0 8px 8px 0;margin:28px 0;">
+                <tr>
+                  <td style="padding:16px 20px;">
+                    <p style="margin:0;color:#1e40af;font-size:14px;font-weight:700;line-height:1.6;">${vars.highlightText || "{{Key message or important note — e.g. next appointment date, action required, deadline, etc.}}"}</p>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0 0 32px;color:#475569;font-size:15px;line-height:1.7;">${vars.bodyParagraph3 || "{{Closing paragraph — wrap up with any final instructions and let them know how to reach you.}}"}</p>
+
+              <!-- Optional CTA button -->
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 auto 36px;">
+                <tr>
+                  <td style="background-color:#2563eb;border-radius:8px;">
+                    <a href="${vars.ctaUrl || "#"}" style="display:inline-block;padding:14px 32px;color:#ffffff;font-size:14px;font-weight:700;text-decoration:none;letter-spacing:0.3px;">${vars.ctaLabel || "{{Button Label}}"}</a>
+                  </td>
+                </tr>
+              </table>
+
+              <p style="margin:0;color:#94a3b8;font-size:13px;line-height:1.8;">
+                Kind regards,<br/>
+                <strong style="color:#475569;">${vars.senderName || "{{Sender Name}}"}</strong><br/>
+                ${vars.senderRole || "{{Role / Position}}"}<br/>
+                ${vars.providerName || "{{Provider Name}}"}<br/>
+                <span>${vars.providerPhone || "{{Phone}}"} · <a href="mailto:${vars.providerEmail || ""}" style="color:#2563eb;text-decoration:none;">${vars.providerEmail || "{{Email}}"}</a></span>
+              </p>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 40px;text-align:center;">
+              <p style="margin:0;color:#94a3b8;font-size:11px;line-height:1.6;">
+                NDIS PRO · NSW Registered Provider · ABN: ${vars.abn || "{{ABN}}"}<br/>
+                This email is intended only for the named recipient. If you received it in error, please delete it.
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
 const TEMPLATES = [
   {
     id: "invoice",
@@ -293,6 +371,31 @@ const TEMPLATES = [
       portalUrl: "https://your-app.base44.app/participant-portal",
     },
   },
+  {
+    id: "general",
+    label: "General / Generic",
+    icon: LayoutTemplate,
+    color: "text-purple-600",
+    bg: "bg-purple-50 border-purple-200",
+    description: "Blank-slate template for any general correspondence",
+    fn: GENERAL_TEMPLATE,
+    vars: {
+      subject: "Important Update from NDIS PRO",
+      recipientName: "John Smith",
+      bodyParagraph1: "We are writing to provide you with an important update regarding your NDIS supports and upcoming service arrangements.",
+      bodyParagraph2: "Our team has reviewed your current plan and would like to discuss some changes that may benefit you. Please review the information below and let us know if you have any questions.",
+      highlightText: "📅 Action Required: Please contact us before 30 April 2026 to confirm your upcoming support sessions.",
+      bodyParagraph3: "If you have any questions or need to discuss anything further, please don't hesitate to contact our team. We are here to support you every step of the way.",
+      ctaLabel: "Contact Us",
+      ctaUrl: "#",
+      senderName: "Sarah Johnson",
+      senderRole: "Support Coordinator",
+      providerName: "NDIS PRO Support Services",
+      providerPhone: "02 9000 0000",
+      providerEmail: "hello@ndispro.com.au",
+      abn: "12 345 678 901",
+    },
+  },
 ];
 
 export default function EmailTemplates() {
@@ -317,7 +420,7 @@ export default function EmailTemplates() {
       </div>
 
       {/* Template selector */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {TEMPLATES.map(t => {
           const Icon = t.icon;
           return (
