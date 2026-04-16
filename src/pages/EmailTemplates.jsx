@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Copy, Check, Mail, FileText, User } from "lucide-react";
+import { Copy, Check, Mail, FileText, User, LayoutTemplate } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const INVOICE_TEMPLATE = (vars = {}) => `<!DOCTYPE html>

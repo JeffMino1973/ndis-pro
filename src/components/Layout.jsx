@@ -29,6 +29,7 @@ import {
   Play,
   Zap,
   Navigation,
+  Mail,
 } from "lucide-react";
 
 const NAV_SECTIONS = [
