@@ -94,6 +94,7 @@ const NAV_SECTIONS = [
     title: "Stationery",
     items: [
       { path: "/stationery", label: "Templates & Stationery", icon: BookTemplate },
+      { path: "/email-templates", label: "Email Templates", icon: Mail },
     ],
   },
   {

@@ -40,6 +40,7 @@ import HealthCarePlan from './pages/HealthCarePlan';
 import BehaviourContinuum from './pages/BehaviourContinuum';
 import BehaviourSupportPlan from './pages/BehaviourSupportPlan';
 import PositiveBehaviourSupportPlan from './pages/PositiveBehaviourSupportPlan';
+import EmailTemplates from './pages/EmailTemplates';
 
 
 const AuthenticatedApp = () => {
@@ -103,6 +104,7 @@ const AuthenticatedApp = () => {
       <Route path="/behaviour-continuum" element={<BehaviourContinuum />} />
       <Route path="/behaviour-support-plans" element={<BehaviourSupportPlan />} />
       <Route path="/positive-behaviour-support-plans" element={<PositiveBehaviourSupportPlan />} />
+      <Route path="/email-templates" element={<EmailTemplates />} />
       <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
