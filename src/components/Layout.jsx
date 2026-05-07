@@ -79,6 +79,7 @@ const NAV_SECTIONS = [
   {
     title: "Finance",
     items: [
+      { path: "/finance", label: "Finance Centre", icon: Receipt },
       { path: "/support-plans", label: "Support Plans", icon: ClipboardList },
       { path: "/service-agreements", label: "Service Agreements", icon: FileText },
       { path: "/invoices", label: "Invoices & Claims", icon: Receipt },
