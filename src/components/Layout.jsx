@@ -30,40 +30,55 @@ import {
   Zap,
   Navigation,
   Mail,
+  DollarSign,
+  Activity,
 } from "lucide-react";
 
 const NAV_SECTIONS = [
   {
-    title: "Core Operations",
+    title: "Dashboard",
     items: [
       { path: "/", label: "Dashboard", icon: LayoutDashboard },
-      { path: "/participants", label: "Participants", icon: Users },
-      { path: "/onboarding", label: "Onboarding Requests", icon: ClipboardCheck },
       { path: "/kpi", label: "KPI Dashboard", icon: BarChart3 },
+      { path: "/ai-reports", label: "AI Report Centre", icon: Zap },
     ],
   },
   {
-    title: "Scheduling",
+    title: "Participants",
+    items: [
+      { path: "/participants", label: "Participants", icon: Users },
+      { path: "/onboarding", label: "Onboarding", icon: ClipboardCheck },
+      { path: "/goal-tracking", label: "Goal Tracking", icon: Target },
+      { path: "/document-vault", label: "Document Vault", icon: FolderOpen },
+      { path: "/participant-portal", label: "Participant Portal", icon: UserCircle },
+    ],
+  },
+  {
+    title: "Scheduling & Shifts",
     items: [
       { path: "/rostering", label: "Rostering", icon: Calendar },
       { path: "/timesheets", label: "Timesheets & Travel", icon: Clock },
       { path: "/shift-logger", label: "Shift Logger", icon: Play },
       { path: "/progress-notes", label: "Progress Notes", icon: FileText },
-    ],
-  },
-  {
-    title: "Client Management",
-    items: [
-      { path: "/goal-tracking", label: "Goal Tracking", icon: Target },
-      { path: "/document-vault", label: "Document Vault", icon: FolderOpen },
+      { path: "/travel-guide", label: "Travel Guide Generator", icon: Navigation },
     ],
   },
   {
     title: "Health & Medication",
     items: [
       { path: "/medications", label: "Medication Dashboard", icon: Pill },
-      { path: "/medication-hub", label: "Medication Forms Hub", icon: ClipboardCheck },
-      { path: "/epilepsy-plans", label: "Epilepsy Management Plans", icon: Brain },
+      { path: "/medication-hub", label: "Medication Forms Hub", icon: ClipboardList },
+      { path: "/epilepsy-plans", label: "Epilepsy Plans", icon: Brain },
+      { path: "/health-care-plans", label: "Health Support Plans", icon: Heart },
+      { path: "/implementation-programs", label: "Implementation Programs", icon: Activity },
+    ],
+  },
+  {
+    title: "Behaviour Support",
+    items: [
+      { path: "/behaviour-continuum", label: "Behaviour Continuum", icon: BarChart3 },
+      { path: "/behaviour-support-plans", label: "Behaviour Support Plans", icon: Brain },
+      { path: "/positive-behaviour-support-plans", label: "PBS Plans", icon: Heart },
     ],
   },
   {
@@ -78,49 +93,26 @@ const NAV_SECTIONS = [
     ],
   },
   {
-    title: "Finance",
+    title: "Finance & Billing",
     items: [
-      { path: "/finance", label: "Finance Centre", icon: Receipt },
-      { path: "/support-plans", label: "Support Plans", icon: ClipboardList },
-      { path: "/service-agreements", label: "Service Agreements", icon: FileText },
+      { path: "/finance", label: "Finance Centre", icon: DollarSign },
       { path: "/invoices", label: "Invoices & Claims", icon: Receipt },
       { path: "/quotes", label: "Quotes", icon: FileText },
+      { path: "/support-plans", label: "Support Plans", icon: ClipboardList },
+      { path: "/service-agreements", label: "Service Agreements", icon: FileText },
     ],
   },
   {
-    title: "Team",
-    items: [
-      { path: "/toby", label: "Toby's Profile", icon: UserCircle },
-    ],
-  },
-  {
-    title: "Stationery",
+    title: "Documents & Templates",
     items: [
       { path: "/stationery", label: "Templates & Stationery", icon: BookTemplate },
       { path: "/email-templates", label: "Email Templates", icon: Mail },
     ],
   },
   {
-    title: "Health & Behaviour",
-    items: [
-      { path: "/health-care-plans", label: "Health Support Plans (IHSP)", icon: Heart },
-      { path: "/behaviour-continuum", label: "Behaviour Continuum", icon: BarChart3 },
-      { path: "/behaviour-support-plans", label: "Behaviour Support Plans", icon: Brain },
-      { path: "/positive-behaviour-support-plans", label: "Positive Behaviour Support Plans", icon: Heart },
-    ],
-  },
-  {
-    title: "AI & Intelligence",
-    items: [
-      { path: "/ai-reports", label: "AI Report Centre", icon: Zap },
-      { path: "/travel-guide", label: "Travel Guide Generator", icon: Navigation },
-      { path: "/implementation-programs", label: "Implementation Programs", icon: ClipboardList },
-    ],
-  },
-  {
     title: "System",
     items: [
-      { path: "/participant-portal", label: "Participant Portal", icon: UserCircle },
+      { path: "/toby", label: "Toby's Profile", icon: UserCircle },
       { path: "/settings", label: "Settings", icon: Settings },
     ],
   },
