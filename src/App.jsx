@@ -74,6 +74,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/participant-portal" element={<ParticipantPortal />} />
+      <Route path="/shopping-list" element={<ShoppingList />} />
       <Route element={<Layout />}>
       <Route path="/" element={<Dashboard />} />
       <Route path="/participants" element={<Participants />} />
@@ -111,7 +112,6 @@ const AuthenticatedApp = () => {
       <Route path="/email-templates" element={<EmailTemplates />} />
       <Route path="/finance" element={<Finance />} />
       <Route path="/medication-hub" element={<MedicationHub />} />
-      <Route path="/shopping-list" element={<ShoppingList />} />
       <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

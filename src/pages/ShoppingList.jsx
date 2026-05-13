@@ -46,7 +46,7 @@ const DEFAULT_ITEMS = [
 
 const UNITS = ["", "x", "kg", "g", "L", "ml", "pack", "bunch", "bag", "box", "bottle", "can"];
 
-export default function ShoppingListPage() {
+function ShoppingListContent() {
   const [view, setView] = useState("weekly"); // weekly | manage | print
   const [items, setItems] = useState([]);
   const [lists, setLists] = useState([]);
@@ -484,6 +484,19 @@ export default function ShoppingListPage() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+export default function ShoppingListPage() {
+  return (
+    <div className="min-h-screen bg-background">
+      <div className="border-b border-border bg-card px-4 py-3 flex items-center gap-3 shadow-sm">
+        <img src={LOGO} alt="SZ-JIE WANG Support Services" className="h-10 object-contain" />
+      </div>
+      <div className="p-4 lg:p-8">
+        <ShoppingListContent />
+      </div>
     </div>
   );
 }
