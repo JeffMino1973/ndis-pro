@@ -62,6 +62,7 @@ const NAV_SECTIONS = [
     title: "Health & Medication",
     items: [
       { path: "/medications", label: "Medication Dashboard", icon: Pill },
+      { path: "/medication-hub", label: "Medication Forms Hub", icon: ClipboardCheck },
       { path: "/epilepsy-plans", label: "Epilepsy Management Plans", icon: Brain },
     ],
   },
@@ -145,20 +146,12 @@ export default function Layout() {
           sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
-        <div className="p-6">
-          <div className="flex items-center gap-3 mb-1">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-primary-foreground shadow-lg">
-              <ShieldCheck size={22} />
-            </div>
-            <div>
-              <h1 className="text-lg font-black tracking-tight text-foreground leading-none">
-                NDIS PRO
-              </h1>
-              <span className="text-[10px] font-bold text-primary uppercase tracking-widest">
-                Enterprise 2026
-              </span>
-            </div>
-          </div>
+        <div className="p-4 pb-2">
+          <img
+            src="https://media.base44.com/images/public/69d54775d9a169daad84a133/09e12d07c_LOGO_LANDSCAPE.png"
+            alt="SZ-JIE WANG Support Services"
+            className="w-full max-w-[200px] mx-auto block"
+          />
         </div>
 
         <nav className="flex-1 px-4 pb-4 overflow-y-auto space-y-6">
