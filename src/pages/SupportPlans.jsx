@@ -267,98 +267,135 @@ function SupportPlanPrint({ participant, goals, budgetItems, primaryGoal, suppor
         </Button>
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-8 lg:p-14 max-w-3xl mx-auto text-slate-800 text-sm">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-8 pb-6 border-b border-slate-200">
-          <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">NDIS Support Plan</h1>
-            <p className="text-slate-500 text-sm mt-1">Individualised Support & Goal Framework</p>
-          </div>
-          <div className="text-right">
-            <p className="text-lg font-black text-slate-900">{config.businessName || "NDIS PRO"}</p>
-            {config.abn && <p className="text-xs text-slate-500">ABN: {config.abn}</p>}
+      <div className="bg-white max-w-4xl mx-auto shadow-xl rounded-b-xl overflow-hidden text-slate-800 text-sm">
+        {/* Gradient Header */}
+        <div style={{background:"linear-gradient(90deg,#3b82f6 0%,#2563eb 40%,#9333ea 100%)"}} className="p-7 flex items-center justify-between">
+          <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/09e12d07c_LOGO_LANDSCAPE.png" alt="SZ-JIE WANG" className="h-14 rounded-xl bg-white px-3 py-2 object-contain" />
+          <div className="text-right text-white">
+            <h1 className="text-2xl font-black tracking-tight">Support Plan</h1>
+            <p className="text-blue-100 text-xs mt-1">SZ-JIE WANG Support Services · NDIS Registered Provider</p>
           </div>
         </div>
 
-        {/* Details */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          {[
-            { label: "Participant Name", value: participant?.name || "—" },
-            { label: "Primary Goal", value: primaryGoal || "—" },
-            { label: "Support Focus", value: supportFocus || "—" },
-            { label: "NDIS Number", value: participant?.ndis_number || "—" },
-            { label: "Date of Plan", value: new Date().toLocaleDateString("en-AU") },
-            { label: "Plan Type", value: participant?.plan_type || "—" },
-          ].map(f => (
-            <div key={f.label} className="bg-slate-50 rounded-xl p-3">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{f.label}</p>
-              <p className="font-bold text-slate-900">{f.value}</p>
+        <div className="p-8 space-y-7">
+          {/* Section 1 - General Info */}
+          <section>
+            <div className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+              <span className="opacity-60">1.</span> General Information
             </div>
-          ))}
-        </div>
-
-        {/* Goals Table */}
-        <section className="mb-8">
-          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">1</span>
-            Goal Plan & Skill Development
-          </h2>
-          <table className="w-full text-left text-sm border border-slate-200 rounded-xl overflow-hidden">
-            <thead className="bg-slate-50">
-              <tr className="text-[10px] font-black text-slate-400 uppercase">
-                <th className="px-4 py-3">Goal</th>
-                <th className="px-4 py-3">Support Strategy</th>
-                <th className="px-4 py-3">Success Criteria</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {goals.filter(g => g.text).map((g, i) => (
-                <tr key={i}>
-                  <td className="px-4 py-4 font-semibold text-slate-800">{g.text}</td>
-                  <td className="px-4 py-4 text-slate-600">{g.support || g.steps || "—"}</td>
-                  <td className="px-4 py-4 text-slate-600">{g.success || "—"}</td>
-                </tr>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: "Participant Name", value: participant?.name || "—", accent: true },
+                { label: "NDIS Number", value: participant?.ndis_number || "—" },
+                { label: "Plan Date", value: new Date().toLocaleDateString("en-AU") },
+                { label: "Primary Goal", value: primaryGoal || "—", accent: true },
+              ].map(f => (
+                <div key={f.label} className={`border-l-4 pl-3 ${f.accent ? "border-blue-500 bg-blue-50/50 pr-2 rounded-r-lg" : "border-slate-200"}`}>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{f.label}</p>
+                  <p className={`font-black text-sm ${f.accent ? "text-blue-800" : "text-slate-800"}`}>{f.value}</p>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </section>
+            </div>
+          </section>
 
-        {/* Budget */}
-        <section className="mb-8">
-          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">2</span>
-            Budget Allocation
-          </h2>
-          <table className="w-full text-sm border border-slate-200 rounded-xl overflow-hidden">
-            <thead className="bg-slate-50">
-              <tr className="text-[10px] font-black text-slate-400 uppercase">
-                <th className="px-4 py-3 text-left">Category</th>
-                <th className="px-4 py-3 text-left">Description</th>
-                <th className="px-4 py-3 text-left">Provider</th>
-                <th className="px-4 py-3 text-right">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {budgetItems.filter(b => b.category || b.amount > 0).map((b, i) => (
-                <tr key={i}>
-                  <td className="px-4 py-3 font-semibold">{b.category}</td>
-                  <td className="px-4 py-3 text-slate-500">{b.description || "—"}</td>
-                  <td className="px-4 py-3 text-slate-500">{b.provider || "—"}</td>
-                  <td className="px-4 py-3 text-right font-black">${Number(b.amount).toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-            <tfoot className="bg-slate-50">
-              <tr>
-                <td colSpan={3} className="px-4 py-3 text-right font-black text-slate-700">Total Plan Budget</td>
-                <td className="px-4 py-3 text-right font-black text-primary text-base">${total.toLocaleString()}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </section>
+          {/* Section 2 & 3 - Focus & Context */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section>
+              <div className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span className="opacity-60">2.</span> Support Focus
+              </div>
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <ul className="space-y-2 text-sm font-semibold text-slate-700">
+                  {(supportFocus || "—").split(",").map((f, i) => (
+                    <li key={i} className="flex items-center gap-2"><span className="w-2 h-2 bg-blue-600 rounded-full shrink-0"></span>{f.trim()}</li>
+                  ))}
+                </ul>
+              </div>
+            </section>
+            <section>
+              <div className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span className="opacity-60">3.</span> Plan Type &amp; Management
+              </div>
+              <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100 italic text-sm text-slate-600 leading-relaxed">
+                "{participant?.plan_type || "Plan Managed"} — This plan has been developed in partnership with the participant and their support network to achieve meaningful outcomes."
+              </div>
+            </section>
+          </div>
 
-        <div className="mt-8 pt-6 border-t border-slate-100 text-center text-xs text-slate-400">
-          This support plan has been developed in partnership with the participant and their support network.
+          {/* Section 4 - Goals Table */}
+          <section>
+            <div className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+              <span className="opacity-60">4.</span> Goal Plan &amp; Skill Development
+            </div>
+            <div className="overflow-hidden rounded-xl border border-slate-200">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200">
+                    <th className="p-4 text-[10px] font-black text-blue-600 uppercase tracking-widest">Goal</th>
+                    <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Support Strategy</th>
+                    <th className="p-4 text-[10px] font-black text-purple-600 uppercase tracking-widest text-right">Success Criteria</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {goals.filter(g => g.text).map((g, i) => (
+                    <tr key={i} className={i % 2 === 1 ? "bg-slate-50/30" : ""}>
+                      <td className="p-4 font-bold text-slate-800 align-top w-1/4">{g.text}</td>
+                      <td className="p-4 text-slate-500 font-medium align-top w-2/4">{g.support || g.steps || "—"}</td>
+                      <td className="p-4 text-purple-700 italic text-right align-top w-1/4">{g.success || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Section 5 - Budget */}
+          <section>
+            <div className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+              <span className="opacity-60">5.</span> Budget Allocation
+            </div>
+            <div className="overflow-hidden rounded-xl border border-slate-200">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200">
+                    <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Category</th>
+                    <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Description</th>
+                    <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest">Provider</th>
+                    <th className="p-4 text-[10px] font-black text-slate-500 uppercase tracking-widest text-right">Amount</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {budgetItems.filter(b => b.category || b.amount > 0).map((b, i) => (
+                    <tr key={i} className={i % 2 === 1 ? "bg-slate-50/30" : ""}>
+                      <td className="p-4 font-semibold text-slate-800">{b.category}</td>
+                      <td className="p-4 text-slate-500">{b.description || "—"}</td>
+                      <td className="p-4 text-slate-500">{b.provider || "—"}</td>
+                      <td className="p-4 font-black text-right">${Number(b.amount).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+                <tfoot>
+                  <tr className="bg-slate-900 text-white">
+                    <td colSpan={3} className="p-4 font-black text-right">Total Plan Budget</td>
+                    <td className="p-4 font-black text-right text-base">${total.toLocaleString()}</td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </section>
+
+          {/* Endorsements */}
+          <section>
+            <div className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-6 flex items-center gap-2">
+              <span className="opacity-60">6.</span> Plan Endorsements
+            </div>
+            <div className="p-5 bg-slate-50 rounded-xl border border-slate-100 flex justify-between items-start">
+              <div><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Assessor</p><p className="font-black text-slate-800">SZ-Jie Wang</p></div>
+              <div className="text-right"><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Date</p><p className="font-black text-slate-800">{new Date().toLocaleDateString("en-AU")}</p></div>
+            </div>
+          </section>
+
+          <p className="text-center text-[10px] text-slate-400 pt-4 border-t border-slate-100">SZ-JIE WANG Support Services · NDIS Registered Provider · This document is confidential.</p>
         </div>
       </div>
     </div>

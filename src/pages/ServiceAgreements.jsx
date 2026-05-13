@@ -263,117 +263,126 @@ function AgreementPreview({ agreement, onBack }) {
         </Button>
       </div>
 
-      <div id="agreement-print" className="bg-white border border-slate-200 rounded-2xl p-8 lg:p-14 max-w-3xl mx-auto text-slate-800 text-sm">        {/* Header */}
-        <div className="flex justify-between items-start mb-8 pb-6 border-b border-slate-200">
-          <div>
-            <h1 className="text-3xl font-black text-slate-900 tracking-tight">Service Agreement</h1>
-            <p className="text-slate-500 text-sm mt-1">Individualized Support Plan</p>
-          </div>
-          <div className="text-right">
-            <p className="text-lg font-black text-slate-900">{config.businessName || "NDIS PRO"}</p>
-            {config.abn && <p className="text-xs text-slate-500">ABN: {config.abn}</p>}
-            {config.phone && <p className="text-xs text-slate-500">{config.phone}</p>}
-            {config.email && <p className="text-xs text-slate-500">{config.email}</p>}
+      <div id="agreement-print" className="bg-white max-w-4xl mx-auto shadow-xl rounded-b-xl overflow-hidden text-slate-800 text-sm">
+        {/* Gradient Header */}
+        <div style={{background:"linear-gradient(90deg,#3b82f6 0%,#2563eb 40%,#9333ea 100%)"}} className="p-7 flex items-center justify-between">
+          <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/09e12d07c_LOGO_LANDSCAPE.png" alt="SZ-JIE WANG" className="h-14 rounded-xl bg-white px-3 py-2 object-contain" />
+          <div className="text-right text-white">
+            <h1 className="text-2xl font-black tracking-tight">Service Agreement</h1>
+            <p className="text-blue-100 text-xs mt-1">SZ-JIE WANG Support Services · NDIS Registered Provider</p>
           </div>
         </div>
 
-        {/* Parties */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          {[
-            { label: "Participant Name", value: agreement.participant_name },
-            { label: "Agreement Date", value: agreement.start_date || new Date().toLocaleDateString("en-AU") },
-            { label: "Provider Name", value: config.businessName || "—" },
-            { label: "Agreement Period", value: agreement.end_date ? `${agreement.start_date} → ${agreement.end_date}` : "—" },
-          ].map(f => (
-            <div key={f.label} className="bg-slate-50 rounded-xl p-4">
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{f.label}</p>
-              <p className="font-bold text-slate-900">{f.value}</p>
+        <div className="p-8 space-y-7">
+          {/* Section 1 - General Info */}
+          <section>
+            <div className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+              <span className="opacity-60">1.</span> General Information
             </div>
-          ))}
-        </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: "Participant Name", value: agreement.participant_name, accent: true },
+                { label: "Agreement Date", value: agreement.start_date || new Date().toLocaleDateString("en-AU") },
+                { label: "NDIS Number", value: agreement.participant_ndis_number || "—" },
+                { label: "Agreement Status", value: agreement.status || "Draft", accent: true },
+              ].map(f => (
+                <div key={f.label} className={`border-l-4 pl-3 ${f.accent ? "border-blue-500 bg-blue-50/50 pr-2 rounded-r-lg" : "border-slate-200"}`}>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{f.label}</p>
+                  <p className={`font-black text-sm ${f.accent ? "text-blue-800" : "text-slate-800"}`}>{f.value}</p>
+                </div>
+              ))}
+            </div>
+          </section>
 
-        {/* Section 1 */}
-        <section className="mb-6">
-          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-            <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">1</span>
-            Purpose of Agreement
-          </h2>
-          <p className="text-slate-600 leading-relaxed">
-            This Service Agreement is made for the purpose of providing supports under the participant's National Disability Insurance Scheme (NDIS) plan.
-            The parties agree to work together to provide supports that help <strong>{agreement.participant_name}</strong> achieve their goals and increase independence.
-          </p>
-        </section>
+          {/* Section 2 - Purpose */}
+          <section>
+            <div className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+              <span className="opacity-60">2.</span> Purpose of Agreement
+            </div>
+            <div className="bg-blue-50/50 p-5 rounded-xl border border-blue-100 italic text-slate-700 leading-relaxed">
+              "This Service Agreement is made for the purpose of providing supports under the participant's National Disability Insurance Scheme (NDIS) plan. The parties agree to work together to provide supports that help <strong>{agreement.participant_name}</strong> achieve their goals of developing life skills and increasing community participation."
+            </div>
+          </section>
 
-        {/* Section 2 - Schedule */}
-        <section className="mb-6">
-          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-            <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">2</span>
-            Schedule of Supports &amp; Costing
-          </h2>
-          <p className="text-xs text-slate-400 mb-3">Costs are based on the Pricing Arrangements and Price Limits 2025-2026 (National/Standard rates).</p>
-          <table className="w-full text-left text-sm border border-slate-200 rounded-xl overflow-hidden">
-            <thead className="bg-slate-50">
-              <tr className="text-[10px] font-black text-slate-400 uppercase">
-                <th className="px-4 py-3">Item Code</th>
-                <th className="px-4 py-3">Support Description</th>
-                <th className="px-4 py-3 text-right">Rate (per hr)</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {(agreement.services || []).map((s, i) => {
-                const { code, rate } = resolveItem(s);
-                return (
-                  <tr key={i}>
-                    <td className="px-4 py-3 text-slate-800 whitespace-nowrap">{code}</td>
-                    <td className="px-4 py-3 font-semibold text-slate-800">{s.description}</td>
-                    <td className="px-4 py-3 text-right">${rate.toFixed(2)}</td>
+          {/* Section 3 - Schedule */}
+          <section>
+            <div className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+              <span className="opacity-60">3.</span> Schedule of Supports &amp; Costing
+            </div>
+            <div className="overflow-hidden rounded-xl border border-slate-200">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200">
+                    <th className="p-4 text-[10px] font-black uppercase text-slate-500 tracking-wider">Item Code</th>
+                    <th className="p-4 text-[10px] font-black uppercase text-slate-500 tracking-wider">Support Description</th>
+                    <th className="p-4 text-[10px] font-black uppercase text-slate-500 tracking-wider text-right">Rate (Per Hour)</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </section>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {(agreement.services || []).map((s, i) => {
+                    const { code, rate } = resolveItem(s);
+                    return (
+                      <tr key={i} className={i % 2 === 1 ? "bg-slate-50/30" : ""}>
+                        <td className="p-4 font-mono text-xs font-bold text-blue-700">{code}</td>
+                        <td className="p-4 text-sm font-semibold text-slate-800">{s.description}</td>
+                        <td className="p-4 text-sm font-bold text-right">${rate.toFixed(2)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-[10px] text-slate-400 mt-2 italic px-2">Costs are based on the NDIS Pricing Arrangements and Price Limits 2025-2026 (National/Standard rates).</p>
+          </section>
 
-        {/* Section 3 - Provider Responsibilities */}
-        <section className="mb-6">
-          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-            <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">3</span>
-            Provider Responsibilities
-          </h2>
-          <ul className="list-disc list-inside space-y-1 text-slate-600">
-            <li>Provide supports that meet the participant's goals.</li>
-            <li>Ensure workers are appropriately trained and screened.</li>
-            <li>Provide clear, itemized invoices and financial records.</li>
-            <li>Respect the participant's rights, privacy and dignity at all times.</li>
-          </ul>
-        </section>
-
-        {/* Section 4 - Participant Responsibilities */}
-        <section className="mb-10">
-          <h2 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-2">
-            <span className="w-5 h-5 bg-primary text-white rounded text-[10px] flex items-center justify-center">4</span>
-            Participant Responsibilities
-          </h2>
-          <ul className="list-disc list-inside space-y-1 text-slate-600">
-            <li>Be ready for scheduled sessions.</li>
-            <li>Provide 24 hours' notice for cancellations.</li>
-            <li>Inform provider of NDIS plan changes promptly.</li>
-            <li>Treat support workers with respect.</li>
-          </ul>
-        </section>
-
-        {/* Signatures */}
-        <div className="grid grid-cols-2 gap-12 pt-8 border-t border-slate-200">
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-12">Participant / Representative Signature</p>
-            <div className="border-b border-slate-300 w-full" />
-            <p className="text-xs text-slate-400 mt-2">Date: ___ / ___ / ________</p>
+          {/* Section 4 & 5 - Responsibilities */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <section>
+              <div className="bg-emerald-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span className="opacity-60">4.</span> Provider Responsibilities
+              </div>
+              <ul className="space-y-2.5 px-2">
+                {["Provide supports that meet the participant's goals.", "Ensure workers are trained and appropriately screened.", "Provide clear, itemized invoices and financial records.", "Respect the participant's rights, privacy and dignity at all times."].map((r, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm font-medium"><span className="text-emerald-500 font-black">•</span>{r}</li>
+                ))}
+              </ul>
+            </section>
+            <section>
+              <div className="bg-amber-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span className="opacity-60">5.</span> Participant Responsibilities
+              </div>
+              <ul className="space-y-2.5 px-2">
+                {["Be ready for scheduled sessions.", "Provide 24 hours' notice for cancellations.", "Inform provider of NDIS plan changes promptly.", "Treat support workers with respect."].map((r, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm font-medium"><span className="text-amber-600 font-black">•</span>{r}</li>
+                ))}
+              </ul>
+            </section>
           </div>
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-12">Provider Representative Signature</p>
-            <div className="border-b border-slate-300 w-full" />
-            <p className="text-xs text-slate-400 mt-2">Date: ___ / ___ / ________</p>
-          </div>
+
+          {/* Section 6 - Signatures */}
+          <section className="pt-4">
+            <div className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-6 flex items-center gap-2">
+              <span className="opacity-60">6.</span> Endorsements &amp; Signatures
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mt-6">
+              <div className="space-y-5">
+                <div className="border-b-2 border-slate-300 w-full h-10" />
+                <div className="flex justify-between items-end">
+                  <div><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Participant / Representative</p><p className="font-black text-slate-800">{agreement.participant_name} (or Representative)</p></div>
+                  <div className="text-right"><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Date</p><p className="font-black text-slate-400">___ / ___ / 2026</p></div>
+                </div>
+              </div>
+              <div className="space-y-5">
+                <div className="border-b-2 border-slate-300 w-full h-10" />
+                <div className="flex justify-between items-end">
+                  <div><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Date</p><p className="font-black text-slate-400">___ / ___ / 2026</p></div>
+                  <div className="text-right"><p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Provider Representative</p><p className="font-black text-slate-800">SZ-JIE WANG</p></div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <p className="text-center text-[10px] text-slate-400 pt-4 border-t border-slate-100">SZ-JIE WANG Support Services · NDIS Registered Provider · This document is confidential.</p>
         </div>
       </div>
     </div>

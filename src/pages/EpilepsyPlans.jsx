@@ -278,96 +278,152 @@ export default function EpilepsyPlans() {
     );
 
     return (
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
-          <div>
-            <button onClick={() => setView("list")} className="text-primary text-sm font-bold hover:underline">← All Plans</button>
-            <h2 className="text-2xl font-black mt-1">{selected.participant_name}</h2>
-            <p className="text-muted-foreground text-sm">{selected.diagnosis}</p>
-          </div>
-          <div className="flex gap-2">
-            <span className={`px-3 py-1 rounded-full text-xs font-black ${selected.status === "Active" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>{selected.status}</span>
-            <Button variant="outline" onClick={() => window.print()} className="rounded-xl gap-2 font-bold text-sm no-print"><Printer size={14} /> Print</Button>
-          </div>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center no-print">
+          <button onClick={() => setView("list")} className="text-primary text-sm font-bold hover:underline">← All Plans</button>
+          <Button variant="outline" onClick={() => window.print()} className="rounded-xl gap-2 font-bold text-sm"><Printer size={14} /> Print / Save PDF</Button>
         </div>
 
-        {/* Emergency banner */}
-        {selected.rescue_medication_name && (
-          <div className="bg-rose-600 text-white rounded-2xl p-5 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Shield size={24} className="animate-pulse shrink-0" />
-              <div>
-                <p className="font-black">Rescue Medication: {selected.rescue_medication_name} {selected.rescue_dose}</p>
-                <p className="text-rose-200 text-xs">Route: {selected.rescue_route} · When: {selected.rescue_when}</p>
+        <div className="bg-white max-w-4xl mx-auto shadow-xl rounded-b-xl overflow-hidden text-slate-800 text-sm">
+          {/* Gradient Header */}
+          <div style={{background:"linear-gradient(90deg,#3b82f6 0%,#2563eb 40%,#9333ea 100%)"}} className="p-7 flex items-center justify-between">
+            <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/09e12d07c_LOGO_LANDSCAPE.png" alt="SZ-JIE WANG" className="h-14 rounded-xl bg-white px-3 py-2 object-contain" />
+            <div className="text-right text-white">
+              <h1 className="text-2xl font-black tracking-tight">Epilepsy Management Plan</h1>
+              <p className="text-blue-100 text-xs mt-1">SZ-JIE WANG Support Services · NDIS Registered Provider</p>
+            </div>
+          </div>
+
+          <div className="p-8 space-y-7">
+            {/* Section 1 - General Info */}
+            <section>
+              <div className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span className="opacity-60">1.</span> General Information
               </div>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-          {[
-            { label: "Neurologist", value: selected.neurologist || "—" },
-            { label: "Typical Duration", value: selected.typical_duration || "—" },
-            { label: "Review Date", value: selected.review_date || "Not set" },
-            { label: "Approved By", value: selected.approved_by || "Pending" },
-          ].map(k => (
-            <div key={k.label} className="bg-card border border-border rounded-2xl p-4">
-              <p className="font-black text-sm text-foreground">{k.value}</p>
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1">{k.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {selected.neurologist_phone && (
-          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-center gap-3">
-            <Phone size={16} className="text-blue-600" />
-            <p className="text-sm font-bold text-blue-800">Neurologist: {selected.neurologist} — <span className="font-black">{selected.neurologist_phone}</span></p>
-          </div>
-        )}
-
-        <Section id="emergency" title="🚨 Emergency Response Protocol" color="border-rose-200 bg-rose-50">
-          {selected.warning_signs && <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-xl"><p className="text-xs font-black text-amber-700 uppercase mb-1">Warning Signs / Aura</p><p className="text-sm">{selected.warning_signs}</p></div>}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <p className="text-xs font-black text-rose-700 uppercase tracking-widest mb-2">Response Steps</p>
-              <ol className="space-y-1.5">
-                {(selected.emergency_steps || []).map((s, i) => (
-                  <li key={i} className="flex gap-2 text-sm text-rose-800"><span className="font-black shrink-0">{i + 1}.</span>{s}</li>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[
+                  { label: "Name", value: selected.participant_name, accent: true },
+                  { label: "DOB", value: selected.date_of_birth || "—" },
+                  { label: "Diagnosis", value: selected.diagnosis },
+                  { label: "Emergency Contact", value: "See file", accent: true },
+                ].map(f => (
+                  <div key={f.label} className={`border-l-4 pl-3 ${f.accent ? "border-blue-500 bg-blue-50/50 pr-2 rounded-r-lg" : "border-slate-200"}`}>
+                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{f.label}</p>
+                    <p className={`font-black text-sm leading-tight ${f.accent ? "text-blue-800" : "text-slate-800"}`}>{f.value}</p>
+                  </div>
                 ))}
-              </ol>
-            </div>
-            <div className="space-y-4">
-              <div>
-                <p className="text-xs font-black text-rose-700 uppercase tracking-widest mb-2">📞 Call 000 If...</p>
-                <ul className="space-y-1">
-                  {(selected.call_000_if || []).map((c, i) => <li key={i} className="text-sm text-rose-800 flex gap-1.5"><span>•</span>{c}</li>)}
-                </ul>
               </div>
-              <div>
-                <p className="text-xs font-black text-rose-700 uppercase tracking-widest mb-2">⛔ Do NOT Do</p>
-                <ul className="space-y-1">
-                  {(selected.do_not_do || []).map((d, i) => <li key={i} className="text-sm text-rose-800 flex gap-1.5"><span>✗</span>{d}</li>)}
-                </ul>
+            </section>
+
+            {/* Section 2 & 3 - Triggers & Warning Signs */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-cyan-50 border border-cyan-100 rounded-xl p-4">
+                <h3 className="font-black text-cyan-800 uppercase text-[9px] tracking-wider mb-2 flex items-center gap-2"><span>⚠️</span> 2. Triggers</h3>
+                <p className="text-cyan-900 font-black text-sm">{selected.known_triggers || "—"}</p>
+              </div>
+              <div className="bg-purple-50 border border-purple-100 rounded-xl p-4">
+                <h3 className="font-black text-purple-800 uppercase text-[9px] tracking-wider mb-2 flex items-center gap-2"><span>👀</span> 3. Warning Signs / Aura</h3>
+                <p className="text-purple-900 font-black text-sm italic">"{selected.warning_signs || "None recorded"}"</p>
               </div>
             </div>
+
+            {/* Section 4 - Seizure Table */}
+            <section>
+              <div className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span className="opacity-60">4.</span> Seizure Description &amp; Support Needs
+              </div>
+              <div className="overflow-hidden rounded-xl border border-slate-200">
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest">
+                    <tr>
+                      <th className="p-3">Seizure Type</th>
+                      <th className="p-3">Duration / Freq</th>
+                      <th className="p-3 text-center">Rescue Med?</th>
+                      <th className="p-3 bg-red-700">Ambulance Trigger</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border-b border-slate-100 text-xs">
+                      <td className="p-3 font-black text-slate-800">{selected.seizure_types || "—"}</td>
+                      <td className="p-3 space-y-1">
+                        <p><span className="text-slate-400 font-bold uppercase text-[8px]">Duration:</span> <span className="font-black">{selected.typical_duration || "—"}</span></p>
+                      </td>
+                      <td className="p-3 text-center font-black text-slate-400">{selected.rescue_medication_name ? "YES" : "NO"}</td>
+                      <td className="p-3 bg-red-50 font-black text-red-700">
+                        {(selected.call_000_if || []).slice(0, 1).map((c, i) => <div key={i} className="flex items-start gap-2"><span>🚨</span><span>{c}</span></div>)}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            {/* Section 5 & 6 - During & After */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-emerald-50 border-l-4 border-emerald-500 p-4 rounded-r-xl">
+                <h3 className="font-black text-emerald-800 uppercase mb-3 text-[9px] tracking-widest">5. During Seizure</h3>
+                <ol className="space-y-2">
+                  {(selected.emergency_steps || []).map((s, i) => (
+                    <li key={i} className="flex gap-2 text-xs text-emerald-950 font-black"><span className="text-emerald-500 font-black shrink-0">{i + 1}.</span>{s}</li>
+                  ))}
+                </ol>
+              </div>
+              <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-xl">
+                <h3 className="font-black text-blue-800 uppercase mb-3 text-[9px] tracking-widest">6. After Seizure / Post-Ictal</h3>
+                <p className="text-xs font-black text-blue-950">{selected.postictal_description || "—"}</p>
+                {(selected.do_not_do || []).length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-[9px] font-black text-red-600 uppercase mb-1">⛔ Do NOT:</p>
+                    <ul className="space-y-1">{selected.do_not_do.map((d, i) => <li key={i} className="text-xs font-black text-red-800 flex gap-1.5"><span>✗</span>{d}</li>)}</ul>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Rescue Medication */}
+            {selected.rescue_medication_name && (
+              <section>
+                <div className="bg-red-700 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                  💊 Emergency Rescue Medication
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { label: "Medication", value: selected.rescue_medication_name },
+                    { label: "Dose", value: selected.rescue_dose },
+                    { label: "Route", value: selected.rescue_route },
+                    { label: "When to Give", value: selected.rescue_when },
+                  ].map(f => (
+                    <div key={f.label} className="bg-red-50 border border-red-200 rounded-xl p-3">
+                      <p className="text-[9px] font-black text-red-400 uppercase tracking-widest mb-1">{f.label}</p>
+                      <p className="font-black text-red-800 text-sm">{f.value || "—"}</p>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {/* Section 7 - Endorsements */}
+            <section>
+              <div className="bg-slate-900 text-white px-4 py-2.5 rounded-lg text-xs font-black uppercase tracking-widest mb-4 flex items-center gap-2">
+                <span className="opacity-60">7.</span> Risk / Safety &amp; Endorsements
+              </div>
+              <div className="grid grid-cols-2 gap-6 px-2">
+                <div>
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Daily Strategies</p>
+                  <ul className="space-y-1">{(selected.daily_strategies || []).map((s, i) => <li key={i} className="text-xs text-slate-700 font-bold flex gap-1.5"><span className="text-emerald-500">✓</span>{s}</li>)}</ul>
+                </div>
+                <div className="text-right">
+                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Treating Physician</p>
+                  <p className="font-black text-sm text-slate-800">{selected.neurologist || "—"}</p>
+                  {selected.neurologist_phone && <p className="text-xs font-bold text-slate-600">{selected.neurologist_phone}</p>}
+                  {selected.approval_date && <p className="text-[9px] font-black text-blue-600 mt-1 uppercase">Endorsed: {selected.approval_date}</p>}
+                </div>
+              </div>
+            </section>
+
+            <p className="text-center text-[10px] text-slate-400 pt-4 border-t border-slate-100">SZ-JIE WANG Support Services · NDIS Registered Provider · This document is confidential.</p>
           </div>
-        </Section>
-
-        <Section id="daily" title="🧠 Daily Support Strategies">
-          <ul className="space-y-2">
-            {(selected.daily_strategies || []).map((s, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm"><CheckCircle size={14} className="text-emerald-600 shrink-0 mt-0.5" />{s}</li>
-            ))}
-          </ul>
-        </Section>
-
-        <Section id="risks" title="🛡️ Risk Management">
-          <ul className="space-y-2">
-            {(selected.risk_strategies || []).map((r, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm"><AlertTriangle size={14} className="text-amber-500 shrink-0 mt-0.5" />{r}</li>
-            ))}
-          </ul>
-        </Section>
+        </div>
       </div>
     );
   }
