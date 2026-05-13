@@ -75,19 +75,28 @@ export default function ShoppingListPage() {
 
   const load = async () => {
     setLoading(true);
-    let [dbItems, dbLists] = await Promise.all([
-      base44.entities.ShoppingItem.list("-created_date"),
-      base44.entities.ShoppingList.list("-created_date", 20),
-    ]);
+    try {
+      let dbItems = await base44.entities.ShoppingItem.list("-created_date");
 
-    // Seed default items if none exist
-    if (dbItems.length === 0) {
-      const created = await Promise.all(DEFAULT_ITEMS.map(i => base44.entities.ShoppingItem.create({ ...i, is_active: true })));
-      dbItems = created;
+      // Seed default items if none exist
+      if (dbItems.length === 0) {
+        dbItems = await base44.entities.ShoppingItem.bulkCreate(
+          DEFAULT_ITEMS.map(i => ({ ...i, is_active: true }))
+        );
+      }
+
+      let dbLists = [];
+      try {
+        dbLists = await base44.entities.ShoppingList.list("-created_date", 20);
+      } catch (e) {
+        // ShoppingList entity may not be ready yet
+      }
+
+      setItems(dbItems.filter(i => i.is_active !== false));
+      setLists(dbLists);
+    } catch (e) {
+      console.error("Shopping list load error:", e);
     }
-
-    setItems(dbItems.filter(i => i.is_active !== false));
-    setLists(dbLists);
     setLoading(false);
   };
 
