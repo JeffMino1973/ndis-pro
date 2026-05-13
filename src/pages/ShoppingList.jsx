@@ -15,27 +15,33 @@ const LOGO = "https://media.base44.com/images/public/69d54775d9a169daad84a133/09
 const CATEGORIES = ["Produce", "Meat & Seafood", "Pantry", "Health & Pharmacy", "Cleaning", "Beverages", "Other"];
 
 const DEFAULT_ITEMS = [
-  { name: "Fresh Rice Noodles", category: "Pantry", image_url: "" },
-  { name: "Noodles", category: "Pantry", image_url: "" },
-  { name: "Morning Fresh Lime 900ml", category: "Cleaning", image_url: "" },
-  { name: "Strepsils Orange - 36", category: "Health & Pharmacy", image_url: "" },
-  { name: "Band Aid - Tough Strips - 40 pack", category: "Health & Pharmacy", image_url: "" },
-  { name: "Plums", category: "Produce", image_url: "" },
-  { name: "Pears", category: "Produce", image_url: "" },
-  { name: "Eggplant", category: "Produce", image_url: "" },
-  { name: "Ripe Pineapple", category: "Produce", image_url: "" },
-  { name: "Organic Choy Pack", category: "Produce", image_url: "" },
-  { name: "Strawberries", category: "Produce", image_url: "" },
-  { name: "Navel Oranges", category: "Produce", image_url: "" },
-  { name: "Brown Mushrooms", category: "Produce", image_url: "" },
-  { name: "Corn", category: "Produce", image_url: "" },
-  { name: "Garlic Net", category: "Produce", image_url: "" },
-  { name: "Cleaver's Eye Fillet", category: "Meat & Seafood", image_url: "" },
-  { name: "Luv a Duck Fresh Duck Breasts", category: "Meat & Seafood", image_url: "" },
-  { name: "Inglewood Chicken Thighs", category: "Meat & Seafood", image_url: "" },
-  { name: "Kangaroo Steak", category: "Meat & Seafood", image_url: "" },
-  { name: "Camomile Tea", category: "Beverages", image_url: "" },
-  { name: "Mouth Wash", category: "Health & Pharmacy", image_url: "" },
+  // Produce
+  { name: "Pears", category: "Produce", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/cb209324a_Pears.jpg" },
+  { name: "Strawberries - 250g", category: "Produce", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/2110a18b1_Strawberries.jpg" },
+  { name: "Navel Oranges - approx. 250g", category: "Produce", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/1dce7d5d0_Oranges.jpg" },
+  { name: "Eggplant", category: "Produce", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/25d4def65_effplant.jpg" },
+  { name: "Brown Mushrooms", category: "Produce", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/6fc10a747_brownmyshroom.jpg" },
+  { name: "Corn", category: "Produce", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/2b308a71b_Corn.jpg" },
+  { name: "Garlic Bulb Net", category: "Produce", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/b6bb2a7ef_Garlic.jpg" },
+  { name: "Plums", category: "Produce", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/70e155927_IMG_0923.jpg" },
+  { name: "Ripe Pineapple", category: "Produce", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/7a8625948_IMG_0924.jpg" },
+  { name: "Organic Choy Pack", category: "Produce", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/80a0451f3_IMG_0925.jpg" },
+  // Meat & Seafood
+  { name: "Cleaver's Organic Grass-fed Beef Eye Fillet - 240g", category: "Meat & Seafood", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/2c939ec27_CleaversOrganixBeef.jpg" },
+  { name: "Luv a Duck Fresh Duck Breasts - 380g", category: "Meat & Seafood", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/4244116ba_LuvaDuckBreast.jpg" },
+  { name: "Inglewood Farms Chicken Thigh Fillets Skin Off - 425g", category: "Meat & Seafood", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/2a653eaff_InglewoodChickenThigs.jpg" },
+  { name: "K-Roo Kangaroo Steak", category: "Meat & Seafood", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/4ae6f9392_KanarooSteak.jpg" },
+  // Pantry
+  { name: "Fresh Thick Rice Noodles - 950g", category: "Pantry", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/612d220a8_IMG_1171.png" },
+  { name: "Nongshim Soon Veggie Ramyun Noodles - 5 pack", category: "Pantry", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/36d578667_IMG_1170.png" },
+  // Health & Pharmacy
+  { name: "Strepsils Orange Throat Lozenges - 36 pack", category: "Health & Pharmacy", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/2a05f1bba_StrepsilsOrangeThroatLozenges36pack.jpg" },
+  { name: "Band Aid Tough Strips - 40 pack", category: "Health & Pharmacy", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/7f273a045_Band-AidToughStrips40pack.jpg" },
+  { name: "Colgate Plax Freshmint Mouthwash - 1L", category: "Health & Pharmacy", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/8c4d0958e_MouthWash.jpeg" },
+  // Cleaning
+  { name: "Morning Fresh Original Dishwashing Liquid - 900ml", category: "Cleaning", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/c827953dd_mormningfreshlime900ml.jpg" },
+  // Beverages
+  { name: "Twinings Pure Camomile Tea - 80 bags", category: "Beverages", image_url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/0eec9534b_IMG_2459.jpeg" },
 ];
 
 const UNITS = ["", "x", "kg", "g", "L", "ml", "pack", "bunch", "bag", "box", "bottle", "can"];
