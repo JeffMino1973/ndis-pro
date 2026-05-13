@@ -67,6 +67,7 @@ const AuthenticatedApp = () => {
       navigateToLogin();
       return null;
     }
+    // For any other error type, still render the app (don't go blank)
   }
 
   // Render the main app
