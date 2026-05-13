@@ -32,6 +32,7 @@ import {
   Mail,
   DollarSign,
   Activity,
+  ShoppingCart,
 } from "lucide-react";
 
 const NAV_SECTIONS = [
@@ -112,6 +113,7 @@ const NAV_SECTIONS = [
   {
     title: "System",
     items: [
+      { path: "/shopping-list", label: "Shopping List (Bronwyn)", icon: ShoppingCart },
       { path: "/toby", label: "Toby's Profile", icon: UserCircle },
       { path: "/settings", label: "Settings", icon: Settings },
     ],

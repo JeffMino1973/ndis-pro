@@ -1,0 +1,36 @@
+{
+  "name": "ShoppingItem",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Item Name"
+    },
+    "image_url": {
+      "type": "string",
+      "title": "Image URL"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "Produce",
+        "Meat & Seafood",
+        "Pantry",
+        "Health & Pharmacy",
+        "Cleaning",
+        "Beverages",
+        "Other"
+      ],
+      "default": "Other"
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

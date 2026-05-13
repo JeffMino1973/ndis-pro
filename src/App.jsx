@@ -43,6 +43,7 @@ import PositiveBehaviourSupportPlan from './pages/PositiveBehaviourSupportPlan';
 import EmailTemplates from './pages/EmailTemplates';
 import Finance from './pages/Finance';
 import MedicationHub from './pages/MedicationHub';
+import ShoppingList from './pages/ShoppingList';
 
 
 const AuthenticatedApp = () => {
@@ -109,6 +110,7 @@ const AuthenticatedApp = () => {
       <Route path="/email-templates" element={<EmailTemplates />} />
       <Route path="/finance" element={<Finance />} />
       <Route path="/medication-hub" element={<MedicationHub />} />
+      <Route path="/shopping-list" element={<ShoppingList />} />
       <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
