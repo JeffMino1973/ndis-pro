@@ -80,9 +80,15 @@ export default function ShoppingListPage() {
 
       // Seed default items if none exist
       if (dbItems.length === 0) {
-        dbItems = await base44.entities.ShoppingItem.bulkCreate(
-          DEFAULT_ITEMS.map(i => ({ ...i, is_active: true }))
-        );
+        try {
+          dbItems = await base44.entities.ShoppingItem.bulkCreate(
+            DEFAULT_ITEMS.map(i => ({ ...i, is_active: true }))
+          );
+        } catch (seedErr) {
+          console.error("Seed error:", seedErr);
+          // Fall back to using the defaults locally so UI isn't blank
+          dbItems = DEFAULT_ITEMS.map((i, idx) => ({ ...i, id: `local-${idx}`, is_active: true }));
+        }
       }
 
       let dbLists = [];
@@ -190,6 +196,19 @@ export default function ShoppingListPage() {
 
   if (loading) {
     return <div className="flex items-center justify-center h-64"><Loader2 className="animate-spin text-primary" size={32} /></div>;
+  }
+
+  if (items.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 gap-4 text-center">
+        <ShoppingCart size={40} className="text-muted-foreground" />
+        <div>
+          <p className="font-black text-lg">No products found</p>
+          <p className="text-muted-foreground text-sm mt-1">Products could not be loaded. Try refreshing the page.</p>
+        </div>
+        <Button onClick={load} variant="outline" className="rounded-xl">Reload</Button>
+      </div>
+    );
   }
 
   // ── PRINT VIEW ──
