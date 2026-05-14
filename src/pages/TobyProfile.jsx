@@ -121,7 +121,7 @@ export default function TobyProfile() {
   const removeAvail = (i) => setData(prev => ({ ...prev, availability: prev.availability.filter((_, idx) => idx !== i) }));
 
   const PROFILE_URL = window.location.origin + "/toby";
-  const EMAIL_BODY = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:Arial,sans-serif;background:#f8fafc;margin:0}.wrap{max-width:560px;margin:0 auto;background:white;border-radius:12px;overflow:hidden}.header{background:linear-gradient(135deg,#0ea5e9,#2563eb);padding:32px 40px;color:white}.header h1{margin:0 0 6px;font-size:22px}.body{padding:32px 40px}.cta{display:inline-block;background:#2563eb;color:white;padding:14px 32px;border-radius:10px;font-weight:bold;text-decoration:none;margin-top:20px}</style></head><body><div class="wrap"><div class="header"><h1>Meet Your Support Worker — ${data.name}</h1><p style="margin:0;opacity:.85">${data.title} · Sydney NSW</p></div><div class="body"><p>Hi there,</p><p>I'd like to introduce you to <strong>${data.name}</strong>, a certified Disability Support Worker based in Waterloo, NSW.</p><p>${data.bio1}</p><a href="${PROFILE_URL}" class="cta">View Full Profile →</a><p style="margin-top:24px;color:#64748b;font-size:13px">Contact: <a href="mailto:${data.email}">${data.email}</a> · ${data.phone}</p></div></div></body></html>`;
+  const EMAIL_BODY = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:'Segoe UI',Roboto,sans-serif;background:#f0f4f8;margin:0;padding:20px}.wrap{max-width:600px;margin:0 auto;background:white;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1)}.header{background:linear-gradient(135deg,#0ea5e9 0%,#2563eb 100%);padding:40px;color:white;text-align:center}.header h1{margin:0 0 8px;font-size:24px;font-weight:700;line-height:1.3}.header p{margin:0;font-size:14px;opacity:0.9}.body{padding:40px}.bio{font-size:15px;line-height:1.6;color:#1e293b;margin-bottom:20px}.cta{display:inline-block;background:#2563eb;color:white;padding:14px 36px;border-radius:8px;font-weight:600;text-decoration:none;margin:20px 0;font-size:15px}.contact{margin-top:28px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:13px;color:#64748b}.contact a{color:#2563eb;text-decoration:none}</style></head><body><div class="wrap"><div class="header"><h1>Meet Your Support Worker</h1><h2 style="margin:8px 0 0;font-size:20px;font-weight:400">— ${data.name}</h2><p>${data.title}</p><p style="margin-top:4px">📍 Sydney, NSW</p></div><div class="body"><p style="font-size:15px;color:#1e293b">Hi there,</p><p class="bio">I'd like to introduce you to <strong>${data.name}</strong>, a certified Disability Support Worker based in Waterloo, NSW.</p><p class="bio">${data.bio1}</p><center><a href="${PROFILE_URL}" class="cta">View Full Profile →</a></center><div class="contact">Contact: <a href="mailto:${data.email}">${data.email}</a> · ${data.phone}</div></div></div></body></html>`;
 
   const sendProfile = async () => {
     if (!recipient) return;
@@ -375,9 +375,11 @@ export default function TobyProfile() {
       <style>{`
         @media print {
           .no-print { display: none !important; }
-          body { background: white !important; overflow: hidden !important; }
-          html { overflow: hidden !important; }
+          body { background: white !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; }
+          html { overflow: visible !important; margin: 0 !important; padding: 0 !important; }
+          main { margin: 0 !important; padding: 0 !important; }
           * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          ::-webkit-scrollbar { display: none !important; }
         }
       `}</style>
     </div>
