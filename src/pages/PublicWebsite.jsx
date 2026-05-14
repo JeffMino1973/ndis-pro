@@ -1,7 +1,7 @@
 import { Phone, Mail, MapPin, Heart, Users, Shield, Zap, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const LOGO = "https://media.base44.com/images/public/69d54775d9a169daad84a133/09e12d07c_LOGO_LANDSCAPE.png";
+const LOGO = "https://media.base44.com/images/public/69d54775d9a169daad84a133/641f2cf35_3cb3f155-51c2-49f0-993b-fc2df2583281.jpg";
 
 export default function PublicWebsite() {
   return (
