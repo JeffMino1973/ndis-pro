@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Printer, Mail, Phone, MapPin, Award, GraduationCap, Briefcase, Heart, Users, Home, Accessibility, Star, Send, Pencil, Check, Plus, X, UserCircle } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -51,14 +51,42 @@ function EditableText({ value, onChange, editing, multiline, className }) {
 }
 
 export default function TobyProfile() {
-  const [data, setData] = useState(DEFAULT_DATA);
-  const [editing, setEditing] = useState(false);
-  const [showEmail, setShowEmail] = useState(false);
-  const [recipient, setRecipient] = useState("");
-  const [sending, setSending] = useState(false);
-  const [sent, setSent] = useState(false);
+   const [data, setData] = useState(DEFAULT_DATA);
+   const [editing, setEditing] = useState(false);
+   const [showEmail, setShowEmail] = useState(false);
+   const [recipient, setRecipient] = useState("");
+   const [sending, setSending] = useState(false);
+   const [sent, setSent] = useState(false);
+   const [saving, setSaving] = useState(false);
 
-  const update = (key, value) => setData(prev => ({ ...prev, [key]: value }));
+   useEffect(() => {
+     loadData();
+   }, []);
+
+   const loadData = async () => {
+     try {
+       const stored = localStorage.getItem("tobyProfileData");
+       if (stored) {
+         setData(JSON.parse(stored));
+       }
+     } catch (e) {
+       console.error("Load error:", e);
+     }
+   };
+
+   const update = (key, value) => setData(prev => ({ ...prev, [key]: value }));
+
+   const saveData = async () => {
+     setSaving(true);
+     try {
+       localStorage.setItem("tobyProfileData", JSON.stringify(data));
+       setSaving(false);
+       setEditing(false);
+     } catch (e) {
+       console.error("Save error:", e);
+       setSaving(false);
+     }
+   };
 
   // Services
   const updateService = (i, field, val) => setData(prev => {
@@ -108,8 +136,8 @@ export default function TobyProfile() {
       {/* Action buttons */}
       <div className="no-print fixed bottom-8 right-8 z-50 flex flex-col items-end gap-2">
         {editing && <p className="text-xs bg-amber-100 text-amber-700 font-bold px-3 py-1 rounded shadow">Editing mode on</p>}
-        <Button onClick={() => setEditing(e => !e)} className={`rounded-full shadow-xl gap-2 ${editing ? "bg-emerald-600 hover:bg-emerald-700" : "bg-amber-500 hover:bg-amber-600"}`}>
-          {editing ? <><Check size={16} /> Done Editing</> : <><Pencil size={16} /> Edit Profile</>}
+        <Button onClick={() => editing ? saveData() : setEditing(true)} disabled={saving} className={`rounded-full shadow-xl gap-2 ${editing ? "bg-emerald-600 hover:bg-emerald-700" : "bg-amber-500 hover:bg-amber-600"}`}>
+          {saving ? <span className="animate-spin">⟳</span> : editing ? <><Check size={16} /> Save & Done</> : <><Pencil size={16} /> Edit Profile</>}
         </Button>
         <Button onClick={() => { setShowEmail(true); setSent(false); setRecipient(""); }} className="rounded-full shadow-xl gap-2 bg-blue-600 hover:bg-blue-700">
           <Mail size={16} /> Email Profile
@@ -121,7 +149,7 @@ export default function TobyProfile() {
 
       {/* Email Dialog */}
       <Dialog open={showEmail} onOpenChange={setShowEmail}>
-        <DialogContent className="max-w-sm">
+        <DialogContent className="max-w-sm no-print">
           <DialogHeader><DialogTitle>Email Toby's Profile</DialogTitle></DialogHeader>
           {sent ? (
             <div className="text-center py-6 space-y-3">
