@@ -44,6 +44,7 @@ import EmailTemplates from './pages/EmailTemplates';
 import Finance from './pages/Finance';
 import MedicationHub from './pages/MedicationHub';
 import ShoppingList from './pages/ShoppingList';
+import PublicWebsite from './pages/PublicWebsite';
 
 
 const AuthenticatedApp = () => {
@@ -128,12 +129,14 @@ function App() {
     <QueryClientProvider client={queryClientInstance}>
       <Router>
         <Routes>
+          <Route path="/" element={<PublicWebsite />} />
           <Route path="/shopping-list" element={<ShoppingList />} />
-          <Route path="*" element={
+          <Route path="/dashboard/*" element={
             <AuthProvider>
               <AuthenticatedApp />
             </AuthProvider>
           } />
+          <Route path="*" element={<PublicWebsite />} />
         </Routes>
       </Router>
       <Toaster />
