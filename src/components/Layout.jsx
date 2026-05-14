@@ -164,7 +164,7 @@ export default function Layout() {
                   return (
                     <Link
                       key={item.path}
-                      to={item.path}
+                      to={`/dashboard${item.path}`}
                       onClick={() => setSidebarOpen(false)}
                       className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
                         isActive
