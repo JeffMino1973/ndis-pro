@@ -375,7 +375,8 @@ export default function TobyProfile() {
       <style>{`
         @media print {
           .no-print { display: none !important; }
-          body { background: white !important; }
+          body { background: white !important; overflow: hidden !important; }
+          html { overflow: hidden !important; }
           * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
       `}</style>
