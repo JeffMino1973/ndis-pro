@@ -33,7 +33,10 @@ import {
   DollarSign,
   Activity,
   ShoppingCart,
+  LogOut,
 } from "lucide-react";
+import { base44 } from "@/api/base44Client";
+import { Button } from "@/components/ui/button";
 
 const NAV_SECTIONS = [
   {
@@ -180,7 +183,7 @@ export default function Layout() {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-border space-y-3">
           <div className="bg-secondary rounded-2xl p-4">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-xs">
@@ -196,6 +199,15 @@ export default function Layout() {
               </div>
             </div>
           </div>
+          <Button
+            onClick={() => base44.auth.logout()}
+            variant="outline"
+            className="w-full gap-2 rounded-xl"
+            size="sm"
+          >
+            <LogOut size={16} />
+            Logout
+          </Button>
         </div>
       </aside>
 

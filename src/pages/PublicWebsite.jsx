@@ -14,10 +14,10 @@ export default function PublicWebsite() {
             <a href="mailto:szjiesupportservices@gmail.com" className="text-sm font-semibold text-slate-600 hover:text-primary">
               Contact Us
             </a>
-            <a href="/participant-portal" className="text-sm font-semibold text-slate-600 hover:text-primary">
+            <a href="/participant-portal" target="_blank" rel="noopener noreferrer" className="text-sm font-semibold text-slate-600 hover:text-primary">
               Participant Portal
             </a>
-            <a href="/dashboard" className="text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90">
+            <a href="/dashboard/" className="text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90">
               Staff Login
             </a>
           </div>
@@ -155,9 +155,9 @@ export default function PublicWebsite() {
               For urgent matters, please call <a href="tel:0401343876" className="text-primary hover:underline font-semibold">0401 343 876</a>
             </p>
             <div className="flex gap-4 justify-center text-xs">
-              <a href="/dashboard" className="text-slate-400 hover:text-primary">Staff Portal</a>
+              <a href="/dashboard/" className="text-slate-400 hover:text-primary">Staff Portal</a>
               <span className="text-slate-600">•</span>
-              <a href="/participant-portal" className="text-slate-400 hover:text-primary">Participant Portal</a>
+              <a href="/participant-portal" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-primary">Participant Portal</a>
             </div>
           </div>
         </div>
