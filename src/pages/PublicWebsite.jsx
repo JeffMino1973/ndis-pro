@@ -20,10 +20,10 @@ export default function PublicWebsite() {
       <section className="bg-gradient-to-r from-blue-600 via-purple-600 to-purple-700 text-white py-20">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h1 className="text-4xl sm:text-5xl font-black mb-4 leading-tight">
-            Compassionate NDIS Support Services
+            Compassionate Support Services
           </h1>
           <p className="text-lg sm:text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Empowering participants to achieve their goals with personalised, quality support. Registered NDIS provider serving NSW.
+            Empowering participants to achieve their goals with personalised, quality support across NSW.
           </p>
           <div className="flex gap-4 justify-center">
             <a href="tel:0401343876">
@@ -47,7 +47,7 @@ export default function PublicWebsite() {
             <div>
               <h2 className="text-3xl font-black mb-4 text-slate-900">Who We Are</h2>
               <p className="text-slate-600 mb-4 leading-relaxed">
-                SZ-Jie Support Services is a registered NDIS provider committed to delivering high-quality, person-centred support. We work with participants across NSW to help them achieve their goals and live more independently.
+                SZ-Jie Support Services is committed to delivering high-quality, person-centred support. We work with participants across NSW to help them achieve their goals and live more independently.
               </p>
               <p className="text-slate-600 leading-relaxed">
                 Our experienced team provides tailored support solutions in community access, daily living skills, personal care, and specialist support — all designed around each person's unique needs and aspirations.
@@ -58,8 +58,8 @@ export default function PublicWebsite() {
                 <div className="flex gap-4">
                   <Shield className="text-primary shrink-0 mt-1" size={24} />
                   <div>
-                    <h3 className="font-black text-slate-900">Registered Provider</h3>
-                    <p className="text-sm text-slate-600">Compliant with NDIS Quality and Safeguarding Framework</p>
+                    <h3 className="font-black text-slate-900">Quality Support</h3>
+                    <p className="text-sm text-slate-600">Committed to quality and safeguarding standards</p>
                   </div>
                 </div>
                 <div className="flex gap-4">
@@ -135,7 +135,7 @@ export default function PublicWebsite() {
           <div className="grid md:grid-cols-2 gap-8 mb-8">
             <div>
               <img src={LOGO} alt="SZ-Jie Support Services" className="h-6 object-contain mb-4" />
-              <p className="text-sm">Delivering quality NDIS support services across NSW.</p>
+              <p className="text-sm">Delivering quality support services across NSW.</p>
             </div>
             <div>
               <p className="text-xs text-slate-400">ABN: 86 959 042 971</p>
