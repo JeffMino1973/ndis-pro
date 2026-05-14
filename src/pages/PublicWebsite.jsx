@@ -10,9 +10,17 @@ export default function PublicWebsite() {
       <nav className="bg-white border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <img src={LOGO} alt="SZ-Jie Support Services" className="h-8 object-contain" />
-          <a href="mailto:szjiesupportservices@gmail.com" className="text-sm font-semibold text-primary hover:text-primary/80">
-            Contact Us
-          </a>
+          <div className="flex items-center gap-6">
+            <a href="mailto:szjiesupportservices@gmail.com" className="text-sm font-semibold text-slate-600 hover:text-primary">
+              Contact Us
+            </a>
+            <a href="/participant-portal" className="text-sm font-semibold text-slate-600 hover:text-primary">
+              Participant Portal
+            </a>
+            <a href="/dashboard" className="text-sm font-semibold px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary/90">
+              Staff Login
+            </a>
+          </div>
         </div>
       </nav>
 
@@ -142,10 +150,15 @@ export default function PublicWebsite() {
               <p className="text-xs text-slate-400 mt-2">© 2026 SZ-Jie Support Services. All rights reserved.</p>
             </div>
           </div>
-          <div className="border-t border-slate-700 pt-8">
+          <div className="border-t border-slate-700 pt-8 space-y-4">
             <p className="text-xs text-slate-400 text-center">
               For urgent matters, please call <a href="tel:0401343876" className="text-primary hover:underline font-semibold">0401 343 876</a>
             </p>
+            <div className="flex gap-4 justify-center text-xs">
+              <a href="/dashboard" className="text-slate-400 hover:text-primary">Staff Portal</a>
+              <span className="text-slate-600">•</span>
+              <a href="/participant-portal" className="text-slate-400 hover:text-primary">Participant Portal</a>
+            </div>
           </div>
         </div>
       </footer>
