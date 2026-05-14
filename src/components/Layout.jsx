@@ -200,7 +200,7 @@ export default function Layout() {
             </div>
           </div>
           <Button
-            onClick={() => base44.auth.logout()}
+            onClick={() => base44.auth.logout("/")}
             variant="outline"
             className="w-full gap-2 rounded-xl"
             size="sm"
