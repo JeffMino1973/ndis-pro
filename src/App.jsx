@@ -78,7 +78,6 @@ const AuthenticatedApp = () => {
   // Render the main app
   return (
     <Routes>
-      <Route path="/participant-portal" element={<ParticipantPortal />} />
       <Route element={<Layout />}>
       <Route path="/" element={<Dashboard />} />
       <Route path="/participants" element={<Participants />} />
@@ -131,6 +130,7 @@ function App() {
         <Routes>
           <Route path="/" element={<PublicWebsite />} />
           <Route path="/shopping-list" element={<ShoppingList />} />
+          <Route path="/participant-portal" element={<ParticipantPortal />} />
           <Route path="/dashboard/*" element={
             <AuthProvider>
               <AuthenticatedApp />
