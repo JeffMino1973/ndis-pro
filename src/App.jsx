@@ -45,6 +45,7 @@ import Finance from './pages/Finance';
 import MedicationHub from './pages/MedicationHub';
 import PublicWebsite from './pages/PublicWebsite';
 import JeffreyProfile from './pages/JeffreyProfile';
+import PolicyManual from './pages/PolicyManual';
 
 
 const AuthenticatedApp = () => {
@@ -97,6 +98,7 @@ const AuthenticatedApp = () => {
       <Route path="/kpi" element={<KPIDashboard />} />
       <Route path="/onboarding" element={<OnboardingRequests />} />
       <Route path="/toby" element={<TobyProfile />} />
+      <Route path="/policy-manual" element={<PolicyManual />} />
       <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/stationery" element={<Stationery />} />

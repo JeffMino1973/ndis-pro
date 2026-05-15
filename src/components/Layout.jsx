@@ -115,6 +115,7 @@ const NAV_SECTIONS = [
   {
     title: "System",
     items: [
+      { path: "/policy-manual", label: "Policy & Compliance Manual", icon: ClipboardList },
       { path: "/toby", label: "Toby's Profile", icon: UserCircle },
       { path: "/jeffrey", label: "Jeffrey's Profile", icon: UserCircle },
       { path: "/settings", label: "Settings", icon: Settings },
