@@ -97,6 +97,7 @@ const AuthenticatedApp = () => {
       <Route path="/kpi" element={<KPIDashboard />} />
       <Route path="/onboarding" element={<OnboardingRequests />} />
       <Route path="/toby" element={<TobyProfile />} />
+      <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/stationery" element={<Stationery />} />
       <Route path="/quotes" element={<Quotes />} />
@@ -130,7 +131,7 @@ function App() {
         <Routes>
           <Route path="/" element={<PublicWebsite />} />
           <Route path="/participant-portal" element={<ParticipantPortal />} />
-          <Route path="/jeffrey" element={<JeffreyProfile />} />
+
           <Route path="/dashboard/*" element={
             <AuthProvider>
               <AuthenticatedApp />
