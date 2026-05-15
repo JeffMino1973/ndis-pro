@@ -43,7 +43,6 @@ import PositiveBehaviourSupportPlan from './pages/PositiveBehaviourSupportPlan';
 import EmailTemplates from './pages/EmailTemplates';
 import Finance from './pages/Finance';
 import MedicationHub from './pages/MedicationHub';
-import ShoppingList from './pages/ShoppingList';
 import PublicWebsite from './pages/PublicWebsite';
 
 
@@ -129,7 +128,6 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<PublicWebsite />} />
-          <Route path="/shopping-list" element={<ShoppingList />} />
           <Route path="/participant-portal" element={<ParticipantPortal />} />
           <Route path="/dashboard/*" element={
             <AuthProvider>

@@ -32,7 +32,6 @@ import {
   Mail,
   DollarSign,
   Activity,
-  ShoppingCart,
   LogOut,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
@@ -116,7 +115,6 @@ const NAV_SECTIONS = [
   {
     title: "System",
     items: [
-      { path: "/shopping-list", label: "Shopping List (Bronwyn)", icon: ShoppingCart },
       { path: "/toby", label: "Toby's Profile", icon: UserCircle },
       { path: "/settings", label: "Settings", icon: Settings },
     ],
