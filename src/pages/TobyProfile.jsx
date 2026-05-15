@@ -14,14 +14,14 @@ const ICON_OPTIONS = Object.keys(ICON_MAP);
 
 const DEFAULT_DATA = {
   name: "Sz-Jie (Toby)",
-  title: "Certified Disability Support Worker",
+  title: "Disability Support Worker",
   location: "Waterloo, NSW 2017 · Available across Sydney Metro",
   phone: "0435 951 563",
   email: "Toby7796@gmail.com",
   address: "309/12 Broome St, Waterloo NSW 2017",
-  languages: "English · Mandarin · Cantonese",
+  languages: "English · Mandarin",
   bio1: "Compassionate and dedicated Disability Support Worker with certification in Individual Support and practical training experience in person-centered care. Committed to empowering individuals with disabilities to live independently and with dignity.",
-  bio2: "Fluent in English, Mandarin and Cantonese — making Toby especially well-suited to support participants from culturally and linguistically diverse backgrounds. Skilled in daily living assistance, mobility support, and fostering genuine social inclusion.",
+  bio2: "Fluent in English and Mandarin — making Toby especially well-suited to support participants from culturally and linguistically diverse backgrounds. Skilled in daily living assistance, mobility support, and fostering genuine social inclusion.",
   values: ["Compassion", "Dignity", "Patience", "Inclusion", "Respect", "Independence"],
   availability: [
     { day: "Mon – Fri", time: "7am – 8pm" },
