@@ -116,6 +116,7 @@ const NAV_SECTIONS = [
     title: "System",
     items: [
       { path: "/toby", label: "Toby's Profile", icon: UserCircle },
+      { path: "/jeffrey", label: "Jeffrey's Profile", icon: UserCircle },
       { path: "/settings", label: "Settings", icon: Settings },
     ],
   },

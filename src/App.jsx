@@ -44,6 +44,7 @@ import EmailTemplates from './pages/EmailTemplates';
 import Finance from './pages/Finance';
 import MedicationHub from './pages/MedicationHub';
 import PublicWebsite from './pages/PublicWebsite';
+import JeffreyProfile from './pages/JeffreyProfile';
 
 
 const AuthenticatedApp = () => {
@@ -129,6 +130,7 @@ function App() {
         <Routes>
           <Route path="/" element={<PublicWebsite />} />
           <Route path="/participant-portal" element={<ParticipantPortal />} />
+          <Route path="/jeffrey" element={<JeffreyProfile />} />
           <Route path="/dashboard/*" element={
             <AuthProvider>
               <AuthenticatedApp />
