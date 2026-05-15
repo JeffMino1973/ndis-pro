@@ -303,9 +303,9 @@ function Receipts({ receipts, setReceipts, onLoad }) {
   const save = async () => {
     const data = { ...form, amount: parseFloat(form.amount) || 0 };
     if (editingId) {
-      await base44.entities.Document.update(editingId, { ...data, document_name: form.description, document_type: "Tax Receipt" });
+      await base44.entities.Receipt.update(editingId, data);
     } else {
-      await base44.entities.Document.create({ ...data, document_name: form.description, document_type: "Tax Receipt", participant_name: "Tax Deduction" });
+      await base44.entities.Receipt.create(data);
     }
     setShowForm(false);
     setEditingId(null);
@@ -315,7 +315,7 @@ function Receipts({ receipts, setReceipts, onLoad }) {
 
   const del = async (id) => {
     if (!window.confirm("Delete receipt?")) return;
-    await base44.entities.Document.delete(id);
+    await base44.entities.Receipt.delete(id);
     onLoad();
   };
 
@@ -345,7 +345,7 @@ function Receipts({ receipts, setReceipts, onLoad }) {
           <div key={r.id} className="bg-card border border-border rounded-2xl p-4">
             <div className="flex justify-between items-start mb-2">
               <div>
-                <p className="font-black text-sm">{r.document_name || r.description}</p>
+                <p className="font-black text-sm">{r.description}</p>
                 <p className="text-xs text-muted-foreground">{r.category} · {r.date}</p>
               </div>
               <p className="font-black text-primary">${parseFloat(r.amount || 0).toFixed(2)}</p>
@@ -450,7 +450,7 @@ ${invoices.map(i => `<tr><td>${i.date || i.issue_date || "—"}</td><td>${i.invo
 <h2>Tax Deductions (${receipts.length} receipts)</h2>
 <table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th></tr></thead>
 <tbody>
-${receipts.map(r => `<tr><td>${r.date || "—"}</td><td>${r.category || "—"}</td><td>${r.document_name || r.description || "—"}</td><td>$${parseFloat(r.amount || 0).toFixed(2)}</td></tr>`).join("")}
+${receipts.map(r => `<tr><td>${r.date || "—"}</td><td>${r.category || "—"}</td><td>${r.description || "—"}</td><td>$${parseFloat(r.amount || 0).toFixed(2)}</td></tr>`).join("")}
 <tr class="total"><td colspan="3">TOTAL DEDUCTIONS</td><td>$${totalDeductions.toFixed(2)}</td></tr>
 </tbody></table>
 
@@ -529,7 +529,7 @@ export default function Finance() {
   };
 
   const loadReceipts = async () => {
-    const data = await base44.entities.Document.filter({ document_type: "Tax Receipt" }, "-created_date");
+    const data = await base44.entities.Receipt.list("-created_date");
     setReceipts(data);
   };
 

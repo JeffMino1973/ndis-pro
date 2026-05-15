@@ -1,0 +1,47 @@
+{
+  "name": "Receipt",
+  "type": "object",
+  "properties": {
+    "date": {
+      "type": "string",
+      "title": "Date",
+      "format": "date"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "Vehicle/Fuel",
+        "Phone/Internet",
+        "Work Clothing",
+        "Professional Development",
+        "Home Office",
+        "Equipment/Tools",
+        "Subscriptions",
+        "Other"
+      ],
+      "default": "Other"
+    },
+    "amount": {
+      "type": "number",
+      "title": "Amount ($)",
+      "default": 0
+    },
+    "receipt_url": {
+      "type": "string",
+      "title": "Receipt File URL"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "description",
+    "date"
+  ]
+}
