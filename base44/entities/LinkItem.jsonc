@@ -1,0 +1,26 @@
+{
+  "name": "LinkItem",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Title"
+    },
+    "url": {
+      "type": "string",
+      "title": "Link URL"
+    },
+    "image_url": {
+      "type": "string",
+      "title": "Image URL"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    }
+  },
+  "required": [
+    "title",
+    "url"
+  ]
+}

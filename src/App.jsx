@@ -46,6 +46,7 @@ import MedicationHub from './pages/MedicationHub';
 import PublicWebsite from './pages/PublicWebsite';
 import JeffreyProfile from './pages/JeffreyProfile';
 import PolicyManual from './pages/PolicyManual';
+import Links from './pages/Links';
 
 
 const AuthenticatedApp = () => {
@@ -99,6 +100,7 @@ const AuthenticatedApp = () => {
       <Route path="/onboarding" element={<OnboardingRequests />} />
       <Route path="/toby" element={<TobyProfile />} />
       <Route path="/policy-manual" element={<PolicyManual />} />
+      <Route path="/links" element={<Links />} />
       <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/stationery" element={<Stationery />} />

@@ -4,7 +4,7 @@ import {
   ShieldCheck, FileText, Receipt, ClipboardList, CheckCircle, PenLine,
   Loader2, User, Target, AlertTriangle, MessageSquareWarning, Navigation, Pencil,
   ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File, Circle, Menu, Pill,
-  ChevronDown, ChevronUp, BarChart3, BookOpen, Printer
+  ChevronDown, ChevronUp, BarChart3, BookOpen, Printer, Link as LinkIcon, ExternalLink, ImageIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -170,6 +170,7 @@ export default function ParticipantPortal() {
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [raAssessments, setRaAssessments] = useState([]);
+  const [siteLinks, setSiteLinks] = useState([]);
 
   const handleLookup = async () => {
     setError("");
@@ -206,6 +207,8 @@ export default function ParticipantPortal() {
     setHealthPlans(dedup(hcp)); setParticipantDocuments(dedup(docs));
     setImplementationPrograms(dedup(impPrograms));
     setRaAssessments(dedup(risks));
+    const linksData = await base44.entities.LinkItem.list("-created_date").catch(() => []);
+    setSiteLinks(linksData || []);
     setLoading(false);
   };
 
@@ -506,6 +509,30 @@ export default function ParticipantPortal() {
                 )}
               </div>
             </section>
+
+            {siteLinks.length > 0 && (
+              <section>
+                <h3 className="font-black text-slate-800 flex items-center gap-2 mb-3"><LinkIcon size={16} className="text-indigo-600" /> Useful Links</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {siteLinks.map(link => (
+                    <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer"
+                      className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
+                      {link.image_url ? (
+                        <img src={link.image_url} alt={link.title} className="w-full h-24 object-cover" />
+                      ) : (
+                        <div className="flex items-center justify-center h-24 bg-indigo-50">
+                          <LinkIcon size={24} className="text-indigo-400" />
+                        </div>
+                      )}
+                      <div className="p-3">
+                        <p className="font-black text-slate-900 text-xs flex items-center gap-1">{link.title} <ExternalLink size={10} /></p>
+                        {link.description && <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">{link.description}</p>}
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {agreements.length === 0 && quotes.length === 0 && invoices.length === 0 && supportPlans.length === 0 && (!participantDocuments || participantDocuments.length === 0) && (
               <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">

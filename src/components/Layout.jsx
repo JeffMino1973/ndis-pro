@@ -33,6 +33,7 @@ import {
   DollarSign,
   Activity,
   LogOut,
+  Link2,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -110,6 +111,7 @@ const NAV_SECTIONS = [
     items: [
       { path: "/stationery", label: "Templates & Stationery", icon: BookTemplate },
       { path: "/email-templates", label: "Email Templates", icon: Mail },
+      { path: "/links", label: "Links", icon: Link2 },
     ],
   },
   {
