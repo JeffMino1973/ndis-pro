@@ -54,7 +54,7 @@ const NAV_SECTIONS = [
       { path: "/onboarding", label: "Onboarding", icon: ClipboardCheck },
       { path: "/goal-tracking", label: "Goal Tracking", icon: Target },
       { path: "/document-vault", label: "Document Vault", icon: FolderOpen },
-      { path: "/participant-portal", label: "Participant Portal", icon: UserCircle },
+      { path: "EXTERNAL:/participant-portal", label: "Participant Portal", icon: UserCircle },
     ],
   },
   {
@@ -163,16 +163,24 @@ export default function Layout() {
                 {section.items.map((item) => {
                   const isActive = location.pathname === item.path;
                   const Icon = item.icon;
-                  return (
+                  const isExternal = item.path.startsWith("EXTERNAL:");
+                  const href = isExternal ? item.path.replace("EXTERNAL:", "") : `/dashboard${item.path}`;
+                  const linkClass = `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                    isActive
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  }`;
+                  return isExternal ? (
+                    <a key={item.path} href={href} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                      <Icon size={18} />
+                      <span>{item.label}</span>
+                    </a>
+                  ) : (
                     <Link
                       key={item.path}
-                      to={`/dashboard${item.path}`}
+                      to={href}
                       onClick={() => setSidebarOpen(false)}
-                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                        isActive
-                          ? "bg-primary text-primary-foreground shadow-md"
-                          : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                      }`}
+                      className={linkClass}
                     >
                       <Icon size={18} />
                       <span>{item.label}</span>
