@@ -125,11 +125,11 @@ export default function PublicWebsite() {
           <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
             {/* Toby */}
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden flex">
-              <div className="w-40 shrink-0 min-h-[220px]">
+              <div className="w-24 shrink-0 flex items-start justify-center p-4 pt-5">
                 <img
                   src="https://media.base44.com/images/public/69d54775d9a169daad84a133/9c2ede7a8_Picture1.png"
                   alt="Toby"
-                  className="w-full h-full object-cover object-top"
+                  className="w-16 h-16 rounded-full object-cover object-top border-2 border-slate-200"
                 />
               </div>
               <div className="p-5 flex flex-col justify-between flex-1">
@@ -162,11 +162,11 @@ export default function PublicWebsite() {
 
             {/* Jeffrey */}
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden flex">
-              <div className="w-40 shrink-0 min-h-[220px]">
+              <div className="w-24 shrink-0 flex items-start justify-center p-4 pt-5">
                 <img
                   src="https://media.base44.com/images/public/69d54775d9a169daad84a133/b8ef90a14_Jeff.jpg"
                   alt="Jeffrey"
-                  className="w-full h-full object-cover object-top"
+                  className="w-16 h-16 rounded-full object-cover object-top border-2 border-slate-200"
                 />
               </div>
               <div className="p-5 flex flex-col justify-between flex-1">
