@@ -1,440 +1,340 @@
 import { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
-import { Plus, Save, Loader2, Brain, CheckCircle, Target, Shield, Users, Printer, Edit, Trash2, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Brain, TrafficCone, Utensils, ShieldHalf, BandageIcon, Smartphone, UserCheck, Plus, Trash2, TriangleAlert, FileText } from "lucide-react";
 
-const TIER_CONFIG = {
-  "Tier 1 – Universal": { color: "bg-emerald-100 border-emerald-300 text-emerald-800", badge: "bg-emerald-100 text-emerald-700", desc: "All participants — positive behaviour supports, environmental design" },
-  "Tier 2 – Targeted": { color: "bg-amber-50 border-amber-300 text-amber-800", badge: "bg-amber-100 text-amber-700", desc: "At-risk individuals — additional strategies and monitoring" },
-  "Tier 3 – Intensive": { color: "bg-rose-50 border-rose-300 text-rose-900", badge: "bg-rose-100 text-rose-700", desc: "Complex needs — individual behaviour support plan, specialist involvement" },
-};
+const DEFAULT_ENTRIES = [
+  {
+    id: 1,
+    time: "2026-05-18T08:00",
+    antecedent: "Mom routine change (cereal/lunch)",
+    behavior: "Threw box of cereal and bowl in the bin. Hit mother repeatedly, hyper-focused.",
+    consequence: "Support worker arrived. Intervention was attempted too closely, which escalated hitting.",
+    outcome: "Delayed regulation (over 1 hour). Later hit support worker too."
+  },
+  {
+    id: 2,
+    time: "2026-05-18T12:15",
+    antecedent: "Dad leftovers returned to fridge",
+    behavior: "Tried to force mother to eat the remainder of fathers lunch.",
+    consequence: "Fathers yogurt and spoon were returned to fridge out of sight.",
+    outcome: "She stopped forcing mother once yogurt became visually inaccessible."
+  },
+  {
+    id: 3,
+    time: "2026-05-18T15:30",
+    antecedent: "Attempted tissue/serviette handoff",
+    behavior: "Refused tissue handed by mother, threw it away. Offered worker a white serviette to hold food.",
+    consequence: "Support worker accepted serviette quietly without praise or comment.",
+    outcome: "Remained regulated. Reinforced rule system."
+  }
+];
 
-const BSP_ENTITY = "BehaviourSupportPlan";
+const ANTECEDENT_OPTIONS = [
+  "Mom routine change (cereal/lunch)",
+  "Dad leftovers returned to fridge",
+  "Support worker presence (Demand/School)",
+  "Physical discomfort (Cut/Itch/Band-Aid)",
+  "Attempted tissue/serviette handoff",
+  "Other Environmental Trigger"
+];
 
-// We'll store BSPs in SupportPlan entity with a type flag, or create a separate entity via schema
-// Using base44 generic approach - store in a dedicated JSON-friendly way
+function Toast({ message, onRemove }) {
+  useEffect(() => {
+    const t = setTimeout(onRemove, 3000);
+    return () => clearTimeout(t);
+  }, [onRemove]);
+  return (
+    <div className="fixed bottom-5 right-5 z-50 bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-xl flex items-center gap-2">
+      <TriangleAlert size={14} className="text-amber-400" />
+      <span>{message}</span>
+    </div>
+  );
+}
 
 export default function BehaviourSupportPlan() {
-  const [plans, setPlans] = useState([]);
-  const [participants, setParticipants] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [view, setView] = useState("list");
-  const [selected, setSelected] = useState(null);
-  const [saving, setSaving] = useState(false);
-
-  const blankForm = () => ({
-    participant_name: "", participant_id: "", ndis_number: "",
-    primary_goal: "", presenting_behaviours: "", function_of_behaviour: "",
-    tier: "Tier 1 – Universal",
-    antecedent_strategies: [""],
-    skill_teaching: [""],
-    consequence_strategies: [""],
-    reinforcement_strategies: [""],
-    crisis_plan: "",
-    support_team: [{ name: "", role: "", phone: "" }],
-    review_date: "", plan_author: "",
-    classroom_flow: ["Reminder / Prompt", "Reflection Time-Out", "Buddy / Buddy Activity", "Supervisor Referral"],
-    outdoor_flow: ["Verbal Correction / Prompt", "Restorative Chat", "Supervisor Referral", "Incident Report"],
-    pbl_values: "",
-    anti_bullying: "",
-    status: "Active",
+  const [clientName, setClientName] = useState("Anonymous Profile");
+  const [clientAge, setClientAge] = useState("32 Years");
+  const [workerName, setWorkerName] = useState("Mr. Minton");
+  const [logs, setLogs] = useState(() => {
+    try {
+      const saved = localStorage.getItem("behavior_logs");
+      return saved ? JSON.parse(saved) : DEFAULT_ENTRIES;
+    } catch { return DEFAULT_ENTRIES; }
+  });
+  const [toast, setToast] = useState(null);
+  const [newEntry, setNewEntry] = useState({
+    time: "",
+    antecedent: ANTECEDENT_OPTIONS[0],
+    behavior: "",
+    consequence: "",
+    outcome: ""
   });
 
-  const [form, setForm] = useState(blankForm());
-  const [editingId, setEditingId] = useState(null);
+  useEffect(() => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    setNewEntry(e => ({ ...e, time: now.toISOString().slice(0, 16) }));
+  }, []);
 
-  const load = async () => {
-    const [parts] = await Promise.all([base44.entities.Participant.list()]);
-    setParticipants(parts);
-    // Load from SupportPlan entity with type tag
-    const allPlans = await base44.entities.SupportPlan.filter({ support_focus: "Behaviour Support Plan" }).catch(() => []);
-    setPlans(allPlans);
-    setLoading(false);
-  };
+  useEffect(() => {
+    localStorage.setItem("behavior_logs", JSON.stringify(logs));
+  }, [logs]);
 
-  useEffect(() => { load(); }, []);
-
-  const setF = (k, v) => setForm(p => ({ ...p, [k]: v }));
-
-  const selectParticipant = (id) => {
-    const p = participants.find(x => x.id === id);
-    if (!p) return;
-    setF("participant_id", id);
-    setF("participant_name", p.name);
-    setF("ndis_number", p.ndis_number || "");
-  };
-
-  const updateList = (field, i, v) => setForm(p => ({ ...p, [field]: p[field].map((x, idx) => idx === i ? v : x) }));
-  const addItem = (field) => setForm(p => ({ ...p, [field]: [...p[field], ""] }));
-  const removeItem = (field, i) => setForm(p => ({ ...p, [field]: p[field].filter((_, idx) => idx !== i) }));
-
-  const updateTeam = (i, k, v) => setForm(p => ({ ...p, support_team: p.support_team.map((m, idx) => idx === i ? { ...m, [k]: v } : m) }));
-
-  const save = async () => {
-    setSaving(true);
-    // Serialize BSP as a SupportPlan with JSON in primary_goal and support_focus flag
-    const payload = {
-      participant_name: form.participant_name,
-      participant_id: form.participant_id,
-      title: `BSP — ${form.participant_name}`,
-      primary_goal: form.primary_goal,
-      support_focus: "Behaviour Support Plan",
-      status: form.status,
-      goals: [
-        { text: `Tier: ${form.tier}`, steps: JSON.stringify({
-          presenting_behaviours: form.presenting_behaviours,
-          function_of_behaviour: form.function_of_behaviour,
-          antecedent_strategies: form.antecedent_strategies,
-          skill_teaching: form.skill_teaching,
-          consequence_strategies: form.consequence_strategies,
-          reinforcement_strategies: form.reinforcement_strategies,
-          crisis_plan: form.crisis_plan,
-          support_team: form.support_team,
-          classroom_flow: form.classroom_flow,
-          outdoor_flow: form.outdoor_flow,
-          pbl_values: form.pbl_values,
-          anti_bullying: form.anti_bullying,
-          plan_author: form.plan_author,
-          review_date: form.review_date,
-          ndis_number: form.ndis_number,
-        }), support: "", success: "" }
-      ],
-    };
-    if (editingId) {
-      await base44.entities.SupportPlan.update(editingId, payload);
-    } else {
-      await base44.entities.SupportPlan.create(payload);
+  function addEntry() {
+    if (!newEntry.time || !newEntry.behavior || !newEntry.consequence) {
+      setToast("Please fill in Date/Time, Behavior, and Response fields.");
+      return;
     }
-    setSaving(false);
-    setView("list");
-    setEditingId(null);
-    load();
-  };
+    setLogs(prev => [...prev, { ...newEntry, id: Date.now(), outcome: newEntry.outcome || "Not recorded" }]);
+    setNewEntry(e => ({ ...e, behavior: "", consequence: "", outcome: "" }));
+  }
 
-  const parseDetails = (plan) => {
-    try {
-      return JSON.parse(plan.goals?.[0]?.steps || "{}");
-    } catch { return {}; }
-  };
+  function deleteEntry(id) {
+    setLogs(prev => prev.filter(e => e.id !== id));
+  }
 
-  const deletePlan = async (id) => {
-    if (!window.confirm("Delete this behaviour support plan?")) return;
-    await base44.entities.SupportPlan.delete(id);
-    load();
-  };
+  function resetDefaults() {
+    if (window.confirm("Restore pre-set behavior tracker defaults?")) {
+      setLogs([...DEFAULT_ENTRIES]);
+    }
+  }
 
-  const openEdit = (plan) => {
-    const d = parseDetails(plan);
-    const tier = plan.goals?.[0]?.text?.replace("Tier: ", "") || "Tier 1 – Universal";
-    setForm({
-      participant_name: plan.participant_name || "",
-      participant_id: plan.participant_id || "",
-      ndis_number: d.ndis_number || "",
-      primary_goal: plan.primary_goal || "",
-      presenting_behaviours: d.presenting_behaviours || "",
-      function_of_behaviour: d.function_of_behaviour || "",
-      tier,
-      antecedent_strategies: d.antecedent_strategies || [""],
-      skill_teaching: d.skill_teaching || [""],
-      consequence_strategies: d.consequence_strategies || [""],
-      reinforcement_strategies: d.reinforcement_strategies || [""],
-      crisis_plan: d.crisis_plan || "",
-      support_team: d.support_team || [{ name: "", role: "", phone: "" }],
-      review_date: d.review_date || "",
-      plan_author: d.plan_author || "",
-      classroom_flow: d.classroom_flow || blankForm().classroom_flow,
-      outdoor_flow: d.outdoor_flow || blankForm().outdoor_flow,
-      pbl_values: d.pbl_values || "",
-      anti_bullying: d.anti_bullying || "",
-      status: plan.status || "Active",
-    });
-    setEditingId(plan.id);
-    setView("form");
-  };
+  const sortedLogs = [...logs].sort((a, b) => new Date(b.time) - new Date(a.time));
 
-  const ListEditor = ({ field, label }) => (
-    <div>
-      <div className="flex justify-between items-center mb-1.5">
-        <Label className="text-xs font-black">{label}</Label>
-        <Button variant="ghost" size="sm" onClick={() => addItem(field)} className="h-6 px-2 text-xs gap-0.5"><Plus size={10} /></Button>
-      </div>
-      <div className="space-y-1.5">
-        {(form[field] || []).map((item, i) => (
-          <div key={i} className="flex gap-2">
-            <div className="w-5 h-8 flex items-center justify-center text-xs font-black text-muted-foreground shrink-0">{i + 1}</div>
-            <Input value={item} onChange={e => updateList(field, i, e.target.value)} className="text-xs h-8" />
-            {form[field].length > 1 && <button onClick={() => removeItem(field, i)} className="text-muted-foreground hover:text-destructive shrink-0"><Trash2 size={12} /></button>}
+  return (
+    <div className="min-h-screen bg-slate-100 pb-16 font-inter">
+      {toast && <Toast message={toast} onRemove={() => setToast(null)} />}
+
+      {/* Control Bar */}
+      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-slate-200 px-4 py-3 shadow-sm no-print">
+        <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-teal-600 flex items-center justify-center text-white shadow-md">
+              <FileText size={18} />
+            </div>
+            <div>
+              <h1 className="font-bold text-slate-900 leading-tight">Interactive Behavior Support Dashboard</h1>
+              <p className="text-xs text-slate-500">Co-authored with Lead Support Worker & Parents</p>
+            </div>
           </div>
-        ))}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button onClick={() => window.print()} className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-teal-600 hover:bg-teal-700 text-white px-4 py-2.5 rounded-lg font-medium transition text-sm">
+              Export / Print PDF
+            </button>
+            <button onClick={resetDefaults} className="flex-1 sm:flex-none flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-lg font-medium transition text-sm">
+              Reset Data
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 mt-8 space-y-8">
+
+        {/* ---- PAGE 1 ---- */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 sm:p-10">
+          {/* Header */}
+          <div className="border-b border-slate-100 pb-8 mb-8">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-6">
+              <div>
+                <span className="bg-teal-50 text-teal-700 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full border border-teal-100">Clinical Formulation</span>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-3 tracking-tight">Positive Behavior Support & Response Framework</h2>
+                <p className="text-slate-500 text-sm mt-1">Structured support targeting rigid order preferences, routine adjustments, and defensive PDA profiles.</p>
+              </div>
+              <div className="w-full md:w-auto bg-slate-50 border border-slate-200/60 rounded-xl p-4 text-xs space-y-2 shrink-0">
+                <div className="grid grid-cols-2 gap-4">
+                  <div><strong className="text-slate-400 block">CLIENT:</strong><input value={clientName} onChange={e => setClientName(e.target.value)} className="font-semibold text-slate-700 bg-transparent border-b border-slate-300 w-full focus:outline-none focus:border-teal-500" /></div>
+                  <div><strong className="text-slate-400 block">AGE:</strong><input value={clientAge} onChange={e => setClientAge(e.target.value)} className="font-semibold text-slate-700 bg-transparent border-b border-slate-300 w-full focus:outline-none focus:border-teal-500" /></div>
+                </div>
+                <div className="grid grid-cols-2 gap-4 pt-1">
+                  <div><strong className="text-slate-400 block">DIAGNOSIS:</strong><span className="font-medium text-slate-700">Autism, Mod. ID</span></div>
+                  <div><strong className="text-slate-400 block">LEAD WORKER:</strong><input value={workerName} onChange={e => setWorkerName(e.target.value)} className="font-semibold text-slate-700 bg-transparent border-b border-slate-300 w-full focus:outline-none focus:border-teal-500" /></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Clinical Formulation */}
+          <div className="mb-8">
+            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
+              <Brain size={18} className="text-teal-600" /> Primary Clinical Formulation
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-slate-50 border border-slate-100 p-5 rounded-xl">
+              <div className="space-y-3">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-teal-800">The "Control vs. Chaos" Drive</h4>
+                <p className="text-sm text-slate-600 leading-relaxed">For this individual, her behaviors (including sudden hitting) are primarily driven by an acute need for <strong>predictability and external environmental ordering</strong>. When her strict internal rules are breached—e.g., Mom choosing a breakfast food out of turn, Dad returning food to the fridge half-eaten, or visible injuries on others—she experiences instantaneous neurological threat. Unable to process this via complex expressive verbal language, she discharges this sudden internal panic physically through hitting.</p>
+              </div>
+              <div className="space-y-3 border-t md:border-t-0 md:border-l border-slate-200/80 pt-4 md:pt-0 md:pl-6">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-teal-800">The Professional-PDA Boundary Dynamic</h4>
+                <p className="text-sm text-slate-600 leading-relaxed">A stark difference exists between her interactions with parents vs. her support worker. Parents represent "safe" attachments where she feels empowered to try and enforce order. The support worker ("{workerName}") represents a formal "system framework." Her initial defensive comment ("Bye, {workerName}") and reference to "School" indicate she is hyper-aware that his presence challenges her established control.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Arousal Phases */}
+          <div>
+            <h3 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-4">
+              <TrafficCone size={18} className="text-teal-600" /> The Four Stages of Arousal & Crisis Response
+            </h3>
+            <div className="space-y-4">
+              {[
+                { color: "emerald", dot: "bg-emerald-500", border: "border-emerald-100", bg: "bg-emerald-50/40", label: "1. GREEN Phase", sub: "Baseline/Regulated", obj: "Consolidate safety triggers & respect routine rules.", points: ["The Serviette Accommodation: Ensure white serviettes are always readily available and physically presented with foods. Do not force direct touching.", '"Mom\'s Choice" Visuals: Proactively schedule breakfast options so variations are visual events rather than surprises.'] },
+                { color: "amber", dot: "bg-amber-500", border: "border-amber-100", bg: "bg-amber-50/40", label: "2. YELLOW Phase", sub: 'The "Rumble" Stage', obj: "Warning Signs: Vocal repetitions, pacing, phone wiping, ordering parents.", points: ["Immediate Non-Verbal Interventions: Introduce \"change cards\" without complex speaking. Switch to quiet, low tone.", "Declarative Statements: Avoid telling her what to do. Use \"I can see the cereal box is in the bin. Let's step away.\""] },
+                { color: "red", dot: "bg-red-500", border: "border-red-100", bg: "bg-red-50/40", label: "3. RED Phase", sub: "Crisis / Hitting", obj: "Intervention: Maximum Distance, Total Silence, Block Safely.", points: ["Evacuate & Step Back: Both worker and parent must physically disengage. Speak 0 words.", "No Eye Contact: Looking at her reinforces challenge loops. Look down or away while securing yourself behind a physical barrier (counter/sofa cushion)."] },
+                { color: "blue", dot: "bg-blue-500", border: "border-blue-100", bg: "bg-blue-50/40", label: "4. BLUE Phase", sub: "Recovery / Fatigue", obj: "Intervention: Low Demands, Extended Rest.", points: ["The Recovery Window: Expect cortisol levels to remain elevated for up to 3 hours. Avoid asking her to choose anything or do any tasks.", "Refusal Acceptance: Accept she may be highly fragile or lethargic; let her reset without commentary."] },
+              ].map((phase, i) => (
+                <div key={i} className={`flex flex-col sm:flex-row gap-4 p-4 rounded-xl border ${phase.border} ${phase.bg}`}>
+                  <div className="sm:w-1/4 flex flex-row sm:flex-col items-center sm:items-start gap-2">
+                    <span className={`w-4 h-4 rounded-full ${phase.dot} shrink-0`}></span>
+                    <div>
+                      <h4 className={`font-bold text-${phase.color}-900 text-sm`}>{phase.label}</h4>
+                      <span className={`text-xs text-${phase.color}-700`}>{phase.sub}</span>
+                    </div>
+                  </div>
+                  <div className="sm:w-3/4 text-sm text-slate-600 space-y-2">
+                    <p className="font-medium text-slate-800">{phase.obj}</p>
+                    <ul className="list-disc pl-4 space-y-1 text-xs">
+                      {phase.points.map((p, j) => <li key={j}>{p}</li>)}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ---- PAGE 2 ---- */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 sm:p-10">
+          <div className="border-b border-slate-100 pb-6 mb-6">
+            <span className="bg-teal-50 text-teal-700 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full border border-teal-100">Tactical Core Toolbox</span>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-2">Targeted Protocols & Environmental Rules</h2>
+            <p className="text-xs text-slate-500">Concrete steps to manage the five primary anxiety-response profiles.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              { icon: <Utensils size={16} className="text-teal-600" />, title: 'Food Throwing & "Completion" Rules', dynamic: 'She wants to control what is eaten and bought to eliminate food she dislikes. Half-eaten or "saved" food (like Dad\'s yogurt or lunch) violates her rule of "closed" items, initiating an obsession to force consumption or discard.', protocol: ['Clean Counter Policy: All parental food prep and leftovers must be immediately closed and stored behind closed cupboard doors/fridges out of direct sight line.', 'Verbal Script: If she attempts to force her parent to finish food, use flat tone: "Dad\'s food is finished. It is away." Do not debate or justify the choice. Walk away immediately.'] },
+              { icon: <ShieldHalf size={16} className="text-teal-600" />, title: 'Sensory Shields (White Serviette)', dynamic: "White napkins act as a mandatory protective shield against food textures. Her refusal of tissues from parents but acceptance from support workers is a direct test of relational boundaries and demand-avoidance.", protocol: ['Systemic Uniformity: All staff and parents must use identical white serviettes. Stock them in identical plastic boxes.', 'Deputize Control: Before meals, utilize her desire to order the house: "Can you please put three clean serviettes on the table?" This translates bossing into a helpful structuring task.'] },
+              { icon: <BandageIcon size={16} className="text-teal-600" />, title: 'Injury & Hygiene Hyper-Fixations', dynamic: "Skin disruptions (itches/cuts) cause high tactile panic. Visible Band-Aids on others cause systemic uncertainty. Ear-inspections and cotton buds are obsessive-compulsive efforts to ensure \"perfection.\"", protocol: ['Cotton Bud/Ear Boundary: The support worker must state firmly: "My ears are clean. Cotton buds are away." Put all cotton buds in locked or out-of-reach storage.', 'The Band-Aid Script: If she obsesses over someone\'s bandage: "Mom\'s arm is healing. The Band-Aid is working. We are finished talking about it." Diversion must immediately follow.'] },
+              { icon: <Smartphone size={16} className="text-teal-600" />, title: 'Phone Wiping & Audio Control', dynamic: "Deleting all notifications and icons represents her attempt to keep her digital ecosystem perfectly neat. Restricting music/stereo play on others is a protective effort to reduce auditory chaos.", protocol: ['Let her delete: Let her delete harmless system assets on her phone. Use parental control locks to prevent deletion of critical communication tools or contacts.', 'The "My Turn" Visual: Use a simple, laminated double-sided visual token for the stereo: "Side A: Parent\'s Turn / Side B: Her Turn". When Side A is active, she cannot modify input.'] },
+            ].map((card, i) => (
+              <div key={i} className="border border-slate-200 rounded-xl p-5 space-y-4">
+                <h4 className="font-bold text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2 text-sm">
+                  {card.icon} {card.title}
+                </h4>
+                <div className="space-y-3 text-xs text-slate-600">
+                  <div><strong className="text-slate-800 block mb-1">The Dynamic:</strong>{card.dynamic}</div>
+                  <div className="bg-teal-50/50 p-3 rounded-lg border border-teal-100/50">
+                    <strong className="text-teal-900 block mb-1">Direct Protocol:</strong>
+                    <ul className="list-disc pl-3 space-y-1">
+                      {card.protocol.map((p, j) => <li key={j}>{p}</li>)}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Mr. Minton Section */}
+          <div className="mt-8 pt-6 border-t border-slate-100">
+            <h4 className="font-bold text-slate-900 flex items-center gap-2 mb-3 text-sm">
+              <UserCheck size={16} className="text-teal-600" /> "{workerName}" Relationship & PDA Boundary Plan
+            </h4>
+            <div className="bg-slate-50 border border-slate-200/50 p-4 rounded-xl text-xs text-slate-600 space-y-3">
+              <p>Her comment, <em>"Bye {workerName},"</em> paired with her anxieties about <em>"going back to school,"</em> confirms she perceives you as a source of routine expectations and direct behavior challenges. She has spent 12 months managing her parents under her own rigid systems, and your return represents a dismantling of her authority structure.</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                <div><strong className="text-slate-800 block mb-1">1. Neutral, High-Structure Re-entry</strong>Do not over-explain or try to "win" a warm connection right away. Focus on highly predictable, low-demand activities that she has complete control over (e.g. organizing her space or wiping her phone). Use declarative language.</div>
+                <div><strong className="text-slate-800 block mb-1">2. Establishing Unified Rules</strong>If she attempts to hit you or force boundaries upon you, she must experience the same immediate physical distance protocol as parents. By displaying structured, predictable boundaries, you demonstrate she can trust you to be calm and immovable.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ---- PAGE 3: ABC Log ---- */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 sm:p-10">
+          <div className="border-b border-slate-100 pb-6 mb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+              <div>
+                <span className="bg-teal-50 text-teal-700 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 rounded-full border border-teal-100">Data Collection</span>
+                <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mt-2">Interactive ABC Behavior Log</h2>
+              </div>
+              <span className="text-xs text-slate-400">Data saves to browser memory</span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">Logs chronological triggers (Antecedent), Actions (Behavior), and responses/outcomes (Consequence) to pinpoint shifting baseline patterns.</p>
+          </div>
+
+          {/* Table */}
+          <div className="overflow-x-auto border border-slate-100 rounded-xl mb-6 shadow-inner">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200 text-slate-400 font-bold tracking-wider uppercase">
+                  <th className="py-3.5 px-4 w-32">Date & Time</th>
+                  <th className="py-3.5 px-4 w-44">Antecedent (Trigger)</th>
+                  <th className="py-3.5 px-4">Behavior (Action)</th>
+                  <th className="py-3.5 px-4">Consequence (Response)</th>
+                  <th className="py-3.5 px-4 w-44">Outcome / Lesson</th>
+                  <th className="py-3.5 px-4 w-20 text-center no-print">Del</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {sortedLogs.length === 0 ? (
+                  <tr><td colSpan={6} className="py-8 text-center text-slate-400 text-xs">No behaviors logged. Clean tracking period.</td></tr>
+                ) : sortedLogs.map(entry => {
+                  const d = new Date(entry.time);
+                  const fmt = d.toLocaleDateString() + " @ " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+                  return (
+                    <tr key={entry.id} className="hover:bg-slate-50/50 transition">
+                      <td className="py-3 px-4 font-semibold text-slate-700">{fmt}</td>
+                      <td className="py-3 px-4 text-teal-800 font-medium">{entry.antecedent}</td>
+                      <td className="py-3 px-4 text-slate-600">{entry.behavior}</td>
+                      <td className="py-3 px-4 text-slate-600">{entry.consequence}</td>
+                      <td className="py-3 px-4 text-slate-600 font-medium">{entry.outcome}</td>
+                      <td className="py-3 px-4 text-center no-print">
+                        <button onClick={() => deleteEntry(entry.id)} className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1.5 rounded transition">
+                          <Trash2 size={13} />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Add Entry Form */}
+          <div className="no-print bg-slate-50 border border-slate-200 rounded-xl p-5">
+            <h4 className="font-bold text-sm text-slate-900 mb-3 flex items-center gap-1.5">
+              <Plus size={16} className="text-teal-600" /> Add New Behavior Entry
+            </h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3.5">
+              {[
+                { label: "Date & Time", el: <input type="datetime-local" value={newEntry.time} onChange={e => setNewEntry(n => ({ ...n, time: e.target.value }))} className="w-full p-2 text-xs bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-teal-500 focus:outline-none" /> },
+                { label: "Antecedent (Trigger)", el: <select value={newEntry.antecedent} onChange={e => setNewEntry(n => ({ ...n, antecedent: e.target.value }))} className="w-full p-2 text-xs bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-teal-500 focus:outline-none">{ANTECEDENT_OPTIONS.map(o => <option key={o}>{o}</option>)}</select> },
+                { label: "Behavior (Action)", el: <input type="text" value={newEntry.behavior} onChange={e => setNewEntry(n => ({ ...n, behavior: e.target.value }))} placeholder="e.g. Hit mother, threw items in bin" className="w-full p-2 text-xs bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-teal-500 focus:outline-none" /> },
+                { label: "Response (Action Taken)", el: <input type="text" value={newEntry.consequence} onChange={e => setNewEntry(n => ({ ...n, consequence: e.target.value }))} placeholder="e.g. Worker stepped away, silence" className="w-full p-2 text-xs bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-teal-500 focus:outline-none" /> },
+                { label: "Outcome / Recovery Time", el: <input type="text" value={newEntry.outcome} onChange={e => setNewEntry(n => ({ ...n, outcome: e.target.value }))} placeholder="e.g. Regulated after 45 minutes" className="w-full p-2 text-xs bg-white border border-slate-300 rounded-lg focus:ring-1 focus:ring-teal-500 focus:outline-none" /> },
+              ].map(({ label, el }, i) => (
+                <div key={i}><label className="block text-xs font-semibold text-slate-500 mb-1">{label}</label>{el}</div>
+              ))}
+            </div>
+            <div className="mt-4 flex justify-end">
+              <button onClick={addEntry} className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1">
+                <Plus size={13} /> Add Entry
+              </button>
+            </div>
+          </div>
+
+          {/* Signatures */}
+          <div className="mt-8 pt-8 border-t border-slate-200">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {["Parent/Guardian Signature & Date", `Lead Support Worker ("${workerName}") Signature`, "Behavior Support Specialist Sign-Off"].map((label, i) => (
+                <div key={i} className="space-y-2">
+                  <div className="border-b border-slate-300 h-12"></div>
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">{label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
-
-  // ── LIST ──
-  if (view === "list") {
-    return (
-      <div className="space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h2 className="text-3xl font-black tracking-tight">Behaviour Support Plans</h2>
-            <p className="text-muted-foreground text-sm">Tiered positive behaviour support framework & individual plans.</p>
-          </div>
-          <Button onClick={() => { setForm(blankForm()); setEditingId(null); setView("form"); }} className="rounded-xl font-bold gap-2"><Plus size={15} /> New Plan</Button>
-        </div>
-
-        {/* Tier overview */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {Object.entries(TIER_CONFIG).map(([tier, cfg]) => (
-            <div key={tier} className={`border-2 rounded-2xl p-5 ${cfg.color}`}>
-              <p className="font-black text-sm">{tier}</p>
-              <p className="text-xs mt-1 opacity-80">{cfg.desc}</p>
-              <p className="font-black text-2xl mt-3">{plans.filter(p => p.goals?.[0]?.text?.includes(tier.split("–")[0].trim())).length}</p>
-              <p className="text-[10px] font-black uppercase tracking-widest opacity-70">Plans</p>
-            </div>
-          ))}
-        </div>
-
-        {loading ? (
-          <div className="flex items-center justify-center h-40"><Loader2 className="animate-spin text-primary" size={28} /></div>
-        ) : plans.length === 0 ? (
-          <div className="bg-card border border-dashed border-border rounded-3xl p-16 text-center">
-            <Brain size={48} className="text-muted-foreground/30 mx-auto mb-4" />
-            <h3 className="font-black text-xl mb-1">No Behaviour Support Plans</h3>
-            <p className="text-muted-foreground text-sm mb-6">Create a behaviour support plan for a participant.</p>
-            <Button onClick={() => { setForm(blankForm()); setEditingId(null); setView("form"); }} className="rounded-xl font-bold gap-2"><Plus size={15} /> Create Plan</Button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-            {plans.map(plan => {
-              const tier = plan.goals?.[0]?.text?.replace("Tier: ", "") || "Tier 1 – Universal";
-              const cfg = TIER_CONFIG[tier] || TIER_CONFIG["Tier 1 – Universal"];
-              return (
-                <div key={plan.id} className="bg-card border border-border rounded-2xl p-5 hover:shadow-lg hover:border-primary/30 transition-all">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center"><Brain size={18} className="text-purple-600" /></div>
-                      <div>
-                        <p className="font-black text-foreground">{plan.participant_name}</p>
-                        <p className="text-xs text-muted-foreground">{plan.primary_goal || "No goal set"}</p>
-                      </div>
-                    </div>
-                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 ${plan.status === "Active" ? "bg-emerald-100 text-emerald-700" : "bg-slate-100 text-slate-600"}`}>{plan.status}</span>
-                  </div>
-                  <span className={`text-[10px] font-black px-2 py-1 rounded-full ${cfg.badge}`}>{tier}</span>
-                  <div className="flex gap-2 mt-4 pt-3 border-t border-border">
-                    <Button variant="ghost" size="sm" onClick={() => { setSelected(plan); setView("detail"); }} className="flex-1 rounded-lg text-xs gap-1"><ChevronRight size={12} /> View</Button>
-                    <Button variant="ghost" size="sm" onClick={() => openEdit(plan)} className="flex-1 rounded-lg text-xs gap-1"><Edit size={12} /> Edit</Button>
-                    <Button variant="ghost" size="sm" onClick={() => deletePlan(plan.id)} className="flex-1 rounded-lg text-xs gap-1 text-destructive hover:text-destructive"><Trash2 size={12} /> Delete</Button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // ── FORM ──
-  if (view === "form") {
-    return (
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <div>
-            <button onClick={() => setView("list")} className="text-primary text-sm font-bold hover:underline">← Back</button>
-            <h2 className="text-2xl font-black mt-1">{editingId ? "Edit" : "New"} Behaviour Support Plan</h2>
-          </div>
-          <Button onClick={save} disabled={!form.participant_name || saving} className="rounded-xl font-bold gap-2">
-            {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />} Save Plan
-          </Button>
-        </div>
-
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          <div className="space-y-4">
-            <div className="bg-card border border-border rounded-3xl p-6 space-y-3">
-              <h3 className="font-black">Participant & Plan Details</h3>
-              <div>
-                <Label>Participant</Label>
-                <Select value={form.participant_id} onValueChange={selectParticipant}>
-                  <SelectTrigger className="mt-1"><SelectValue placeholder="Select participant..." /></SelectTrigger>
-                  <SelectContent>{participants.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div><Label className="text-xs">Primary Goal</Label><Input value={form.primary_goal} onChange={e => setF("primary_goal", e.target.value)} placeholder="e.g. Reduce physical aggression and increase self-regulation" className="mt-1" /></div>
-              <div>
-                <Label className="text-xs">Intervention Tier</Label>
-                <Select value={form.tier} onValueChange={v => setF("tier", v)}>
-                  <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
-                  <SelectContent>{Object.keys(TIER_CONFIG).map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div><Label className="text-xs">Presenting Behaviours of Concern</Label><Textarea value={form.presenting_behaviours} onChange={e => setF("presenting_behaviours", e.target.value)} className="mt-1 min-h-[70px] text-sm" /></div>
-              <div><Label className="text-xs">Hypothesised Function of Behaviour</Label><Input value={form.function_of_behaviour} onChange={e => setF("function_of_behaviour", e.target.value)} placeholder="e.g. Escape task, sensory, attention-seeking" className="mt-1" /></div>
-            </div>
-
-            <div className="bg-card border border-border rounded-3xl p-6 space-y-4">
-              <h3 className="font-black">Strategy Toolkit</h3>
-              <ListEditor field="antecedent_strategies" label="Antecedent / Proactive Strategies" />
-              <ListEditor field="skill_teaching" label="Skill Teaching Targets" />
-              <ListEditor field="consequence_strategies" label="Consequence Strategies" />
-              <ListEditor field="reinforcement_strategies" label="Reinforcement Strategies" />
-            </div>
-
-            <div className="bg-rose-50 border border-rose-200 rounded-3xl p-6">
-              <h3 className="font-black text-rose-800 mb-3">🚨 Crisis Plan</h3>
-              <Textarea value={form.crisis_plan} onChange={e => setF("crisis_plan", e.target.value)} placeholder="What to do if behaviour escalates to crisis level..." className="min-h-[80px] text-sm border-rose-300" />
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="bg-card border border-border rounded-3xl p-6 space-y-4">
-              <h3 className="font-black">Intervention Flowcharts</h3>
-              <ListEditor field="classroom_flow" label="Indoors / Session Setting" />
-              <ListEditor field="outdoor_flow" label="Outdoors / Community Setting" />
-            </div>
-
-            <div className="bg-card border border-border rounded-3xl p-6 space-y-3">
-              <h3 className="font-black flex items-center gap-2"><Users size={15} className="text-primary" /> Support Team</h3>
-              {form.support_team.map((m, i) => (
-                <div key={i} className="grid grid-cols-3 gap-2 p-3 bg-secondary rounded-xl">
-                  <Input value={m.name} onChange={e => updateTeam(i, "name", e.target.value)} placeholder="Name" className="text-xs h-8" />
-                  <Input value={m.role} onChange={e => updateTeam(i, "role", e.target.value)} placeholder="Role" className="text-xs h-8" />
-                  <div className="flex gap-1">
-                    <Input value={m.phone} onChange={e => updateTeam(i, "phone", e.target.value)} placeholder="Phone" className="text-xs h-8" />
-                    {form.support_team.length > 1 && <button onClick={() => setForm(p => ({ ...p, support_team: p.support_team.filter((_, idx) => idx !== i) }))} className="text-muted-foreground hover:text-destructive shrink-0"><Trash2 size={12} /></button>}
-                  </div>
-                </div>
-              ))}
-              <Button variant="outline" size="sm" onClick={() => setForm(p => ({ ...p, support_team: [...p.support_team, { name: "", role: "", phone: "" }] }))} className="w-full rounded-xl gap-1 text-xs"><Plus size={12} /> Add Member</Button>
-            </div>
-
-            <div className="bg-card border border-border rounded-3xl p-6 space-y-3">
-              <h3 className="font-black">PBL & Whole-Org Approach</h3>
-              <div><Label className="text-xs">PBL Values / Core Expectations</Label><Input value={form.pbl_values} onChange={e => setF("pbl_values", e.target.value)} placeholder="e.g. Respectful, Responsible, Safe" className="mt-1" /></div>
-              <div><Label className="text-xs">Anti-Bullying Strategy</Label><Textarea value={form.anti_bullying} onChange={e => setF("anti_bullying", e.target.value)} placeholder="Outline anti-bullying approach..." className="mt-1 min-h-[60px] text-sm" /></div>
-            </div>
-
-            <div className="bg-card border border-border rounded-2xl p-4 grid grid-cols-2 gap-3">
-              <div><Label className="text-xs">Plan Author</Label><Input value={form.plan_author} onChange={e => setF("plan_author", e.target.value)} className="mt-1" /></div>
-              <div><Label className="text-xs">Review Date</Label><Input type="date" value={form.review_date} onChange={e => setF("review_date", e.target.value)} className="mt-1" /></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // ── DETAIL ──
-  if (view === "detail" && selected) {
-    const d = parseDetails(selected);
-    const tier = selected.goals?.[0]?.text?.replace("Tier: ", "") || "Tier 1 – Universal";
-    const cfg = TIER_CONFIG[tier] || TIER_CONFIG["Tier 1 – Universal"];
-
-    return (
-      <div className="space-y-6">
-        <style>{`@media print { .no-print{display:none!important} @page{size:A4;margin:12mm} }`}</style>
-        <div className="flex flex-col sm:flex-row justify-between items-start gap-3 no-print">
-          <div>
-            <button onClick={() => setView("list")} className="text-primary text-sm font-bold hover:underline">← All Plans</button>
-            <h2 className="text-2xl font-black mt-1">Behaviour Support Plan — {selected.participant_name}</h2>
-          </div>
-          <div className="flex gap-2">
-            <span className={`px-3 py-1 rounded-full text-xs font-black self-start ${cfg.badge}`}>{tier}</span>
-            <Button variant="outline" onClick={() => openEdit(selected)} className="rounded-xl gap-2 text-sm no-print"><Edit size={13} /> Edit</Button>
-            <Button variant="outline" onClick={() => window.print()} className="rounded-xl gap-2 text-sm no-print"><Printer size={13} /> Print</Button>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {[
-            { label: "Primary Goal", value: selected.primary_goal },
-            { label: "Tier", value: tier },
-            { label: "Review Date", value: d.review_date || "Not set" },
-            { label: "Plan Author", value: d.plan_author || "—" },
-          ].map(k => (
-            <div key={k.label} className="bg-card border border-border rounded-2xl p-4 text-center">
-              <p className="font-black text-sm text-foreground truncate">{k.value || "—"}</p>
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1">{k.label}</p>
-            </div>
-          ))}
-        </div>
-
-        {d.presenting_behaviours && (
-          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-            <p className="text-xs font-black text-amber-600 uppercase tracking-widest mb-1">Presenting Behaviours of Concern</p>
-            <p className="text-sm text-amber-900">{d.presenting_behaviours}</p>
-            {d.function_of_behaviour && <p className="text-xs text-amber-700 mt-2"><span className="font-black">Hypothesised Function:</span> {d.function_of_behaviour}</p>}
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          {[
-            { label: "🛡️ Antecedent / Proactive Strategies", field: "antecedent_strategies", color: "border-blue-100 bg-blue-50" },
-            { label: "🎯 Skill Teaching", field: "skill_teaching", color: "border-purple-100 bg-purple-50" },
-            { label: "📋 Consequence Strategies", field: "consequence_strategies", color: "border-amber-50 bg-amber-50" },
-            { label: "⭐ Reinforcement Strategies", field: "reinforcement_strategies", color: "border-emerald-100 bg-emerald-50" },
-          ].map(s => (
-            <div key={s.label} className={`border rounded-2xl p-5 ${s.color}`}>
-              <p className="font-black text-sm mb-3">{s.label}</p>
-              <ol className="space-y-1.5">
-                {(d[s.field] || []).filter(Boolean).map((item, i) => (
-                  <li key={i} className="flex gap-2 text-sm"><span className="font-black text-muted-foreground shrink-0">{i + 1}.</span>{item}</li>
-                ))}
-              </ol>
-            </div>
-          ))}
-        </div>
-
-        {d.crisis_plan && (
-          <div className="bg-rose-50 border-2 border-rose-300 rounded-2xl p-5">
-            <p className="font-black text-rose-700 mb-2">🚨 Crisis Response Plan</p>
-            <p className="text-sm text-rose-800 leading-relaxed whitespace-pre-wrap">{d.crisis_plan}</p>
-          </div>
-        )}
-
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-          {[
-            { label: "🏢 Indoors / Session Flowchart", field: "classroom_flow" },
-            { label: "☀️ Outdoors / Community Flowchart", field: "outdoor_flow" },
-          ].map(f => (
-            <div key={f.label} className="bg-card border border-border rounded-2xl p-5">
-              <p className="font-black text-sm mb-3">{f.label}</p>
-              <div className="space-y-2">
-                {(d[f.field] || []).filter(Boolean).map((step, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <div className="w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-black shrink-0">{i + 1}</div>
-                    <div className="flex-1 bg-secondary rounded-lg px-3 py-1.5 text-xs font-semibold">{step}</div>
-                    {i < (d[f.field] || []).length - 1 && <ChevronRight size={12} className="text-muted-foreground" />}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {(d.support_team || []).filter(m => m.name).length > 0 && (
-          <div className="bg-card border border-border rounded-2xl p-5">
-            <p className="font-black text-sm mb-3 flex items-center gap-2"><Users size={14} className="text-primary" /> Support Team</p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {d.support_team.filter(m => m.name).map((m, i) => (
-                <div key={i} className="flex items-center justify-between bg-secondary rounded-xl px-4 py-2.5">
-                  <div>
-                    <p className="font-bold text-sm">{m.name}</p>
-                    <p className="text-xs text-muted-foreground">{m.role}</p>
-                  </div>
-                  {m.phone && <a href={`tel:${m.phone}`} className="text-primary font-black text-xs">{m.phone}</a>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  return null;
 }
