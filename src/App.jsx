@@ -47,6 +47,7 @@ import PublicWebsite from './pages/PublicWebsite';
 import JeffreyProfile from './pages/JeffreyProfile';
 import PolicyManual from './pages/PolicyManual';
 import Links from './pages/Links';
+import NavAdmin from './pages/NavAdmin';
 
 
 const AuthenticatedApp = () => {
@@ -101,6 +102,7 @@ const AuthenticatedApp = () => {
       <Route path="/toby" element={<TobyProfile />} />
       <Route path="/policy-manual" element={<PolicyManual />} />
       <Route path="/links" element={<Links />} />
+      <Route path="/nav-admin" element={<NavAdmin />} />
       <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/stationery" element={<Stationery />} />

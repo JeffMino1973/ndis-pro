@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   Users,
@@ -118,6 +118,7 @@ const NAV_SECTIONS = [
     title: "System",
     items: [
       { path: "/policy-manual", label: "Policy & Compliance Manual", icon: ClipboardList },
+      { path: "/nav-admin", label: "Menu Permissions", icon: Settings },
       { path: "/toby", label: "Toby's Profile", icon: UserCircle },
       { path: "/jeffrey", label: "Jeffrey's Profile", icon: UserCircle },
       { path: "/settings", label: "Settings", icon: Settings },
@@ -128,6 +129,19 @@ const NAV_SECTIONS = [
 export default function Layout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [hiddenPaths, setHiddenPaths] = useState(null); // null = loading, [] = no restrictions
+
+  useEffect(() => {
+    async function loadPerms() {
+      const me = await base44.auth.me();
+      if (!me) { setHiddenPaths([]); return; }
+      // Admins see everything
+      if (me.role === "admin") { setHiddenPaths([]); return; }
+      const perms = await base44.entities.NavPermissions.filter({ user_email: me.email });
+      setHiddenPaths(perms?.[0]?.hidden_paths ?? []);
+    }
+    loadPerms();
+  }, []);
 
   return (
     <div className="min-h-screen flex bg-background">
@@ -154,13 +168,16 @@ export default function Layout() {
         </div>
 
         <nav className="flex-1 px-4 pb-4 overflow-y-auto space-y-6">
-          {NAV_SECTIONS.map((section) => (
+          {NAV_SECTIONS.map((section) => {
+            const visibleItems = section.items.filter(item => !(hiddenPaths ?? []).includes(item.path));
+            if (visibleItems.length === 0) return null;
+            return (
             <div key={section.title}>
               <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-3 mb-2">
                 {section.title}
               </p>
               <div className="space-y-0.5">
-                {section.items.map((item) => {
+                {visibleItems.map((item) => {
                   const isActive = location.pathname === item.path;
                   const Icon = item.icon;
                   const isExternal = item.path.startsWith("EXTERNAL:");
@@ -190,7 +207,8 @@ export default function Layout() {
                 })}
               </div>
             </div>
-          ))}
+            );
+          })}
         </nav>
 
         <div className="p-4 border-t border-border space-y-3">

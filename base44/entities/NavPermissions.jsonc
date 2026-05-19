@@ -1,0 +1,24 @@
+{
+  "name": "NavPermissions",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "title": "User Email"
+    },
+    "user_name": {
+      "type": "string",
+      "title": "User Name"
+    },
+    "hidden_paths": {
+      "type": "array",
+      "title": "Hidden Menu Items (paths)",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "user_email"
+  ]
+}
