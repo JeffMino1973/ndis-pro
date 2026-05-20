@@ -321,13 +321,6 @@ function Receipts({ receipts, setReceipts, onLoad }) {
 
   const total = receipts.reduce((a, r) => a + (parseFloat(r.amount) || 0), 0);
 
-  const F = ({ label, field, type = "text" }) => (
-    <div>
-      <Label className="text-xs">{label}</Label>
-      <Input type={type} value={form[field] || ""} onChange={e => setForm(p => ({ ...p, [field]: e.target.value }))} className="mt-1" />
-    </div>
-  );
-
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -365,9 +358,18 @@ function Receipts({ receipts, setReceipts, onLoad }) {
           <DialogHeader><DialogTitle>{editingId ? "Edit Receipt" : "Add Tax Receipt"}</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div className="grid grid-cols-2 gap-3">
-              <F label="Date" field="date" type="date" />
-              <F label="Amount ($)" field="amount" type="number" />
-              <div className="col-span-2"><F label="Description" field="description" /></div>
+              <div>
+                <Label className="text-xs">Date</Label>
+                <Input type="date" value={form.date || ""} onChange={e => setForm(p => ({ ...p, date: e.target.value }))} className="mt-1" />
+              </div>
+              <div>
+                <Label className="text-xs">Amount ($)</Label>
+                <Input type="number" value={form.amount || ""} onChange={e => setForm(p => ({ ...p, amount: e.target.value }))} className="mt-1" />
+              </div>
+              <div className="col-span-2">
+                <Label className="text-xs">Description</Label>
+                <Input type="text" value={form.description || ""} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} className="mt-1" />
+              </div>
               <div className="col-span-2">
                 <Label className="text-xs">Category</Label>
                 <Select value={form.category} onValueChange={v => setForm(p => ({ ...p, category: v }))}>
@@ -382,7 +384,10 @@ function Receipts({ receipts, setReceipts, onLoad }) {
                   {uploading ? "Uploading..." : form.receipt_url ? "✓ File uploaded — click to replace" : "Click to upload receipt"}
                 </label>
               </div>
-              <div className="col-span-2"><F label="Notes" field="notes" /></div>
+              <div className="col-span-2">
+                <Label className="text-xs">Notes</Label>
+                <Input type="text" value={form.notes || ""} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))} className="mt-1" />
+              </div>
             </div>
             <Button onClick={save} disabled={!form.description || !form.amount} className="w-full rounded-xl font-bold">
               {editingId ? "Save Changes" : "Add Receipt"}

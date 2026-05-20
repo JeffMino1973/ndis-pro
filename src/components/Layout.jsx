@@ -34,6 +34,7 @@ import {
   Activity,
   LogOut,
   Link2,
+  BookOpen,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -117,6 +118,7 @@ const NAV_SECTIONS = [
   {
     title: "System",
     items: [
+      { path: "/user-guide", label: "User Guide", icon: BookOpen },
       { path: "/policy-manual", label: "Policy & Compliance Manual", icon: ClipboardList },
       { path: "/nav-admin", label: "Menu Permissions", icon: Settings },
       { path: "/toby", label: "Toby's Profile", icon: UserCircle },

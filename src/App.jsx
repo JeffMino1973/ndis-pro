@@ -48,6 +48,7 @@ import JeffreyProfile from './pages/JeffreyProfile';
 import PolicyManual from './pages/PolicyManual';
 import Links from './pages/Links';
 import NavAdmin from './pages/NavAdmin';
+import UserGuide from './pages/UserGuide';
 
 
 const AuthenticatedApp = () => {
@@ -103,6 +104,7 @@ const AuthenticatedApp = () => {
       <Route path="/policy-manual" element={<PolicyManual />} />
       <Route path="/links" element={<Links />} />
       <Route path="/nav-admin" element={<NavAdmin />} />
+      <Route path="/user-guide" element={<UserGuide />} />
       <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/stationery" element={<Stationery />} />
