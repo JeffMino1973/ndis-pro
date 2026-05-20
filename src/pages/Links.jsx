@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Plus, Trash2, ExternalLink, ImageIcon, Loader2, Link as LinkIcon } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 export default function Links() {
   const [links, setLinks] = useState([]);
@@ -121,33 +122,45 @@ export default function Links() {
           <p className="text-sm text-muted-foreground">Click "Add Link" to create your first image link.</p>
         </div>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid sm:grid-cols-2 gap-4">
           {links.map(link => (
-            <div key={link.id} className="bg-card border border-border rounded-2xl overflow-hidden group hover:shadow-md transition-shadow">
-              {link.image_url ? (
-                <a href={link.url} target="_blank" rel="noopener noreferrer">
-                  <img src={link.image_url} alt={link.title} className="w-full h-40 object-cover hover:opacity-90 transition-opacity" />
-                </a>
-              ) : (
-                <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center h-40 bg-muted hover:bg-accent transition-colors">
-                  <LinkIcon size={32} className="text-muted-foreground" />
-                </a>
-              )}
-              <div className="p-4">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <a href={link.url} target="_blank" rel="noopener noreferrer" className="font-black text-foreground hover:text-primary transition-colors flex items-center gap-1.5 truncate">
-                      {link.title} <ExternalLink size={12} className="shrink-0" />
-                    </a>
-                    {link.description && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{link.description}</p>}
-                    <p className="text-[10px] text-muted-foreground/60 mt-1 truncate">{link.url}</p>
-                  </div>
-                  <button onClick={() => handleDelete(link.id)} className="p-1.5 rounded-lg hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-colors shrink-0">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
+            <a
+              key={link.id}
+              href={link.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-card border border-border rounded-2xl p-5 flex items-center gap-5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group relative"
+            >
+              {/* Icon / Image */}
+              <div className="shrink-0 w-20 h-20 rounded-2xl bg-secondary border border-border overflow-hidden flex items-center justify-center">
+                {link.image_url ? (
+                  <img src={link.image_url} alt={link.title} className="w-full h-full object-cover" />
+                ) : (
+                  <LinkIcon size={28} className="text-muted-foreground" />
+                )}
               </div>
-            </div>
+
+              {/* Text */}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-black text-foreground text-lg leading-tight mb-1">{link.title}</h3>
+                {link.description && (
+                  <p className="text-sm text-muted-foreground leading-snug line-clamp-3">{link.description}</p>
+                )}
+                {link.created_date && (
+                  <p className="text-xs text-muted-foreground/60 mt-2">
+                    Created {formatDistanceToNow(new Date(link.created_date), { addSuffix: true })}
+                  </p>
+                )}
+              </div>
+
+              {/* Delete button */}
+              <button
+                onClick={e => { e.preventDefault(); handleDelete(link.id); }}
+                className="absolute top-3 right-3 p-1.5 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive text-muted-foreground transition-all"
+              >
+                <Trash2 size={14} />
+              </button>
+            </a>
           ))}
         </div>
       )}
