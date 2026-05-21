@@ -32,6 +32,7 @@ import {
   Mail,
   DollarSign,
   Activity,
+  Banknote,
   LogOut,
   Link2,
   BookOpen,
@@ -101,6 +102,7 @@ const NAV_SECTIONS = [
     title: "Finance & Billing",
     items: [
       { path: "/finance", label: "Finance Centre", icon: DollarSign },
+      { path: "/payslips", label: "Payslip Generator", icon: Banknote },
       { path: "/invoices", label: "Invoices & Claims", icon: Receipt },
       { path: "/quotes", label: "Quotes", icon: FileText },
       { path: "/support-plans", label: "Support Plans", icon: ClipboardList },
