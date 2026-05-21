@@ -49,12 +49,35 @@ const EMPTY_LINE = () => ({
 
 const LOGO = "https://media.base44.com/images/public/69d54775d9a169daad84a133/641f2cf35_3cb3f155-51c2-49f0-993b-fc2df2583281.jpg";
 
+// Employer details based on date
+const EMPLOYER_OLD = {
+  name: "SZ-Jie Wang",
+  abn: "44 833 193 250",
+  address: "309/12 Broome St, Waterloo NSW 2017",
+  email: "Toby7796@gmail.com",
+  phone: "0435 951 563",
+};
+const EMPLOYER_NEW = {
+  name: "SZ-Jie Support Services",
+  abn: "86 959 042 971",
+  address: "309/12 Broome St, Waterloo NSW 2017",
+  email: "jeff@szjiesupportservices@gmail.com",
+  phone: "0401 343 876",
+};
+const CHANGEOVER_DATE = "2026-05-17";
+
+function getEmployer(dateFrom) {
+  if (!dateFrom) return EMPLOYER_NEW;
+  return dateFrom < CHANGEOVER_DATE ? EMPLOYER_OLD : EMPLOYER_NEW;
+}
+
 export default function Payslips() {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Form state
   const [staffName, setStaffName] = useState("");
+  const [selectedStaff, setSelectedStaff] = useState(null);
   const [payPeriod, setPayPeriod] = useState("fortnightly");
   const [dateFrom, setDateFrom] = useState(format(new Date(), "yyyy-MM-dd"));
   const [dateTo, setDateTo] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -111,12 +134,14 @@ export default function Payslips() {
           </div>
           <div>
             <Label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1 block">Staff Member</Label>
-            <Select value={staffName} onValueChange={setStaffName}>
+            <Select value={staffName} onValueChange={v => {
+              setStaffName(v);
+              const found = staff.find(s => s.name === v);
+              setSelectedStaff(found || null);
+            }}>
               <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
               <SelectContent>
                 {staff.map(s => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
-                <SelectItem value="Sz-Jie (Toby)">Sz-Jie (Toby)</SelectItem>
-                <SelectItem value="Jeffrey Minton">Jeffrey Minton</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -234,16 +259,26 @@ export default function Payslips() {
 
           <div className="p-6 space-y-6 text-sm font-inter" style={{ fontFamily: "Arial, sans-serif", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
 
-            {/* ── TOP HEADER (compact landscape) ── */}
-            <div className="flex justify-between items-center gap-4 text-xs">
-              <div>
-                <p className="font-bold text-slate-800">Payslip # {payslipNo}</p>
-                <p className="text-slate-600">{staffName} • {dateFrom} to {dateTo}</p>
-              </div>
-              <div className="text-right">
-                <h1 className="text-2xl font-black text-slate-900">PAYSLIP</h1>
-              </div>
-            </div>
+             {/* ── TOP HEADER (compact landscape) ── */}
+             {(() => {
+               const emp = getEmployer(dateFrom);
+               return (
+                 <div className="flex justify-between items-start gap-4 text-xs border-b border-slate-200 pb-3">
+                   <div>
+                     <p className="font-black text-slate-900 text-sm">{emp.name}</p>
+                     <p className="text-slate-600">ABN: {emp.abn}</p>
+                     <p className="text-slate-600">{emp.address}</p>
+                     <p className="text-slate-600">{emp.email} · {emp.phone}</p>
+                   </div>
+                   <div className="text-right">
+                     <h1 className="text-2xl font-black text-slate-900">PAYSLIP</h1>
+                     <p className="text-slate-600">#{payslipNo}</p>
+                     <p className="text-slate-700 font-bold">{staffName}</p>
+                     <p className="text-slate-500">{dateFrom} → {dateTo}</p>
+                   </div>
+                 </div>
+               );
+             })()}
 
             {/* ── SHIFT LINE ITEMS TABLE ── */}
             <div className="flex-1">
@@ -325,12 +360,17 @@ export default function Payslips() {
             {/* ── PAYMENT DETAILS ── */}
             <div className="border border-slate-200 rounded-lg p-3 bg-slate-50 text-xs">
               <p className="text-[8px] font-black uppercase tracking-widest text-slate-500 mb-2">Payment Details</p>
-              <div className="text-slate-700 space-y-0.5">
-                <p><span className="font-bold">Bank:</span> NAB</p>
-                <p><span className="font-bold">Account Name:</span> SZ-JIE WANG JEFFREY KENNETH MINTON</p>
-                <p><span className="font-bold">BSB:</span> 083-054</p>
-                <p><span className="font-bold">Account:</span> 42-731-9774</p>
-              </div>
+              {selectedStaff?.bank_name || selectedStaff?.bank_bsb ? (
+                <div className="text-slate-700 space-y-0.5">
+                  <p>Please make payment to:</p>
+                  {selectedStaff.bank_name && <p><span className="font-bold">Bank:</span> {selectedStaff.bank_name}</p>}
+                  {selectedStaff.bank_account_name && <p><span className="font-bold">Account Name:</span> {selectedStaff.bank_account_name}</p>}
+                  {selectedStaff.bank_bsb && <p><span className="font-bold">BSB:</span> {selectedStaff.bank_bsb}</p>}
+                  {selectedStaff.bank_account_number && <p><span className="font-bold">Account:</span> {selectedStaff.bank_account_number}</p>}
+                </div>
+              ) : (
+                <p className="text-slate-400 italic">No bank details on file for {staffName}. Add them in Staff &amp; Compliance.</p>
+              )}
             </div>
 
             {/* ── FOOTER ── */}
