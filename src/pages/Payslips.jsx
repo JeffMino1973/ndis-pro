@@ -7,6 +7,29 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Printer, Plus, Trash2, Loader2, FileText, Banknote } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
+const PRINT_STYLES = `
+@media print {
+  @page { size: A4 portrait; margin: 12mm; }
+  body * { visibility: hidden !important; }
+  #payslip-printable, #payslip-printable * { visibility: visible !important; }
+  #payslip-printable {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    page-break-inside: avoid;
+  }
+}
+`;
+
 // ── NDIS Item codes with day-type rates ──────────────────────────────────────
 const NDIS_ITEMS = [
   { code: "04_104_0125_6_1", description: "Access Community Social and Rec Activ – Weekday", rate: 70.23 },
@@ -249,6 +272,8 @@ export default function Payslips() {
 
       {/* ── PAYSLIP PREVIEW ─────────────────────────────────────────────── */}
       {generated && (
+        <>
+        <style>{PRINT_STYLES}</style>
         <div className="bg-white border border-border rounded-3xl overflow-hidden shadow-sm">
           <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-secondary/30 print:hidden">
             <h3 className="font-black">Payslip Preview</h3>
@@ -257,7 +282,7 @@ export default function Payslips() {
             </Button>
           </div>
 
-          <div className="p-6 space-y-6 text-sm font-inter" style={{ fontFamily: "Arial, sans-serif", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+          <div id="payslip-printable" className="p-6 space-y-6 text-sm" style={{ fontFamily: "Arial, sans-serif" }}>
 
              {/* ── TOP HEADER (compact landscape) ── */}
              {(() => {
@@ -379,6 +404,7 @@ export default function Payslips() {
             </div>
           </div>
         </div>
+        </>
       )}
     </div>
   );
