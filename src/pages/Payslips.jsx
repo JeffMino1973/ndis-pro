@@ -99,11 +99,7 @@ export default function Payslips() {
   );
 
   return (
-    <div className="space-y-6 max-w-5xl">
-      <div>
-        <h2 className="text-3xl font-black tracking-tight">Payslip Generator</h2>
-        <p className="text-muted-foreground text-sm">Enter shifts manually using NDIS item codes. Tax, super &amp; Medicare calculated automatically.</p>
-      </div>
+    <div className="space-y-6 max-w-7xl">
 
       {/* ── Settings ─────────────────────────────────────────────────────── */}
       <div className="bg-card border border-border rounded-3xl p-6 space-y-4 print:hidden">
@@ -236,35 +232,22 @@ export default function Payslips() {
             </Button>
           </div>
 
-          <div className="p-10 space-y-8 text-sm font-inter" style={{ fontFamily: "Arial, sans-serif" }}>
+          <div className="p-6 space-y-6 text-sm font-inter" style={{ fontFamily: "Arial, sans-serif", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
 
-            {/* ── TOP HEADER (matches invoice style) ── */}
-            <div className="flex justify-between items-start gap-6">
+            {/* ── TOP HEADER (compact landscape) ── */}
+            <div className="flex justify-between items-center gap-4 text-xs">
               <div>
-                <img src={LOGO} alt="SZ-Jie" className="h-16 mb-3 object-contain" />
-                <div className="text-xs text-slate-500 space-y-0.5">
-                  <p className="font-bold text-slate-800">SZ-Jie Support Services</p>
-                  <p>ABN: 86 959 042 971</p>
-                  <p>309/12 Broome St, Waterloo NSW 2017</p>
-                  <p>jeff@szjiesupportservices@gmail.com</p>
-                  <p>0401 343 876</p>
-                </div>
+                <p className="font-bold text-slate-800">Payslip # {payslipNo}</p>
+                <p className="text-slate-600">{staffName} • {dateFrom} to {dateTo}</p>
               </div>
               <div className="text-right">
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">PAYSLIP</h1>
-                <div className="mt-3 space-y-1 text-sm">
-                  <p><span className="font-bold text-slate-800">Payslip #</span> <span className="text-slate-600">{payslipNo}</span></p>
-                  <p><span className="font-bold text-slate-800">Employee:</span> <span className="text-slate-600">{staffName}</span></p>
-                  <p><span className="font-bold text-slate-800">Period:</span> <span className="text-slate-600 capitalize">{payPeriod}</span></p>
-                  <p><span className="font-bold text-slate-800">From:</span> <span className="text-slate-600">{dateFrom ? format(parseISO(dateFrom), "dd/MM/yyyy") : "—"}</span></p>
-                  <p><span className="font-bold text-slate-800">To:</span> <span className="text-slate-600">{dateTo ? format(parseISO(dateTo), "dd/MM/yyyy") : "—"}</span></p>
-                </div>
+                <h1 className="text-2xl font-black text-slate-900">PAYSLIP</h1>
               </div>
             </div>
 
             {/* ── SHIFT LINE ITEMS TABLE ── */}
-            <div>
-              <table className="w-full border-collapse text-sm">
+            <div className="flex-1">
+              <table className="w-full border-collapse text-xs">
                 <thead>
                   <tr style={{ backgroundColor: "#1e3a5f" }}>
                     {["Date", "Time", "Item Number", "Description", "Unit Price", "Qty", "Line Total"].map(h => (
@@ -288,8 +271,8 @@ export default function Payslips() {
               </table>
 
               {/* Subtotal / GST / Gross */}
-              <div className="flex justify-end mt-1">
-                <div className="w-64 border border-slate-200 rounded-b-xl overflow-hidden text-sm">
+              <div className="flex justify-end mt-0">
+                <div className="w-56 border border-slate-200 rounded-b-xl overflow-hidden text-xs">
                   {[
                     { label: "Subtotal", value: subtotal, normal: true },
                     { label: "GST", value: 0, normal: true },
@@ -304,58 +287,45 @@ export default function Payslips() {
               </div>
             </div>
 
-            {/* ── TAX / SUPER / NET PAY ── */}
-            <div className="grid grid-cols-2 gap-6">
-              {/* Deductions */}
-              <div className="border border-slate-200 rounded-2xl overflow-hidden">
-                <div className="px-4 py-2 border-b border-slate-200" style={{ backgroundColor: "#f0f9ff" }}>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-blue-700">Deductions (ATO 2025–26)</p>
+            {/* ── TAX / SUPER / NET PAY (Landscape) ── */}
+            <div className="grid grid-cols-4 gap-2 text-xs">
+              <div className="border border-slate-200 rounded-lg overflow-hidden">
+                <div className="px-2 py-1 border-b border-slate-200 bg-blue-50">
+                  <p className="font-black uppercase text-[8px] text-blue-700">Deductions</p>
                 </div>
-                <div className="p-4 space-y-2">
-                  {[
-                    { label: "Income Tax Withheld", value: tax, color: "text-rose-600" },
-                    { label: "Medicare Levy (2%)", value: medicare, color: "text-rose-600" },
-                    { label: "Total Deductions", value: totalDeductions, color: "text-rose-700", bold: true },
-                  ].map(r => (
-                    <div key={r.label} className={`flex justify-between text-sm ${r.bold ? "border-t border-slate-200 pt-2 font-black" : ""}`}>
-                      <span className="text-slate-500">{r.label}</span>
-                      <span className={`font-bold ${r.color}`}>– ${r.value.toFixed(2)}</span>
-                    </div>
-                  ))}
+                <div className="p-2 space-y-1">
+                  <div className="flex justify-between"><span className="text-slate-500">Tax</span><span className="font-bold text-rose-600">– ${tax.toFixed(2)}</span></div>
+                  <div className="flex justify-between"><span className="text-slate-500">Medicare</span><span className="font-bold text-rose-600">– ${medicare.toFixed(2)}</span></div>
+                  <div className="flex justify-between border-t border-slate-200 pt-1"><span className="font-black text-slate-600">Total</span><span className="font-black text-rose-700">– ${totalDeductions.toFixed(2)}</span></div>
                 </div>
               </div>
 
-              {/* Super */}
-              <div className="border border-blue-200 rounded-2xl overflow-hidden" style={{ backgroundColor: "#eff6ff" }}>
-                <div className="px-4 py-2 border-b border-blue-200 bg-blue-100">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-blue-700">Superannuation (12% SGC)</p>
+              <div className="border border-blue-200 rounded-lg overflow-hidden bg-blue-50">
+                <div className="px-2 py-1 border-b border-blue-200 bg-blue-100">
+                  <p className="font-black uppercase text-[8px] text-blue-700">Super</p>
                 </div>
-                <div className="p-4 flex flex-col justify-center h-full space-y-1">
-                  <p className="text-2xl font-black text-blue-800">${superAmt.toFixed(2)}</p>
-                  <p className="text-xs text-blue-500">Employer contribution — paid separately to super fund</p>
-                  <p className="text-xs text-blue-400 mt-1">Based on gross pay of ${subtotal.toFixed(2)}</p>
+                <div className="p-2 flex flex-col justify-center">
+                  <p className="font-black text-blue-800">${superAmt.toFixed(2)}</p>
+                  <p className="text-[7px] text-blue-600">12% SGC</p>
                 </div>
               </div>
-            </div>
 
-            {/* ── NET PAY BANNER ── */}
-            <div className="rounded-2xl p-6 flex items-center justify-between" style={{ backgroundColor: "#1e3a5f" }}>
-              <div>
-                <p className="text-xs font-black uppercase tracking-widest text-blue-200 mb-1">Net Pay (Take Home)</p>
-                <p className="text-4xl font-black text-white">${netPay.toFixed(2)}</p>
+              <div style={{ backgroundColor: "#1e3a5f" }} className="rounded-lg p-2">
+                <p className="text-[8px] font-black uppercase text-blue-200 mb-1">Net Pay</p>
+                <p className="text-lg font-black text-white">${netPay.toFixed(2)}</p>
               </div>
-              <div className="text-right text-sm text-blue-200 space-y-1">
-                <p>Gross: <span className="text-white font-bold">${subtotal.toFixed(2)}</span></p>
-                <p>Tax: <span className="text-white font-bold">– ${tax.toFixed(2)}</span></p>
-                <p>Medicare: <span className="text-white font-bold">– ${medicare.toFixed(2)}</span></p>
-                <p>Super (sep): <span className="text-white font-bold">${superAmt.toFixed(2)}</span></p>
+
+              <div className="border border-slate-200 rounded-lg p-2 text-[7px] text-slate-600">
+                <p><span className="font-bold">Gross:</span> ${subtotal.toFixed(2)}</p>
+                <p><span className="font-bold">Tax:</span> ${tax.toFixed(2)}</p>
+                <p><span className="font-bold">Medicare:</span> ${medicare.toFixed(2)}</p>
               </div>
             </div>
 
             {/* ── PAYMENT DETAILS ── */}
-            <div className="border border-slate-200 rounded-2xl p-5 bg-slate-50">
-              <p className="text-[10px] font-black uppercase tracking-widest text-slate-500 mb-3">Payment Details</p>
-              <div className="text-sm text-slate-700 space-y-1">
+            <div className="border border-slate-200 rounded-lg p-3 bg-slate-50 text-xs">
+              <p className="text-[8px] font-black uppercase tracking-widest text-slate-500 mb-2">Payment Details</p>
+              <div className="text-slate-700 space-y-0.5">
                 <p><span className="font-bold">Bank:</span> NAB</p>
                 <p><span className="font-bold">Account Name:</span> SZ-JIE WANG JEFFREY KENNETH MINTON</p>
                 <p><span className="font-bold">BSB:</span> 083-054</p>
@@ -364,7 +334,7 @@ export default function Payslips() {
             </div>
 
             {/* ── FOOTER ── */}
-            <div className="border-t border-slate-200 pt-4 text-xs text-slate-400">
+            <div className="border-t border-slate-200 pt-2 text-[7px] text-slate-400">
               <p>Tax calculated on ATO 2025–26 resident rates with LITO. Superannuation 12% per SGC. This payslip is computer-generated by SZ-Jie Support Services management system.</p>
             </div>
           </div>
