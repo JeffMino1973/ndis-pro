@@ -108,9 +108,12 @@ export default function Payslips() {
   const [payslipNo, setPayslipNo] = useState("PS-" + String(Date.now()).slice(-6));
 
   const [generated, setGenerated] = useState(false);
+  const [records, setRecords] = useState([]);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     base44.entities.StaffMember.list().then(s => { setStaff(s); setLoading(false); });
+    base44.entities.PayslipRecord.list("-created_date", 50).then(setRecords);
   }, []);
 
   // ── Line editing helpers ──────────────────────────────────────────────────
@@ -188,8 +191,29 @@ export default function Payslips() {
             <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} />
           </div>
         </div>
-        <Button onClick={() => setGenerated(true)} disabled={!staffName} className="rounded-xl font-bold gap-2 px-8">
-          <FileText size={15} /> Preview Payslip
+        <Button onClick={async () => {
+          setGenerated(true);
+          setSaving(true);
+          const emp = getEmployer(dateFrom);
+          const record = {
+            payslip_number: payslipNo,
+            staff_name: staffName,
+            pay_period: payPeriod,
+            date_from: dateFrom,
+            date_to: dateTo,
+            gross_pay: subtotal,
+            tax,
+            medicare,
+            super_amount: superAmt,
+            net_pay: netPay,
+            employer_name: emp.name,
+            line_items: lines.map(l => ({ ...l, total: lineTotal(l) })),
+          };
+          const saved = await base44.entities.PayslipRecord.create(record);
+          setRecords(prev => [saved, ...prev]);
+          setSaving(false);
+        }} disabled={!staffName || saving} className="rounded-xl font-bold gap-2 px-8">
+          {saving ? <Loader2 size={15} className="animate-spin" /> : <FileText size={15} />} Preview & Save Payslip
         </Button>
       </div>
 
@@ -269,6 +293,32 @@ export default function Payslips() {
           </div>
         </div>
       </div>
+
+      {/* ── PAYSLIP HISTORY ─────────────────────────────────────────────── */}
+      {records.length > 0 && (
+        <div className="bg-card border border-border rounded-3xl overflow-hidden print:hidden">
+          <div className="px-6 py-4 border-b border-border bg-secondary/30">
+            <h3 className="font-black">Payslip History</h3>
+          </div>
+          <div className="divide-y divide-border">
+            {records.map(r => (
+              <div key={r.id} className="flex items-center justify-between px-6 py-3 hover:bg-secondary/20 text-sm">
+                <div className="flex items-center gap-4">
+                  <FileText size={16} className="text-muted-foreground" />
+                  <div>
+                    <p className="font-bold">{r.staff_name} <span className="text-muted-foreground font-normal">#{r.payslip_number}</span></p>
+                    <p className="text-xs text-muted-foreground">{r.date_from} → {r.date_to} · {r.employer_name}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="font-black text-green-700">${r.net_pay?.toFixed(2)} net</p>
+                  <p className="text-xs text-muted-foreground">Gross ${r.gross_pay?.toFixed(2)}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── PAYSLIP PREVIEW ─────────────────────────────────────────────── */}
       {generated && (

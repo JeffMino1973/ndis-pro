@@ -1,0 +1,87 @@
+{
+  "name": "PayslipRecord",
+  "type": "object",
+  "properties": {
+    "payslip_number": {
+      "type": "string",
+      "title": "Payslip Number"
+    },
+    "staff_name": {
+      "type": "string",
+      "title": "Staff Name"
+    },
+    "pay_period": {
+      "type": "string",
+      "title": "Pay Period Type"
+    },
+    "date_from": {
+      "type": "string",
+      "title": "Period From",
+      "format": "date"
+    },
+    "date_to": {
+      "type": "string",
+      "title": "Period To",
+      "format": "date"
+    },
+    "gross_pay": {
+      "type": "number",
+      "title": "Gross Pay"
+    },
+    "tax": {
+      "type": "number",
+      "title": "Tax Withheld"
+    },
+    "medicare": {
+      "type": "number",
+      "title": "Medicare Levy"
+    },
+    "super_amount": {
+      "type": "number",
+      "title": "Superannuation"
+    },
+    "net_pay": {
+      "type": "number",
+      "title": "Net Pay"
+    },
+    "employer_name": {
+      "type": "string",
+      "title": "Employer Name"
+    },
+    "line_items": {
+      "type": "array",
+      "title": "Shift Line Items",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "time": {
+            "type": "string"
+          },
+          "item_code": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "unit_price": {
+            "type": "number"
+          },
+          "qty": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "staff_name",
+    "date_from",
+    "date_to"
+  ]
+}
