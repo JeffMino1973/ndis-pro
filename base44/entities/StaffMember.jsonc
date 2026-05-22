@@ -104,6 +104,22 @@
     "bank_account_number": {
       "type": "string",
       "title": "Account Number"
+    },
+    "super_fund_name": {
+      "type": "string",
+      "title": "Super Fund Name"
+    },
+    "super_fund_abn": {
+      "type": "string",
+      "title": "Super Fund ABN"
+    },
+    "super_usi": {
+      "type": "string",
+      "title": "Super Fund USI"
+    },
+    "super_member_number": {
+      "type": "string",
+      "title": "Super Member Number"
     }
   },
   "required": [

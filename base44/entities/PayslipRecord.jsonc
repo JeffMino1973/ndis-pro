@@ -48,6 +48,58 @@
       "type": "string",
       "title": "Employer Name"
     },
+    "staff_email": {
+      "type": "string",
+      "title": "Staff Email"
+    },
+    "staff_phone": {
+      "type": "string",
+      "title": "Staff Phone"
+    },
+    "staff_address": {
+      "type": "string",
+      "title": "Staff Address"
+    },
+    "staff_tfn": {
+      "type": "string",
+      "title": "Staff TFN"
+    },
+    "staff_abn": {
+      "type": "string",
+      "title": "Staff ABN"
+    },
+    "bank_name": {
+      "type": "string",
+      "title": "Bank Name"
+    },
+    "bank_account_name": {
+      "type": "string",
+      "title": "Bank Account Name"
+    },
+    "bank_bsb": {
+      "type": "string",
+      "title": "BSB"
+    },
+    "bank_account_number": {
+      "type": "string",
+      "title": "Account Number"
+    },
+    "super_fund_name": {
+      "type": "string",
+      "title": "Super Fund Name"
+    },
+    "super_fund_abn": {
+      "type": "string",
+      "title": "Super Fund ABN"
+    },
+    "super_usi": {
+      "type": "string",
+      "title": "Super Fund USI"
+    },
+    "super_member_number": {
+      "type": "string",
+      "title": "Super Member Number"
+    },
     "line_items": {
       "type": "array",
       "title": "Shift Line Items",

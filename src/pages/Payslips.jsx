@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Printer, Plus, Trash2, Loader2, FileText, Pencil, X, ChevronLeft } from "lucide-react";
+import { Printer, Plus, Trash2, Loader2, FileText, Pencil, X, ChevronLeft, Banknote } from "lucide-react";
 import { format } from "date-fns";
 import PayslipPreview, { getEmployer } from "@/components/payslips/PayslipPreview";
 
@@ -21,6 +21,21 @@ const PRINT_STYLES = `
     padding: 0 !important; margin: 0 !important;
     border: none !important; border-radius: 0 !important;
     box-shadow: none !important; overflow: visible !important;
+  }
+}
+`;
+
+const BANK_PRINT_STYLES = `
+@media print {
+  @page { size: A4 portrait; margin: 15mm; }
+  body * { visibility: hidden !important; }
+  #banking-report-printable, #banking-report-printable * { visibility: visible !important; }
+  #banking-report-printable {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    width: 100% !important; height: auto !important;
+    background: white !important;
+    padding: 0 !important; margin: 0 !important;
   }
 }
 `;
@@ -67,7 +82,7 @@ export default function Payslips() {
   const [records, setRecords] = useState([]);
   const [saving, setSaving] = useState(false);
 
-  // view: "list" | "new" | "view"
+  // view: "list" | "new" | "view" | "banking"
   const [view, setView] = useState("list");
   const [activeRecord, setActiveRecord] = useState(null); // record being viewed/edited
 
@@ -129,10 +144,19 @@ export default function Payslips() {
       super_amount: superAmt,
       net_pay: netPay,
       employer_name: emp.name,
+      staff_email: foundStaff?.email || "",
+      staff_phone: foundStaff?.phone || "",
+      staff_address: foundStaff?.address || "",
+      staff_tfn: foundStaff?.tfn || "",
+      staff_abn: foundStaff?.abn || "",
       bank_name: foundStaff?.bank_name || "",
       bank_account_name: foundStaff?.bank_account_name || "",
       bank_bsb: foundStaff?.bank_bsb || "",
       bank_account_number: foundStaff?.bank_account_number || "",
+      super_fund_name: foundStaff?.super_fund_name || "",
+      super_fund_abn: foundStaff?.super_fund_abn || "",
+      super_usi: foundStaff?.super_usi || "",
+      super_member_number: foundStaff?.super_member_number || "",
       line_items: lines.map(l => ({ ...l, total: lineTotal(l) })),
     };
 
@@ -173,6 +197,158 @@ export default function Payslips() {
     </div>
   );
 
+  // ── VIEW: banking report ─────────────────────────────────────────────────
+  if (view === "banking" && activeRecord) {
+    const r = activeRecord;
+    const emp = getEmployer(r.date_from);
+    const superPayable = (r.super_amount || 0).toFixed(2);
+    const taxPayable = ((r.tax || 0) + (r.medicare || 0)).toFixed(2);
+    return (
+      <>
+        <style>{BANK_PRINT_STYLES}</style>
+        <div className="space-y-4 max-w-3xl">
+          <div className="flex items-center justify-between print:hidden">
+            <Button variant="ghost" onClick={() => setView("view")} className="gap-2">
+              <ChevronLeft size={16} /> Back to Payslip
+            </Button>
+            <Button onClick={() => window.print()} className="gap-2">
+              <Printer size={14} /> Print Banking Report
+            </Button>
+          </div>
+
+          <div id="banking-report-printable" className="bg-white border border-border rounded-2xl p-8 space-y-6 text-sm" style={{ fontFamily: "Arial, sans-serif" }}>
+            {/* Header */}
+            <div style={{ borderBottom: "3px solid #1e3a5f", paddingBottom: "12px", marginBottom: "4px" }}>
+              <h1 style={{ fontSize: "20px", fontWeight: 900, color: "#1e3a5f", margin: 0 }}>PAYROLL BANKING REPORT</h1>
+              <p style={{ margin: "4px 0 0 0", color: "#64748b", fontSize: "11px" }}>
+                Payslip #{r.payslip_number} &nbsp;·&nbsp; {r.date_from} → {r.date_to} &nbsp;·&nbsp; Generated: {format(new Date(), "dd/MM/yyyy")}
+              </p>
+            </div>
+
+            {/* Employer */}
+            <section>
+              <h2 style={{ fontSize: "11px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em", color: "#1e3a5f", borderLeft: "4px solid #1e3a5f", paddingLeft: "8px", margin: "0 0 8px 0" }}>Employer Details</h2>
+              <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-xs">
+                <p><strong>Business Name:</strong> {emp.name}</p>
+                <p><strong>ABN:</strong> {emp.abn}</p>
+                <p><strong>Address:</strong> {emp.address}</p>
+                <p><strong>Phone:</strong> {emp.phone}</p>
+                <p><strong>Email:</strong> {emp.email}</p>
+              </div>
+            </section>
+
+            {/* Staff */}
+            <section>
+              <h2 style={{ fontSize: "11px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em", color: "#1e3a5f", borderLeft: "4px solid #1e3a5f", paddingLeft: "8px", margin: "0 0 8px 0" }}>Staff Member Details</h2>
+              <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-xs">
+                <p><strong>Name:</strong> {r.staff_name}</p>
+                <p><strong>Email:</strong> {r.staff_email || "—"}</p>
+                <p><strong>Phone:</strong> {r.staff_phone || "—"}</p>
+                <p><strong>Address:</strong> {r.staff_address || "—"}</p>
+                <p><strong>TFN:</strong> {r.staff_tfn ? "••• ••• " + r.staff_tfn.slice(-3) : "—"}</p>
+                <p><strong>ABN:</strong> {r.staff_abn || "—"}</p>
+              </div>
+            </section>
+
+            {/* Bank Transfer */}
+            <section style={{ backgroundColor: "#f0f9ff", border: "1px solid #bfdbfe", borderRadius: "8px", padding: "14px" }}>
+              <h2 style={{ fontSize: "11px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em", color: "#1e40af", borderLeft: "4px solid #1e40af", paddingLeft: "8px", margin: "0 0 10px 0" }}>💳 Bank Transfer — Net Pay</h2>
+              <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-xs">
+                <p><strong>Bank:</strong> {r.bank_name || "—"}</p>
+                <p><strong>Account Name:</strong> {r.bank_account_name || "—"}</p>
+                <p><strong>BSB:</strong> {r.bank_bsb || "—"}</p>
+                <p><strong>Account Number:</strong> {r.bank_account_number || "—"}</p>
+                <p><strong>Reference:</strong> {r.payslip_number} – {r.date_from} to {r.date_to}</p>
+              </div>
+              <div style={{ marginTop: "10px", borderTop: "1px solid #bfdbfe", paddingTop: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontWeight: 900, color: "#1e40af" }}>TRANSFER AMOUNT</span>
+                <span style={{ fontSize: "20px", fontWeight: 900, color: "#1e40af" }}>${(r.net_pay || 0).toFixed(2)}</span>
+              </div>
+            </section>
+
+            {/* ATO PAYG */}
+            <section style={{ backgroundColor: "#fff7ed", border: "1px solid #fed7aa", borderRadius: "8px", padding: "14px" }}>
+              <h2 style={{ fontSize: "11px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9a3412", borderLeft: "4px solid #ea580c", paddingLeft: "8px", margin: "0 0 10px 0" }}>🏛️ ATO — PAYG Withholding Remittance</h2>
+              <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-xs">
+                <p><strong>Payee:</strong> Australian Taxation Office</p>
+                <p><strong>Reference:</strong> Employer ABN {emp.abn}</p>
+                <p><strong>Tax Withheld:</strong> ${(r.tax || 0).toFixed(2)}</p>
+                <p><strong>Medicare Levy:</strong> ${(r.medicare || 0).toFixed(2)}</p>
+              </div>
+              <div style={{ marginTop: "10px", borderTop: "1px solid #fed7aa", paddingTop: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontWeight: 900, color: "#9a3412" }}>TOTAL PAYG TO REMIT</span>
+                <span style={{ fontSize: "20px", fontWeight: 900, color: "#9a3412" }}>${taxPayable}</span>
+              </div>
+            </section>
+
+            {/* Super */}
+            <section style={{ backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "8px", padding: "14px" }}>
+              <h2 style={{ fontSize: "11px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em", color: "#166534", borderLeft: "4px solid #16a34a", paddingLeft: "8px", margin: "0 0 10px 0" }}>📊 Superannuation Payment</h2>
+              <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-xs">
+                <p><strong>Fund Name:</strong> {r.super_fund_name || "—"}</p>
+                <p><strong>Fund ABN:</strong> {r.super_fund_abn || "—"}</p>
+                <p><strong>USI:</strong> {r.super_usi || "—"}</p>
+                <p><strong>Member Number:</strong> {r.super_member_number || "—"}</p>
+                <p><strong>Member Name:</strong> {r.staff_name}</p>
+                <p><strong>SGC Rate:</strong> 12%</p>
+              </div>
+              <div style={{ marginTop: "10px", borderTop: "1px solid #bbf7d0", paddingTop: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ fontWeight: 900, color: "#166534" }}>SUPER CONTRIBUTION</span>
+                <span style={{ fontSize: "20px", fontWeight: 900, color: "#166534" }}>${superPayable}</span>
+              </div>
+            </section>
+
+            {/* Payment Summary */}
+            <section>
+              <h2 style={{ fontSize: "11px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em", color: "#1e3a5f", borderLeft: "4px solid #1e3a5f", paddingLeft: "8px", margin: "0 0 8px 0" }}>Payment Summary</h2>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+                <thead>
+                  <tr style={{ backgroundColor: "#1e3a5f" }}>
+                    <th style={{ textAlign: "left", padding: "7px 10px", color: "white", fontWeight: 700 }}>Item</th>
+                    <th style={{ textAlign: "left", padding: "7px 10px", color: "white", fontWeight: 700 }}>Payee</th>
+                    <th style={{ textAlign: "right", padding: "7px 10px", color: "white", fontWeight: 700 }}>Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style={{ backgroundColor: "#f8fafc" }}>
+                    <td style={{ padding: "6px 10px" }}>Gross Pay</td>
+                    <td style={{ padding: "6px 10px", color: "#64748b" }}>{r.staff_name}</td>
+                    <td style={{ padding: "6px 10px", textAlign: "right", fontWeight: 700 }}>${(r.gross_pay || 0).toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: "6px 10px" }}>Less: Tax &amp; Medicare</td>
+                    <td style={{ padding: "6px 10px", color: "#64748b" }}>ATO (PAYG)</td>
+                    <td style={{ padding: "6px 10px", textAlign: "right", fontWeight: 700, color: "#e11d48" }}>– ${taxPayable}</td>
+                  </tr>
+                  <tr style={{ backgroundColor: "#f8fafc", fontWeight: 900 }}>
+                    <td style={{ padding: "6px 10px" }}>Net Pay (Bank Transfer)</td>
+                    <td style={{ padding: "6px 10px", color: "#64748b" }}>{r.bank_account_name || r.staff_name} — {r.bank_bsb} / {r.bank_account_number}</td>
+                    <td style={{ padding: "6px 10px", textAlign: "right", fontWeight: 900, color: "#1d4ed8" }}>${(r.net_pay || 0).toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <td style={{ padding: "6px 10px" }}>Super (12% SGC)</td>
+                    <td style={{ padding: "6px 10px", color: "#64748b" }}>{r.super_fund_name || "Super Fund"}</td>
+                    <td style={{ padding: "6px 10px", textAlign: "right", fontWeight: 700, color: "#16a34a" }}>${superPayable}</td>
+                  </tr>
+                  <tr style={{ backgroundColor: "#1e3a5f" }}>
+                    <td colSpan={2} style={{ padding: "8px 10px", color: "white", fontWeight: 900 }}>TOTAL OUTGOING</td>
+                    <td style={{ padding: "8px 10px", textAlign: "right", color: "white", fontWeight: 900, fontSize: "14px" }}>
+                      ${((r.net_pay || 0) + (r.super_amount || 0) + parseFloat(taxPayable)).toFixed(2)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+
+            <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "8px", fontSize: "9px", color: "#94a3b8" }}>
+              <p>This report is generated by SZ-Jie Support Services payroll system. TFN is partially masked for security. Super must be remitted at least quarterly. PAYG withholding must be remitted per your ATO payment schedule.</p>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   // ── VIEW: payslip preview (print mode) ──────────────────────────────────
   if (view === "view" && activeRecord) {
     const foundStaff = staff.find(s => s.name === activeRecord.staff_name);
@@ -185,6 +361,9 @@ export default function Payslips() {
               <ChevronLeft size={16} /> Back to History
             </Button>
             <div className="flex gap-2">
+              <Button variant="outline" onClick={() => { setView("banking"); }} className="gap-2">
+                <Banknote size={14} /> Banking Report
+              </Button>
               <Button variant="outline" onClick={() => { loadIntoForm(activeRecord); setView("new"); }} className="gap-2">
                 <Pencil size={14} /> Edit
               </Button>
