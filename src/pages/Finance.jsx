@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { NDIS_ITEMS } from "@/utils/ndisItems";
 import NDISItemSelect from "@/components/NDISItemSelect";
 
-const TABS = ["Invoice Tracker", "Tax Calculator", "Receipts", "Accountant Report", "BAS Report"];
+const TABS = ["Invoice Tracker", "Tax Calculator", "Receipts", "Accountant Report", "BAS Report", "Payroll Reconciliation"];
 
 const STATUS_COLORS = {
   Draft: "bg-slate-100 text-slate-700",
@@ -707,6 +707,151 @@ ${receipts.map(r => `<tr><td>${r.date || "—"}</td><td>${r.category || "—"}</
   );
 }
 
+// ─── Payroll Reconciliation ───────────────────────────────────────────────────
+function PayrollReconciliation() {
+  const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedStaff, setExpandedStaff] = useState(null);
+
+  useEffect(() => {
+    base44.entities.PayslipRecord.list("-date_from", 500).then(r => { setRecords(r); setLoading(false); });
+  }, []);
+
+  // Group by staff name
+  const byStaff = records.reduce((acc, r) => {
+    const name = r.staff_name || "Unknown";
+    if (!acc[name]) acc[name] = [];
+    acc[name].push(r);
+    return acc;
+  }, {});
+
+  const staffList = Object.entries(byStaff).map(([name, payslips]) => {
+    const totals = payslips.reduce((a, p) => ({
+      gross: a.gross + (p.gross_pay || 0),
+      tax: a.tax + (p.tax || 0),
+      medicare: a.medicare + (p.medicare || 0),
+      super_amount: a.super_amount + (p.super_amount || 0),
+      net: a.net + (p.net_pay || 0),
+    }), { gross: 0, tax: 0, medicare: 0, super_amount: 0, net: 0 });
+    return { name, payslips, totals };
+  });
+
+  const grandTotals = staffList.reduce((a, s) => ({
+    gross: a.gross + s.totals.gross,
+    tax: a.tax + s.totals.tax,
+    medicare: a.medicare + s.totals.medicare,
+    super_amount: a.super_amount + s.totals.super_amount,
+    net: a.net + s.totals.net,
+  }), { gross: 0, tax: 0, medicare: 0, super_amount: 0, net: 0 });
+
+  if (loading) return <div className="flex items-center justify-center py-16"><Loader2 size={24} className="animate-spin text-muted-foreground" /></div>;
+
+  if (records.length === 0) return (
+    <div className="bg-card border border-border rounded-3xl p-16 text-center text-muted-foreground">
+      <FileText size={32} className="mx-auto mb-3 opacity-30" />
+      <p className="font-bold">No payslip records yet.</p>
+      <p className="text-sm">Generate payslips in the Payslips section to see reconciliation data here.</p>
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      {/* Grand totals summary */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        {[
+          { label: "Total Gross Paid", value: grandTotals.gross, color: "text-foreground" },
+          { label: "Tax Withheld", value: grandTotals.tax, color: "text-rose-600" },
+          { label: "Medicare Levy", value: grandTotals.medicare, color: "text-amber-600" },
+          { label: "Super (12%)", value: grandTotals.super_amount, color: "text-blue-600" },
+          { label: "Total Net Paid", value: grandTotals.net, color: "text-emerald-600" },
+        ].map(s => (
+          <div key={s.label} className="bg-card border border-border rounded-2xl p-4 text-center">
+            <p className={`text-xl font-black ${s.color}`}>${s.value.toFixed(2)}</p>
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1">{s.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-sm text-amber-800">
+        <p className="font-bold">💡 Bank Reconciliation Tip</p>
+        <p className="text-xs mt-1">Match <strong>Net Pay</strong> to your bank transfers. Remit <strong>Tax Withheld + Medicare</strong> to the ATO via PAYG. Pay <strong>Super</strong> quarterly to the employee's nominated fund.</p>
+      </div>
+
+      {/* Per-staff breakdown */}
+      <div className="space-y-3">
+        {staffList.map(({ name, payslips, totals }) => (
+          <div key={name} className="bg-card border border-border rounded-2xl overflow-hidden">
+            {/* Staff header row */}
+            <button
+              onClick={() => setExpandedStaff(expandedStaff === name ? null : name)}
+              className="w-full flex items-center justify-between px-5 py-4 hover:bg-secondary/30 transition-all"
+            >
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-sm">
+                  {name[0]}
+                </div>
+                <div className="text-left">
+                  <p className="font-black text-sm">{name}</p>
+                  <p className="text-xs text-muted-foreground">{payslips.length} payslip{payslips.length !== 1 ? "s" : ""}</p>
+                </div>
+              </div>
+              <div className="flex gap-6 text-right text-xs">
+                <div><p className="font-black">${totals.gross.toFixed(2)}</p><p className="text-muted-foreground">Gross</p></div>
+                <div><p className="font-black text-rose-600">${totals.tax.toFixed(2)}</p><p className="text-muted-foreground">Tax</p></div>
+                <div><p className="font-black text-amber-600">${totals.medicare.toFixed(2)}</p><p className="text-muted-foreground">Medicare</p></div>
+                <div><p className="font-black text-blue-600">${totals.super_amount.toFixed(2)}</p><p className="text-muted-foreground">Super</p></div>
+                <div><p className="font-black text-emerald-600">${totals.net.toFixed(2)}</p><p className="text-muted-foreground">Net Paid</p></div>
+                <span className="text-muted-foreground self-center">{expandedStaff === name ? "▲" : "▼"}</span>
+              </div>
+            </button>
+
+            {/* Expanded payslip rows */}
+            {expandedStaff === name && (
+              <div className="border-t border-border">
+                <table className="w-full text-xs">
+                  <thead className="bg-secondary text-[9px] font-black text-muted-foreground uppercase tracking-widest">
+                    <tr>
+                      <th className="px-4 py-2 text-left">Payslip #</th>
+                      <th className="px-4 py-2 text-left">Period</th>
+                      <th className="px-4 py-2 text-right">Gross</th>
+                      <th className="px-4 py-2 text-right">Tax Withheld</th>
+                      <th className="px-4 py-2 text-right">Medicare</th>
+                      <th className="px-4 py-2 text-right">Super</th>
+                      <th className="px-4 py-2 text-right">Net Pay</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {payslips.map(p => (
+                      <tr key={p.id} className="hover:bg-secondary/30">
+                        <td className="px-4 py-2 font-mono font-bold text-primary">{p.payslip_number}</td>
+                        <td className="px-4 py-2 text-muted-foreground">{p.date_from} → {p.date_to}</td>
+                        <td className="px-4 py-2 text-right font-bold">${(p.gross_pay || 0).toFixed(2)}</td>
+                        <td className="px-4 py-2 text-right text-rose-600 font-bold">${(p.tax || 0).toFixed(2)}</td>
+                        <td className="px-4 py-2 text-right text-amber-600 font-bold">${(p.medicare || 0).toFixed(2)}</td>
+                        <td className="px-4 py-2 text-right text-blue-600 font-bold">${(p.super_amount || 0).toFixed(2)}</td>
+                        <td className="px-4 py-2 text-right text-emerald-600 font-bold">${(p.net_pay || 0).toFixed(2)}</td>
+                      </tr>
+                    ))}
+                    {/* Staff subtotal row */}
+                    <tr className="bg-secondary/50 font-black text-[10px]">
+                      <td className="px-4 py-2 text-muted-foreground" colSpan={2}>SUBTOTAL</td>
+                      <td className="px-4 py-2 text-right">${totals.gross.toFixed(2)}</td>
+                      <td className="px-4 py-2 text-right text-rose-600">${totals.tax.toFixed(2)}</td>
+                      <td className="px-4 py-2 text-right text-amber-600">${totals.medicare.toFixed(2)}</td>
+                      <td className="px-4 py-2 text-right text-blue-600">${totals.super_amount.toFixed(2)}</td>
+                      <td className="px-4 py-2 text-right text-emerald-600">${totals.net.toFixed(2)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function Finance() {
   const [tab, setTab] = useState(0);
@@ -741,6 +886,7 @@ export default function Finance() {
       {tab === 2 && <Receipts receipts={receipts} onLoad={loadReceipts} />}
       {tab === 3 && <AccountantReport invoices={invoices} receipts={receipts} />}
       {tab === 4 && <BASReport invoices={invoices} receipts={receipts} />}
+      {tab === 5 && <PayrollReconciliation />}
     </div>
   );
 }
