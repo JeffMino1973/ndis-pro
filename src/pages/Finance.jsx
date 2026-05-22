@@ -613,7 +613,7 @@ ${Object.entries(receiptByCategory).map(([cat, amt]) => `<tr><td>${cat}</td><td>
       <div className="bg-card border border-border rounded-3xl overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h3 className="font-black">Report Preview</h3>
-          <Button variant="outline" size="sm" onClick={() => window.print()} className="rounded-xl gap-2"><Printer size={14} /> Print</Button>
+          <Button size="sm" onClick={() => { const w = window.open("", "_blank"); w.document.write(reportHtml); w.document.close(); w.focus(); setTimeout(() => w.print(), 500); }} className="rounded-xl gap-2"><Printer size={14} /> Generate PDF / Print</Button>
         </div>
         <iframe srcDoc={reportHtml} className="w-full border-0" style={{ height: "640px" }} title="Accountant Report" />
       </div>
@@ -837,7 +837,7 @@ ${qReceipts.length === 0 ? `<tr><td colspan="5" style="text-align:center;color:#
       <div className="bg-card border border-border rounded-3xl overflow-hidden">
         <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <h3 className="font-black">BAS Preview — {quarter} {year}</h3>
-          <Button variant="outline" size="sm" onClick={() => window.print()} className="rounded-xl gap-2"><Printer size={14} /> Print</Button>
+          <Button size="sm" onClick={() => { const w = window.open("", "_blank"); w.document.write(basHtml); w.document.close(); w.focus(); setTimeout(() => w.print(), 500); }} className="rounded-xl gap-2"><Printer size={14} /> Generate PDF / Print</Button>
         </div>
         <iframe srcDoc={basHtml} className="w-full border-0" style={{ height: "900px" }} title="BAS Report" />
       </div>
