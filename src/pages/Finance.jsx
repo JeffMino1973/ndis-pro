@@ -471,12 +471,28 @@ function AccountantReport({ invoices, receipts }) {
   const [sending, setSending] = useState(false);
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [reportPeriod, setReportPeriod] = useState("new"); // "old" | "new" | "all"
   useEffect(() => { base44.auth.me().then(me => setConfig(me?.businessConfig || {})); }, []);
 
-  const totalInvoiced = invoices.reduce((a, i) => a + (parseFloat(i.total || i.amount) || 0), 0);
-  const totalPaid = invoices.filter(i => i.status === "Paid").reduce((a, i) => a + (parseFloat(i.total || i.amount) || 0), 0);
+  // Filter invoices by entity period
+  const filteredInvoices = reportPeriod === "old"
+    ? invoices.filter(i => (i.issue_date || "") < CHANGEOVER_DATE)
+    : reportPeriod === "new"
+    ? invoices.filter(i => (i.issue_date || "") >= CHANGEOVER_DATE)
+    : invoices;
+
+  const filteredReceipts = reportPeriod === "old"
+    ? receipts.filter(r => (r.date || "") < CHANGEOVER_DATE)
+    : reportPeriod === "new"
+    ? receipts.filter(r => (r.date || "") >= CHANGEOVER_DATE)
+    : receipts;
+
+  const reportEntity = reportPeriod === "old" ? ENTITY_OLD : ENTITY_NEW;
+
+  const totalInvoiced = filteredInvoices.reduce((a, i) => a + (parseFloat(i.total || i.amount) || 0), 0);
+  const totalPaid = filteredInvoices.filter(i => i.status === "Paid").reduce((a, i) => a + (parseFloat(i.total || i.amount) || 0), 0);
   const totalUnpaid = totalInvoiced - totalPaid;
-  const totalDeductions = receipts.reduce((a, r) => a + (parseFloat(r.amount) || 0), 0);
+  const totalDeductions = filteredReceipts.reduce((a, r) => a + (parseFloat(r.amount) || 0), 0);
 
   const calcAnnualTax = (a) => { if (a <= 18200) return 0; if (a <= 45000) return (a - 18200) * 0.19; if (a <= 135000) return 5092 + (a - 45000) * 0.325; if (a <= 190000) return 34204 + (a - 135000) * 0.37; return 54630 + (a - 190000) * 0.45; };
   const lito = (a) => { if (a <= 37500) return 700; if (a <= 45000) return 700 - (a - 37500) * 0.05; if (a <= 66667) return 325 - (a - 45000) * 0.015; return 0; };
@@ -487,13 +503,14 @@ function AccountantReport({ invoices, receipts }) {
   const estSuper = totalPaid * 0.12;
   const netIncome = totalPaid - estTaxTotal;
 
-  const receiptByCategory = receipts.reduce((acc, r) => {
+  const receiptByCategory = filteredReceipts.reduce((acc, r) => {
     acc[r.category] = (acc[r.category] || 0) + parseFloat(r.amount || 0);
     return acc;
   }, {});
 
   const reportHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>
+@media print { @page { size: A4 portrait; margin: 15mm; } body { margin: 0; padding: 0; } }
 body{font-family:Arial,sans-serif;color:#1e293b;max-width:800px;margin:0 auto;padding:40px;}
 h1{color:#1e3a5f;font-size:22px;border-bottom:3px solid #1e3a5f;padding-bottom:10px;margin-bottom:16px;}
 h2{color:#1e3a5f;font-size:14px;margin-top:28px;margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em;border-left:4px solid #1e3a5f;padding-left:10px;}
@@ -507,8 +524,9 @@ tr:nth-child(even) td{background:#f8fafc;}
 .footer{margin-top:36px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:10px;color:#94a3b8;}
 </style></head><body>
 <h1>Annual Tax Summary Report — FY ${new Date().getFullYear()}</h1>
-<p style="font-size:13px;color:#475569;"><strong>Prepared for:</strong> ${config.businessName || "SZ Jie Wang"} &nbsp;|&nbsp; <strong>ABN:</strong> ${config.abn || "86 959 042 971"}<br/>
-<strong>Report Date:</strong> ${new Date().toLocaleDateString("en-AU")} &nbsp;|&nbsp; <strong>Financial Year:</strong> 2025–2026</p>
+<p style="font-size:13px;color:#475569;"><strong>Prepared for:</strong> ${reportEntity.name} &nbsp;|&nbsp; <strong>ABN:</strong> ${reportEntity.abn}<br/>
+<strong>Address:</strong> ${reportEntity.address} &nbsp;|&nbsp; <strong>Email:</strong> ${reportEntity.email}<br/>
+<strong>Report Date:</strong> ${new Date().toLocaleDateString("en-AU")} &nbsp;|&nbsp; <strong>Financial Year:</strong> 2025–2026 &nbsp;|&nbsp; <strong>Period:</strong> ${reportPeriod === "old" ? "07/04/2026 – 17/05/2026" : reportPeriod === "new" ? "18/05/2026 onwards" : "Full year"}</p>
 <div class="highlight">
   <p><strong>Total Invoiced:</strong> $${totalInvoiced.toFixed(2)} &nbsp;|&nbsp; <strong>Total Paid:</strong> $${totalPaid.toFixed(2)} &nbsp;|&nbsp; <strong>Outstanding:</strong> $${totalUnpaid.toFixed(2)}</p>
   <p><strong>Est. Tax Liability:</strong> $${estTaxTotal.toFixed(2)} &nbsp;|&nbsp; <strong>Est. Super (12%):</strong> $${estSuper.toFixed(2)}</p>
@@ -517,7 +535,7 @@ tr:nth-child(even) td{background:#f8fafc;}
 <h2>Invoice Summary (${invoices.length} invoices)</h2>
 <table><thead><tr><th>Date</th><th>Invoice #</th><th>Participant</th><th>Items</th><th>Total</th><th>Status</th></tr></thead>
 <tbody>
-${invoices.map(i => `<tr><td>${i.issue_date || i.date || "—"}</td><td>${i.invoice_number || "—"}</td><td>${i.participant_name || "—"}</td><td>${(i.line_items || []).length} line(s)</td><td>$${parseFloat(i.total || 0).toFixed(2)}</td><td>${i.status}</td></tr>`).join("")}
+${filteredInvoices.map(i => `<tr><td>${i.issue_date || i.date || "—"}</td><td>${i.invoice_number || "—"}</td><td>${i.participant_name || "—"}</td><td>${(i.line_items || []).length} line(s)</td><td>$${parseFloat(i.total || 0).toFixed(2)}</td><td>${i.status}</td></tr>`).join("")}
 <tr class="total"><td colspan="4">TOTAL INVOICED / PAID</td><td>$${totalInvoiced.toFixed(2)} / $${totalPaid.toFixed(2)}</td><td></td></tr>
 </tbody></table>
 <h2>Tax Deductions by Category</h2>
@@ -550,6 +568,24 @@ ${Object.entries(receiptByCategory).map(([cat, amt]) => `<tr><td>${cat}</td><td>
 
   return (
     <div className="space-y-6">
+      {/* Entity / Period selector */}
+      <div className="bg-card border border-border rounded-2xl p-4">
+        <Label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2 block">Report Entity / Trading Period</Label>
+        <div className="flex flex-wrap gap-2">
+          {[
+            { value: "old", label: "SZ-Jie Wang (ABN 44 833 193 250)", sub: "07/04/2026 – 17/05/2026" },
+            { value: "new", label: "SZ-Jie Support Services (ABN 86 959 042 971)", sub: "18/05/2026 onwards" },
+            { value: "all", label: "All Records (combined)", sub: "Full year" },
+          ].map(opt => (
+            <button key={opt.value} onClick={() => setReportPeriod(opt.value)}
+              className={`px-4 py-2 rounded-xl border text-left text-xs font-bold transition-all ${reportPeriod === opt.value ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground hover:border-primary"}`}>
+              <p>{opt.label}</p>
+              <p className="font-normal opacity-70">{opt.sub}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
           { label: "Total Invoiced", value: "$" + totalInvoiced.toFixed(2) },
@@ -585,6 +621,43 @@ ${Object.entries(receiptByCategory).map(([cat, amt]) => `<tr><td>${cat}</td><td>
   );
 }
 
+// Entity details based on date range
+const ENTITY_OLD = {
+  name: "SZ-Jie Wang",
+  abn: "44 833 193 250",
+  address: "309/12 Broome St, Waterloo NSW 2017",
+  email: "Toby7796@gmail.com",
+  phone: "0435 951 563",
+  bankName: "NAB",
+  accountName: "SZ JIE WANG",
+  bsb: "083054",
+  accountNumber: "429014456",
+};
+const ENTITY_NEW = {
+  name: "SZ-Jie Support Services",
+  abn: "86 959 042 971",
+  address: "309/12 Broome St, Waterloo NSW 2017",
+  email: "jeff@szjiesupportservices@gmail.com",
+  phone: "0401 343 876",
+  bankName: "",
+  accountName: "",
+  bsb: "",
+  accountNumber: "",
+};
+const CHANGEOVER_DATE = "2026-05-18";
+
+function getEntityForPeriod(from, to) {
+  // If the period is entirely before changeover → old entity
+  // If the period is entirely from changeover onwards → new entity
+  // If it spans both → split: we return both with a note
+  const beforeChangeover = to < CHANGEOVER_DATE;
+  const afterChangeover = from >= CHANGEOVER_DATE;
+  if (beforeChangeover) return { entity: ENTITY_OLD, split: false };
+  if (afterChangeover) return { entity: ENTITY_NEW, split: false };
+  // Spans both — return old for the portion before changeover, flag as split
+  return { entity: ENTITY_OLD, entityNew: ENTITY_NEW, split: true, changeoverDate: CHANGEOVER_DATE };
+}
+
 // Quarter date ranges (Australian financial quarters)
 function getQuarterDates(quarter, year) {
   const y = parseInt(year);
@@ -615,6 +688,7 @@ function BASReport({ invoices, receipts }) {
   }, []);
 
   const { from, to } = getQuarterDates(quarter, year);
+  const { entity, entityNew, split } = getEntityForPeriod(from, to);
 
   // Filter invoices by quarter issue_date
   const qInvoices = invoices.filter(i => {
@@ -658,11 +732,14 @@ tr:nth-child(even) td{background:#f8fafc;}
 .total td{font-weight:900;background:#dbeafe!important;}
 .badge{display:inline-block;background:#dcfce7;color:#166534;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;}
 .highlight{background:#fffbeb;border:1px solid #fde68a;padding:8px 12px;border-radius:6px;margin:8px 0;font-size:11px;}
+.split-notice{background:#fef3c7;border:1px solid #f59e0b;padding:8px 12px;border-radius:6px;margin:8px 0;font-size:11px;}
 .footer{margin-top:20px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;}
 p{margin:2px 0;font-size:12px;}
 </style></head><body>
 <h1>Business Activity Statement (BAS) — ${quarter} ${year}</h1>
-<p><strong>Entity:</strong> SZ-Jie Support Services &nbsp;|&nbsp; <strong>ABN:</strong> 86 959 042 971 &nbsp;|&nbsp; <strong>Period:</strong> ${from} to ${to} &nbsp;|&nbsp; <strong>Generated:</strong> ${new Date().toLocaleDateString("en-AU")}</p>
+<p><strong>Entity:</strong> ${entity.name} &nbsp;|&nbsp; <strong>ABN:</strong> ${entity.abn} &nbsp;|&nbsp; <strong>Period:</strong> ${from} to ${to} &nbsp;|&nbsp; <strong>Generated:</strong> ${new Date().toLocaleDateString("en-AU")}</p>
+<p>${entity.address} &nbsp;|&nbsp; ${entity.email} &nbsp;|&nbsp; ${entity.phone}</p>
+${split ? `<div class="split-notice"><strong>⚠️ Split Period Notice:</strong> This period spans two trading entities. Invoices from ${from} to ${CHANGEOVER_DATE.replace("2026-05-18","2026-05-17")} are reported under <strong>SZ-Jie Wang (ABN 44 833 193 250)</strong>. From ${CHANGEOVER_DATE} onwards, trading is under <strong>SZ-Jie Support Services (ABN 86 959 042 971)</strong>. Consider generating two separate BAS reports for complete accuracy.</div>` : ""}
 <div class="highlight"><strong>⚠️ NDIS Note:</strong> All NDIS disability supports are GST-free under Division 38-D of the GST Act. GST collected = $0.00. Confirm with your registered BAS agent before lodging.</div>
 <h2>Part A — GST Amounts</h2>
 <table><thead><tr><th>Label</th><th>Description</th><th>Amount</th></tr></thead>
