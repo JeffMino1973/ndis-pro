@@ -585,93 +585,136 @@ ${Object.entries(receiptByCategory).map(([cat, amt]) => `<tr><td>${cat}</td><td>
   );
 }
 
+// Quarter date ranges (Australian financial quarters)
+function getQuarterDates(quarter, year) {
+  const y = parseInt(year);
+  const ranges = {
+    Q1: { from: `${y}-01-01`, to: `${y}-03-31` },
+    Q2: { from: `${y}-04-01`, to: `${y}-06-30` },
+    Q3: { from: `${y}-07-01`, to: `${y}-09-30` },
+    Q4: { from: `${y}-10-01`, to: `${y}-12-31` },
+  };
+  return ranges[quarter] || ranges.Q1;
+}
+
 // ─── BAS Report ───────────────────────────────────────────────────────────────
 function BASReport({ invoices, receipts }) {
-  const [quarter, setQuarter] = useState("Q4");
-  const [year, setYear] = useState("2026");
+  const now = new Date();
+  // Determine current quarter
+  const currentMonth = now.getMonth() + 1;
+  const defaultQ = currentMonth <= 3 ? "Q1" : currentMonth <= 6 ? "Q2" : currentMonth <= 9 ? "Q3" : "Q4";
+  const [quarter, setQuarter] = useState(defaultQ);
+  const [year, setYear] = useState(String(now.getFullYear()));
   const [sending, setSending] = useState(false);
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [payslipRecords, setPayslipRecords] = useState([]);
 
-  const totalSales = invoices.reduce((a, i) => a + (parseFloat(i.total || 0)), 0);
-  const paidSales = invoices.filter(i => i.status === "Paid").reduce((a, i) => a + (parseFloat(i.total || 0)), 0);
+  useEffect(() => {
+    base44.entities.PayslipRecord.list("-date_from", 500).then(setPayslipRecords);
+  }, []);
+
+  const { from, to } = getQuarterDates(quarter, year);
+
+  // Filter invoices by quarter issue_date
+  const qInvoices = invoices.filter(i => {
+    const d = i.issue_date || i.date || "";
+    return d >= from && d <= to;
+  });
+
+  // Filter receipts by quarter date
+  const qReceipts = receipts.filter(r => {
+    const d = r.date || "";
+    return d >= from && d <= to;
+  });
+
+  // Filter payslip records by quarter (date_from within quarter)
+  const qPayslips = payslipRecords.filter(p => {
+    const d = p.date_from || "";
+    return d >= from && d <= to;
+  });
+
+  const totalSales = qInvoices.reduce((a, i) => a + (parseFloat(i.total || 0)), 0);
+  const paidSales = qInvoices.filter(i => i.status === "Paid").reduce((a, i) => a + (parseFloat(i.total || 0)), 0);
   const gstFree = totalSales;
   const gstCollected = 0;
-  const totalExpenses = receipts.reduce((a, r) => a + (parseFloat(r.amount || 0)), 0);
+  const totalExpenses = qReceipts.reduce((a, r) => a + (parseFloat(r.amount || 0)), 0);
   const gstOnExpenses = totalExpenses / 11;
-  const paysAsYouGo = paidSales * 0.02;
+
+  // PAYG withholding from actual payslip records for the quarter
+  const paygTaxWithheld = qPayslips.reduce((a, p) => a + (p.tax || 0) + (p.medicare || 0), 0);
+  const paygGrossSubject = qPayslips.reduce((a, p) => a + (p.gross_pay || 0), 0);
 
   const basHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
 <style>
-body{font-family:Arial,sans-serif;color:#1e293b;max-width:800px;margin:0 auto;padding:40px;}
-h1{color:#1e3a5f;font-size:22px;border-bottom:3px solid #1e3a5f;padding-bottom:10px;}
-h2{color:#1e3a5f;font-size:13px;margin-top:24px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.06em;border-left:4px solid #1e3a5f;padding-left:8px;}
-table{width:100%;border-collapse:collapse;margin-bottom:16px;}
-th{background:#1e3a5f;color:white;padding:8px 10px;text-align:left;font-size:12px;}
-td{padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:12px;}
+@media print { @page { size: A4 portrait; margin: 15mm; } body { margin: 0; padding: 0; } }
+body{font-family:Arial,sans-serif;color:#1e293b;max-width:760px;margin:0 auto;padding:24px;}
+h1{color:#1e3a5f;font-size:20px;border-bottom:3px solid #1e3a5f;padding-bottom:8px;margin-bottom:8px;}
+h2{color:#1e3a5f;font-size:12px;margin-top:18px;margin-bottom:6px;text-transform:uppercase;letter-spacing:.06em;border-left:4px solid #1e3a5f;padding-left:8px;}
+table{width:100%;border-collapse:collapse;margin-bottom:12px;}
+th{background:#1e3a5f;color:white;padding:6px 10px;text-align:left;font-size:11px;}
+td{padding:5px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;}
 tr:nth-child(even) td{background:#f8fafc;}
 .total td{font-weight:900;background:#dbeafe!important;}
-.badge{display:inline-block;background:#dcfce7;color:#166534;border-radius:4px;padding:2px 8px;font-size:11px;font-weight:700;}
-.highlight{background:#f0f9ff;border:1px solid #bfdbfe;padding:12px 16px;border-radius:8px;margin:12px 0;font-size:12px;}
-.footer{margin-top:32px;padding-top:12px;border-top:1px solid #e2e8f0;font-size:10px;color:#94a3b8;}
+.badge{display:inline-block;background:#dcfce7;color:#166534;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:700;}
+.highlight{background:#fffbeb;border:1px solid #fde68a;padding:8px 12px;border-radius:6px;margin:8px 0;font-size:11px;}
+.footer{margin-top:20px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8;}
+p{margin:2px 0;font-size:12px;}
 </style></head><body>
 <h1>Business Activity Statement (BAS) — ${quarter} ${year}</h1>
-<p style="font-size:13px;color:#475569;"><strong>Entity:</strong> SZ-Jie Support Services &nbsp;|&nbsp; <strong>ABN:</strong> 86 959 042 971 &nbsp;|&nbsp; <strong>Period:</strong> ${quarter} ${year} &nbsp;|&nbsp; <strong>Generated:</strong> ${new Date().toLocaleDateString("en-AU")}</p>
+<p><strong>Entity:</strong> SZ-Jie Support Services &nbsp;|&nbsp; <strong>ABN:</strong> 86 959 042 971 &nbsp;|&nbsp; <strong>Period:</strong> ${from} to ${to} &nbsp;|&nbsp; <strong>Generated:</strong> ${new Date().toLocaleDateString("en-AU")}</p>
 <div class="highlight"><strong>⚠️ NDIS Note:</strong> All NDIS disability supports are GST-free under Division 38-D of the GST Act. GST collected = $0.00. Confirm with your registered BAS agent before lodging.</div>
 <h2>Part A — GST Amounts</h2>
 <table><thead><tr><th>Label</th><th>Description</th><th>Amount</th></tr></thead>
 <tbody>
-<tr><td><strong>G1</strong></td><td>Total Sales</td><td>$${totalSales.toFixed(2)}</td></tr>
+<tr><td><strong>G1</strong></td><td>Total Sales (invoices issued in period)</td><td>$${totalSales.toFixed(2)}</td></tr>
 <tr><td><strong>G3</strong></td><td>GST-Free Sales (NDIS supports)</td><td>$${gstFree.toFixed(2)}</td></tr>
 <tr><td><strong>G11</strong></td><td>Non-Capital Purchases (expenses)</td><td>$${totalExpenses.toFixed(2)}</td></tr>
 <tr class="total"><td><strong>1A</strong></td><td>GST on Sales</td><td>$${gstCollected.toFixed(2)} <span class="badge">GST-Free</span></td></tr>
 <tr class="total"><td><strong>1B</strong></td><td>GST Credits on Purchases (est.)</td><td>$${gstOnExpenses.toFixed(2)}</td></tr>
 </tbody></table>
-<h2>Part B — PAYG Withholding</h2>
+<h2>Part B — PAYG Withholding (from Payroll Records)</h2>
 <table><thead><tr><th>Label</th><th>Description</th><th>Amount</th></tr></thead>
 <tbody>
-<tr><td><strong>W1</strong></td><td>Total Payments Subject to Withholding</td><td>$${paidSales.toFixed(2)}</td></tr>
-<tr class="total"><td><strong>4</strong></td><td>PAYG Tax Withheld (est.)</td><td>$${paysAsYouGo.toFixed(2)}</td></tr>
+<tr><td><strong>W1</strong></td><td>Total Gross Wages Subject to Withholding (${qPayslips.length} payslip${qPayslips.length !== 1 ? "s" : ""})</td><td>$${paygGrossSubject.toFixed(2)}</td></tr>
+<tr class="total"><td><strong>4</strong></td><td>PAYG Tax Withheld (tax + Medicare from payslips)</td><td>$${paygTaxWithheld.toFixed(2)}</td></tr>
 </tbody></table>
-<h2>Invoice Breakdown</h2>
+<h2>Invoice Breakdown (${qInvoices.length} invoices — ${from} to ${to})</h2>
 <table><thead><tr><th>Invoice #</th><th>Participant</th><th>Date</th><th>Total</th><th>GST</th><th>Status</th></tr></thead>
 <tbody>
-${invoices.map(i => `<tr><td>${i.invoice_number || "—"}</td><td>${i.participant_name || "—"}</td><td>${i.issue_date || "—"}</td><td>$${parseFloat(i.total || 0).toFixed(2)}</td><td>$0.00</td><td>${i.status}</td></tr>`).join("")}
+${qInvoices.map(i => `<tr><td>${i.invoice_number || "—"}</td><td>${i.participant_name || "—"}</td><td>${i.issue_date || "—"}</td><td>$${parseFloat(i.total || 0).toFixed(2)}</td><td>$0.00</td><td>${i.status}</td></tr>`).join("")}
+${qInvoices.length === 0 ? `<tr><td colspan="6" style="text-align:center;color:#94a3b8;font-style:italic;">No invoices in this period</td></tr>` : ""}
 <tr class="total"><td colspan="3">TOTALS</td><td>$${totalSales.toFixed(2)}</td><td>$0.00</td><td></td></tr>
 </tbody></table>
-<h2>Expense Summary</h2>
+<h2>Payroll Summary (${qPayslips.length} payslips — ${from} to ${to})</h2>
+<table><thead><tr><th>Payslip #</th><th>Staff</th><th>Period</th><th>Gross</th><th>Tax Withheld</th><th>Medicare</th></tr></thead>
+<tbody>
+${qPayslips.map(p => `<tr><td>${p.payslip_number || "—"}</td><td>${p.staff_name || "—"}</td><td>${p.date_from} → ${p.date_to}</td><td>$${(p.gross_pay || 0).toFixed(2)}</td><td>$${(p.tax || 0).toFixed(2)}</td><td>$${(p.medicare || 0).toFixed(2)}</td></tr>`).join("")}
+${qPayslips.length === 0 ? `<tr><td colspan="6" style="text-align:center;color:#94a3b8;font-style:italic;">No payslips in this period</td></tr>` : ""}
+<tr class="total"><td colspan="3">TOTALS</td><td>$${paygGrossSubject.toFixed(2)}</td><td>$${qPayslips.reduce((a,p)=>a+(p.tax||0),0).toFixed(2)}</td><td>$${qPayslips.reduce((a,p)=>a+(p.medicare||0),0).toFixed(2)}</td></tr>
+</tbody></table>
+<h2>Expense Summary (${qReceipts.length} receipts)</h2>
 <table><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Amount</th><th>Est. GST</th></tr></thead>
 <tbody>
-${receipts.map(r => `<tr><td>${r.date || "—"}</td><td>${r.category || "—"}</td><td>${r.description || "—"}</td><td>$${parseFloat(r.amount || 0).toFixed(2)}</td><td>$${(parseFloat(r.amount || 0) / 11).toFixed(2)}</td></tr>`).join("")}
+${qReceipts.map(r => `<tr><td>${r.date || "—"}</td><td>${r.category || "—"}</td><td>${r.description || "—"}</td><td>$${parseFloat(r.amount || 0).toFixed(2)}</td><td>$${(parseFloat(r.amount || 0) / 11).toFixed(2)}</td></tr>`).join("")}
+${qReceipts.length === 0 ? `<tr><td colspan="5" style="text-align:center;color:#94a3b8;font-style:italic;">No expenses in this period</td></tr>` : ""}
 <tr class="total"><td colspan="3">TOTALS</td><td>$${totalExpenses.toFixed(2)}</td><td>$${gstOnExpenses.toFixed(2)}</td></tr>
 </tbody></table>
-<div class="footer">Generated by SZ-Jie Support Services Management System on ${new Date().toLocaleDateString("en-AU")}. NDIS supports are GST-free (Division 38-D, GST Act 1999). Have a registered BAS agent review before lodging.</div>
+<div class="footer">Generated by SZ-Jie Support Services on ${new Date().toLocaleDateString("en-AU")}. NDIS supports are GST-free (Division 38-D, GST Act 1999). PAYG withholding figures sourced from payroll records. Have a registered BAS agent review before lodging.</div>
 </body></html>`;
 
   const sendBAS = async () => {
     if (!email) return;
     setSending(true);
-    await base44.integrations.Core.SendEmail({ to: email, subject: `BAS Report — SZ-Jie Support Services — ${quarter} ${year}`, body: basHtml });
+    await base44.integrations.Core.SendEmail({ to: email, subject: `BAS Report — SZ-Jie Support Services — ${quarter} ${year} (${from} to ${to})`, body: basHtml });
     setSent(true);
     setSending(false);
   };
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {[
-          { label: "Total Sales (G1)", value: "$" + totalSales.toFixed(2) },
-          { label: "GST-Free (G3)", value: "$" + gstFree.toFixed(2) },
-          { label: "GST Collected (1A)", value: "$0.00" },
-          { label: "Total Expenses", value: "$" + totalExpenses.toFixed(2) },
-        ].map(s => (
-          <div key={s.label} className="bg-card border border-border rounded-2xl p-4 text-center">
-            <p className="text-xl font-black text-foreground">{s.value}</p>
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1">{s.label}</p>
-          </div>
-        ))}
-      </div>
-      <div className="bg-card border border-border rounded-3xl p-6 space-y-4">
+      {/* Quarter selector at the top */}
+      <div className="bg-card border border-border rounded-2xl p-4">
         <div className="flex flex-wrap gap-4 items-end">
           <div>
             <Label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1 block">Quarter</Label>
@@ -681,8 +724,26 @@ ${receipts.map(r => `<tr><td>${r.date || "—"}</td><td>${r.category || "—"}</
             <Label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1 block">Year</Label>
             <Select value={year} onValueChange={setYear}><SelectTrigger className="w-28"><SelectValue /></SelectTrigger><SelectContent>{["2024","2025","2026","2027"].map(y => <SelectItem key={y} value={y}>{y}</SelectItem>)}</SelectContent></Select>
           </div>
+          <p className="text-xs text-muted-foreground pb-1">Period: <strong>{from}</strong> → <strong>{to}</strong></p>
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {[
+          { label: `Total Sales (G1)`, value: "$" + totalSales.toFixed(2) },
+          { label: "GST-Free (G3)", value: "$" + gstFree.toFixed(2) },
+          { label: "PAYG Withheld", value: "$" + paygTaxWithheld.toFixed(2) },
+          { label: "Total Expenses", value: "$" + totalExpenses.toFixed(2) },
+        ].map(s => (
+          <div key={s.label} className="bg-card border border-border rounded-2xl p-4 text-center">
+            <p className="text-xl font-black text-foreground">{s.value}</p>
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1">{s.label}</p>
+          </div>
+        ))}
+      </div>
+      <div className="bg-card border border-border rounded-3xl p-6 space-y-4">
         <h3 className="font-black text-lg flex items-center gap-2"><Mail size={18} className="text-primary" /> Email BAS to Accountant</h3>
+
         <div className="flex gap-3">
           <Input value={email} onChange={e => setEmail(e.target.value)} placeholder="bas-agent@example.com" className="flex-1" type="email" />
           <Button onClick={sendBAS} disabled={!email || sending} className="rounded-xl font-bold gap-2 shrink-0">
@@ -701,7 +762,7 @@ ${receipts.map(r => `<tr><td>${r.date || "—"}</td><td>${r.category || "—"}</
           <h3 className="font-black">BAS Preview — {quarter} {year}</h3>
           <Button variant="outline" size="sm" onClick={() => window.print()} className="rounded-xl gap-2"><Printer size={14} /> Print</Button>
         </div>
-        <iframe srcDoc={basHtml} className="w-full border-0" style={{ height: "640px" }} title="BAS Report" />
+        <iframe srcDoc={basHtml} className="w-full border-0" style={{ height: "900px" }} title="BAS Report" />
       </div>
     </div>
   );
