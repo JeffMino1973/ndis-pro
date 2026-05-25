@@ -47,6 +47,7 @@ const NAV_SECTIONS = [
       { path: "/", label: "Dashboard", icon: LayoutDashboard },
       { path: "/kpi", label: "KPI Dashboard", icon: BarChart3 },
       { path: "/ai-reports", label: "AI Report Centre", icon: Zap },
+      { path: "/reports", label: "Reports Centre", icon: BarChart3 },
     ],
   },
   {
