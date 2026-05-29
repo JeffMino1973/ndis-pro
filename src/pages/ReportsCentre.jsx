@@ -4,7 +4,7 @@ import { FileText, Printer, Users, User, BarChart2, ClipboardList, DollarSign, C
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { format, startOfWeek, addDays, parseISO, isSameDay } from "date-fns";
+import { format, startOfWeek, addDays, parseISO, isSameDay, eachWeekOfInterval, parseISO as pi } from "date-fns";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function openReport(html) {
@@ -144,10 +144,55 @@ function InvoiceSummaryReport({ invoices }) {
   );
 }
 
+// ─── Calendar grid HTML builder (Sunday–Saturday, 7 columns) ─────────────────
+function buildCalendarGridHtml(weekSunday, shiftsForWeek, showStaff = true, showParticipant = true) {
+  const days = Array.from({ length: 7 }, (_, i) => addDays(weekSunday, i));
+  const DAY_COLORS = {
+    Scheduled: "background:#dbeafe;color:#1d4ed8;",
+    Confirmed: "background:#dcfce7;color:#166534;",
+    Completed: "background:#f1f5f9;color:#475569;",
+    Cancelled: "background:#fee2e2;color:#991b1b;",
+    "No Show": "background:#fef3c7;color:#92400e;",
+  };
+
+  const cellStyle = "border:1px solid #cbd5e1;vertical-align:top;padding:0;width:14.28%;";
+  const headerStyle = "background:#1e3a5f;color:white;padding:6px 4px;text-align:center;font-size:10px;font-weight:900;";
+
+  return `
+    <table style="width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:6px;">
+      <thead>
+        <tr>
+          ${days.map(d => `<th style="${headerStyle}">${format(d, "EEE")}<br/><span style="font-size:13px;">${format(d, "d")}</span><br/><span style="font-weight:400;font-size:9px;">${format(d, "MMM")}</span></th>`).join("")}
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          ${days.map(day => {
+            const dayShifts = shiftsForWeek.filter(s => { try { return isSameDay(parseISO(s.date), day); } catch { return false; } }).sort((a, b) => (a.start_time || "").localeCompare(b.start_time || ""));
+            return `<td style="${cellStyle}min-height:80px;">
+              ${dayShifts.length === 0
+                ? `<div style="min-height:70px;"></div>`
+                : dayShifts.map(s => {
+                    const colStyle = DAY_COLORS[s.status] || "background:#f1f5f9;color:#334155;";
+                    const lines = [];
+                    if (showStaff && s.staff_name) lines.push(`<div style="font-weight:700;font-size:9px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${s.staff_name}</div>`);
+                    if (showParticipant && s.participant_name) lines.push(`<div style="font-size:9px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;opacity:0.85;">${s.participant_name}</div>`);
+                    lines.push(`<div style="font-size:8px;margin-top:1px;opacity:0.75;">${s.start_time}–${s.end_time}</div>`);
+                    if (s.support_type) lines.push(`<div style="font-size:8px;opacity:0.65;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${s.support_type}</div>`);
+                    return `<div style="${colStyle}border-radius:3px;padding:3px 4px;margin:2px;font-family:Arial,sans-serif;">${lines.join("")}</div>`;
+                  }).join("")
+              }
+            </td>`;
+          }).join("")}
+        </tr>
+      </tbody>
+    </table>`;
+}
+
 // ─── ROSTER PRINT — TEAM VIEW ─────────────────────────────────────────────────
 function RosterTeamReport({ shifts }) {
-  const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  // Sunday-start week
+  const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 0 }));
   const weekFrom = format(weekStart, "yyyy-MM-dd");
   const weekTo = format(addDays(weekStart, 6), "yyyy-MM-dd");
 
@@ -157,30 +202,31 @@ function RosterTeamReport({ shifts }) {
   });
 
   const generate = () => {
-    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>${BASE_STYLE}</head><body>
+    const calHtml = buildCalendarGridHtml(weekStart, weekShifts, true, true);
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+      <style>
+        @media print { @page { size: A4 landscape; margin: 10mm; } body { margin: 0; } .no-print { display: none !important; } }
+        body { font-family: Arial, sans-serif; color: #1e293b; padding: 20px; font-size: 11px; }
+        h1 { color: #1e3a5f; font-size: 18px; border-bottom: 3px solid #1e3a5f; padding-bottom: 6px; margin-bottom: 6px; }
+        .meta { font-size: 11px; color: #475569; margin-bottom: 12px; }
+        .footer { margin-top: 16px; padding-top: 8px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
+        .legend { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; font-size: 9px; }
+        .legend-item { display: flex; align-items: center; gap: 3px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+        .print-btn { position: fixed; top: 16px; right: 16px; padding: 8px 16px; background: #1e3a5f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 12px; }
+      </style>
+    </head><body>
       <button class="print-btn no-print" onclick="window.print()">🖨 Print / Save PDF</button>
-      <h1>Weekly Roster — Team View</h1>
-      <p class="meta"><strong>Week:</strong> ${format(weekStart, "d MMM")} – ${format(addDays(weekStart, 6), "d MMM yyyy")} &nbsp;|&nbsp; <strong>Total Shifts:</strong> ${weekShifts.length} &nbsp;|&nbsp; <strong>Generated:</strong> ${new Date().toLocaleDateString("en-AU")}</p>
-      ${weekDays.map(day => {
-        const dayShifts = weekShifts.filter(s => { try { return isSameDay(parseISO(s.date), day); } catch { return false; } }).sort((a, b) => (a.start_time || "").localeCompare(b.start_time || ""));
-        return `<div class="day-block">
-          <div class="day-header">${format(day, "EEEE d MMMM yyyy")} (${dayShifts.length} shift${dayShifts.length !== 1 ? "s" : ""})</div>
-          ${dayShifts.length === 0
-            ? `<div style="padding:8px 12px;color:#94a3b8;font-style:italic;font-size:11px;border-bottom:1px solid #e2e8f0;">No shifts scheduled</div>`
-            : `<div style="border:1px solid #e2e8f0;border-top:none;border-radius:0 0 4px 4px;">
-                <div style="display:flex;padding:5px 12px;background:#f8fafc;font-weight:900;font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.05em;">
-                  <span style="width:100px;">Time</span><span style="width:160px;">Staff</span><span style="flex:1;">Participant</span><span style="width:140px;">Support Type</span><span style="width:90px;">Status</span>
-                </div>
-                ${dayShifts.map(s => `<div class="shift-row">
-                  <span class="shift-time">${s.start_time}–${s.end_time}</span>
-                  <span class="shift-staff">${s.staff_name || "—"}</span>
-                  <span class="shift-part">${s.participant_name || "—"}</span>
-                  <span class="shift-type">${s.support_type || "—"}</span>
-                  <span><span class="badge badge-${(s.status || "").toLowerCase()}">${s.status || "—"}</span></span>
-                </div>`).join("")}
-              </div>`}
-        </div>`;
-      }).join("")}
+      <h1>Weekly Team Roster</h1>
+      <p class="meta"><strong>Week:</strong> ${format(weekStart, "d MMM")} (Sun) – ${format(addDays(weekStart, 6), "d MMM yyyy")} (Sat) &nbsp;|&nbsp; <strong>Total Shifts:</strong> ${weekShifts.length} &nbsp;|&nbsp; <strong>Generated:</strong> ${new Date().toLocaleDateString("en-AU")}</p>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#dbeafe;"></div> Scheduled</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#dcfce7;"></div> Confirmed</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f1f5f9;"></div> Completed</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fee2e2;"></div> Cancelled</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fef3c7;"></div> No Show</div>
+      </div>
+      ${calHtml}
       <div class="footer">SZ-Jie Support Services — Weekly Roster generated ${new Date().toLocaleDateString("en-AU")}.</div>
     </body></html>`;
     openReport(html);
@@ -191,7 +237,7 @@ function RosterTeamReport({ shifts }) {
       <div className="flex items-center gap-4 flex-wrap">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="icon" onClick={() => setWeekStart(prev => addDays(prev, -7))} className="rounded-lg h-9 w-9">‹</Button>
-          <span className="font-bold text-sm px-2">{format(weekStart, "d MMM")} – {format(addDays(weekStart, 6), "d MMM yyyy")}</span>
+          <span className="font-bold text-sm px-2">{format(weekStart, "d MMM")} (Sun) – {format(addDays(weekStart, 6), "d MMM yyyy")} (Sat)</span>
           <Button variant="outline" size="icon" onClick={() => setWeekStart(prev => addDays(prev, 7))} className="rounded-lg h-9 w-9">›</Button>
         </div>
         <Button onClick={generate} className="rounded-xl font-bold gap-2 ml-auto"><Printer size={15} /> Generate Team Roster PDF</Button>
@@ -238,26 +284,51 @@ function RosterIndividualReport({ shifts, staff, participants }) {
 
   const generate = () => {
     const title = selectedName || `All ${viewType === "staff" ? "Staff" : "Participants"}`;
-    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>${BASE_STYLE}</head><body>
+    // Build Sunday-starting weeks that cover the date range
+    const start = fromDate ? parseISO(fromDate) : (filtered.length ? parseISO(filtered[0].date) : new Date());
+    const end = toDate ? parseISO(toDate) : (filtered.length ? parseISO(filtered[filtered.length - 1].date) : new Date());
+    const weekStarts = eachWeekOfInterval({ start, end }, { weekStartsOn: 0 });
+
+    const showStaff = viewType === "participant"; // when viewing by participant, show staff name
+    const showParticipant = viewType === "staff";  // when viewing by staff, show participant name
+
+    const weeksHtml = weekStarts.map(weekSun => {
+      const wFrom = format(weekSun, "yyyy-MM-dd");
+      const wTo = format(addDays(weekSun, 6), "yyyy-MM-dd");
+      const weekShifts = filtered.filter(s => (s.date || "") >= wFrom && (s.date || "") <= wTo);
+      return `
+        <div style="margin-bottom:20px;page-break-inside:avoid;">
+          <div style="background:#334155;color:white;padding:5px 10px;border-radius:4px 4px 0 0;font-size:10px;font-weight:900;margin-bottom:0;">
+            Week of ${format(weekSun, "d MMM yyyy")} (Sun) – ${format(addDays(weekSun, 6), "d MMM yyyy")} (Sat) &nbsp;·&nbsp; ${weekShifts.length} shift${weekShifts.length !== 1 ? "s" : ""}
+          </div>
+          ${buildCalendarGridHtml(weekSun, weekShifts, showStaff, showParticipant)}
+        </div>`;
+    }).join("");
+
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+      <style>
+        @media print { @page { size: A4 landscape; margin: 10mm; } body { margin: 0; } .no-print { display: none !important; } }
+        body { font-family: Arial, sans-serif; color: #1e293b; padding: 20px; font-size: 11px; }
+        h1 { color: #1e3a5f; font-size: 18px; border-bottom: 3px solid #1e3a5f; padding-bottom: 6px; margin-bottom: 6px; }
+        .meta { font-size: 11px; color: #475569; margin-bottom: 12px; }
+        .footer { margin-top: 16px; padding-top: 8px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
+        .legend { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; font-size: 9px; }
+        .legend-item { display: flex; align-items: center; gap: 3px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 2px; }
+        .print-btn { position: fixed; top: 16px; right: 16px; padding: 8px 16px; background: #1e3a5f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 12px; }
+      </style>
+    </head><body>
       <button class="print-btn no-print" onclick="window.print()">🖨 Print / Save PDF</button>
       <h1>Individual Roster — ${viewType === "staff" ? "Staff" : "Participant"} View</h1>
-      <p class="meta"><strong>${viewType === "staff" ? "Staff Member" : "Participant"}:</strong> ${title} &nbsp;|&nbsp; <strong>Period:</strong> ${fromDate || "All"} → ${toDate || "All"} &nbsp;|&nbsp; <strong>Shifts:</strong> ${filtered.length} &nbsp;|&nbsp; <strong>Generated:</strong> ${new Date().toLocaleDateString("en-AU")}</p>
-      <table>
-        <thead><tr><th>Date</th><th>Day</th><th>${viewType === "staff" ? "Participant" : "Staff"}</th><th>Time</th><th>Support Type</th><th>Status</th><th>Notes</th></tr></thead>
-        <tbody>
-          ${filtered.map(s => `<tr>
-            <td>${s.date || "—"}</td>
-            <td>${s.date ? format(parseISO(s.date), "EEEE") : "—"}</td>
-            <td>${viewType === "staff" ? (s.participant_name || "—") : (s.staff_name || "—")}</td>
-            <td>${s.start_time}–${s.end_time}</td>
-            <td>${s.support_type || "—"}</td>
-            <td><span class="badge badge-${(s.status || "").toLowerCase()}">${s.status || "—"}</span></td>
-            <td style="color:#64748b;">${s.notes || ""}</td>
-          </tr>`).join("")}
-          ${filtered.length === 0 ? `<tr><td colspan="7" style="text-align:center;color:#94a3b8;font-style:italic;">No shifts match the filter</td></tr>` : ""}
-          <tr class="total"><td colspan="2">TOTAL SHIFTS</td><td colspan="5">${filtered.length}</td></tr>
-        </tbody>
-      </table>
+      <p class="meta"><strong>${viewType === "staff" ? "Staff Member" : "Participant"}:</strong> ${title} &nbsp;|&nbsp; <strong>Period:</strong> ${fromDate || "All"} → ${toDate || "All"} &nbsp;|&nbsp; <strong>Total Shifts:</strong> ${filtered.length} &nbsp;|&nbsp; <strong>Generated:</strong> ${new Date().toLocaleDateString("en-AU")}</p>
+      <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#dbeafe;"></div> Scheduled</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#dcfce7;"></div> Confirmed</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f1f5f9;"></div> Completed</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fee2e2;"></div> Cancelled</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#fef3c7;"></div> No Show</div>
+      </div>
+      ${filtered.length === 0 ? `<p style="color:#94a3b8;font-style:italic;">No shifts match the selected filters.</p>` : weeksHtml}
       <div class="footer">SZ-Jie Support Services — Individual Roster generated ${new Date().toLocaleDateString("en-AU")}.</div>
     </body></html>`;
     openReport(html);
