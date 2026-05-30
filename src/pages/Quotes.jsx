@@ -37,7 +37,7 @@ export default function Quotes() {
     expiry_date: "",
     status: "Draft",
     notes: "",
-    line_items: [{ description: "", support_item_code: "", hours: 1, rate: 68.12, amount: 68.12 }],
+    line_items: [{ description: "", support_item_code: "", hours: 1, rate: 59.06, amount: 59.06 }],
   });
 
   const load = async () => {
@@ -75,7 +75,7 @@ export default function Quotes() {
   const addLine = () => {
     setForm((prev) => ({
       ...prev,
-      line_items: [...prev.line_items, { description: "", support_item_code: "", hours: 1, rate: 68.12, amount: 68.12 }],
+      line_items: [...prev.line_items, { description: "", support_item_code: "", hours: 1, rate: 59.06, amount: 59.06 }],
     }));
   };
 
@@ -90,7 +90,7 @@ export default function Quotes() {
   const EMPTY_FORM = {
     quote_number: generateQuoteNumber(), participant_name: "", issue_date: new Date().toISOString().split("T")[0],
     expiry_date: "", status: "Draft", notes: "",
-    line_items: [{ description: "", support_item_code: "", hours: 1, rate: 68.12, amount: 68.12 }],
+    line_items: [{ description: "", support_item_code: "", hours: 1, rate: 59.06, amount: 59.06 }],
   };
 
   const openEdit = (q) => {
