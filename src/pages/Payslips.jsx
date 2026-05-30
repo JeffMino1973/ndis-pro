@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Printer, Plus, Trash2, Loader2, FileText, Pencil, ChevronLeft, Banknote, Download, Search } from "lucide-react";
+import { Printer, Plus, Trash2, Loader2, FileText, Pencil, ChevronLeft, Banknote, Search, Info } from "lucide-react";
 import { format } from "date-fns";
 import PayslipPreview, { getEmployer } from "@/components/payslips/PayslipPreview";
+import { calcPayPeriodDeductions, TAX_STATUS_LABELS } from "@/utils/taxCalc";
 
 const PRINT_STYLES = `
 @media print {
@@ -27,6 +28,8 @@ const PRINT_STYLES = `
 
 
 
+// Remove old local tax functions — now using utils/taxCalc.js
+
 const NDIS_ITEMS = [
   { code: "04_104_0125_6_1", description: "Access Community Social and Rec Activ – Weekday", rate: 70.23 },
   { code: "04_105_0125_6_1", description: "Access Community Social and Rec Activ – Saturday", rate: 98.83 },
@@ -41,27 +44,7 @@ const EMPTY_LINE = () => ({
   unit_price: 70.23, qty: 1,
 });
 
-function calcAnnualTax(a) {
-  if (a <= 18200) return 0;
-  if (a <= 45000) return (a - 18200) * 0.19;
-  if (a <= 135000) return 5092 + (a - 45000) * 0.325;
-  if (a <= 190000) return 34204 + (a - 135000) * 0.37;
-  return 54630 + (a - 190000) * 0.45;
-}
-function calcLITO(a) {
-  if (a <= 37500) return 700;
-  if (a <= 45000) return 700 - (a - 37500) * 0.05;
-  if (a <= 66667) return 325 - (a - 45000) * 0.015;
-  return 0;
-}
-const PERIODS = { weekly: 52, fortnightly: 26, monthly: 12 };
-function periodTax(gross, payPeriod) {
-  const periodsPerYear = PERIODS[payPeriod] || 26;
-  const ann = gross * periodsPerYear;
-  const tax = Math.max(0, calcAnnualTax(ann) - Math.max(0, calcLITO(ann)));
-  const med = ann * 0.02;
-  return { tax: tax / periodsPerYear, medicare: med / periodsPerYear };
-}
+
 
 export default function Payslips() {
   const [staff, setStaff] = useState([]);
@@ -82,6 +65,8 @@ export default function Payslips() {
   const [dateTo, setDateTo] = useState(format(new Date(), "yyyy-MM-dd"));
   const [lines, setLines] = useState([EMPTY_LINE()]);
   const [payslipNo, setPayslipNo] = useState("PS-" + String(Date.now()).slice(-6));
+  const [taxStatus, setTaxStatus] = useState("resident_with_threshold");
+  const [medicareExemption, setMedicareExemption] = useState(false);
 
   useEffect(() => {
     base44.entities.StaffMember.list().then(s => { setStaff(s); setLoading(false); });
@@ -90,9 +75,7 @@ export default function Payslips() {
 
   const lineTotal = (l) => parseFloat(l.unit_price || 0) * parseFloat(l.qty || 0);
   const subtotal = lines.reduce((a, l) => a + lineTotal(l), 0);
-  const { tax, medicare } = periodTax(subtotal, payPeriod);
-  const superAmt = subtotal * 0.12;
-  const netPay = Math.max(0, subtotal - tax - medicare);
+  const { tax, medicare, super: superAmt, net: netPay } = calcPayPeriodDeductions(subtotal, payPeriod, taxStatus, medicareExemption);
 
   const updateLine = (id, field, value) => {
     setLines(prev => prev.map(l => {
@@ -115,6 +98,8 @@ export default function Payslips() {
     setDateTo(r.date_to || "");
     setPayslipNo(r.payslip_number || "");
     setLines((r.line_items || []).map(l => ({ ...l, id: crypto.randomUUID() })));
+    setTaxStatus(found?.tax_status || r.tax_status || "resident_with_threshold");
+    setMedicareExemption(found?.medicare_exemption || r.medicare_exemption || false);
   };
 
   const handleSave = async (editingId = null) => {
@@ -131,6 +116,8 @@ export default function Payslips() {
       tax, medicare,
       super_amount: superAmt,
       net_pay: netPay,
+      tax_status: taxStatus,
+      medicare_exemption: medicareExemption,
       employer_name: emp.name,
       staff_email: foundStaff?.email || "",
       staff_phone: foundStaff?.phone || "",
@@ -175,6 +162,8 @@ export default function Payslips() {
     setDateTo(format(new Date(), "yyyy-MM-dd"));
     setLines([EMPTY_LINE()]);
     setPayslipNo("PS-" + String(Date.now()).slice(-6));
+    setTaxStatus("resident_with_threshold");
+    setMedicareExemption(false);
     setActiveRecord(null);
     setView("new");
   };
@@ -243,7 +232,10 @@ export default function Payslips() {
               <Label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1 block">Staff Member</Label>
               <Select value={staffName} onValueChange={v => {
                 setStaffName(v);
-                setSelectedStaff(staff.find(s => s.name === v) || null);
+                const found = staff.find(s => s.name === v) || null;
+                setSelectedStaff(found);
+                if (found?.tax_status) setTaxStatus(found.tax_status);
+                if (found?.medicare_exemption !== undefined) setMedicareExemption(found.medicare_exemption);
               }}>
                 <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
                 <SelectContent>
@@ -270,6 +262,52 @@ export default function Payslips() {
               <Label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1 block">Period To</Label>
               <Input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} />
             </div>
+          </div>
+
+          {/* Tax Declaration Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-border">
+            <div>
+              <Label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1 block">Tax Declaration Status</Label>
+              <Select value={taxStatus} onValueChange={setTaxStatus}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {Object.entries(TAX_STATUS_LABELS).map(([val, label]) => (
+                    <SelectItem key={val} value={val}>{label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
+                <Info size={10} /> Auto-filled from staff profile. ATO 2025–26 rates.
+              </p>
+            </div>
+            <div className="flex items-start gap-3 pt-5">
+              <input
+                type="checkbox"
+                id="medicareExemption"
+                checked={medicareExemption}
+                onChange={e => setMedicareExemption(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded"
+              />
+              <div>
+                <label htmlFor="medicareExemption" className="text-sm font-semibold cursor-pointer">Medicare Levy Exemption</label>
+                <p className="text-[10px] text-muted-foreground">Tick if employee holds a Medicare Exemption Certificate</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Live deduction preview */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-secondary/40 rounded-xl text-center">
+            {[
+              { label: "Gross", value: subtotal, color: "text-foreground" },
+              { label: "Tax (PAYG)", value: tax, color: "text-rose-600" },
+              { label: "Medicare", value: medicare, color: "text-orange-600" },
+              { label: "Net Pay", value: netPay, color: "text-emerald-600" },
+            ].map(s => (
+              <div key={s.label}>
+                <p className={`text-base font-black ${s.color}`}>${s.value.toFixed(2)}</p>
+                <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{s.label}</p>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -395,6 +433,7 @@ export default function Payslips() {
   const printBankingWindow = (r) => {
     const emp = getEmployer(r.date_from);
     const taxPayable = ((r.tax || 0) + (r.medicare || 0)).toFixed(2);
+    const taxStatusLabel = TAX_STATUS_LABELS[r.tax_status] || "Australian Resident — Tax-Free Threshold Claimed";
     const superPayable = (r.super_amount || 0).toFixed(2);
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
       <style>
@@ -441,6 +480,8 @@ export default function Payslips() {
           <p><strong>Address:</strong> ${r.staff_address || "—"}</p>
           <p><strong>TFN:</strong> ${r.staff_tfn ? "••• ••• " + String(r.staff_tfn).slice(-3) : "—"}</p>
           <p><strong>ABN:</strong> ${r.staff_abn || "—"}</p>
+          <p><strong>Tax Declaration:</strong> ${taxStatusLabel}</p>
+          ${r.medicare_exemption ? "<p><strong>Medicare:</strong> Levy Exemption Applied</p>" : ""}
         </div>
       </div>
 

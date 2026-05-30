@@ -1,4 +1,5 @@
 import { format, parseISO } from "date-fns";
+import { calcPayPeriodDeductions, TAX_STATUS_LABELS } from "@/utils/taxCalc";
 
 const EMPLOYER_OLD = {
   name: "SZ-Jie Wang",
@@ -21,37 +22,24 @@ export function getEmployer(dateFrom) {
   return dateFrom < CHANGEOVER_DATE ? EMPLOYER_OLD : EMPLOYER_NEW;
 }
 
-function calcAnnualTax(a) {
-  if (a <= 18200) return 0;
-  if (a <= 45000) return (a - 18200) * 0.19;
-  if (a <= 135000) return 5092 + (a - 45000) * 0.325;
-  if (a <= 190000) return 34204 + (a - 135000) * 0.37;
-  return 54630 + (a - 190000) * 0.45;
-}
-function calcLITO(a) {
-  if (a <= 37500) return 700;
-  if (a <= 45000) return 700 - (a - 37500) * 0.05;
-  if (a <= 66667) return 325 - (a - 45000) * 0.015;
-  return 0;
-}
-const PERIODS = { weekly: 52, fortnightly: 26, monthly: 12 };
-function periodTax(gross, payPeriod) {
-  const periodsPerYear = PERIODS[payPeriod] || 26;
-  const ann = gross * periodsPerYear;
-  const tax = Math.max(0, calcAnnualTax(ann) - Math.max(0, calcLITO(ann)));
-  const med = ann * 0.02;
-  return { tax: tax / periodsPerYear, medicare: med / periodsPerYear };
-}
-
-// record shape: { payslip_number, staff_name, pay_period, date_from, date_to, line_items, bank_* fields, employer_name }
+// record shape: { payslip_number, staff_name, pay_period, date_from, date_to, line_items, bank_* fields }
 export default function PayslipPreview({ record, staffMember }) {
   const lines = record.line_items || [];
   const lineTotal = (l) => parseFloat(l.unit_price || 0) * parseFloat(l.qty || 0);
   const subtotal = lines.reduce((a, l) => a + lineTotal(l), 0);
-  const { tax, medicare } = periodTax(subtotal, record.pay_period || "fortnightly");
-  const superAmt = subtotal * 0.12;
+
+  // Use tax status from live staffMember data, fall back to saved record
+  const taxStatus = staffMember?.tax_status || record.tax_status || "resident_with_threshold";
+  const medicareExemption = staffMember?.medicare_exemption || record.medicare_exemption || false;
+
+  const { tax, medicare, super: superAmt, net: netPay } = calcPayPeriodDeductions(
+    subtotal,
+    record.pay_period || "fortnightly",
+    taxStatus,
+    medicareExemption
+  );
+
   const totalDeductions = tax + medicare;
-  const netPay = Math.max(0, subtotal - totalDeductions);
   const emp = getEmployer(record.date_from);
 
   // Bank details: prefer live staffMember data, fall back to saved record fields
@@ -61,6 +49,8 @@ export default function PayslipPreview({ record, staffMember }) {
     bank_bsb: staffMember?.bank_bsb || record.bank_bsb,
     bank_account_number: staffMember?.bank_account_number || record.bank_account_number,
   };
+
+  const taxLabel = TAX_STATUS_LABELS[taxStatus] || taxStatus;
 
   return (
     <div id="payslip-printable" style={{ fontFamily: "Arial, sans-serif", fontSize: "11px", color: "#1e293b", background: "white", padding: "16px" }}>
@@ -124,7 +114,7 @@ export default function PayslipPreview({ record, staffMember }) {
             <p style={{ margin: 0, fontWeight: 900, fontSize: "8px", textTransform: "uppercase", color: "#1d4ed8" }}>Deductions</p>
           </div>
           <div style={{ padding: "6px 8px" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}><span style={{ color: "#64748b" }}>Tax</span><span style={{ fontWeight: 700, color: "#e11d48" }}>– ${tax.toFixed(2)}</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}><span style={{ color: "#64748b" }}>Tax (PAYG)</span><span style={{ fontWeight: 700, color: "#e11d48" }}>– ${tax.toFixed(2)}</span></div>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}><span style={{ color: "#64748b" }}>Medicare</span><span style={{ fontWeight: 700, color: "#e11d48" }}>– ${medicare.toFixed(2)}</span></div>
             <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #e2e8f0", paddingTop: "3px" }}><span style={{ fontWeight: 900, color: "#475569" }}>Total</span><span style={{ fontWeight: 900, color: "#be123c" }}>– ${totalDeductions.toFixed(2)}</span></div>
           </div>
@@ -133,11 +123,11 @@ export default function PayslipPreview({ record, staffMember }) {
         {/* Super */}
         <div style={{ border: "1px solid #bfdbfe", borderRadius: "8px", overflow: "hidden", backgroundColor: "#eff6ff" }}>
           <div style={{ backgroundColor: "#dbeafe", padding: "4px 8px", borderBottom: "1px solid #bfdbfe" }}>
-            <p style={{ margin: 0, fontWeight: 900, fontSize: "8px", textTransform: "uppercase", color: "#1d4ed8" }}>Super</p>
+            <p style={{ margin: 0, fontWeight: 900, fontSize: "8px", textTransform: "uppercase", color: "#1d4ed8" }}>Super (SGC 12%)</p>
           </div>
           <div style={{ padding: "6px 8px" }}>
             <p style={{ margin: 0, fontWeight: 900, color: "#1e40af", fontSize: "12px" }}>${superAmt.toFixed(2)}</p>
-            <p style={{ margin: 0, fontSize: "7px", color: "#3b82f6" }}>12% SGC</p>
+            <p style={{ margin: 0, fontSize: "7px", color: "#3b82f6" }}>Employer contribution</p>
           </div>
         </div>
 
@@ -151,8 +141,15 @@ export default function PayslipPreview({ record, staffMember }) {
         <div style={{ border: "1px solid #e2e8f0", borderRadius: "8px", padding: "8px", fontSize: "8px", color: "#475569" }}>
           <p style={{ margin: "0 0 2px 0" }}><strong>Gross:</strong> ${subtotal.toFixed(2)}</p>
           <p style={{ margin: "0 0 2px 0" }}><strong>Tax:</strong> ${tax.toFixed(2)}</p>
-          <p style={{ margin: 0 }}><strong>Medicare:</strong> ${medicare.toFixed(2)}</p>
+          <p style={{ margin: "0 0 2px 0" }}><strong>Medicare:</strong> ${medicare.toFixed(2)}</p>
+          <p style={{ margin: 0, fontSize: "7px", color: "#94a3b8" }}>{medicareExemption ? "Medicare exempt" : ""}</p>
         </div>
+      </div>
+
+      {/* Tax Declaration Badge */}
+      <div style={{ backgroundColor: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "6px 10px", marginBottom: "10px", fontSize: "9px", color: "#475569" }}>
+        <strong>Tax Declaration:</strong> {taxLabel} · <strong>ATO 2025–26 rates</strong> · LITO applied where eligible
+        {medicareExemption && " · Medicare Levy Exemption applied"}
       </div>
 
       {/* Bank Details */}
@@ -173,7 +170,7 @@ export default function PayslipPreview({ record, staffMember }) {
 
       {/* Footer */}
       <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "6px", fontSize: "7px", color: "#94a3b8" }}>
-        <p style={{ margin: 0 }}>Tax calculated on ATO 2025–26 resident rates with LITO. Superannuation 12% per SGC. This payslip is computer-generated by SZ-Jie Support Services management system.</p>
+        <p style={{ margin: 0 }}>Tax calculated on ATO 2025–26 rates · {taxLabel} · LITO applied where eligible · Medicare levy with low-income threshold · SGC 12% employer contribution. This payslip is computer-generated by SZ-Jie Support Services management system.</p>
       </div>
     </div>
   );

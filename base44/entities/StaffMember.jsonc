@@ -89,6 +89,23 @@
       "type": "string",
       "title": "ABN (if contractor)"
     },
+    "tax_status": {
+      "type": "string",
+      "title": "Tax Declaration Status",
+      "enum": [
+        "resident_with_threshold",
+        "resident_no_threshold",
+        "non_resident",
+        "working_holiday",
+        "no_tfn"
+      ],
+      "default": "resident_with_threshold"
+    },
+    "medicare_exemption": {
+      "type": "boolean",
+      "title": "Medicare Levy Exemption",
+      "default": false
+    },
     "bank_name": {
       "type": "string",
       "title": "Bank Name"
