@@ -121,6 +121,7 @@ const NAV_SECTIONS = [
   {
     title: "System",
     items: [
+      { path: "/staff-portal", label: "My Staff Portal", icon: UserCircle },
       { path: "/user-guide", label: "User Guide", icon: BookOpen },
       { path: "/policy-manual", label: "Policy & Compliance Manual", icon: ClipboardList },
       { path: "/nav-admin", label: "Menu Permissions", icon: Settings },
