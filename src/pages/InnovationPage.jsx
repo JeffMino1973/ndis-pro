@@ -237,6 +237,15 @@ export default function InnovationPage() {
                       ))}
                     </div>
                   </div>
+                  {section.id === "life-skills" && (
+                    <div className="mt-6">
+                      <img
+                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/f8aab7e5f_Screenshot2026-05-31084746.png"
+                        alt="Life Skills Academy Platform Example"
+                        className="w-full rounded-lg border border-slate-200 shadow-sm"
+                      />
+                    </div>
+                  )}
                 </div>
               );
             })}
