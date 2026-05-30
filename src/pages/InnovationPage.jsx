@@ -246,7 +246,7 @@ export default function InnovationPage() {
                       />
                     </div>
                   )}
-                  {section.id === "my-daily-schedule" && (
+                  {section.id === "daily-schedule" && (
                     <div className="mt-6 space-y-4">
                       <img
                         src="https://media.base44.com/images/public/69d54775d9a169daad84a133/914796068_Screenshot2026-05-31084942.png"
@@ -256,6 +256,34 @@ export default function InnovationPage() {
                       <img
                         src="https://media.base44.com/images/public/69d54775d9a169daad84a133/0edf14574_Screenshot2026-05-31084919.png"
                         alt="My Daily Schedule Visual Supports"
+                        className="w-full rounded-lg border border-slate-200 shadow-sm"
+                      />
+                    </div>
+                  )}
+                  {section.id === "shopping" && (
+                    <div className="mt-6">
+                      <img
+                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/e70f598be_Screenshot2026-05-31084837.png"
+                        alt="Digital Shopping System"
+                        className="w-full rounded-lg border border-slate-200 shadow-sm"
+                      />
+                    </div>
+                  )}
+                  {section.id === "ndis-planning" && (
+                    <div className="mt-6 space-y-4">
+                      <img
+                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/c440e3e9a_Screenshot2026-05-31084611.png"
+                        alt="NDIS Course Catalogue"
+                        className="w-full rounded-lg border border-slate-200 shadow-sm"
+                      />
+                      <img
+                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/177db71c3_Screenshot2026-05-31084659.png"
+                        alt="NDIS Prior Commitments Planner"
+                        className="w-full rounded-lg border border-slate-200 shadow-sm"
+                      />
+                      <img
+                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/e8abd9bd7_Screenshot2026-05-31084638.png"
+                        alt="NDIS Build Schedule"
                         className="w-full rounded-lg border border-slate-200 shadow-sm"
                       />
                     </div>
