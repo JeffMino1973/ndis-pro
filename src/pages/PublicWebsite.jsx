@@ -343,6 +343,22 @@ export default function PublicWebsite() {
         </div>
       </section>
 
+      {/* Why We're Different */}
+      <section className="py-16 bg-slate-50 border-t border-slate-100">
+        <div className="max-w-6xl mx-auto px-6 text-center">
+          <h2 className="text-3xl font-black text-[#0F172A] mb-4">Why SZ-JIE Is Different</h2>
+          <p className="text-slate-500 max-w-2xl mx-auto mb-10 text-sm leading-relaxed">
+            We don't use off-the-shelf software. We build custom digital solutions designed specifically around your unique needs, goals, and circumstances. Technology adapted to people, not the other way around.
+          </p>
+          <a
+            href="/innovation"
+            className="inline-flex items-center gap-2 bg-[#0F172A] text-white hover:bg-slate-800 font-bold text-sm px-6 py-3 rounded-lg transition"
+          >
+            Explore Our Custom Solutions <ExternalLink size={14} />
+          </a>
+        </div>
+      </section>
+
       {/* Our Services */}
       <section className="py-16 bg-white border-t border-slate-100">
         <div className="max-w-6xl mx-auto px-6">

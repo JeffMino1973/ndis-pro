@@ -46,6 +46,7 @@ import Payslips from './pages/Payslips';
 import MedicationHub from './pages/MedicationHub';
 import PublicWebsite from './pages/PublicWebsite';
 import JeffreyProfile from './pages/JeffreyProfile';
+import InnovationPage from './pages/InnovationPage';
 import PolicyManual from './pages/PolicyManual';
 import Links from './pages/Links';
 import NavAdmin from './pages/NavAdmin';
@@ -144,6 +145,7 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<PublicWebsite />} />
+          <Route path="/innovation" element={<InnovationPage />} />
           <Route path="/participant-portal" element={<ParticipantPortal />} />
 
           <Route path="/dashboard/*" element={
