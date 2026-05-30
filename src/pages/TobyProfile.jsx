@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
-const PHOTO = "https://media.base44.com/images/public/69d54775d9a169daad84a133/9c2ede7a8_Picture1.png";
+const PHOTO = "https://media.base44.com/images/public/69d54775d9a169daad84a133/4844b18d5_Sz-JieTobySupportWorkerProfile.jpg";
 
 const ICON_MAP = { Home, Accessibility, Users, Heart, Star, Award, GraduationCap, Briefcase, UserCircle };
 const ICON_OPTIONS = Object.keys(ICON_MAP);

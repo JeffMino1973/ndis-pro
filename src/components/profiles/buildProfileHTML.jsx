@@ -3,12 +3,30 @@
  * Used for both Print / Save PDF and Email Profile.
  */
 export function buildProfileHTML({ data, photoUrl, gradientFrom, gradientTo, profileUrl, firstName }) {
-  const servicesHTML = (data.services || []).map(s => `
-    <div style="flex:1 1 45%;min-width:200px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;margin:6px;">
-      <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">${s.title}</div>
-      <div style="font-size:12px;color:#64748b;line-height:1.5;">${s.desc}</div>
-    </div>
-  `).join("");
+  // Build services as a 2-column table for email client compatibility
+  const serviceItems = data.services || [];
+  const serviceRows = [];
+  for (let i = 0; i < serviceItems.length; i += 2) {
+    const left = serviceItems[i];
+    const right = serviceItems[i + 1];
+    serviceRows.push(`
+      <tr>
+        <td style="width:50%;padding:6px;vertical-align:top;">
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">${left.title}</div>
+            <div style="font-size:12px;color:#64748b;line-height:1.5;">${left.desc}</div>
+          </div>
+        </td>
+        <td style="width:50%;padding:6px;vertical-align:top;">
+          ${right ? `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px;">
+            <div style="font-size:13px;font-weight:700;color:#1e293b;margin-bottom:4px;">${right.title}</div>
+            <div style="font-size:12px;color:#64748b;line-height:1.5;">${right.desc}</div>
+          </div>` : ''}
+        </td>
+      </tr>
+    `);
+  }
+  const servicesHTML = `<table style="width:100%;border-collapse:collapse;">${serviceRows.join("")}</table>`;
 
   const qualsHTML = (data.qualifications || []).map(q => `
     <div style="display:flex;align-items:flex-start;gap:14px;padding:10px 0;border-bottom:1px solid #f1f5f9;">
@@ -104,7 +122,7 @@ export function buildProfileHTML({ data, photoUrl, gradientFrom, gradientTo, pro
     .avail-title { font-size: 12px; font-weight: 800; color: #1e40af; margin-bottom: 10px; }
     .section-title { font-size: 15px; font-weight: 900; color: #0f172a; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 2px solid #e2e8f0; }
     .about-text { font-size: 12px; line-height: 1.7; color: #475569; margin-bottom: 10px; }
-    .services-grid { display: flex; flex-wrap: wrap; margin: -6px; }
+    .services-grid { width: 100%; }
     .qual-list { }
     @media print {
       body { background: white; }
@@ -162,7 +180,7 @@ export function buildProfileHTML({ data, photoUrl, gradientFrom, gradientTo, pro
 
         <div style="margin-bottom:16px;">
           <div class="section-title">Services &amp; Expertise</div>
-          <div class="services-grid">${servicesHTML}</div>
+          <div class="services-grid" style="margin:-6px;">${servicesHTML}</div>
         </div>
 
         <div>
