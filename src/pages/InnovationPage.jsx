@@ -167,9 +167,8 @@ export default function InnovationPage() {
       {/* Navigation */}
       <nav className="bg-white border-b border-slate-100 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="/" className="flex flex-col leading-none">
-            <span className="text-xl font-black text-[#0F172A] tracking-tight">SZ-JIE</span>
-            <span className="text-[9px] font-bold text-[#0F172A] tracking-widest uppercase">Support Services</span>
+          <a href="/" className="flex items-center">
+            <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/50cfec215_ChatGPTImageMay31202609_02_19AM.png" alt="SZ-JIE Logo" className="h-12" />
           </a>
           <div className="flex items-center gap-8">
             <a href="/#contact" className="text-sm font-semibold text-slate-700 hover:text-[#0F172A] transition">
@@ -367,10 +366,7 @@ export default function InnovationPage() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-10 mb-8">
             <div>
-              <div className="flex flex-col leading-none mb-3">
-                <span className="text-xl font-black text-white tracking-tight">SZ-JIE</span>
-                <span className="text-[9px] font-bold text-slate-400 tracking-widest uppercase">Support Services</span>
-              </div>
+              <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/539befd5f_White_transparent.png" alt="SZ-JIE Logo" className="h-10" />
               <p className="text-sm text-slate-400 leading-relaxed">Custom digital solutions for disability support.</p>
             </div>
             <div className="text-center">

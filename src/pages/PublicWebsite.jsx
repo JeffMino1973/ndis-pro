@@ -265,10 +265,7 @@ export default function PublicWebsite() {
       {/* Navigation */}
       <nav className="bg-white border-b border-slate-100 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex flex-col leading-none">
-            <span className="text-xl font-black text-[#0F172A] tracking-tight">SZ-JIE</span>
-            <span className="text-[9px] font-bold text-[#0F172A] tracking-widest uppercase">Support Services</span>
-          </div>
+          <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/50cfec215_ChatGPTImageMay31202609_02_19AM.png" alt="SZ-JIE Logo" className="h-14" />
           <div className="flex items-center gap-8">
             <a href="mailto:toby@szjiesupportservices.com" className="text-sm font-semibold text-slate-700 hover:text-[#0F172A] transition">
               Contact Us
@@ -503,10 +500,7 @@ export default function PublicWebsite() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-10 mb-8">
             <div>
-              <div className="flex flex-col leading-none mb-3">
-                <span className="text-xl font-black text-white tracking-tight">SZ-JIE</span>
-                <span className="text-[9px] font-bold text-slate-400 tracking-widest uppercase">Support Services</span>
-              </div>
+              <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/539befd5f_White_transparent.png" alt="SZ-JIE Logo" className="h-12 mb-3" />
               <p className="text-sm text-slate-400 leading-relaxed">Delivering quality support services across NSW.</p>
             </div>
             <div className="text-center">
