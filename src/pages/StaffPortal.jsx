@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { format, startOfWeek, addDays, parseISO, isSameDay } from "date-fns";
+import { format, parseISO } from "date-fns";
 import {
-  Calendar, Banknote, ShieldCheck, ChevronLeft, ChevronRight,
+  Calendar, Banknote, ShieldCheck,
   CheckCircle, AlertTriangle, XCircle, Clock, Download, Loader2, User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import WeeklyCalendar from "@/components/staffportal/WeeklyCalendar";
 
 // ─── Compliance Badge ──────────────────────────────────────────────────────────
 function ComplianceBadge({ label, value, isDate }) {
@@ -73,7 +74,6 @@ export default function StaffPortal() {
   const [shifts, setShifts] = useState([]);
   const [payslips, setPayslips] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 0 }));
   const [tab, setTab] = useState("roster"); // roster | payslips | compliance
 
   useEffect(() => {
@@ -110,20 +110,6 @@ export default function StaffPortal() {
     }
     load();
   }, []);
-
-  // Week roster
-  const weekFrom = format(weekStart, "yyyy-MM-dd");
-  const weekTo = format(addDays(weekStart, 6), "yyyy-MM-dd");
-  const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
-  const weekShifts = shifts.filter(s => (s.date || "") >= weekFrom && (s.date || "") <= weekTo);
-
-  const statusColor = {
-    Scheduled: "bg-blue-100 text-blue-700",
-    Confirmed: "bg-emerald-100 text-emerald-700",
-    Completed: "bg-slate-100 text-slate-600",
-    Cancelled: "bg-rose-100 text-rose-700",
-    "No Show": "bg-amber-100 text-amber-700",
-  };
 
   const printPayslip = (p) => {
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
@@ -201,60 +187,7 @@ export default function StaffPortal() {
 
       {/* ── ROSTER TAB ─────────────────────────────────────────────────────────── */}
       {tab === "roster" && (
-        <div className="space-y-4">
-          {/* Week nav */}
-          <div className="flex items-center gap-3">
-            <Button variant="outline" size="icon" onClick={() => setWeekStart(d => addDays(d, -7))} className="rounded-xl"><ChevronLeft size={16} /></Button>
-            <span className="font-bold text-sm flex-1 text-center">
-              {format(weekStart, "d MMM")} (Sun) – {format(addDays(weekStart, 6), "d MMM yyyy")} (Sat)
-            </span>
-            <Button variant="outline" size="icon" onClick={() => setWeekStart(d => addDays(d, 7))} className="rounded-xl"><ChevronRight size={16} /></Button>
-          </div>
-
-          {/* Day cards */}
-          <div className="grid grid-cols-1 gap-3">
-            {weekDays.map(day => {
-              const dayShifts = weekShifts
-                .filter(s => { try { return isSameDay(parseISO(s.date), day); } catch { return false; } })
-                .sort((a, b) => (a.start_time || "").localeCompare(b.start_time || ""));
-              const isToday = isSameDay(day, new Date());
-              return (
-                <div key={day.toISOString()} className={`border rounded-2xl overflow-hidden ${isToday ? "border-primary shadow-sm" : "border-border"}`}>
-                  <div className={`px-4 py-2 flex items-center justify-between ${isToday ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>
-                    <span className="font-black text-sm">{format(day, "EEEE, d MMMM")}</span>
-                    {isToday && <span className="text-[10px] font-black bg-white/20 px-2 py-0.5 rounded-full">TODAY</span>}
-                    {dayShifts.length > 0 && !isToday && <span className="text-[10px] font-black text-muted-foreground">{dayShifts.length} shift{dayShifts.length > 1 ? "s" : ""}</span>}
-                  </div>
-                  {dayShifts.length === 0 ? (
-                    <div className="px-4 py-3 text-sm text-muted-foreground italic">No shifts</div>
-                  ) : (
-                    <div className="divide-y divide-border">
-                      {dayShifts.map(s => (
-                        <div key={s.id} className="px-4 py-3 flex items-center justify-between gap-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                              <Clock size={14} className="text-primary" />
-                            </div>
-                            <div>
-                              <p className="font-bold text-sm">{s.participant_name}</p>
-                              <p className="text-xs text-muted-foreground">{s.start_time} – {s.end_time} &nbsp;·&nbsp; {s.support_type || "—"}</p>
-                              {s.location && <p className="text-xs text-muted-foreground">{s.location}</p>}
-                            </div>
-                          </div>
-                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 ${statusColor[s.status] || "bg-slate-100 text-slate-600"}`}>{s.status}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {weekShifts.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground italic text-sm">No shifts rostered for this week.</div>
-          )}
-        </div>
+        <WeeklyCalendar shifts={shifts} />
       )}
 
       {/* ── PAYSLIPS TAB ───────────────────────────────────────────────────────── */}
