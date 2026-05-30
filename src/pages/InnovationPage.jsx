@@ -304,7 +304,7 @@ export default function InnovationPage() {
                   {section.id === "behaviour-support" && (
                     <div className="mt-6">
                       <img
-                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/02dd0466a_Screenshot2026-05-31084720.png"
+                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/e7f766757_ChatGPTImageMay31202608_55_34AM.png"
                         alt="Positive Behaviour Support Framework"
                         className="w-full rounded-lg border border-slate-200 shadow-sm"
                       />
