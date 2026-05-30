@@ -246,6 +246,20 @@ export default function InnovationPage() {
                       />
                     </div>
                   )}
+                  {section.id === "my-daily-schedule" && (
+                    <div className="mt-6 space-y-4">
+                      <img
+                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/914796068_Screenshot2026-05-31084942.png"
+                        alt="My Daily Schedule Weekly View"
+                        className="w-full rounded-lg border border-slate-200 shadow-sm"
+                      />
+                      <img
+                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/0edf14574_Screenshot2026-05-31084919.png"
+                        alt="My Daily Schedule Visual Supports"
+                        className="w-full rounded-lg border border-slate-200 shadow-sm"
+                      />
+                    </div>
+                  )}
                 </div>
               );
             })}
