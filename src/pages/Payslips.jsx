@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Printer, Plus, Trash2, Loader2, FileText, Pencil, X, ChevronLeft, Banknote } from "lucide-react";
+import { Printer, Plus, Trash2, Loader2, FileText, Pencil, ChevronLeft, Banknote, Download, Search } from "lucide-react";
 import { format } from "date-fns";
 import PayslipPreview, { getEmployer } from "@/components/payslips/PayslipPreview";
 
@@ -25,20 +25,7 @@ const PRINT_STYLES = `
 }
 `;
 
-const BANK_PRINT_STYLES = `
-@media print {
-  @page { size: A4 portrait; margin: 15mm; }
-  body * { visibility: hidden !important; }
-  #banking-report-printable, #banking-report-printable * { visibility: visible !important; }
-  #banking-report-printable {
-    position: fixed !important;
-    top: 0 !important; left: 0 !important;
-    width: 100% !important; height: auto !important;
-    background: white !important;
-    padding: 0 !important; margin: 0 !important;
-  }
-}
-`;
+
 
 const NDIS_ITEMS = [
   { code: "04_104_0125_6_1", description: "Access Community Social and Rec Activ – Weekday", rate: 70.23 },
@@ -82,9 +69,10 @@ export default function Payslips() {
   const [records, setRecords] = useState([]);
   const [saving, setSaving] = useState(false);
 
-  // view: "list" | "new" | "view" | "banking"
+  // view: "list" | "new" | "view"
   const [view, setView] = useState("list");
   const [activeRecord, setActiveRecord] = useState(null); // record being viewed/edited
+  const [search, setSearch] = useState("");
 
   // Form state (for new or edit)
   const [staffName, setStaffName] = useState("");
@@ -197,158 +185,6 @@ export default function Payslips() {
     </div>
   );
 
-  // ── VIEW: banking report ─────────────────────────────────────────────────
-  if (view === "banking" && activeRecord) {
-    const r = activeRecord;
-    const emp = getEmployer(r.date_from);
-    const superPayable = (r.super_amount || 0).toFixed(2);
-    const taxPayable = ((r.tax || 0) + (r.medicare || 0)).toFixed(2);
-    return (
-      <>
-        <style>{BANK_PRINT_STYLES}</style>
-        <div className="space-y-4 max-w-3xl">
-          <div className="flex items-center justify-between print:hidden">
-            <Button variant="ghost" onClick={() => setView("view")} className="gap-2">
-              <ChevronLeft size={16} /> Back to Payslip
-            </Button>
-            <Button onClick={() => window.print()} className="gap-2">
-              <Printer size={14} /> Print Banking Report
-            </Button>
-          </div>
-
-          <div id="banking-report-printable" className="bg-white border border-border rounded-2xl p-8 space-y-6 text-sm" style={{ fontFamily: "Arial, sans-serif" }}>
-            {/* Header */}
-            <div style={{ borderBottom: "3px solid #1e3a5f", paddingBottom: "12px", marginBottom: "4px" }}>
-              <h1 style={{ fontSize: "20px", fontWeight: 900, color: "#1e3a5f", margin: 0 }}>PAYROLL BANKING REPORT</h1>
-              <p style={{ margin: "4px 0 0 0", color: "#64748b", fontSize: "11px" }}>
-                Payslip #{r.payslip_number} &nbsp;·&nbsp; {r.date_from} → {r.date_to} &nbsp;·&nbsp; Generated: {format(new Date(), "dd/MM/yyyy")}
-              </p>
-            </div>
-
-            {/* Employer */}
-            <section>
-              <h2 style={{ fontSize: "11px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em", color: "#1e3a5f", borderLeft: "4px solid #1e3a5f", paddingLeft: "8px", margin: "0 0 8px 0" }}>Employer Details</h2>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-xs">
-                <p><strong>Business Name:</strong> {emp.name}</p>
-                <p><strong>ABN:</strong> {emp.abn}</p>
-                <p><strong>Address:</strong> {emp.address}</p>
-                <p><strong>Phone:</strong> {emp.phone}</p>
-                <p><strong>Email:</strong> {emp.email}</p>
-              </div>
-            </section>
-
-            {/* Staff */}
-            <section>
-              <h2 style={{ fontSize: "11px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em", color: "#1e3a5f", borderLeft: "4px solid #1e3a5f", paddingLeft: "8px", margin: "0 0 8px 0" }}>Staff Member Details</h2>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-xs">
-                <p><strong>Name:</strong> {r.staff_name}</p>
-                <p><strong>Email:</strong> {r.staff_email || "—"}</p>
-                <p><strong>Phone:</strong> {r.staff_phone || "—"}</p>
-                <p><strong>Address:</strong> {r.staff_address || "—"}</p>
-                <p><strong>TFN:</strong> {r.staff_tfn ? "••• ••• " + r.staff_tfn.slice(-3) : "—"}</p>
-                <p><strong>ABN:</strong> {r.staff_abn || "—"}</p>
-              </div>
-            </section>
-
-            {/* Bank Transfer */}
-            <section style={{ backgroundColor: "#f0f9ff", border: "1px solid #bfdbfe", borderRadius: "8px", padding: "14px" }}>
-              <h2 style={{ fontSize: "11px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em", color: "#1e40af", borderLeft: "4px solid #1e40af", paddingLeft: "8px", margin: "0 0 10px 0" }}>💳 Bank Transfer — Net Pay</h2>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-xs">
-                <p><strong>Bank:</strong> {r.bank_name || "—"}</p>
-                <p><strong>Account Name:</strong> {r.bank_account_name || "—"}</p>
-                <p><strong>BSB:</strong> {r.bank_bsb || "—"}</p>
-                <p><strong>Account Number:</strong> {r.bank_account_number || "—"}</p>
-                <p><strong>Reference:</strong> {r.payslip_number} – {r.date_from} to {r.date_to}</p>
-              </div>
-              <div style={{ marginTop: "10px", borderTop: "1px solid #bfdbfe", paddingTop: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontWeight: 900, color: "#1e40af" }}>TRANSFER AMOUNT</span>
-                <span style={{ fontSize: "20px", fontWeight: 900, color: "#1e40af" }}>${(r.net_pay || 0).toFixed(2)}</span>
-              </div>
-            </section>
-
-            {/* ATO PAYG */}
-            <section style={{ backgroundColor: "#fff7ed", border: "1px solid #fed7aa", borderRadius: "8px", padding: "14px" }}>
-              <h2 style={{ fontSize: "11px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9a3412", borderLeft: "4px solid #ea580c", paddingLeft: "8px", margin: "0 0 10px 0" }}>🏛️ ATO — PAYG Withholding Remittance</h2>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-xs">
-                <p><strong>Payee:</strong> Australian Taxation Office</p>
-                <p><strong>Reference:</strong> Employer ABN {emp.abn}</p>
-                <p><strong>Tax Withheld:</strong> ${(r.tax || 0).toFixed(2)}</p>
-                <p><strong>Medicare Levy:</strong> ${(r.medicare || 0).toFixed(2)}</p>
-              </div>
-              <div style={{ marginTop: "10px", borderTop: "1px solid #fed7aa", paddingTop: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontWeight: 900, color: "#9a3412" }}>TOTAL PAYG TO REMIT</span>
-                <span style={{ fontSize: "20px", fontWeight: 900, color: "#9a3412" }}>${taxPayable}</span>
-              </div>
-            </section>
-
-            {/* Super */}
-            <section style={{ backgroundColor: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "8px", padding: "14px" }}>
-              <h2 style={{ fontSize: "11px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em", color: "#166534", borderLeft: "4px solid #16a34a", paddingLeft: "8px", margin: "0 0 10px 0" }}>📊 Superannuation Payment</h2>
-              <div className="grid grid-cols-2 gap-x-8 gap-y-1 text-xs">
-                <p><strong>Fund Name:</strong> {r.super_fund_name || "—"}</p>
-                <p><strong>Fund ABN:</strong> {r.super_fund_abn || "—"}</p>
-                <p><strong>USI:</strong> {r.super_usi || "—"}</p>
-                <p><strong>Member Number:</strong> {r.super_member_number || "—"}</p>
-                <p><strong>Member Name:</strong> {r.staff_name}</p>
-                <p><strong>SGC Rate:</strong> 12%</p>
-              </div>
-              <div style={{ marginTop: "10px", borderTop: "1px solid #bbf7d0", paddingTop: "8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontWeight: 900, color: "#166534" }}>SUPER CONTRIBUTION</span>
-                <span style={{ fontSize: "20px", fontWeight: 900, color: "#166534" }}>${superPayable}</span>
-              </div>
-            </section>
-
-            {/* Payment Summary */}
-            <section>
-              <h2 style={{ fontSize: "11px", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.08em", color: "#1e3a5f", borderLeft: "4px solid #1e3a5f", paddingLeft: "8px", margin: "0 0 8px 0" }}>Payment Summary</h2>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
-                <thead>
-                  <tr style={{ backgroundColor: "#1e3a5f" }}>
-                    <th style={{ textAlign: "left", padding: "7px 10px", color: "white", fontWeight: 700 }}>Item</th>
-                    <th style={{ textAlign: "left", padding: "7px 10px", color: "white", fontWeight: 700 }}>Payee</th>
-                    <th style={{ textAlign: "right", padding: "7px 10px", color: "white", fontWeight: 700 }}>Amount</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr style={{ backgroundColor: "#f8fafc" }}>
-                    <td style={{ padding: "6px 10px" }}>Gross Pay</td>
-                    <td style={{ padding: "6px 10px", color: "#64748b" }}>{r.staff_name}</td>
-                    <td style={{ padding: "6px 10px", textAlign: "right", fontWeight: 700 }}>${(r.gross_pay || 0).toFixed(2)}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: "6px 10px" }}>Less: Tax &amp; Medicare</td>
-                    <td style={{ padding: "6px 10px", color: "#64748b" }}>ATO (PAYG)</td>
-                    <td style={{ padding: "6px 10px", textAlign: "right", fontWeight: 700, color: "#e11d48" }}>– ${taxPayable}</td>
-                  </tr>
-                  <tr style={{ backgroundColor: "#f8fafc", fontWeight: 900 }}>
-                    <td style={{ padding: "6px 10px" }}>Net Pay (Bank Transfer)</td>
-                    <td style={{ padding: "6px 10px", color: "#64748b" }}>{r.bank_account_name || r.staff_name} — {r.bank_bsb} / {r.bank_account_number}</td>
-                    <td style={{ padding: "6px 10px", textAlign: "right", fontWeight: 900, color: "#1d4ed8" }}>${(r.net_pay || 0).toFixed(2)}</td>
-                  </tr>
-                  <tr>
-                    <td style={{ padding: "6px 10px" }}>Super (12% SGC)</td>
-                    <td style={{ padding: "6px 10px", color: "#64748b" }}>{r.super_fund_name || "Super Fund"}</td>
-                    <td style={{ padding: "6px 10px", textAlign: "right", fontWeight: 700, color: "#16a34a" }}>${superPayable}</td>
-                  </tr>
-                  <tr style={{ backgroundColor: "#1e3a5f" }}>
-                    <td colSpan={2} style={{ padding: "8px 10px", color: "white", fontWeight: 900 }}>TOTAL OUTGOING</td>
-                    <td style={{ padding: "8px 10px", textAlign: "right", color: "white", fontWeight: 900, fontSize: "14px" }}>
-                      ${((r.net_pay || 0) + (r.super_amount || 0) + parseFloat(taxPayable)).toFixed(2)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </section>
-
-            <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: "8px", fontSize: "9px", color: "#94a3b8" }}>
-              <p>This report is generated by SZ-Jie Support Services payroll system. TFN is partially masked for security. Super must be remitted at least quarterly. PAYG withholding must be remitted per your ATO payment schedule.</p>
-            </div>
-          </div>
-        </div>
-      </>
-    );
-  }
-
   // ── VIEW: payslip preview (print mode) ──────────────────────────────────
   if (view === "view" && activeRecord) {
     const foundStaff = staff.find(s => s.name === activeRecord.staff_name);
@@ -361,7 +197,7 @@ export default function Payslips() {
               <ChevronLeft size={16} /> Back to History
             </Button>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => { setView("banking"); }} className="gap-2">
+              <Button variant="outline" onClick={() => printBankingWindow(activeRecord)} className="gap-2">
                 <Banknote size={14} /> Banking Report
               </Button>
               <Button variant="outline" onClick={() => { loadIntoForm(activeRecord); setView("new"); }} className="gap-2">
@@ -370,8 +206,8 @@ export default function Payslips() {
               <Button variant="outline" onClick={() => handleDelete(activeRecord.id)} className="gap-2 text-destructive hover:text-destructive">
                 <Trash2 size={14} /> Delete
               </Button>
-              <Button onClick={() => window.print()} className="gap-2">
-                <Printer size={14} /> Print / Save PDF
+              <Button onClick={() => printLandscape(activeRecord)} className="gap-2">
+                <Printer size={14} /> Print Landscape PDF
               </Button>
             </div>
           </div>
@@ -485,15 +321,229 @@ export default function Payslips() {
     );
   }
 
+  // ── helpers: open payslip / banking in new window ───────────────────────
+  const printLandscape = (r) => {
+    const foundStaff = staff.find(s => s.name === r.staff_name);
+    const emp = getEmployer(r.date_from);
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+      <style>
+        @media print { @page { size: A4 landscape; margin: 10mm; } .no-print { display: none !important; } }
+        body { font-family: Arial, sans-serif; color: #1e293b; padding: 24px; font-size: 11px; }
+        h1 { color: #1e3a5f; font-size: 18px; border-bottom: 3px solid #1e3a5f; padding-bottom: 6px; margin-bottom: 4px; }
+        h2 { color: #1e3a5f; font-size: 10px; margin: 14px 0 6px; text-transform: uppercase; letter-spacing: .06em; border-left: 4px solid #1e3a5f; padding-left: 6px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        th { background: #1e3a5f; color: white; padding: 5px 8px; font-size: 10px; text-align: left; }
+        td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; font-size: 10px; }
+        tr:nth-child(even) td { background: #f8fafc; }
+        .total-row td { font-weight: 900; background: #dbeafe !important; color: #1e3a5f; }
+        .meta { font-size: 10px; color: #475569; margin-bottom: 10px; }
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 40px; font-size: 10px; }
+        .summary { display: flex; gap: 24px; background: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 10px 14px; margin: 10px 0; }
+        .summary-item { text-align: center; }
+        .summary-item .val { font-weight: 900; font-size: 14px; color: #1e3a5f; }
+        .summary-item .lbl { font-size: 9px; color: #64748b; text-transform: uppercase; letter-spacing: .04em; }
+        .print-btn { position: fixed; top: 12px; right: 16px; padding: 7px 14px; background: #1e3a5f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 11px; }
+        .footer { margin-top: 16px; padding-top: 8px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
+      </style>
+    </head><body>
+      <button class="print-btn no-print" onclick="window.print()">🖨 Print / Save PDF</button>
+      <h1>Payslip — ${r.payslip_number || ""}</h1>
+      <p class="meta">
+        <strong>${r.staff_name}</strong> &nbsp;·&nbsp; Period: ${r.date_from} → ${r.date_to}
+        &nbsp;·&nbsp; Pay: ${r.pay_period || "Fortnightly"} &nbsp;·&nbsp; Employer: ${emp.name}
+        &nbsp;·&nbsp; Generated: ${format(new Date(), "dd/MM/yyyy")}
+      </p>
+      <div class="summary">
+        <div class="summary-item"><div class="val">$${(r.gross_pay || 0).toFixed(2)}</div><div class="lbl">Gross Pay</div></div>
+        <div class="summary-item"><div class="val" style="color:#e11d48">-$${(r.tax || 0).toFixed(2)}</div><div class="lbl">Tax Withheld</div></div>
+        <div class="summary-item"><div class="val" style="color:#ea580c">-$${(r.medicare || 0).toFixed(2)}</div><div class="lbl">Medicare</div></div>
+        <div class="summary-item"><div class="val" style="color:#16a34a">$${(r.net_pay || 0).toFixed(2)}</div><div class="lbl">Net Pay</div></div>
+        <div class="summary-item"><div class="val" style="color:#2563eb">$${(r.super_amount || 0).toFixed(2)}</div><div class="lbl">Super (12%)</div></div>
+      </div>
+      <h2>Shift Line Items</h2>
+      <table><thead><tr><th>Date</th><th>Time</th><th>Item Code</th><th>Description</th><th style="text-align:right">Rate</th><th style="text-align:right">Hrs</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody>
+        ${(r.line_items || []).map(l => `<tr><td>${l.date || ""}</td><td>${l.time || ""}</td><td style="font-family:monospace">${l.item_code || ""}</td><td>${l.description || ""}</td><td style="text-align:right">$${(l.unit_price || 0).toFixed(2)}</td><td style="text-align:right">${l.qty || ""}</td><td style="text-align:right;font-weight:700">$${(l.total || l.unit_price * l.qty || 0).toFixed(2)}</td></tr>`).join("")}
+        <tr class="total-row"><td colspan="6">GROSS PAY</td><td style="text-align:right">$${(r.gross_pay || 0).toFixed(2)}</td></tr>
+      </tbody></table>
+      <div class="grid2">
+        <div>
+          <h2>Staff Details</h2>
+          <p><strong>Name:</strong> ${r.staff_name || "—"}</p>
+          <p><strong>Email:</strong> ${r.staff_email || "—"}</p>
+          <p><strong>Phone:</strong> ${r.staff_phone || "—"}</p>
+          <p><strong>Address:</strong> ${r.staff_address || "—"}</p>
+          <p><strong>TFN:</strong> ${r.staff_tfn ? "••• ••• " + String(r.staff_tfn).slice(-3) : "—"}</p>
+          <p><strong>ABN:</strong> ${r.staff_abn || "—"}</p>
+        </div>
+        <div>
+          <h2>Banking &amp; Super</h2>
+          <p><strong>Bank:</strong> ${r.bank_name || "—"}</p>
+          <p><strong>BSB:</strong> ${r.bank_bsb || "—"}</p>
+          <p><strong>Account:</strong> ${r.bank_account_number || "—"} (${r.bank_account_name || "—"})</p>
+          <p><strong>Super Fund:</strong> ${r.super_fund_name || "—"}</p>
+          <p><strong>Fund ABN:</strong> ${r.super_fund_abn || "—"}</p>
+          <p><strong>USI:</strong> ${r.super_usi || "—"} &nbsp; <strong>Member:</strong> ${r.super_member_number || "—"}</p>
+        </div>
+      </div>
+      <div class="footer">SZ-Jie Support Services · NDIS Provider · ${emp.name} · ABN ${emp.abn}</div>
+    </body></html>`;
+    const w = window.open("", "_blank");
+    w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 500);
+  };
+
+  const printBankingWindow = (r) => {
+    const emp = getEmployer(r.date_from);
+    const taxPayable = ((r.tax || 0) + (r.medicare || 0)).toFixed(2);
+    const superPayable = (r.super_amount || 0).toFixed(2);
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+      <style>
+        @media print { @page { size: A4 portrait; margin: 14mm; } .no-print { display: none !important; } }
+        body { font-family: Arial, sans-serif; color: #1e293b; max-width: 760px; margin: 0 auto; padding: 28px; font-size: 11px; }
+        h1 { color: #1e3a5f; font-size: 19px; border-bottom: 3px solid #1e3a5f; padding-bottom: 6px; margin-bottom: 4px; }
+        h2 { font-size: 10px; font-weight: 900; text-transform: uppercase; letter-spacing: .07em; color: inherit; border-left: 4px solid currentColor; padding-left: 7px; margin: 0 0 8px 0; }
+        .meta { font-size: 10px; color: #475569; margin-bottom: 12px; }
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 40px; font-size: 10px; margin-bottom: 8px; }
+        .box { border-radius: 8px; padding: 12px 14px; margin-bottom: 12px; }
+        .box-blue { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e3a5f; }
+        .box-orange { background: #fff7ed; border: 1px solid #fed7aa; color: #9a3412; }
+        .box-green { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
+        .box-amount { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.1); }
+        .amount-val { font-size: 20px; font-weight: 900; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #1e3a5f; color: white; padding: 6px 9px; text-align: left; font-size: 10px; }
+        td { padding: 6px 9px; border-bottom: 1px solid #e2e8f0; font-size: 10px; }
+        .total-row { background: #1e3a5f; color: white; font-weight: 900; }
+        .print-btn { position: fixed; top: 12px; right: 16px; padding: 7px 14px; background: #1e3a5f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; }
+        .footer { margin-top: 16px; padding-top: 8px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
+      </style>
+    </head><body>
+      <button class="print-btn no-print" onclick="window.print()">🖨 Print / Save PDF</button>
+      <h1>Payroll Banking Report</h1>
+      <p class="meta">Payslip #${r.payslip_number || "—"} &nbsp;·&nbsp; ${r.date_from} → ${r.date_to} &nbsp;·&nbsp; Generated: ${format(new Date(), "dd/MM/yyyy")}</p>
+
+      <div style="margin-bottom:12px;">
+        <h2 style="color:#1e3a5f;">Employer Details</h2>
+        <div class="grid2">
+          <p><strong>Business Name:</strong> ${emp.name}</p>
+          <p><strong>ABN:</strong> ${emp.abn}</p>
+          <p><strong>Address:</strong> ${emp.address}</p>
+          <p><strong>Phone / Email:</strong> ${emp.phone} / ${emp.email}</p>
+        </div>
+      </div>
+
+      <div style="margin-bottom:12px;">
+        <h2 style="color:#1e3a5f;">Staff Member Details</h2>
+        <div class="grid2">
+          <p><strong>Full Name:</strong> ${r.staff_name || "—"}</p>
+          <p><strong>Email:</strong> ${r.staff_email || "—"}</p>
+          <p><strong>Phone:</strong> ${r.staff_phone || "—"}</p>
+          <p><strong>Address:</strong> ${r.staff_address || "—"}</p>
+          <p><strong>TFN:</strong> ${r.staff_tfn ? "••• ••• " + String(r.staff_tfn).slice(-3) : "—"}</p>
+          <p><strong>ABN:</strong> ${r.staff_abn || "—"}</p>
+        </div>
+      </div>
+
+      <div class="box box-blue">
+        <h2 style="color:#1e40af;">💳 Bank Transfer — Net Pay</h2>
+        <div class="grid2">
+          <p><strong>Bank:</strong> ${r.bank_name || "—"}</p>
+          <p><strong>Account Name:</strong> ${r.bank_account_name || "—"}</p>
+          <p><strong>BSB:</strong> ${r.bank_bsb || "—"}</p>
+          <p><strong>Account Number:</strong> ${r.bank_account_number || "—"}</p>
+          <p><strong>Reference:</strong> ${r.payslip_number} – ${r.date_from} to ${r.date_to}</p>
+        </div>
+        <div class="box-amount"><span style="font-weight:900;color:#1e40af;">TRANSFER AMOUNT</span><span class="amount-val" style="color:#1e40af;">$${(r.net_pay || 0).toFixed(2)}</span></div>
+      </div>
+
+      <div class="box box-orange">
+        <h2 style="color:#9a3412;">🏛️ ATO — PAYG Withholding</h2>
+        <div class="grid2">
+          <p><strong>Payee:</strong> Australian Taxation Office</p>
+          <p><strong>Reference:</strong> Employer ABN ${emp.abn}</p>
+          <p><strong>Tax Withheld:</strong> $${(r.tax || 0).toFixed(2)}</p>
+          <p><strong>Medicare Levy:</strong> $${(r.medicare || 0).toFixed(2)}</p>
+        </div>
+        <div class="box-amount"><span style="font-weight:900;color:#9a3412;">TOTAL PAYG TO REMIT</span><span class="amount-val" style="color:#9a3412;">$${taxPayable}</span></div>
+      </div>
+
+      <div class="box box-green">
+        <h2 style="color:#166534;">📊 Superannuation Contribution (SGC 12%)</h2>
+        <div class="grid2">
+          <p><strong>Fund Name:</strong> ${r.super_fund_name || "—"}</p>
+          <p><strong>Fund ABN:</strong> ${r.super_fund_abn || "—"}</p>
+          <p><strong>USI:</strong> ${r.super_usi || "—"}</p>
+          <p><strong>Member Number:</strong> ${r.super_member_number || "—"}</p>
+          <p><strong>Member Name:</strong> ${r.staff_name || "—"}</p>
+          <p><strong>SGC Rate:</strong> 12% of Gross</p>
+        </div>
+        <div class="box-amount"><span style="font-weight:900;color:#166534;">SUPER CONTRIBUTION</span><span class="amount-val" style="color:#166534;">$${superPayable}</span></div>
+      </div>
+
+      <h2 style="color:#1e3a5f;margin-top:4px;">Payment Summary</h2>
+      <table>
+        <thead><tr><th>Item</th><th>Payee / Account</th><th style="text-align:right">Amount</th></tr></thead>
+        <tbody>
+          <tr><td>Gross Pay</td><td>${r.staff_name}</td><td style="text-align:right;font-weight:700">$${(r.gross_pay || 0).toFixed(2)}</td></tr>
+          <tr><td>Less: Tax &amp; Medicare</td><td>ATO (PAYG)</td><td style="text-align:right;font-weight:700;color:#e11d48">– $${taxPayable}</td></tr>
+          <tr><td style="font-weight:900">Net Pay (Bank Transfer)</td><td>${r.bank_account_name || r.staff_name} — ${r.bank_bsb} / ${r.bank_account_number}</td><td style="text-align:right;font-weight:900;color:#1d4ed8">$${(r.net_pay || 0).toFixed(2)}</td></tr>
+          <tr><td>Super (12% SGC)</td><td>${r.super_fund_name || "Super Fund"}</td><td style="text-align:right;font-weight:700;color:#16a34a">$${superPayable}</td></tr>
+          <tr class="total-row"><td colspan="2">TOTAL OUTGOING</td><td style="text-align:right;font-size:13px">$${((r.net_pay || 0) + (r.super_amount || 0) + parseFloat(taxPayable)).toFixed(2)}</td></tr>
+        </tbody>
+      </table>
+      <div class="footer">SZ-Jie Support Services · TFN partially masked for security. Super must be remitted quarterly. PAYG per ATO schedule.</div>
+    </body></html>`;
+    const w = window.open("", "_blank");
+    w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 500);
+  };
+
   // ── VIEW: history list ───────────────────────────────────────────────────
+  const filtered = records.filter(r =>
+    !search || r.staff_name?.toLowerCase().includes(search.toLowerCase()) || r.payslip_number?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const totalGross = filtered.reduce((a, r) => a + (r.gross_pay || 0), 0);
+  const totalNet = filtered.reduce((a, r) => a + (r.net_pay || 0), 0);
+  const totalSuper = filtered.reduce((a, r) => a + (r.super_amount || 0), 0);
+  const totalTax = filtered.reduce((a, r) => a + (r.tax || 0) + (r.medicare || 0), 0);
+
   return (
-    <div className="space-y-6 max-w-5xl">
-      <div className="flex items-center justify-between">
-        <h2 className="font-black text-xl">Payslips</h2>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-3xl font-black tracking-tight">Payslip Management</h2>
+          <p className="text-muted-foreground text-sm">{records.length} payslip{records.length !== 1 ? "s" : ""} on record</p>
+        </div>
         <Button onClick={startNew} className="gap-2 rounded-xl font-bold">
           <Plus size={15} /> New Payslip
         </Button>
       </div>
+
+      {/* Summary stats */}
+      {records.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { label: "Total Gross", value: `$${totalGross.toFixed(2)}`, color: "text-foreground" },
+            { label: "Tax + Medicare", value: `$${totalTax.toFixed(2)}`, color: "text-rose-600" },
+            { label: "Net Paid", value: `$${totalNet.toFixed(2)}`, color: "text-emerald-600" },
+            { label: "Super (SGC)", value: `$${totalSuper.toFixed(2)}`, color: "text-blue-600" },
+          ].map(s => (
+            <div key={s.label} className="bg-card border border-border rounded-2xl p-4 text-center">
+              <p className={`text-xl font-black ${s.color}`}>{s.value}</p>
+              <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mt-1">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Search */}
+      {records.length > 0 && (
+        <div className="relative max-w-xs">
+          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by staff or payslip #..." className="pl-9" />
+        </div>
+      )}
 
       {records.length === 0 ? (
         <div className="bg-card border border-border rounded-3xl p-16 text-center text-muted-foreground">
@@ -503,39 +553,59 @@ export default function Payslips() {
         </div>
       ) : (
         <div className="bg-card border border-border rounded-3xl overflow-hidden">
-          <div className="px-6 py-4 border-b border-border bg-secondary/30">
-            <h3 className="font-black">Payslip History</h3>
+          <div className="px-6 py-3 border-b border-border bg-secondary/30 grid grid-cols-[1fr_120px_90px_90px_90px_90px_auto] gap-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest items-center">
+            <span>Staff / Period</span>
+            <span>Payslip #</span>
+            <span className="text-right">Gross</span>
+            <span className="text-right">Tax+Medi</span>
+            <span className="text-right">Net Pay</span>
+            <span className="text-right">Super</span>
+            <span className="text-right">Actions</span>
           </div>
           <div className="divide-y divide-border">
-            {records.map(r => (
-              <div key={r.id} className="flex items-center justify-between px-6 py-3 hover:bg-secondary/20 text-sm">
-                <div className="flex items-center gap-4 cursor-pointer flex-1" onClick={() => { setActiveRecord(r); setView("view"); }}>
-                  <FileText size={16} className="text-muted-foreground shrink-0" />
-                  <div>
-                    <p className="font-bold">{r.staff_name} <span className="text-muted-foreground font-normal">#{r.payslip_number}</span></p>
-                    <p className="text-xs text-muted-foreground">{r.date_from} → {r.date_to} · {r.employer_name} · {r.pay_period}</p>
-                  </div>
+            {filtered.length === 0 && (
+              <p className="px-6 py-8 text-sm text-muted-foreground italic text-center">No payslips match your search.</p>
+            )}
+            {filtered.map(r => (
+              <div key={r.id} className="grid grid-cols-[1fr_120px_90px_90px_90px_90px_auto] gap-3 px-6 py-3 hover:bg-secondary/20 items-center text-sm">
+                <div className="cursor-pointer" onClick={() => { setActiveRecord(r); setView("view"); }}>
+                  <p className="font-bold truncate">{r.staff_name}</p>
+                  <p className="text-xs text-muted-foreground">{r.date_from} → {r.date_to} · {r.pay_period}</p>
                 </div>
-                <div className="flex items-center gap-4">
-                  <div className="text-right">
-                    <p className="font-black text-green-700">${r.net_pay?.toFixed(2)} net</p>
-                    <p className="text-xs text-muted-foreground">Gross ${r.gross_pay?.toFixed(2)}</p>
-                  </div>
-                  <div className="flex gap-1">
-                    <button onClick={() => { setActiveRecord(r); setView("view"); }} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground" title="View / Print">
-                      <Printer size={14} />
-                    </button>
-                    <button onClick={() => { loadIntoForm(r); setActiveRecord(r); setView("new"); }} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground" title="Edit">
-                      <Pencil size={14} />
-                    </button>
-                    <button onClick={() => handleDelete(r.id)} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-destructive/10 hover:text-destructive text-muted-foreground" title="Delete">
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
+                <span className="font-mono text-xs text-muted-foreground">{r.payslip_number}</span>
+                <span className="text-right font-bold">${(r.gross_pay || 0).toFixed(2)}</span>
+                <span className="text-right text-rose-600 text-xs">${((r.tax || 0) + (r.medicare || 0)).toFixed(2)}</span>
+                <span className="text-right font-black text-emerald-600">${(r.net_pay || 0).toFixed(2)}</span>
+                <span className="text-right text-blue-600 text-xs">${(r.super_amount || 0).toFixed(2)}</span>
+                <div className="flex items-center gap-1 justify-end">
+                  <button onClick={() => printLandscape(r)} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground" title="Print landscape PDF">
+                    <Printer size={14} />
+                  </button>
+                  <button onClick={() => printBankingWindow(r)} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground" title="Banking report">
+                    <Banknote size={14} />
+                  </button>
+                  <button onClick={() => { loadIntoForm(r); setActiveRecord(r); setView("new"); }} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground" title="Edit">
+                    <Pencil size={14} />
+                  </button>
+                  <button onClick={() => handleDelete(r.id)} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-destructive/10 hover:text-destructive text-muted-foreground" title="Delete">
+                    <Trash2 size={14} />
+                  </button>
                 </div>
               </div>
             ))}
           </div>
+          {/* Totals footer */}
+          {filtered.length > 0 && (
+            <div className="grid grid-cols-[1fr_120px_90px_90px_90px_90px_auto] gap-3 px-6 py-3 bg-secondary/50 border-t border-border text-[10px] font-black uppercase tracking-widest">
+              <span className="text-muted-foreground">Totals ({filtered.length})</span>
+              <span />
+              <span className="text-right">${totalGross.toFixed(2)}</span>
+              <span className="text-right text-rose-600">${totalTax.toFixed(2)}</span>
+              <span className="text-right text-emerald-600">${totalNet.toFixed(2)}</span>
+              <span className="text-right text-blue-600">${totalSuper.toFixed(2)}</span>
+              <span />
+            </div>
+          )}
         </div>
       )}
     </div>
