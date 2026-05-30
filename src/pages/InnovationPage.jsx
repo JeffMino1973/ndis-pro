@@ -290,13 +290,13 @@ export default function InnovationPage() {
                   {section.id === "portals" && (
                     <div className="mt-6 space-y-4">
                       <img
-                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/e41c6ebbe_Screenshot2026-05-31085007.png"
-                        alt="NDIS Participant Portal Login"
+                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/b83d2658d_ChatGPTImageMay31202608_53_31AM.png"
+                        alt="Personalised Participant Hub - Aanya's Central"
                         className="w-full rounded-lg border border-slate-200 shadow-sm"
                       />
                       <img
-                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/114194ec9_Screenshot2026-05-31084511.png"
-                        alt="Participant Portal Dashboard"
+                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/8fbc0c549_Screenshot2026-05-31085007.png"
+                        alt="NDIS PRO Participant Portal Login"
                         className="w-full rounded-lg border border-slate-200 shadow-sm"
                       />
                     </div>
