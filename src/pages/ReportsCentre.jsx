@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { FileText, Printer, Users, User, BarChart2, ClipboardList, DollarSign, Calendar, ChevronRight, Loader2 } from "lucide-react";
+import { FileText, Printer, Users, User, BarChart2, ClipboardList, DollarSign, Calendar, ChevronRight, Loader2, Download, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { format, startOfWeek, addDays, parseISO, isSameDay, eachWeekOfInterval, parseISO as pi } from "date-fns";
+import { NDIS_ITEMS } from "@/utils/ndisItems";
+import { format, startOfWeek, addDays, parseISO, isSameDay, eachWeekOfInterval } from "date-fns";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function openReport(html) {
@@ -376,6 +378,183 @@ function RosterIndividualReport({ shifts, staff, participants }) {
   );
 }
 
+// ─── PAYROLL TAX RECONCILIATION ───────────────────────────────────────────────
+function PayrollTaxRecon({ payslips }) {
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [staffFilter, setStaffFilter] = useState("all");
+
+  const staffNames = ["all", ...[...new Set(payslips.map(p => p.staff_name).filter(Boolean))].sort()];
+
+  const filtered = payslips.filter(p => {
+    const d = p.date_from || "";
+    const nameOk = staffFilter === "all" || p.staff_name === staffFilter;
+    return nameOk && (!fromDate || d >= fromDate) && (!toDate || d <= toDate);
+  });
+
+  const totals = filtered.reduce((a, p) => ({
+    gross: a.gross + (p.gross_pay || 0),
+    tax: a.tax + (p.tax || 0),
+    medicare: a.medicare + (p.medicare || 0),
+    super_amount: a.super_amount + (p.super_amount || 0),
+    net: a.net + (p.net_pay || 0),
+  }), { gross: 0, tax: 0, medicare: 0, super_amount: 0, net: 0 });
+
+  const byStaff = filtered.reduce((acc, p) => {
+    const n = p.staff_name || "Unknown";
+    if (!acc[n]) acc[n] = { gross: 0, tax: 0, medicare: 0, super_amount: 0, net: 0, count: 0 };
+    acc[n].gross += p.gross_pay || 0;
+    acc[n].tax += p.tax || 0;
+    acc[n].medicare += p.medicare || 0;
+    acc[n].super_amount += p.super_amount || 0;
+    acc[n].net += p.net_pay || 0;
+    acc[n].count++;
+    return acc;
+  }, {});
+
+  // CSV banking export — one row per payslip for net pay transfers
+  const exportCSV = () => {
+    const header = "Date,Payslip #,Staff Name,Bank Name,BSB,Account Number,Account Name,Net Pay,Reference\n";
+    const rows = filtered.map(p =>
+      [p.date_to || p.date_from || "", p.payslip_number || "", p.staff_name || "", p.bank_name || "", p.bank_bsb || "", p.bank_account_number || "", p.bank_account_name || "", (p.net_pay || 0).toFixed(2), `Payroll ${p.payslip_number || ""}`].join(",")
+    ).join("\n");
+    const blob = new Blob([header + rows], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a"); a.href = url; a.download = `payroll-banking-export-${new Date().toISOString().slice(0,10)}.csv`; a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const generate = () => {
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+      <style>
+        @media print { @page { size: A4 portrait; margin: 12mm; } body { margin: 0; } .no-print { display: none !important; } }
+        body { font-family: Arial, sans-serif; color: #1e293b; max-width: 820px; margin: 0 auto; padding: 28px; font-size: 11px; }
+        h1 { color: #1e3a5f; font-size: 18px; border-bottom: 3px solid #1e3a5f; padding-bottom: 6px; margin-bottom: 6px; }
+        h2 { color: #1e3a5f; font-size: 11px; margin-top: 16px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .06em; border-left: 4px solid #1e3a5f; padding-left: 8px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+        th { background: #1e3a5f; color: white; padding: 6px 8px; text-align: left; font-size: 10px; }
+        td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; font-size: 10px; }
+        tr:nth-child(even) td { background: #f8fafc; }
+        .total-row td { font-weight: 900; background: #dbeafe !important; color: #1e3a5f; }
+        .meta { font-size: 11px; color: #475569; margin-bottom: 10px; }
+        .summary { background: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 10px 14px; margin: 10px 0; display: flex; gap: 24px; flex-wrap: wrap; }
+        .summary span { font-size: 11px; }
+        .footer { margin-top: 20px; padding-top: 8px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
+        .print-btn { position: fixed; top: 16px; right: 16px; padding: 8px 16px; background: #1e3a5f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 12px; }
+      </style>
+    </head><body>
+      <button class="print-btn no-print" onclick="window.print()">🖨 Print / PDF</button>
+      <h1>Payroll Tax Reconciliation</h1>
+      <p class="meta"><strong>Period:</strong> ${fromDate || "All"} → ${toDate || "All"} &nbsp;|&nbsp; <strong>Staff:</strong> ${staffFilter === "all" ? "All" : staffFilter} &nbsp;|&nbsp; <strong>Payslips:</strong> ${filtered.length} &nbsp;|&nbsp; <strong>Generated:</strong> ${new Date().toLocaleDateString("en-AU")}</p>
+      <div class="summary">
+        <span><strong>Gross Paid:</strong> $${totals.gross.toFixed(2)}</span>
+        <span><strong>Tax Withheld (W4):</strong> $${totals.tax.toFixed(2)}</span>
+        <span><strong>Medicare Levy:</strong> $${totals.medicare.toFixed(2)}</span>
+        <span><strong>Super (SGC 12%):</strong> $${totals.super_amount.toFixed(2)}</span>
+        <span><strong>Net Paid:</strong> $${totals.net.toFixed(2)}</span>
+      </div>
+      <h2>By Staff Member</h2>
+      <table><thead><tr><th>Staff</th><th>Payslips</th><th>Gross</th><th>Tax (W4)</th><th>Medicare</th><th>Super</th><th>Net Paid</th></tr></thead>
+      <tbody>
+        ${Object.entries(byStaff).map(([name, d]) => `<tr><td>${name}</td><td>${d.count}</td><td>$${d.gross.toFixed(2)}</td><td>$${d.tax.toFixed(2)}</td><td>$${d.medicare.toFixed(2)}</td><td>$${d.super_amount.toFixed(2)}</td><td>$${d.net.toFixed(2)}</td></tr>`).join("")}
+        <tr class="total-row"><td>TOTALS</td><td>${filtered.length}</td><td>$${totals.gross.toFixed(2)}</td><td>$${totals.tax.toFixed(2)}</td><td>$${totals.medicare.toFixed(2)}</td><td>$${totals.super_amount.toFixed(2)}</td><td>$${totals.net.toFixed(2)}</td></tr>
+      </tbody></table>
+      <h2>Payslip Detail</h2>
+      <table><thead><tr><th>Payslip #</th><th>Staff</th><th>Period</th><th>Gross</th><th>Tax</th><th>Medicare</th><th>Super</th><th>Net</th></tr></thead>
+      <tbody>
+        ${filtered.map(p => `<tr><td>${p.payslip_number || "—"}</td><td>${p.staff_name || "—"}</td><td>${p.date_from} → ${p.date_to}</td><td>$${(p.gross_pay||0).toFixed(2)}</td><td>$${(p.tax||0).toFixed(2)}</td><td>$${(p.medicare||0).toFixed(2)}</td><td>$${(p.super_amount||0).toFixed(2)}</td><td>$${(p.net_pay||0).toFixed(2)}</td></tr>`).join("")}
+        ${filtered.length === 0 ? `<tr><td colspan="8" style="text-align:center;color:#94a3b8;font-style:italic;">No payslips match</td></tr>` : ""}
+      </tbody></table>
+      <div class="footer">SZ-Jie Support Services — Payroll Tax Reconciliation — ATO PAYG Withholding Summary. Remit Tax + Medicare to ATO. Pay Super quarterly.</div>
+    </body></html>`;
+    const w = window.open("", "_blank");
+    w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 600);
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div>
+          <Label className="text-xs">Staff Member</Label>
+          <Select value={staffFilter} onValueChange={setStaffFilter}>
+            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+            <SelectContent>{staffNames.map(n => <SelectItem key={n} value={n}>{n === "all" ? "All Staff" : n}</SelectItem>)}</SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-xs">Period From</Label>
+          <input type="date" value={fromDate} onChange={e => setFromDate(e.target.value)} className="mt-1 flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" />
+        </div>
+        <div>
+          <Label className="text-xs">Period To</Label>
+          <input type="date" value={toDate} onChange={e => setToDate(e.target.value)} className="mt-1 flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm" />
+        </div>
+        <div className="flex items-end gap-2">
+          <Button onClick={generate} className="flex-1 rounded-xl font-bold gap-1"><Printer size={14} /> PDF</Button>
+          <Button onClick={exportCSV} variant="outline" className="flex-1 rounded-xl font-bold gap-1" title="Banking CSV export"><Download size={14} /> CSV</Button>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+        {[
+          { label: "Gross Paid", value: totals.gross, color: "text-foreground" },
+          { label: "Tax Withheld", value: totals.tax, color: "text-rose-600" },
+          { label: "Medicare", value: totals.medicare, color: "text-amber-600" },
+          { label: "Super (12%)", value: totals.super_amount, color: "text-blue-600" },
+          { label: "Net Paid", value: totals.net, color: "text-emerald-600" },
+        ].map(s => (
+          <div key={s.label} className="bg-card border border-border rounded-xl p-3 text-center">
+            <p className={`text-lg font-black ${s.color}`}>${s.value.toFixed(2)}</p>
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mt-0.5">{s.label}</p>
+          </div>
+        ))}
+      </div>
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
+        <strong>Banking CSV</strong> exports one row per payslip with BSB, account number and net pay — ready to upload to your bank's bulk payment portal. Staff banking details must be saved on their payslip records.
+      </div>
+      {payslips.length === 0 && <p className="text-sm text-muted-foreground italic text-center py-6">No payslip records found. Generate payslips in the Payslips module first.</p>}
+    </div>
+  );
+}
+
+// ─── NDIS LINE ITEM LOOKUP ────────────────────────────────────────────────────
+function NDISLookup() {
+  const [query, setQuery] = useState("");
+  const filtered = NDIS_ITEMS.filter(item =>
+    !query || item.code.toLowerCase().includes(query.toLowerCase()) || item.name.toLowerCase().includes(query.toLowerCase())
+  );
+  return (
+    <div className="space-y-4">
+      <div className="relative">
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search by code or name..." className="pl-9" />
+      </div>
+      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+        <table className="w-full text-sm">
+          <thead className="bg-secondary text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+            <tr>
+              <th className="px-4 py-3 text-left">Code</th>
+              <th className="px-4 py-3 text-left">Description</th>
+              <th className="px-4 py-3 text-left">Category</th>
+              <th className="px-4 py-3 text-right">Rate ($/hr)</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {filtered.map(item => (
+              <tr key={item.code} className="hover:bg-secondary/40">
+                <td className="px-4 py-3 font-mono text-xs font-bold text-primary">{item.code}</td>
+                <td className="px-4 py-3 font-medium">{item.name}</td>
+                <td className="px-4 py-3 text-muted-foreground text-xs">{item.category}</td>
+                <td className="px-4 py-3 text-right font-black text-emerald-600">${item.rate.toFixed(2)}</td>
+              </tr>
+            ))}
+            {filtered.length === 0 && <tr><td colSpan={4} className="text-center py-8 text-muted-foreground italic text-sm">No items match</td></tr>}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
 // ─── REPORT CARDS ─────────────────────────────────────────────────────────────
 const REPORT_CATEGORIES = [
   {
@@ -385,6 +564,8 @@ const REPORT_CATEGORIES = [
     bg: "bg-emerald-50",
     reports: [
       { id: "invoice-summary", label: "Invoice Summary Report", desc: "Filter by status/date, view by participant, generate PDF" },
+      { id: "payroll-recon", label: "Payroll Tax Reconciliation", desc: "PAYG withholding, super, net pay by staff — PDF + banking CSV export" },
+      { id: "ndis-lookup", label: "NDIS Line Item Lookup", desc: "Search support item codes and rates" },
     ]
   },
   {
@@ -393,8 +574,8 @@ const REPORT_CATEGORIES = [
     color: "text-blue-600",
     bg: "bg-blue-50",
     reports: [
-      { id: "roster-team", label: "Weekly Team Roster", desc: "Full team view for a selected week" },
-      { id: "roster-individual", label: "Individual Roster", desc: "Per-staff or per-participant, any date range" },
+      { id: "roster-team", label: "Weekly Team Roster (Calendar)", desc: "Full team calendar view — Sun–Sat, print landscape A4" },
+      { id: "roster-individual", label: "Individual Roster (Calendar)", desc: "Per-staff or per-participant, weekly calendar, any date range" },
     ]
   },
   {
@@ -417,6 +598,7 @@ export default function ReportsCentre() {
   const [shifts, setShifts] = useState([]);
   const [staff, setStaff] = useState([]);
   const [participants, setParticipants] = useState([]);
+  const [payslips, setPayslips] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -425,11 +607,13 @@ export default function ReportsCentre() {
       base44.entities.Shift.list("-date", 500),
       base44.entities.StaffMember.list(),
       base44.entities.Participant.list(),
-    ]).then(([inv, sh, st, pa]) => {
+      base44.entities.PayslipRecord.list("-date_from", 500),
+    ]).then(([inv, sh, st, pa, ps]) => {
       setInvoices(inv);
       setShifts(sh);
       setStaff(st);
       setParticipants(pa);
+      setPayslips(ps);
       setLoading(false);
     });
   }, []);
@@ -499,8 +683,20 @@ export default function ReportsCentre() {
             )}
             {selected === "roster-individual" && (
               <>
-                <h3 className="font-black text-lg mb-4 flex items-center gap-2"><User size={18} className="text-blue-600" /> Individual Roster</h3>
+                <h3 className="font-black text-lg mb-4 flex items-center gap-2"><User size={18} className="text-blue-600" /> Individual Roster (Calendar)</h3>
                 <RosterIndividualReport shifts={shifts} staff={staff} participants={participants} />
+              </>
+            )}
+            {selected === "payroll-recon" && (
+              <>
+                <h3 className="font-black text-lg mb-4 flex items-center gap-2"><DollarSign size={18} className="text-rose-600" /> Payroll Tax Reconciliation</h3>
+                <PayrollTaxRecon payslips={payslips} />
+              </>
+            )}
+            {selected === "ndis-lookup" && (
+              <>
+                <h3 className="font-black text-lg mb-4 flex items-center gap-2"><Search size={18} className="text-primary" /> NDIS Line Item Lookup</h3>
+                <NDISLookup />
               </>
             )}
           </div>
