@@ -31,30 +31,10 @@ const PRINT_STYLES = `
 // Remove old local tax functions — now using utils/taxCalc.js
 
 const NDIS_ITEMS = [
-  // Daily Activities
-  { code: "01_002_0107_1_1", description: "Assistance with Daily Life – Weekday", rate: 67.56 },
   { code: "01_004_0107_1_1", description: "Assistance with Personal Domestic Activity", rate: 59.06 },
-  { code: "01_011_0107_1_1", description: "Assistance with Daily Life – Saturday", rate: 94.60 },
-  { code: "01_012_0107_1_1", description: "Assistance with Daily Life – Sunday", rate: 122.14 },
-  { code: "01_013_0107_1_1", description: "Assistance with Daily Life – Public Holiday", rate: 149.68 },
-  // Community Participation
   { code: "04_104_0125_6_1", description: "Access Community Social and Rec Activ – Weekday", rate: 70.23 },
   { code: "04_105_0125_6_1", description: "Access Community Social and Rec Activ – Saturday", rate: 98.83 },
   { code: "04_106_0125_6_1", description: "Access Community Social and Rec Activ – Sunday", rate: 127.43 },
-  { code: "04_107_0125_6_1", description: "Access Community Social and Rec Activ – Public Holiday", rate: 156.03 },
-  { code: "04_210_0125_6_1", description: "Group and Centre Based Activities – Weekday", rate: 25.05 },
-  { code: "04_215_0125_6_1", description: "Group and Centre Based Activities – Saturday", rate: 35.25 },
-  { code: "04_216_0125_6_1", description: "Group and Centre Based Activities – Sunday", rate: 45.45 },
-  // Capacity Building
-  { code: "07_001_0106_8_3", description: "Support Coordination", rate: 100.14 },
-  { code: "07_002_0106_8_3", description: "Specialist Support Coordination", rate: 190.54 },
-  { code: "09_008_0117_6_3", description: "Skills Development and Training – Weekday", rate: 67.56 },
-  { code: "09_009_0117_6_3", description: "Skills Development and Training – Saturday", rate: 94.60 },
-  { code: "10_001_0128_5_3", description: "Behaviour Support – Specialist Positive", rate: 214.41 },
-  { code: "10_002_0128_5_3", description: "Behaviour Support – Implementation by Worker", rate: 67.56 },
-  // Transport
-  { code: "02_051_0108_1_1", description: "Transport – Non-Labour (per km)", rate: 0.97 },
-  { code: "04_590_0125_6_1", description: "Activity Based Transport", rate: 26.76 },
 ];
 
 const EMPTY_LINE = () => ({
