@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Printer, Mail, Phone, MapPin, Award, GraduationCap, Briefcase, Heart, Users, Home, Accessibility, Star, Send, Pencil, Check, Plus, X, UserCircle, Brain, Shield } from "lucide-react";
 import { base44 } from "@/api/base44Client";
+import { buildProfileHTML } from "@/components/profiles/buildProfileHTML";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -93,12 +94,28 @@ export default function JeffreyProfile() {
   const removeAvail = (i) => setData(prev => ({ ...prev, availability: prev.availability.filter((_, idx) => idx !== i) }));
 
   const PROFILE_URL = window.location.origin + "/jeffrey";
-  const EMAIL_BODY = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body{font-family:'Segoe UI',Roboto,sans-serif;background:#f0f4f8;margin:0;padding:20px}.wrap{max-width:600px;margin:0 auto;background:white;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.1)}.header{background:linear-gradient(135deg,#0ea5e9 0%,#2563eb 100%);padding:40px;color:white;text-align:center}.header h1{margin:0 0 8px;font-size:24px;font-weight:700;line-height:1.3}.header p{margin:0;font-size:14px;opacity:0.9}.body{padding:40px}.bio{font-size:15px;line-height:1.6;color:#1e293b;margin-bottom:20px}.cta{display:inline-block;background:#2563eb;color:white;padding:14px 36px;border-radius:8px;font-weight:600;text-decoration:none;margin:20px 0;font-size:15px}.contact{margin-top:28px;padding-top:20px;border-top:1px solid #e2e8f0;font-size:13px;color:#64748b}.contact a{color:#2563eb;text-decoration:none}</style></head><body><div class="wrap"><div class="header"><h1>Meet Your Support Worker</h1><h2 style="margin:8px 0 0;font-size:20px;font-weight:400">— ${data.name}</h2><p>${data.title}</p><p style="margin-top:4px">📍 Sydney, NSW</p></div><div class="body"><p style="font-size:15px;color:#1e293b">Hi there,</p><p class="bio">I'd like to introduce you to <strong>${data.name}</strong>, a Specialist Disability Support Worker based in Waterloo, NSW.</p><p class="bio">${data.bio1}</p><center><a href="${PROFILE_URL}" class="cta">View Full Profile →</a></center><div class="contact">Contact: <a href="mailto:${data.email}">${data.email}</a> · ${data.phone}</div></div></div></body></html>`;
+
+  const getProfileHTML = (withLink) => buildProfileHTML({
+    data,
+    photoUrl: PHOTO,
+    gradientFrom: "#6366f1",
+    gradientTo: "#2563eb",
+    profileUrl: withLink ? PROFILE_URL : null,
+    firstName: "Jeffrey",
+  });
+
+  const handlePrint = () => {
+    const win = window.open("", "_blank", "width=900,height=700");
+    win.document.write(getProfileHTML(false));
+    win.document.close();
+    win.focus();
+    setTimeout(() => { win.print(); }, 800);
+  };
 
   const sendProfile = async () => {
     if (!recipient) return;
     setSending(true);
-    await base44.integrations.Core.SendEmail({ to: recipient, subject: `Meet Your Support Worker — ${data.name}`, body: EMAIL_BODY });
+    await base44.integrations.Core.SendEmail({ to: recipient, subject: `Meet Your Support Worker — ${data.name}`, body: getProfileHTML(true) });
     setSending(false);
     setSent(true);
   };
@@ -114,7 +131,7 @@ export default function JeffreyProfile() {
         <Button onClick={() => { setShowEmail(true); setSent(false); setRecipient(""); }} className="rounded-full shadow-xl gap-2 bg-blue-600 hover:bg-blue-700">
           <Mail size={16} /> Email Profile
         </Button>
-        <Button onClick={() => window.print()} className="rounded-full shadow-2xl gap-2 bg-slate-900 hover:bg-slate-800">
+        <Button onClick={handlePrint} className="rounded-full shadow-2xl gap-2 bg-slate-900 hover:bg-slate-800">
           <Printer size={16} /> Print / Save PDF
         </Button>
       </div>
@@ -187,7 +204,7 @@ export default function JeffreyProfile() {
                 {[["Address", "address"], ["Phone", "phone"], ["Email", "email"], ["Languages", "languages"]].map(([label, key]) => (
                   <li key={key}>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{label}</p>
-                    <div className="font-semibold text-slate-800 mt-0.5">
+                    <div className="font-semibold text-slate-800 mt-0.5 break-all">
                       <EditableText value={data[key]} onChange={v => update(key, v)} editing={editing} />
                     </div>
                   </li>
