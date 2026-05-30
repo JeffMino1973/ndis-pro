@@ -1,7 +1,7 @@
 import { Phone, Mail, MapPin, Heart, Users, Shield, Zap, ExternalLink, CheckCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { useState } from "react";
 
-const LOGO = "https://media.base44.com/images/public/69d54775d9a169daad84a133/641f2cf35_3cb3f155-51c2-49f0-993b-fc2df2583281.jpg";
+const LOGO = "https://media.base44.com/images/public/69d54775d9a169daad84a133/3aff76fe9_ChatGPTImageMay31202609_02_19AM.png";
 const HERO_IMG = "https://media.base44.com/images/public/69d54775d9a169daad84a133/d61ac5d59_generated_image.png";
 
 const POLICIES = [
@@ -270,7 +270,7 @@ export default function PublicWebsite() {
             <span className="text-[9px] font-bold text-[#0F172A] tracking-widest uppercase">Support Services</span>
           </div>
           <div className="flex items-center gap-8">
-            <a href="mailto:szjiesupportservices@gmail.com" className="text-sm font-semibold text-slate-700 hover:text-[#0F172A] transition">
+            <a href="mailto:toby@szjiesupportservices.com" className="text-sm font-semibold text-slate-700 hover:text-[#0F172A] transition">
               Contact Us
             </a>
             <a href="/participant-portal" className="text-sm font-semibold text-slate-700 hover:text-[#0F172A] transition">
@@ -295,10 +295,10 @@ export default function PublicWebsite() {
               Empowering participants to achieve their goals with personalised, quality support across NSW.
             </p>
             <div className="flex gap-3">
-              <a href="tel:0401343876" className="flex items-center gap-2 bg-white text-[#0F172A] hover:bg-slate-100 font-bold text-sm px-5 py-2.5 rounded-lg transition">
+              <a href="tel:0435951563" className="flex items-center gap-2 bg-white text-[#0F172A] hover:bg-slate-100 font-bold text-sm px-5 py-2.5 rounded-lg transition">
                 <Phone size={15} /> Call Now
               </a>
-              <a href="mailto:szjiesupportservices@gmail.com" className="flex items-center gap-2 bg-transparent border border-slate-500 text-white hover:border-white font-bold text-sm px-5 py-2.5 rounded-lg transition">
+              <a href="mailto:toby@szjiesupportservices.com" className="flex items-center gap-2 bg-transparent border border-slate-500 text-white hover:border-white font-bold text-sm px-5 py-2.5 rounded-lg transition">
                 <Mail size={15} /> Email Us
               </a>
             </div>
@@ -479,15 +479,15 @@ export default function PublicWebsite() {
         <div className="max-w-6xl mx-auto px-6">
           <h2 className="text-3xl font-black text-[#0F172A] mb-14 text-center">Get in Touch</h2>
           <div className="grid md:grid-cols-3 divide-x divide-slate-200 border border-slate-200 rounded-2xl overflow-hidden max-w-3xl mx-auto">
-            <a href="tel:0401343876" className="flex flex-col items-center text-center p-10 hover:bg-slate-50 transition">
+            <a href="tel:0435951563" className="flex flex-col items-center text-center p-10 hover:bg-slate-50 transition">
               <Phone size={28} className="text-slate-700 mb-4" strokeWidth={1.5} />
               <h3 className="font-black text-[#0F172A] mb-1">Phone</h3>
-              <p className="text-slate-500 text-sm">0401 343 876</p>
+              <p className="text-slate-500 text-sm">0435 951 563</p>
             </a>
-            <a href="mailto:szjiesupportservices@gmail.com" className="flex flex-col items-center text-center p-10 hover:bg-slate-50 transition">
+            <a href="mailto:toby@szjiesupportservices.com" className="flex flex-col items-center text-center p-10 hover:bg-slate-50 transition">
               <Mail size={28} className="text-slate-700 mb-4" strokeWidth={1.5} />
               <h3 className="font-black text-[#0F172A] mb-1">Email</h3>
-              <p className="text-slate-500 text-sm break-all">szjiesupportservices@gmail.com</p>
+              <p className="text-slate-500 text-sm break-all">toby@szjiesupportservices.com</p>
             </a>
             <div className="flex flex-col items-center text-center p-10">
               <MapPin size={28} className="text-slate-700 mb-4" strokeWidth={1.5} />
@@ -516,7 +516,7 @@ export default function PublicWebsite() {
             <div className="text-right">
               <p className="text-sm text-slate-400 mb-3">
                 For urgent matters, please call{" "}
-                <a href="tel:0401343876" className="text-white font-bold hover:underline">0401 343 876</a>
+                <a href="tel:0435951563" className="text-white font-bold hover:underline">0435 951 563</a>
               </p>
               <div className="flex flex-col items-end gap-1">
                 <a href="/dashboard/" className="text-sm text-slate-400 hover:text-white transition underline">Staff Portal</a>

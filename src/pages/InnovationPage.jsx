@@ -271,14 +271,14 @@ export default function InnovationPage() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="tel:0401343876"
+              href="tel:0435951563"
               className="flex items-center justify-center gap-2 bg-white text-[#0F172A] hover:bg-slate-100 font-bold px-6 py-3 rounded-lg transition"
             >
               Call Now
               <ArrowRight size={16} />
             </a>
             <a
-              href="mailto:szjiesupportservices@gmail.com"
+              href="mailto:toby@szjiesupportservices.com"
               className="flex items-center justify-center gap-2 bg-transparent border border-slate-500 text-white hover:border-white font-bold px-6 py-3 rounded-lg transition"
             >
               Email Us
@@ -305,7 +305,7 @@ export default function InnovationPage() {
             </div>
             <div className="text-right">
               <p className="text-sm text-slate-400 mb-3">
-                <a href="tel:0401343876" className="text-white font-bold hover:underline">0401 343 876</a>
+                <a href="tel:0435951563" className="text-white font-bold hover:underline">0435 951 563</a>
               </p>
               <div className="flex flex-col items-end gap-1">
                 <a href="/" className="text-sm text-slate-400 hover:text-white transition underline">
