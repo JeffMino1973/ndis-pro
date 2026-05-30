@@ -288,6 +288,20 @@ export default function InnovationPage() {
                       />
                     </div>
                   )}
+                  {section.id === "portals" && (
+                    <div className="mt-6 space-y-4">
+                      <img
+                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/e41c6ebbe_Screenshot2026-05-31085007.png"
+                        alt="NDIS Participant Portal Login"
+                        className="w-full rounded-lg border border-slate-200 shadow-sm"
+                      />
+                      <img
+                        src="https://media.base44.com/images/public/69d54775d9a169daad84a133/114194ec9_Screenshot2026-05-31084511.png"
+                        alt="Participant Portal Dashboard"
+                        className="w-full rounded-lg border border-slate-200 shadow-sm"
+                      />
+                    </div>
+                  )}
                 </div>
               );
             })}
