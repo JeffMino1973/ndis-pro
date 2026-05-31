@@ -362,6 +362,17 @@ export default function Payslips() {
   }
 
   // ── helpers: open payslip / banking in new window ───────────────────────
+  const openInNewWindow = (html) => {
+    const blob = new Blob([html], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 5000);
+  };
+
   const printLandscape = (r) => {
     const foundStaff = staff.find(s => s.name === r.staff_name);
     const emp = getEmployer(r.date_from);
@@ -428,8 +439,7 @@ export default function Payslips() {
       </div>
       <div class="footer">SZ-Jie Support Services · NDIS Provider · ${emp.name} · ABN ${emp.abn}</div>
     </body></html>`;
-    const w = window.open("", "_blank");
-    w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 500);
+    openInNewWindow(html);
   };
 
   const printBankingWindow = (r) => {
@@ -536,8 +546,7 @@ export default function Payslips() {
       </table>
       <div class="footer">SZ-Jie Support Services · TFN partially masked for security. Super must be remitted quarterly. PAYG per ATO schedule.</div>
     </body></html>`;
-    const w = window.open("", "_blank");
-    w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 500);
+    openInNewWindow(html);
   };
 
   // ── VIEW: history list ───────────────────────────────────────────────────
