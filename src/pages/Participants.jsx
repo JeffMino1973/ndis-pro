@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { logAudit } from "@/utils/auditLog";
 import { Plus, Search, User, Phone, Mail, MapPin, Shield } from "lucide-react";
 import SendOnboardingForm from "../components/SendOnboardingForm";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,8 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import ParticipantForm from "../components/ParticipantForm";
 import ParticipantDetail from "../components/ParticipantDetail";
@@ -20,6 +23,7 @@ export default function Participants() {
   const [showForm, setShowForm] = useState(false);
   const [selected, setSelected] = useState(null);
   const [onboardingName, setOnboardingName] = useState(null);
+  const [currentUser, setCurrentUser] = useState(null);
 
   const load = async () => {
     const data = await base44.entities.Participant.list("-created_date");
@@ -27,7 +31,10 @@ export default function Participants() {
     setLoading(false);
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    base44.auth.me().then(setCurrentUser).catch(() => {});
+  }, []);
 
   const filtered = participants.filter(
     (p) =>
@@ -35,11 +42,19 @@ export default function Participants() {
       p.ndis_number?.includes(search)
   );
 
+  const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [deleteConfirmName, setDeleteConfirmName] = useState("");
+
   if (selected) {
     return (
       <ParticipantDetail
         participant={selected}
         onBack={() => { setSelected(null); load(); }}
+        onDelete={async () => {
+          if (currentUser?.role !== "admin") return;
+          setDeleteConfirm(selected);
+          setDeleteConfirmName("");
+        }}
       />
     );
   }
@@ -57,9 +72,11 @@ export default function Participants() {
           <Button variant="outline" onClick={() => setOnboardingName("")} className="rounded-xl font-bold gap-2">
             <Mail size={16} /> Send Onboarding Form
           </Button>
-          <Button onClick={() => setShowForm(true)} className="rounded-xl font-bold gap-2">
-            <Plus size={18} /> Add Participant
-          </Button>
+          {currentUser?.role === "admin" && (
+            <Button onClick={() => setShowForm(true)} className="rounded-xl font-bold gap-2">
+              <Plus size={18} /> Add Participant
+            </Button>
+          )}
         </div>
       </div>
 
@@ -163,6 +180,45 @@ export default function Participants() {
             </div>
             {onboardingName !== null && <SendOnboardingForm participantName={onboardingName} onClose={() => setOnboardingName(null)} />}
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={!!deleteConfirm} onOpenChange={(open) => { if (!open) { setDeleteConfirm(null); setDeleteConfirmName(""); } }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-destructive">Delete Participant?</DialogTitle>
+            <DialogDescription>
+              This will permanently delete <strong>{deleteConfirm?.name}</strong> and all associated data. This action cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-sm font-bold">Type "{deleteConfirm?.name}" to confirm:</label>
+              <Input
+                value={deleteConfirmName}
+                onChange={e => setDeleteConfirmName(e.target.value)}
+                placeholder={`Type ${deleteConfirm?.name}`}
+                className="mt-1"
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => { setDeleteConfirm(null); setDeleteConfirmName(""); }}>Cancel</Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                await base44.entities.Participant.delete(deleteConfirm.id);
+                await logAudit("delete", "Participant", deleteConfirm.id, deleteConfirm.name, `Deleted participant ${deleteConfirm.name}`);
+                setDeleteConfirm(null);
+                setDeleteConfirmName("");
+                load();
+              }}
+              disabled={deleteConfirmName !== deleteConfirm?.name}
+            >
+              Delete Permanently
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

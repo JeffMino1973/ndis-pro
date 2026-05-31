@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Download, Loader2, Database, Users, FileText, AlertTriangle, ShieldCheck, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -97,6 +97,24 @@ function downloadCSV(data, filename) {
 export default function DataExport() {
   const [loading, setLoading] = useState({});
   const [lastExported, setLastExported] = useState({});
+  const [currentUser, setCurrentUser] = useState(null);
+
+  useEffect(() => {
+    base44.auth.me().then(setCurrentUser).catch(() => {});
+  }, []);
+
+  // Non-admins cannot access this page
+  if (currentUser && currentUser.role !== "admin") {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <div className="text-center space-y-4 max-w-md">
+          <ShieldCheck size={48} className="mx-auto text-muted-foreground/30" />
+          <h2 className="text-2xl font-black">Admin Access Required</h2>
+          <p className="text-muted-foreground">Only administrators can export data for security reasons.</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleExport = async (exportDef, format) => {
     setLoading(prev => ({ ...prev, [exportDef.id + format]: true }));

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { logAudit } from "@/utils/auditLog";
 import { Plus, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +37,8 @@ export default function Incidents() {
   useEffect(() => { load(); }, []);
 
   const handleSave = async () => {
-    await base44.entities.Incident.create(form);
+    const saved = await base44.entities.Incident.create(form);
+    await logAudit("create", "Incident", saved.id, form.participant_name, `Created incident: ${form.incident_type} - ${form.severity}`);
     setShowForm(false);
     setForm({ participant_name: "", incident_type: "Injury", severity: "Medium", description: "", action_taken: "", incident_date: new Date().toISOString().split("T")[0], status: "Open" });
     load();

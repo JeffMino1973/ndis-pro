@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { logAudit } from "@/utils/auditLog";
 import { Plus, MessageSquareWarning } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,14 +42,17 @@ export default function Complaints() {
   useEffect(() => { load(); }, []);
 
   const save = async () => {
-    await base44.entities.Complaint.create(form);
+    const saved = await base44.entities.Complaint.create(form);
+    await logAudit("create", "Complaint", saved.id, form.participant_name, `Created complaint: ${form.complaint_type} - ${form.priority}`);
     setShowForm(false);
     setForm({ participant_name: "", complainant: "", complaint_type: "Service Delivery", description: "", date_received: new Date().toISOString().split("T")[0], priority: "Medium", status: "Open", resolution: "", resolved_date: "" });
     load();
   };
 
   const updateStatus = async (id, status) => {
+    const rec = complaints.find(c => c.id === id);
     await base44.entities.Complaint.update(id, { status });
+    await logAudit("update", "Complaint", id, rec?.participant_name || "", `Changed status to ${status}`);
     load();
   };
 

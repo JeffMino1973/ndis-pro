@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { ArrowLeft, FileText, AlertTriangle, Edit, Phone, Mail, MapPin, User, Shield, Heart, ClipboardList, Upload, Camera, Paperclip, Trash2, Download, Loader2 } from "lucide-react";
+import { logAudit } from "@/utils/auditLog";
+import { ArrowLeft, FileText, AlertTriangle, Edit, Phone, Mail, MapPin, User, Shield, Heart, ClipboardList, Upload, Camera, Paperclip, Trash2, Download, Loader2, Eye, EyeOff } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,8 +43,11 @@ export default function ParticipantDetail({ participant, onBack }) {
   const photoRef = useRef();
   const docFileRef = useRef();
   const [pendingDocFile, setPendingDocFile] = useState(null);
+  const [revealedSensitive, setRevealedSensitive] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
   useEffect(() => {
+    base44.auth.me().then(setCurrentUser).catch(() => {});
     base44.entities.Document.filter({ participant_id: p.id }, "-created_date").then(setDocuments);
   }, [p.id]);
 
@@ -82,6 +86,7 @@ export default function ParticipantDetail({ participant, onBack }) {
 
   const handleDeleteParticipant = async () => {
     setDeleting(true);
+    await logAudit("delete", "Participant", p.id, p.name, `Deleted participant ${p.name}`);
     await base44.entities.Participant.delete(p.id);
     onBack();
   };
@@ -122,7 +127,16 @@ export default function ParticipantDetail({ participant, onBack }) {
             </div>
             <div>
               <h2 className="text-2xl font-black text-foreground">{p.name}</h2>
-              <p className="text-sm text-muted-foreground font-semibold">NDIS: {p.ndis_number} · {p.plan_type}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm text-muted-foreground font-semibold">
+                  NDIS: {revealedSensitive || currentUser?.role === "admin" ? p.ndis_number : "••• " + String(p.ndis_number).slice(-3)} · {p.plan_type}
+                </p>
+                {currentUser?.role !== "admin" && (
+                  <button onClick={() => setRevealedSensitive(r => !r)} className="text-muted-foreground hover:text-foreground">
+                    {revealedSensitive ? <EyeOff size={12} /> : <Eye size={12} />}
+                  </button>
+                )}
+              </div>
               {p.date_of_birth && <p className="text-xs text-muted-foreground mt-0.5">DOB: {p.date_of_birth}</p>}
               <span className={`inline-block mt-2 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider ${
                 p.status === "Active" ? "bg-emerald-100 text-emerald-700" :
@@ -134,25 +148,27 @@ export default function ParticipantDetail({ participant, onBack }) {
             <Button variant="outline" className="rounded-xl gap-2" onClick={() => setShowEdit(true)}>
               <Edit size={16} /> Edit
             </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="outline" className="rounded-xl gap-2 text-destructive border-destructive/30 hover:bg-destructive/10">
-                  <Trash2 size={16} /> Delete
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Delete Participant?</AlertDialogTitle>
-                  <AlertDialogDescription>This will permanently delete <strong>{p.name}</strong> and cannot be undone.</AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteParticipant} className="bg-destructive hover:bg-destructive/90" disabled={deleting}>
-                    {deleting ? "Deleting..." : "Delete"}
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            {currentUser?.role === "admin" && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" className="rounded-xl gap-2 text-destructive border-destructive/30 hover:bg-destructive/10">
+                    <Trash2 size={16} /> Delete
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete Participant?</AlertDialogTitle>
+                    <AlertDialogDescription>This will permanently delete <strong>{p.name}</strong> and cannot be undone.</AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteParticipant} className="bg-destructive hover:bg-destructive/90" disabled={deleting}>
+                      {deleting ? "Deleting..." : "Delete"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         </div>
 
@@ -172,8 +188,23 @@ export default function ParticipantDetail({ participant, onBack }) {
       {/* Health & Disability */}
       {p.medical_alerts && (
         <div className="bg-rose-50 border border-rose-200 rounded-3xl p-6">
-          <SectionHeading icon={AlertTriangle} title="Medical Alerts" color="text-rose-600" />
-          <p className="text-sm text-rose-800 font-semibold">{p.medical_alerts}</p>
+          <div className="flex items-center justify-between mb-3">
+            <SectionHeading icon={AlertTriangle} title="Medical Alerts" color="text-rose-600" />
+            {currentUser?.role !== "admin" && (
+              <button onClick={() => setRevealedSensitive(r => !r)} className="flex items-center gap-1.5 text-xs font-bold text-rose-700 hover:text-rose-900 border border-rose-200 rounded-xl px-2 py-1 hover:bg-rose-100 transition-colors">
+                {revealedSensitive ? <EyeOff size={11} /> : <Eye size={11} />}
+                {revealedSensitive ? "Hide" : "Reveal"}
+              </button>
+            )}
+          </div>
+          {!revealedSensitive && currentUser?.role !== "admin" && (
+            <p className="text-xs text-rose-600 bg-rose-100 border border-rose-200 rounded-xl px-3 py-2 mb-3">
+              🔒 Medical alerts are hidden. Click "Reveal" to view.
+            </p>
+          )}
+          {(revealedSensitive || currentUser?.role === "admin") && (
+            <p className="text-sm text-rose-800 font-semibold">{p.medical_alerts}</p>
+          )}
         </div>
       )}
 
