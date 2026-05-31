@@ -106,7 +106,7 @@ export function calcPayPeriodDeductions(
         tax: annualTax / periodsPerYear,
         medicare: 0,
         super: grossPerPeriod * 0.12,
-        net: Math.max(0, grossPerPeriod - annualTax / periodsPerYear),
+        net: Math.max(0, grossPerPeriod - annualTax / periodsPerYear - grossPerPeriod * 0.12),
         annualised: annual,
       };
     case "working_holiday":
@@ -115,7 +115,7 @@ export function calcPayPeriodDeductions(
         tax: annualTax / periodsPerYear,
         medicare: 0,  // WHMs are generally not eligible for Medicare
         super: grossPerPeriod * 0.12,
-        net: Math.max(0, grossPerPeriod - annualTax / periodsPerYear),
+        net: Math.max(0, grossPerPeriod - annualTax / periodsPerYear - grossPerPeriod * 0.12),
         annualised: annual,
       };
     case "no_tfn":
@@ -124,7 +124,7 @@ export function calcPayPeriodDeductions(
         tax: annualTax / periodsPerYear,
         medicare: 0, // Medicare already factored in the 47% flat rate
         super: grossPerPeriod * 0.12,
-        net: Math.max(0, grossPerPeriod - annualTax / periodsPerYear),
+        net: Math.max(0, grossPerPeriod - annualTax / periodsPerYear - grossPerPeriod * 0.12),
         annualised: annual,
       };
     default:
@@ -135,7 +135,7 @@ export function calcPayPeriodDeductions(
   const periodTax = annualTax / periodsPerYear;
   const periodMedicare = annualMedicare / periodsPerYear;
   const superAmt = grossPerPeriod * 0.12;
-  const net = Math.max(0, grossPerPeriod - periodTax - periodMedicare);
+  const net = Math.max(0, grossPerPeriod - periodTax - periodMedicare - superAmt);
 
   return {
     tax: periodTax,
