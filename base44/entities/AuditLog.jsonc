@@ -1,0 +1,49 @@
+{
+  "name": "AuditLog",
+  "type": "object",
+  "properties": {
+    "action": {
+      "type": "string",
+      "title": "Action",
+      "enum": [
+        "create",
+        "update",
+        "delete",
+        "view",
+        "export"
+      ]
+    },
+    "entity_type": {
+      "type": "string",
+      "title": "Record Type"
+    },
+    "entity_id": {
+      "type": "string",
+      "title": "Record ID"
+    },
+    "entity_name": {
+      "type": "string",
+      "title": "Record Name"
+    },
+    "performed_by": {
+      "type": "string",
+      "title": "Performed By (Email)"
+    },
+    "performed_by_name": {
+      "type": "string",
+      "title": "Performed By (Name)"
+    },
+    "details": {
+      "type": "string",
+      "title": "Details"
+    },
+    "ip_address": {
+      "type": "string",
+      "title": "IP Address"
+    }
+  },
+  "required": [
+    "action",
+    "entity_type"
+  ]
+}

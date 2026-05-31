@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, User, CheckCircle, AlertCircle, Clock, Pencil, Trash2, Camera, Loader2, Upload, Download, FileText, Phone, Mail, MapPin, ArrowLeft } from "lucide-react";
+import { Plus, User, CheckCircle, AlertCircle, Clock, Pencil, Trash2, Camera, Loader2, Upload, Download, FileText, Phone, Mail, MapPin, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -210,6 +210,52 @@ export default function Staff() {
   );
 }
 
+function SensitiveFinancialSection({ member }) {
+  const [revealed, setRevealed] = useState(false);
+
+  const mask = (val, showChars = 3) => {
+    if (!val) return "—";
+    if (revealed) return val;
+    const str = String(val);
+    return "•".repeat(Math.max(0, str.length - showChars)) + str.slice(-showChars);
+  };
+
+  return (
+    <div className="bg-card border border-border rounded-3xl p-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-black">Financial & Tax Details</h3>
+        <button
+          onClick={() => setRevealed(r => !r)}
+          className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground border border-border rounded-xl px-3 py-1.5 hover:bg-secondary transition-colors"
+        >
+          {revealed ? <EyeOff size={13} /> : <Eye size={13} />}
+          {revealed ? "Hide" : "Reveal"} Sensitive Fields
+        </button>
+      </div>
+      {!revealed && (
+        <p className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 mb-3">
+          🔒 Sensitive fields are masked. Click "Reveal" to view TFN and bank details.
+        </p>
+      )}
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        {[
+          { label: "TFN", value: mask(member.tfn) },
+          { label: "ABN", value: member.abn || "—" },
+          { label: "Bank Name", value: member.bank_name || "—" },
+          { label: "Account Name", value: member.bank_account_name || "—" },
+          { label: "BSB", value: mask(member.bank_bsb) },
+          { label: "Account Number", value: mask(member.bank_account_number) },
+        ].map(({ label, value }) => (
+          <div key={label} className="bg-secondary rounded-xl p-3">
+            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1">{label}</p>
+            <p className="text-sm font-bold text-foreground font-mono">{value}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function StaffDetail({ staff: s, onBack, onEdit, onDelete, onToggleStatus }) {
   const [member, setMember] = useState(s);
   const [documents, setDocuments] = useState([]);
@@ -332,17 +378,7 @@ function StaffDetail({ staff: s, onBack, onEdit, onDelete, onToggleStatus }) {
 
       {/* Financial */}
       {(member.tfn || member.bank_name || member.bank_bsb) && (
-        <div className="bg-card border border-border rounded-3xl p-6">
-          <h3 className="font-black mb-4">Financial & Tax Details</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            <Info label="TFN" value={member.tfn} />
-            <Info label="ABN" value={member.abn} />
-            <Info label="Bank Name" value={member.bank_name} />
-            <Info label="Account Name" value={member.bank_account_name} />
-            <Info label="BSB" value={member.bank_bsb} />
-            <Info label="Account Number" value={member.bank_account_number} />
-          </div>
-        </div>
+        <SensitiveFinancialSection member={member} />
       )}
 
       {/* Documents */}

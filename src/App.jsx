@@ -53,6 +53,8 @@ import NavAdmin from './pages/NavAdmin';
 import ReportsCentre from './pages/ReportsCentre';
 import UserGuide from './pages/UserGuide';
 import StaffPortal from './pages/StaffPortal';
+import AuditLogPage from './pages/AuditLogPage';
+import DataExport from './pages/DataExport';
 
 
 const AuthenticatedApp = () => {
@@ -111,6 +113,8 @@ const AuthenticatedApp = () => {
       <Route path="/reports" element={<ReportsCentre />} />
       <Route path="/user-guide" element={<UserGuide />} />
       <Route path="/staff-portal" element={<StaffPortal />} />
+      <Route path="/audit-log" element={<AuditLogPage />} />
+      <Route path="/data-export" element={<DataExport />} />
       <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/stationery" element={<Stationery />} />

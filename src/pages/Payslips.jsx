@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
+import { logAudit } from "@/utils/auditLog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -50,6 +51,7 @@ const EMPTY_LINE = () => ({
 export default function Payslips() {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentUser, setCurrentUser] = useState(null);
   const [records, setRecords] = useState([]);
   const [saving, setSaving] = useState(false);
 
@@ -72,6 +74,7 @@ export default function Payslips() {
   useEffect(() => {
     base44.entities.StaffMember.list().then(s => { setStaff(s); setLoading(false); });
     base44.entities.PayslipRecord.list("-created_date", 100).then(setRecords);
+    base44.auth.me().then(setCurrentUser).catch(() => {});
   }, []);
 
   const lineTotal = (l) => parseFloat(l.unit_price || 0) * parseFloat(l.qty || 0);
@@ -140,9 +143,11 @@ export default function Payslips() {
     if (editingId) {
       saved = await base44.entities.PayslipRecord.update(editingId, record);
       setRecords(prev => prev.map(r => r.id === editingId ? saved : r));
+      await logAudit("update", "PayslipRecord", editingId, record.staff_name, `Updated payslip ${record.payslip_number} — gross $${record.gross_pay?.toFixed(2)}`);
     } else {
       saved = await base44.entities.PayslipRecord.create(record);
       setRecords(prev => [saved, ...prev]);
+      await logAudit("create", "PayslipRecord", saved.id, record.staff_name, `Created payslip ${record.payslip_number} — gross $${record.gross_pay?.toFixed(2)}`);
     }
     setActiveRecord(saved);
     setView("view");
@@ -151,7 +156,9 @@ export default function Payslips() {
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this payslip record?")) return;
+    const rec = records.find(r => r.id === id);
     await base44.entities.PayslipRecord.delete(id);
+    await logAudit("delete", "PayslipRecord", id, rec?.staff_name || "", `Deleted payslip ${rec?.payslip_number || id}`);
     setRecords(prev => prev.filter(r => r.id !== id));
     if (activeRecord?.id === id) { setActiveRecord(null); setView("list"); }
   };
@@ -187,18 +194,22 @@ export default function Payslips() {
               <ChevronLeft size={16} /> Back to History
             </Button>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={() => printBankingWindow(activeRecord)} className="gap-2">
-                <Banknote size={14} /> Banking Report
-              </Button>
+              {currentUser?.role === "admin" && (
+                <Button variant="outline" onClick={() => printBankingWindow(activeRecord)} className="gap-2">
+                  <Banknote size={14} /> Banking Report
+                </Button>
+              )}
               <Button variant="outline" onClick={() => { loadIntoForm(activeRecord); setView("new"); }} className="gap-2">
                 <Pencil size={14} /> Edit
               </Button>
               <Button variant="outline" onClick={() => handleDelete(activeRecord.id)} className="gap-2 text-destructive hover:text-destructive">
                 <Trash2 size={14} /> Delete
               </Button>
-              <Button onClick={() => printLandscape(activeRecord)} className="gap-2">
-                <Printer size={14} /> Print Landscape PDF
-              </Button>
+              {currentUser?.role === "admin" && (
+                <Button onClick={() => printLandscape(activeRecord)} className="gap-2">
+                  <Printer size={14} /> Print Landscape PDF
+                </Button>
+              )}
             </div>
           </div>
           <div className="bg-white border border-border rounded-2xl overflow-hidden shadow-sm">
@@ -630,12 +641,16 @@ export default function Payslips() {
                 <span className="text-right font-black text-emerald-600">${(r.net_pay || 0).toFixed(2)}</span>
                 <span className="text-right text-blue-600 text-xs">${(r.super_amount || 0).toFixed(2)}</span>
                 <div className="flex items-center gap-1 justify-end">
-                  <button onClick={() => printLandscape(r)} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground" title="Print landscape PDF">
-                    <Printer size={14} />
-                  </button>
-                  <button onClick={() => printBankingWindow(r)} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground" title="Banking report">
-                    <Banknote size={14} />
-                  </button>
+                  {currentUser?.role === "admin" && (
+                    <button onClick={() => printLandscape(r)} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground" title="Print landscape PDF">
+                      <Printer size={14} />
+                    </button>
+                  )}
+                  {currentUser?.role === "admin" && (
+                    <button onClick={() => printBankingWindow(r)} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground" title="Banking report">
+                      <Banknote size={14} />
+                    </button>
+                  )}
                   <button onClick={() => { loadIntoForm(r); setActiveRecord(r); setView("new"); }} className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-secondary text-muted-foreground" title="Edit">
                     <Pencil size={14} />
                   </button>
