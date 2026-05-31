@@ -297,11 +297,12 @@ export default function Payslips() {
           </div>
 
           {/* Live deduction preview */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 p-3 bg-secondary/40 rounded-xl text-center">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 p-3 bg-secondary/40 rounded-xl text-center">
             {[
               { label: "Gross", value: subtotal, color: "text-foreground" },
               { label: "Tax (PAYG)", value: tax, color: "text-rose-600" },
               { label: "Medicare", value: medicare, color: "text-orange-600" },
+              { label: "Super (12%)", value: superAmt, color: "text-blue-600" },
               { label: "Net Pay", value: netPay, color: "text-emerald-600" },
             ].map(s => (
               <div key={s.label}>
