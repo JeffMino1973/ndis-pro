@@ -39,7 +39,7 @@ export default function PayslipPreview({ record, staffMember }) {
     medicareExemption
   );
 
-  const totalDeductions = tax + medicare;
+  const totalDeductions = tax + medicare + superAmt;
   const emp = getEmployer(record.date_from);
 
   // Bank details: prefer live staffMember data, fall back to saved record fields
@@ -106,43 +106,31 @@ export default function PayslipPreview({ record, staffMember }) {
         </div>
       </div>
 
-      {/* Tax / Super / Net — 4 columns */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "8px", marginBottom: "12px", fontSize: "10px" }}>
+      {/* Tax / Super / Net — 2 columns */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginBottom: "12px", fontSize: "10px" }}>
         {/* Deductions */}
         <div style={{ border: "1px solid #e2e8f0", borderRadius: "8px", overflow: "hidden" }}>
-          <div style={{ backgroundColor: "#eff6ff", padding: "4px 8px", borderBottom: "1px solid #e2e8f0" }}>
-            <p style={{ margin: 0, fontWeight: 900, fontSize: "8px", textTransform: "uppercase", color: "#1d4ed8" }}>Deductions</p>
+          <div style={{ backgroundColor: "#fff1f2", padding: "4px 8px", borderBottom: "1px solid #e2e8f0" }}>
+            <p style={{ margin: 0, fontWeight: 900, fontSize: "8px", textTransform: "uppercase", color: "#be123c" }}>Deductions</p>
           </div>
           <div style={{ padding: "6px 8px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}><span style={{ color: "#64748b" }}>Tax (PAYG)</span><span style={{ fontWeight: 700, color: "#e11d48" }}>– ${tax.toFixed(2)}</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}><span style={{ color: "#64748b" }}>Medicare</span><span style={{ fontWeight: 700, color: "#e11d48" }}>– ${medicare.toFixed(2)}</span></div>
-            <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #e2e8f0", paddingTop: "3px" }}><span style={{ fontWeight: 900, color: "#475569" }}>Total</span><span style={{ fontWeight: 900, color: "#be123c" }}>– ${totalDeductions.toFixed(2)}</span></div>
-          </div>
-        </div>
-
-        {/* Super */}
-        <div style={{ border: "1px solid #bfdbfe", borderRadius: "8px", overflow: "hidden", backgroundColor: "#eff6ff" }}>
-          <div style={{ backgroundColor: "#dbeafe", padding: "4px 8px", borderBottom: "1px solid #bfdbfe" }}>
-            <p style={{ margin: 0, fontWeight: 900, fontSize: "8px", textTransform: "uppercase", color: "#1d4ed8" }}>Super (SGC 12%)</p>
-          </div>
-          <div style={{ padding: "6px 8px" }}>
-            <p style={{ margin: 0, fontWeight: 900, color: "#1e40af", fontSize: "12px" }}>${superAmt.toFixed(2)}</p>
-            <p style={{ margin: 0, fontSize: "7px", color: "#3b82f6" }}>Employer contribution</p>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}><span style={{ color: "#64748b" }}>Medicare Levy</span><span style={{ fontWeight: 700, color: "#e11d48" }}>– ${medicare.toFixed(2)}</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}><span style={{ color: "#64748b" }}>Superannuation (12%)</span><span style={{ fontWeight: 700, color: "#2563eb" }}>– ${superAmt.toFixed(2)}</span></div>
+            <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid #e2e8f0", paddingTop: "3px" }}><span style={{ fontWeight: 900, color: "#475569" }}>Total Deductions</span><span style={{ fontWeight: 900, color: "#be123c" }}>– ${totalDeductions.toFixed(2)}</span></div>
           </div>
         </div>
 
         {/* Net Pay */}
-        <div style={{ backgroundColor: "#1e3a5f", borderRadius: "8px", padding: "8px" }}>
-          <p style={{ margin: "0 0 2px 0", fontSize: "8px", fontWeight: 900, textTransform: "uppercase", color: "#93c5fd" }}>Net Pay</p>
-          <p style={{ margin: 0, fontSize: "18px", fontWeight: 900, color: "white" }}>${netPay.toFixed(2)}</p>
-        </div>
-
-        {/* Summary */}
-        <div style={{ border: "1px solid #e2e8f0", borderRadius: "8px", padding: "8px", fontSize: "8px", color: "#475569" }}>
-          <p style={{ margin: "0 0 2px 0" }}><strong>Gross:</strong> ${subtotal.toFixed(2)}</p>
-          <p style={{ margin: "0 0 2px 0" }}><strong>Tax:</strong> ${tax.toFixed(2)}</p>
-          <p style={{ margin: "0 0 2px 0" }}><strong>Medicare:</strong> ${medicare.toFixed(2)}</p>
-          <p style={{ margin: 0, fontSize: "7px", color: "#94a3b8" }}>{medicareExemption ? "Medicare exempt" : ""}</p>
+        <div style={{ backgroundColor: "#1e3a5f", borderRadius: "8px", padding: "12px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          <p style={{ margin: "0 0 2px 0", fontSize: "8px", fontWeight: 900, textTransform: "uppercase", color: "#93c5fd" }}>Gross Pay</p>
+          <p style={{ margin: "0 0 8px 0", fontSize: "13px", fontWeight: 700, color: "#cbd5e1" }}>${subtotal.toFixed(2)}</p>
+          <p style={{ margin: "0 0 2px 0", fontSize: "8px", fontWeight: 900, textTransform: "uppercase", color: "#93c5fd" }}>Less Deductions</p>
+          <p style={{ margin: "0 0 8px 0", fontSize: "13px", fontWeight: 700, color: "#fca5a5" }}>– ${totalDeductions.toFixed(2)}</p>
+          <div style={{ borderTop: "1px solid #334d6e", paddingTop: "8px" }}>
+            <p style={{ margin: "0 0 2px 0", fontSize: "8px", fontWeight: 900, textTransform: "uppercase", color: "#93c5fd" }}>Net Pay</p>
+            <p style={{ margin: 0, fontSize: "22px", fontWeight: 900, color: "white" }}>${netPay.toFixed(2)}</p>
+          </div>
         </div>
       </div>
 
