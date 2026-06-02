@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { format, parseISO } from "date-fns";
 import {
   Calendar, Banknote, ShieldCheck,
-  CheckCircle, AlertTriangle, XCircle, Clock, Download, Loader2, User
+  CheckCircle, AlertTriangle, XCircle, Clock, Download, Loader2, User, FileText, ExternalLink, Upload
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WeeklyCalendar from "@/components/staffportal/WeeklyCalendar";
@@ -73,19 +73,25 @@ export default function StaffPortal() {
   const [staffRecord, setStaffRecord] = useState(null);
   const [shifts, setShifts] = useState([]);
   const [payslips, setPayslips] = useState([]);
+  const [bizDocs, setBizDocs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState("roster"); // roster | payslips | compliance
+  const [tab, setTab] = useState("roster"); // roster | payslips | compliance | documents
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [newDoc, setNewDoc] = useState({ title: "", category: "Other", issued_by: "", expiry_date: "", notes: "" });
+  const [showAddDoc, setShowAddDoc] = useState(false);
 
   useEffect(() => {
     async function load() {
       const me = await base44.auth.me();
       setUser(me);
 
-      const [allStaff, allShifts, allPayslips] = await Promise.all([
+      const [allStaff, allShifts, allPayslips, allBizDocs] = await Promise.all([
         base44.entities.StaffMember.list(),
         base44.entities.Shift.list("-date", 500),
         base44.entities.PayslipRecord.list("-date_from", 200),
+        base44.entities.BusinessDocument.list("-created_date"),
       ]);
+      setBizDocs(allBizDocs);
 
       // Match staff record by name or email
       const myName = me?.full_name || "";
@@ -150,10 +156,33 @@ export default function StaffPortal() {
     </div>
   );
 
+  const handleDocFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploadingDoc(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    setNewDoc(d => ({ ...d, file_url }));
+    setUploadingDoc(false);
+  };
+
+  const saveDoc = async () => {
+    await base44.entities.BusinessDocument.create(newDoc);
+    const updated = await base44.entities.BusinessDocument.list("-created_date");
+    setBizDocs(updated);
+    setNewDoc({ title: "", category: "Other", issued_by: "", expiry_date: "", notes: "" });
+    setShowAddDoc(false);
+  };
+
+  const deleteDoc = async (id) => {
+    await base44.entities.BusinessDocument.delete(id);
+    setBizDocs(prev => prev.filter(d => d.id !== id));
+  };
+
   const tabs = [
     { id: "roster", label: "My Roster", icon: Calendar },
     { id: "payslips", label: "My Payslips", icon: Banknote },
     { id: "compliance", label: "My Compliance", icon: ShieldCheck },
+    { id: "documents", label: "Business Docs", icon: FileText },
   ];
 
   return (
@@ -243,6 +272,106 @@ export default function StaffPortal() {
                   <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mt-1">{s.label}</p>
                 </div>
               ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── DOCUMENTS TAB ──────────────────────────────────────────────────────── */}
+      {tab === "documents" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">Insurance certificates, licences, registrations and other business documents.</p>
+            <Button onClick={() => setShowAddDoc(v => !v)} className="rounded-xl font-bold gap-2 text-xs" size="sm">
+              <Upload size={13} /> Upload Document
+            </Button>
+          </div>
+
+          {showAddDoc && (
+            <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+              <h3 className="font-black text-sm">New Business Document</h3>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs font-bold text-muted-foreground">Title *</label>
+                  <input className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm mt-1"
+                    value={newDoc.title} onChange={e => setNewDoc(d => ({ ...d, title: e.target.value }))} placeholder="e.g. Public Liability Insurance" />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-muted-foreground">Category</label>
+                  <select className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm mt-1"
+                    value={newDoc.category} onChange={e => setNewDoc(d => ({ ...d, category: e.target.value }))}>
+                    {["Insurance","Certificates","Licences","Policies","Registrations","Other"].map(c => <option key={c}>{c}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-muted-foreground">Issued By</label>
+                  <input className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm mt-1"
+                    value={newDoc.issued_by} onChange={e => setNewDoc(d => ({ ...d, issued_by: e.target.value }))} placeholder="e.g. QBE Insurance" />
+                </div>
+                <div>
+                  <label className="text-xs font-bold text-muted-foreground">Expiry Date</label>
+                  <input type="date" className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm mt-1"
+                    value={newDoc.expiry_date} onChange={e => setNewDoc(d => ({ ...d, expiry_date: e.target.value }))} />
+                </div>
+              </div>
+              <div>
+                <label className="text-xs font-bold text-muted-foreground">File Upload</label>
+                <input type="file" className="mt-1 block text-sm text-muted-foreground" onChange={handleDocFileUpload} />
+                {uploadingDoc && <p className="text-xs text-primary mt-1 flex items-center gap-1"><Loader2 size={12} className="animate-spin" /> Uploading…</p>}
+                {newDoc.file_url && <p className="text-xs text-emerald-600 mt-1">✓ File uploaded</p>}
+              </div>
+              <div className="flex gap-2 pt-1">
+                <Button size="sm" onClick={saveDoc} disabled={!newDoc.title || uploadingDoc} className="rounded-xl font-bold text-xs">Save Document</Button>
+                <Button size="sm" variant="outline" onClick={() => setShowAddDoc(false)} className="rounded-xl font-bold text-xs">Cancel</Button>
+              </div>
+            </div>
+          )}
+
+          {bizDocs.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground italic text-sm bg-card border border-border rounded-2xl">No business documents uploaded yet.</div>
+          ) : (
+            <div className="space-y-2">
+              {["Insurance","Certificates","Licences","Policies","Registrations","Other"].map(cat => {
+                const catDocs = bizDocs.filter(d => d.category === cat);
+                if (catDocs.length === 0) return null;
+                return (
+                  <div key={cat}>
+                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2">{cat}</p>
+                    {catDocs.map(doc => {
+                      const days = doc.expiry_date ? Math.ceil((new Date(doc.expiry_date) - new Date()) / 86400000) : null;
+                      const expired = days !== null && days < 0;
+                      const expiring = days !== null && days >= 0 && days <= 30;
+                      return (
+                        <div key={doc.id} className="bg-card border border-border rounded-xl p-4 flex items-center justify-between gap-3 mb-2">
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <FileText size={18} className="text-muted-foreground shrink-0" />
+                            <div className="min-w-0">
+                              <p className="font-bold text-sm truncate">{doc.title}</p>
+                              <p className="text-xs text-muted-foreground">{doc.issued_by || "—"}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0">
+                            {doc.expiry_date && (
+                              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${expired ? "bg-rose-100 text-rose-700" : expiring ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>
+                                {expired ? "EXPIRED" : expiring ? `${days}d left` : `Exp ${doc.expiry_date}`}
+                              </span>
+                            )}
+                            {doc.file_url && (
+                              <a href={doc.file_url} target="_blank" rel="noopener noreferrer">
+                                <Button size="sm" variant="outline" className="rounded-xl gap-1 text-xs font-bold h-7 px-2">
+                                  <ExternalLink size={11} /> View
+                                </Button>
+                              </a>
+                            )}
+                            <Button size="sm" variant="ghost" className="rounded-xl text-xs text-rose-500 hover:text-rose-700 h-7 px-2"
+                              onClick={() => deleteDoc(doc.id)}>✕</Button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>

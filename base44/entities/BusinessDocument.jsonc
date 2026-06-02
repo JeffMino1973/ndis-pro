@@ -1,0 +1,44 @@
+{
+  "name": "BusinessDocument",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Document Title"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "Insurance",
+        "Certificates",
+        "Licences",
+        "Policies",
+        "Registrations",
+        "Other"
+      ],
+      "default": "Other"
+    },
+    "file_url": {
+      "type": "string",
+      "title": "File URL"
+    },
+    "expiry_date": {
+      "type": "string",
+      "title": "Expiry Date",
+      "format": "date"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    },
+    "issued_by": {
+      "type": "string",
+      "title": "Issued By"
+    }
+  },
+  "required": [
+    "title",
+    "category"
+  ]
+}
