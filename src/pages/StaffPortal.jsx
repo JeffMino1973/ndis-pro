@@ -3,10 +3,31 @@ import { base44 } from "@/api/base44Client";
 import { format, parseISO } from "date-fns";
 import {
   Calendar, Banknote, ShieldCheck,
-  CheckCircle, AlertTriangle, XCircle, Clock, Download, Loader2, User, FileText, ExternalLink, Upload
+  CheckCircle, AlertTriangle, XCircle, Loader2, User, FileText, ExternalLink, Upload,
+  Clock, Play, ClipboardList, Pill, Brain, Heart, Activity, BarChart3, Shield, BookOpen, UserCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WeeklyCalendar from "@/components/staffportal/WeeklyCalendar";
+import StaffMyProfile from "@/components/staffportal/StaffMyProfile";
+
+// ─── All possible portal feature tabs ──────────────────────────────────────────
+export const ALL_PORTAL_FEATURES = [
+  { id: "timesheets",       label: "Timesheets & Travel",   icon: Clock,         path: "/dashboard/timesheets" },
+  { id: "shift_logger",     label: "Shift Logger",          icon: Play,          path: "/dashboard/shift-logger" },
+  { id: "progress_notes",   label: "Progress Notes",        icon: FileText,      path: "/dashboard/progress-notes" },
+  { id: "medications",      label: "Medication Dashboard",  icon: Pill,          path: "/dashboard/medications" },
+  { id: "medication_hub",   label: "Medication Forms Hub",  icon: ClipboardList, path: "/dashboard/medication-hub" },
+  { id: "epilepsy_plans",   label: "Epilepsy Plans",        icon: Brain,         path: "/dashboard/epilepsy-plans" },
+  { id: "health_plans",     label: "Health Support Plans",  icon: Heart,         path: "/dashboard/health-care-plans" },
+  { id: "impl_programs",    label: "Implementation Programs", icon: Activity,    path: "/dashboard/implementation-programs" },
+  { id: "behaviour_continuum", label: "Behaviour Continuum", icon: BarChart3,    path: "/dashboard/behaviour-continuum" },
+  { id: "behaviour_support", label: "Behaviour Support Plans", icon: Brain,      path: "/dashboard/behaviour-support-plans" },
+  { id: "pbs_plans",        label: "PBS Plans",             icon: Heart,         path: "/dashboard/positive-behaviour-support-plans" },
+  { id: "staff_compliance", label: "Staff & Compliance",    icon: ShieldCheck,   path: "/dashboard/staff" },
+  { id: "risk_assessments", label: "Risk Assessments",      icon: AlertTriangle, path: "/dashboard/risk-assessments" },
+  { id: "incidents",        label: "Incidents",             icon: Shield,        path: "/dashboard/incidents" },
+  { id: "policy_manual",    label: "Policy & Compliance Manual", icon: BookOpen, path: "/dashboard/policy-manual" },
+];
 
 // ─── Compliance Badge ──────────────────────────────────────────────────────────
 function ComplianceBadge({ label, value, isDate }) {
@@ -38,7 +59,6 @@ function ComplianceBadge({ label, value, isDate }) {
     );
   }
 
-  // Date-based expiry check
   const days = Math.ceil((new Date(value) - new Date()) / 86400000);
   let icon, cls, note;
   if (days < 0) {
@@ -52,7 +72,7 @@ function ComplianceBadge({ label, value, isDate }) {
   } else {
     icon = <CheckCircle size={14} className="text-emerald-500" />;
     cls = "text-emerald-600 font-bold";
-    note = `Valid`;
+    note = "Valid";
   }
 
   return (
@@ -71,11 +91,12 @@ function ComplianceBadge({ label, value, isDate }) {
 export default function StaffPortal() {
   const [user, setUser] = useState(null);
   const [staffRecord, setStaffRecord] = useState(null);
+  const [linkedParticipants, setLinkedParticipants] = useState([]);
   const [shifts, setShifts] = useState([]);
   const [payslips, setPayslips] = useState([]);
   const [bizDocs, setBizDocs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState("roster"); // roster | payslips | compliance | documents
+  const [tab, setTab] = useState("roster");
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [newDoc, setNewDoc] = useState({ title: "", category: "Other", issued_by: "", expiry_date: "", notes: "" });
   const [showAddDoc, setShowAddDoc] = useState(false);
@@ -85,29 +106,31 @@ export default function StaffPortal() {
       const me = await base44.auth.me();
       setUser(me);
 
-      const [allStaff, allShifts, allPayslips, allBizDocs] = await Promise.all([
+      const [allStaff, allShifts, allPayslips, allBizDocs, allParticipants] = await Promise.all([
         base44.entities.StaffMember.list(),
         base44.entities.Shift.list("-date", 500),
         base44.entities.PayslipRecord.list("-date_from", 200),
         base44.entities.BusinessDocument.list("-created_date"),
+        base44.entities.Participant.list(),
       ]);
       setBizDocs(allBizDocs);
 
-      // Match staff record by name or email
       const myName = me?.full_name || "";
       const myEmail = me?.email || "";
       const matched = allStaff.find(
         s => s.name?.toLowerCase() === myName?.toLowerCase() || s.email?.toLowerCase() === myEmail?.toLowerCase()
       );
-
       setStaffRecord(matched || null);
 
-      // Filter shifts and payslips to this staff member
+      // Linked participants
+      if (matched?.linked_participant_ids?.length) {
+        setLinkedParticipants(allParticipants.filter(p => matched.linked_participant_ids.includes(p.id)));
+      }
+
       if (matched) {
         setShifts(allShifts.filter(s => s.staff_name === matched.name));
         setPayslips(allPayslips.filter(p => p.staff_name === matched.name));
       } else {
-        // fallback: try matching by user's full_name directly in shift records
         setShifts(allShifts.filter(s => s.staff_name === myName));
         setPayslips(allPayslips.filter(p => p.staff_name === myName));
       }
@@ -150,12 +173,6 @@ export default function StaffPortal() {
     w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 500);
   };
 
-  if (loading) return (
-    <div className="flex items-center justify-center h-64">
-      <Loader2 size={28} className="animate-spin text-muted-foreground" />
-    </div>
-  );
-
   const handleDocFileUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -178,46 +195,91 @@ export default function StaffPortal() {
     setBizDocs(prev => prev.filter(d => d.id !== id));
   };
 
-  const tabs = [
-    { id: "roster", label: "My Roster", icon: Calendar },
-    { id: "payslips", label: "My Payslips", icon: Banknote },
-    { id: "compliance", label: "My Compliance", icon: ShieldCheck },
-    { id: "documents", label: "Business Docs", icon: FileText },
+  if (loading) return (
+    <div className="flex items-center justify-center h-64">
+      <Loader2 size={28} className="animate-spin text-muted-foreground" />
+    </div>
+  );
+
+  // Build tab list: always show core tabs, then add enabled feature tabs, then profile
+  const enabledFeatures = staffRecord?.portal_features || [];
+  const featureTabs = ALL_PORTAL_FEATURES.filter(f => enabledFeatures.includes(f.id));
+
+  const coreTabs = [
+    { id: "roster",     label: "My Roster",    icon: Calendar },
+    { id: "payslips",   label: "My Payslips",  icon: Banknote },
+    { id: "compliance", label: "Compliance",   icon: ShieldCheck },
+    { id: "documents",  label: "Business Docs", icon: FileText },
+  ];
+
+  const allTabs = [
+    ...coreTabs,
+    ...featureTabs,
+    { id: "profile", label: "My Profile", icon: UserCircle },
   ];
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4">
-        <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary font-black text-xl">
-          {user?.full_name?.charAt(0) || <User size={24} />}
-        </div>
+        {staffRecord?.photo_url ? (
+          <img src={staffRecord.photo_url} alt="" className="w-14 h-14 rounded-2xl object-cover" />
+        ) : (
+          <div className="w-14 h-14 bg-primary/10 rounded-2xl flex items-center justify-center text-primary font-black text-xl">
+            {user?.full_name?.charAt(0) || <User size={24} />}
+          </div>
+        )}
         <div>
           <h2 className="text-3xl font-black tracking-tight">My Staff Portal</h2>
           <p className="text-muted-foreground text-sm">
             {user?.full_name || "Staff Member"} &nbsp;·&nbsp;
-            {staffRecord ? <span className="text-emerald-600 font-bold">{staffRecord.role}</span> : <span className="text-amber-600 font-bold">Profile not matched — contact admin</span>}
+            {staffRecord
+              ? <span className="text-emerald-600 font-bold">{staffRecord.role}</span>
+              : <span className="text-amber-600 font-bold">Profile not matched — contact admin</span>
+            }
           </p>
         </div>
       </div>
 
-      {/* Tab bar */}
-      <div className="flex gap-2 bg-secondary p-1 rounded-2xl">
-        {tabs.map(t => (
-          <button
-            key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === t.id ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-          >
-            <t.icon size={15} /> {t.label}
-          </button>
-        ))}
+      {/* Linked Participants */}
+      {linkedParticipants.length > 0 && (
+        <div className="bg-card border border-border rounded-2xl p-4">
+          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-3">My Participants</p>
+          <div className="flex flex-wrap gap-2">
+            {linkedParticipants.map(p => (
+              <a key={p.id} href={`/dashboard/participants`}
+                className="flex items-center gap-2 bg-secondary hover:bg-primary/10 rounded-xl px-3 py-2 transition">
+                {p.photo_url
+                  ? <img src={p.photo_url} alt="" className="w-7 h-7 rounded-full object-cover" />
+                  : <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xs font-black">{p.name?.charAt(0)}</div>
+                }
+                <div>
+                  <p className="text-xs font-bold">{p.name}</p>
+                  <p className="text-[10px] text-muted-foreground">{p.status}</p>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Tab bar — scrollable on mobile */}
+      <div className="overflow-x-auto">
+        <div className="flex gap-1 bg-secondary p-1 rounded-2xl min-w-max">
+          {allTabs.map(t => (
+            <button
+              key={t.id}
+              onClick={() => setTab(t.id)}
+              className={`flex items-center gap-1.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${tab === t.id ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              <t.icon size={13} /> {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* ── ROSTER TAB ─────────────────────────────────────────────────────────── */}
-      {tab === "roster" && (
-        <WeeklyCalendar shifts={shifts} />
-      )}
+      {tab === "roster" && <WeeklyCalendar shifts={shifts} />}
 
       {/* ── PAYSLIPS TAB ───────────────────────────────────────────────────────── */}
       {tab === "payslips" && (
@@ -249,7 +311,7 @@ export default function StaffPortal() {
                       <td className="px-5 py-3 text-right text-blue-600 text-xs">${(p.super_amount || 0).toFixed(2)}</td>
                       <td className="px-5 py-3 text-right">
                         <Button size="sm" variant="outline" onClick={() => printPayslip(p)} className="rounded-xl gap-1 text-xs font-bold">
-                          <Download size={12} /> PDF
+                          <FileText size={12} /> PDF
                         </Button>
                       </td>
                     </tr>
@@ -258,7 +320,6 @@ export default function StaffPortal() {
               </table>
             </div>
           )}
-          {/* Totals summary */}
           {payslips.length > 0 && (
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
@@ -277,6 +338,61 @@ export default function StaffPortal() {
         </div>
       )}
 
+      {/* ── COMPLIANCE TAB ─────────────────────────────────────────────────────── */}
+      {tab === "compliance" && (
+        <div className="space-y-4">
+          {!staffRecord ? (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center">
+              <AlertTriangle size={32} className="text-amber-500 mx-auto mb-2" />
+              <p className="font-black text-amber-800">Staff profile not matched</p>
+              <p className="text-sm text-amber-600 mt-1">Your name or email doesn't match a staff record. Ask your admin to update your staff profile.</p>
+            </div>
+          ) : (
+            <>
+              <div className="bg-card border border-border rounded-2xl p-6 space-y-1">
+                <h3 className="font-black text-base mb-4">Compliance & Credentials</h3>
+                <ComplianceBadge label="Employment Status" value={staffRecord.status} />
+                <ComplianceBadge label="Training Status" value={staffRecord.training_status} />
+                <ComplianceBadge label="Police Check" value={staffRecord.police_check} />
+                <ComplianceBadge label="WWCC Expiry" value={staffRecord.wwcc_expiry} isDate />
+                <ComplianceBadge label="First Aid Expiry" value={staffRecord.first_aid_expiry} isDate />
+                {staffRecord.phone && (
+                  <div className="flex items-center justify-between py-2 border-b border-border">
+                    <span className="text-sm text-muted-foreground">Phone</span>
+                    <span className="text-sm font-bold">{staffRecord.phone}</span>
+                  </div>
+                )}
+                {staffRecord.emergency_contact_name && (
+                  <div className="flex items-center justify-between py-2 border-b border-border">
+                    <span className="text-sm text-muted-foreground">Emergency Contact</span>
+                    <span className="text-sm font-bold">{staffRecord.emergency_contact_name} · {staffRecord.emergency_contact_phone}</span>
+                  </div>
+                )}
+                {staffRecord.bank_name && (
+                  <div className="flex items-center justify-between py-2 border-b border-border">
+                    <span className="text-sm text-muted-foreground">Bank / BSB</span>
+                    <span className="text-sm font-bold">{staffRecord.bank_name} · {staffRecord.bank_bsb}</span>
+                  </div>
+                )}
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { label: "WWCC", ok: staffRecord.wwcc_expiry && Math.ceil((new Date(staffRecord.wwcc_expiry) - new Date()) / 86400000) > 30, warn: staffRecord.wwcc_expiry && Math.ceil((new Date(staffRecord.wwcc_expiry) - new Date()) / 86400000) <= 30 },
+                  { label: "First Aid", ok: staffRecord.first_aid_expiry && Math.ceil((new Date(staffRecord.first_aid_expiry) - new Date()) / 86400000) > 30, warn: staffRecord.first_aid_expiry && Math.ceil((new Date(staffRecord.first_aid_expiry) - new Date()) / 86400000) <= 30 },
+                  { label: "Police Check", ok: staffRecord.police_check === "Cleared", warn: staffRecord.police_check === "Pending" },
+                ].map(item => (
+                  <div key={item.label} className={`rounded-2xl p-4 text-center border ${item.ok ? "bg-emerald-50 border-emerald-200" : item.warn ? "bg-amber-50 border-amber-200" : "bg-rose-50 border-rose-200"}`}>
+                    {item.ok ? <CheckCircle size={20} className="text-emerald-500 mx-auto mb-1" /> : item.warn ? <AlertTriangle size={20} className="text-amber-500 mx-auto mb-1" /> : <XCircle size={20} className="text-rose-500 mx-auto mb-1" />}
+                    <p className="text-xs font-black">{item.label}</p>
+                    <p className={`text-[10px] mt-0.5 ${item.ok ? "text-emerald-600" : item.warn ? "text-amber-600" : "text-rose-600"}`}>{item.ok ? "Valid" : item.warn ? "Action Needed" : "Missing"}</p>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
       {/* ── DOCUMENTS TAB ──────────────────────────────────────────────────────── */}
       {tab === "documents" && (
         <div className="space-y-4">
@@ -286,7 +402,6 @@ export default function StaffPortal() {
               <Upload size={13} /> Upload Document
             </Button>
           </div>
-
           {showAddDoc && (
             <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
               <h3 className="font-black text-sm">New Business Document</h3>
@@ -306,7 +421,7 @@ export default function StaffPortal() {
                 <div>
                   <label className="text-xs font-bold text-muted-foreground">Issued By</label>
                   <input className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm mt-1"
-                    value={newDoc.issued_by} onChange={e => setNewDoc(d => ({ ...d, issued_by: e.target.value }))} placeholder="e.g. QBE Insurance" />
+                    value={newDoc.issued_by} onChange={e => setNewDoc(d => ({ ...d, issued_by: e.target.value }))} />
                 </div>
                 <div>
                   <label className="text-xs font-bold text-muted-foreground">Expiry Date</label>
@@ -326,7 +441,6 @@ export default function StaffPortal() {
               </div>
             </div>
           )}
-
           {bizDocs.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground italic text-sm bg-card border border-border rounded-2xl">No business documents uploaded yet.</div>
           ) : (
@@ -377,91 +491,33 @@ export default function StaffPortal() {
         </div>
       )}
 
-      {/* ── COMPLIANCE TAB ─────────────────────────────────────────────────────── */}
-      {tab === "compliance" && (
-        <div className="space-y-4">
-          {!staffRecord ? (
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center">
-              <AlertTriangle size={32} className="text-amber-500 mx-auto mb-2" />
-              <p className="font-black text-amber-800">Staff profile not matched</p>
-              <p className="text-sm text-amber-600 mt-1">Your name or email doesn't match a staff record. Ask your admin to update your staff profile.</p>
-            </div>
-          ) : (
-            <div className="bg-card border border-border rounded-2xl p-6 space-y-1">
-              <h3 className="font-black text-base mb-4">Compliance & Credentials</h3>
-              <ComplianceBadge label="Employment Status" value={staffRecord.status} />
-              <ComplianceBadge label="Training Status" value={staffRecord.training_status} />
-              <ComplianceBadge label="Police Check" value={staffRecord.police_check} />
-              <ComplianceBadge label="WWCC Expiry" value={staffRecord.wwcc_expiry} isDate />
-              <ComplianceBadge label="First Aid Expiry" value={staffRecord.first_aid_expiry} isDate />
-
-              <div className="pt-4 mt-4 border-t border-border space-y-1">
-                <h3 className="font-black text-sm text-muted-foreground uppercase tracking-widest mb-3">Contact & Emergency</h3>
-                {staffRecord.phone && (
-                  <div className="flex items-center justify-between py-1.5">
-                    <span className="text-sm text-muted-foreground">Phone</span>
-                    <span className="text-sm font-bold">{staffRecord.phone}</span>
-                  </div>
-                )}
-                {staffRecord.email && (
-                  <div className="flex items-center justify-between py-1.5">
-                    <span className="text-sm text-muted-foreground">Email</span>
-                    <span className="text-sm font-bold">{staffRecord.email}</span>
-                  </div>
-                )}
-                {staffRecord.emergency_contact_name && (
-                  <div className="flex items-center justify-between py-1.5">
-                    <span className="text-sm text-muted-foreground">Emergency Contact</span>
-                    <span className="text-sm font-bold">{staffRecord.emergency_contact_name} · {staffRecord.emergency_contact_phone}</span>
-                  </div>
-                )}
+      {/* ── FEATURE TABS — linked pages ────────────────────────────────────────── */}
+      {featureTabs.map(ft => tab === ft.id && (
+        <div key={ft.id} className="bg-card border border-border rounded-2xl p-8 text-center space-y-4">
+          <ft.icon size={36} className="text-primary mx-auto" />
+          <h3 className="font-black text-lg">{ft.label}</h3>
+          <p className="text-muted-foreground text-sm">This feature is available in the main portal.</p>
+          <a href={ft.path}>
+            <Button className="rounded-xl gap-2 font-bold">
+              Open {ft.label} <ExternalLink size={14} />
+            </Button>
+          </a>
+          {linkedParticipants.length > 0 && (
+            <div className="mt-4 text-left">
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2">Your Linked Participants</p>
+              <div className="flex flex-wrap gap-2">
+                {linkedParticipants.map(p => (
+                  <span key={p.id} className="bg-secondary text-xs font-bold px-3 py-1 rounded-full">{p.name}</span>
+                ))}
               </div>
-
-              {(staffRecord.bank_name || staffRecord.bank_bsb) && (
-                <div className="pt-4 mt-2 border-t border-border space-y-1">
-                  <h3 className="font-black text-sm text-muted-foreground uppercase tracking-widest mb-3">Banking on File</h3>
-                  <div className="flex items-center justify-between py-1.5">
-                    <span className="text-sm text-muted-foreground">Bank</span>
-                    <span className="text-sm font-bold">{staffRecord.bank_name}</span>
-                  </div>
-                  <div className="flex items-center justify-between py-1.5">
-                    <span className="text-sm text-muted-foreground">BSB / Account</span>
-                    <span className="text-sm font-bold">{staffRecord.bank_bsb} / {staffRecord.bank_account_number}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* Overall status summary */}
-          {staffRecord && (
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                {
-                  label: "WWCC",
-                  ok: staffRecord.wwcc_expiry && Math.ceil((new Date(staffRecord.wwcc_expiry) - new Date()) / 86400000) > 30,
-                  warn: staffRecord.wwcc_expiry && Math.ceil((new Date(staffRecord.wwcc_expiry) - new Date()) / 86400000) <= 30,
-                },
-                {
-                  label: "First Aid",
-                  ok: staffRecord.first_aid_expiry && Math.ceil((new Date(staffRecord.first_aid_expiry) - new Date()) / 86400000) > 30,
-                  warn: staffRecord.first_aid_expiry && Math.ceil((new Date(staffRecord.first_aid_expiry) - new Date()) / 86400000) <= 30,
-                },
-                {
-                  label: "Police Check",
-                  ok: staffRecord.police_check === "Cleared",
-                  warn: staffRecord.police_check === "Pending",
-                },
-              ].map(item => (
-                <div key={item.label} className={`rounded-2xl p-4 text-center border ${item.ok ? "bg-emerald-50 border-emerald-200" : item.warn ? "bg-amber-50 border-amber-200" : "bg-rose-50 border-rose-200"}`}>
-                  {item.ok ? <CheckCircle size={20} className="text-emerald-500 mx-auto mb-1" /> : item.warn ? <AlertTriangle size={20} className="text-amber-500 mx-auto mb-1" /> : <XCircle size={20} className="text-rose-500 mx-auto mb-1" />}
-                  <p className="text-xs font-black">{item.label}</p>
-                  <p className={`text-[10px] mt-0.5 ${item.ok ? "text-emerald-600" : item.warn ? "text-amber-600" : "text-rose-600"}`}>{item.ok ? "Valid" : item.warn ? "Action Needed" : "Missing"}</p>
-                </div>
-              ))}
             </div>
           )}
         </div>
+      ))}
+
+      {/* ── MY PROFILE TAB ─────────────────────────────────────────────────────── */}
+      {tab === "profile" && (
+        <StaffMyProfile staffRecord={staffRecord} user={user} />
       )}
     </div>
   );

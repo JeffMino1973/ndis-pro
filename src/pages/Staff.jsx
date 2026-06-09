@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, User, CheckCircle, AlertCircle, Clock, Pencil, Trash2, Camera, Loader2, Upload, Download, FileText, Phone, Mail, MapPin, ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Plus, User, CheckCircle, AlertCircle, Clock, Pencil, Trash2, Camera, Loader2, Upload, Download, FileText, Phone, Mail, MapPin, ArrowLeft, Eye, EyeOff, Settings } from "lucide-react";
+import StaffPortalAdmin from "@/components/staffportal/StaffPortalAdmin";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +31,7 @@ export default function Staff() {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [mainTab, setMainTab] = useState("staff"); // staff | portal_access
   const [editingId, setEditingId] = useState(null);
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -93,10 +95,18 @@ export default function Staff() {
           <h2 className="text-3xl font-black tracking-tight">Staff & Compliance</h2>
           <p className="text-muted-foreground text-sm">Manage verification, training, and certification records.</p>
         </div>
-        <Button onClick={openAdd} className="rounded-xl font-bold gap-2"><Plus size={18} /> Add Staff</Button>
+        <div className="flex gap-2">
+          <div className="flex gap-1 bg-secondary p-1 rounded-xl">
+            <button onClick={() => setMainTab("staff")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainTab === "staff" ? "bg-card shadow text-foreground" : "text-muted-foreground"}`}>Staff</button>
+            <button onClick={() => setMainTab("portal_access")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${mainTab === "portal_access" ? "bg-card shadow text-foreground" : "text-muted-foreground"}`}><Settings size={11} /> Portal Access</button>
+          </div>
+          {mainTab === "staff" && <Button onClick={openAdd} className="rounded-xl font-bold gap-2"><Plus size={18} /> Add Staff</Button>}
+        </div>
       </div>
 
-      {loading ? (
+      {mainTab === "portal_access" && <StaffPortalAdmin />}
+
+      {mainTab === "staff" && (loading ? (
         <div className="flex items-center justify-center h-40"><div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" /></div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-6">
@@ -141,7 +151,7 @@ export default function Staff() {
           ))}
           {staff.length === 0 && <div className="col-span-3 text-center py-16 text-muted-foreground">No staff members yet.</div>}
         </div>
-      )}
+      ))}
 
       <Dialog open={showForm} onOpenChange={(o) => { setShowForm(o); if (!o) setEditingId(null); }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">

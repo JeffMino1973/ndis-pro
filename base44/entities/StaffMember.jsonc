@@ -26,6 +26,14 @@
       "type": "string",
       "title": "Photo URL"
     },
+    "bio": {
+      "type": "string",
+      "title": "Bio / About"
+    },
+    "languages": {
+      "type": "string",
+      "title": "Languages"
+    },
     "date_of_birth": {
       "type": "string",
       "title": "Date of Birth",
@@ -137,6 +145,20 @@
     "super_member_number": {
       "type": "string",
       "title": "Super Member Number"
+    },
+    "portal_features": {
+      "type": "array",
+      "title": "Portal Feature Access",
+      "items": {
+        "type": "string"
+      }
+    },
+    "linked_participant_ids": {
+      "type": "array",
+      "title": "Linked Participant IDs",
+      "items": {
+        "type": "string"
+      }
     }
   },
   "required": [
