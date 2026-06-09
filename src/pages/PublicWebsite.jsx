@@ -468,6 +468,86 @@ export default function PublicWebsite() {
         </div>
       </section>
 
+      {/* Staff Portal Guide */}
+      <section className="py-16 bg-slate-50 border-t border-slate-100">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-black text-[#0F172A] mb-3">Staff Portal</h2>
+            <p className="text-slate-500 text-sm max-w-2xl mx-auto">Your secure hub for managing rosters, compliance, payroll, and participant support — everything you need at your fingertips.</p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            {/* What's Available */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-7">
+              <h3 className="font-black text-[#0F172A] text-lg mb-4">What's Available in Your Portal</h3>
+              <div className="space-y-3">
+                {[
+                  { label: "My Profile", desc: "View your credentials, certifications, bio, and share your professional profile." },
+                  { label: "Compliance Dashboard", desc: "Track WWCC, First Aid, Police Check, and training status at a glance." },
+                  { label: "Rosters & Timesheets", desc: "View your shifts, log hours, submit timesheets for approval." },
+                  { label: "Payslips", desc: "Access historical and current pay records with tax and superannuation details." },
+                  { label: "Participant Support", desc: "Progress notes, support plans, goals, and participant contact details." },
+                  { label: "Shift Logger", desc: "Clock in/out, record activities, log outcomes for the day." },
+                  { label: "Documents", desc: "Download policies, training materials, and manage secure internal documents." },
+                ].map((item, i) => (
+                  <div key={i} className="flex gap-3">
+                    <div className="w-5 h-5 rounded-full bg-[#0F172A] text-white flex items-center justify-center shrink-0 text-[10px] font-black">{i + 1}</div>
+                    <div className="flex-1">
+                      <p className="text-sm font-bold text-[#0F172A]">{item.label}</p>
+                      <p className="text-xs text-slate-500">{item.desc}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* How to Login */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-7">
+              <h3 className="font-black text-[#0F172A] text-lg mb-4">How to Login</h3>
+              <div className="space-y-4">
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Step 1: Navigate to Staff Login</p>
+                  <p className="text-sm text-slate-600">Click the <strong>"Staff Login"</strong> button in the top navigation bar, or visit the Staff Portal link in the footer.</p>
+                </div>
+                <div className="h-px bg-slate-200" />
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Step 2: Enter Your Credentials</p>
+                  <p className="text-sm text-slate-600">Use the email address and password you were provided during onboarding. If you haven't received credentials, contact Toby at <strong>toby@szjiesupportservices.com</strong>.</p>
+                </div>
+                <div className="h-px bg-slate-200" />
+                <div>
+                  <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-2">Step 3: Access Your Portal</p>
+                  <p className="text-sm text-slate-600">Once logged in, you'll see your personalized dashboard with tabs for the features your admin has enabled for you.</p>
+                </div>
+                <div className="h-px bg-slate-200" />
+                <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                  <p className="text-xs font-bold text-amber-700 mb-1">🔒 Security Reminder</p>
+                  <p className="text-xs text-amber-600">Never share your login credentials. Always use a strong password and log out when finished.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Features Grid */}
+          <div className="bg-gradient-to-r from-[#0F172A] to-slate-800 rounded-2xl p-8 text-white">
+            <h3 className="font-black text-lg mb-6">Portal Features at a Glance</h3>
+            <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: "Real-time Rosters", count: "100%" },
+                { label: "Automated Payroll", count: "Tax Ready" },
+                { label: "Secure Documents", count: "Encrypted" },
+                { label: "Mobile Friendly", count: "Responsive" },
+              ].map((feature, i) => (
+                <div key={i} className="bg-white/10 rounded-lg p-4 text-center border border-white/20">
+                  <p className="text-slate-300 text-xs mb-1">{feature.label}</p>
+                  <p className="text-white font-black text-sm">{feature.count}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Policies & Compliance */}
       <PoliciesSection />
 
