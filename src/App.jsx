@@ -25,7 +25,6 @@ import KPIDashboard from './pages/KPIDashboard';
 import OnboardingRequests from './pages/OnboardingRequests';
 import TobyProfile from './pages/TobyProfile';
 import OnboardingPublicForm from './pages/OnboardingPublicForm';
-import Stationery from './pages/Stationery';
 import Quotes from './pages/Quotes';
 import ParticipantPortal from './pages/ParticipantPortal';
 import ShiftLogger from './pages/ShiftLogger';
@@ -40,7 +39,7 @@ import HealthCarePlan from './pages/HealthCarePlan';
 import BehaviourContinuum from './pages/BehaviourContinuum';
 import BehaviourSupportPlan from './pages/BehaviourSupportPlan';
 import PositiveBehaviourSupportPlan from './pages/PositiveBehaviourSupportPlan';
-import EmailTemplates from './pages/EmailTemplates';
+import Templates from './pages/Templates';
 import Finance from './pages/Finance';
 import Payslips from './pages/Payslips';
 import MedicationHub from './pages/MedicationHub';
@@ -117,7 +116,6 @@ const AuthenticatedApp = () => {
       <Route path="/data-export" element={<DataExport />} />
       <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
-      <Route path="/stationery" element={<Stationery />} />
       <Route path="/quotes" element={<Quotes />} />
       <Route path="/shift-logger" element={<ShiftLogger />} />
       <Route path="/progress-notes" element={<ProgressNotes />} />
@@ -131,7 +129,7 @@ const AuthenticatedApp = () => {
       <Route path="/behaviour-continuum" element={<BehaviourContinuum />} />
       <Route path="/behaviour-support-plans" element={<BehaviourSupportPlan />} />
       <Route path="/positive-behaviour-support-plans" element={<PositiveBehaviourSupportPlan />} />
-      <Route path="/email-templates" element={<EmailTemplates />} />
+      <Route path="/templates" element={<Templates />} />
       <Route path="/finance" element={<Finance />} />
       <Route path="/payslips" element={<Payslips />} />
       <Route path="/medication-hub" element={<MedicationHub />} />
