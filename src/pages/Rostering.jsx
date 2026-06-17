@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, ChevronLeft, ChevronRight, Calendar, Pencil, Trash2, Copy, RefreshCw, Loader2, Wrench, CheckCircle2 } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Calendar, Pencil, Trash2, Copy, RefreshCw, Loader2, Wrench, CheckCircle2, LayoutGrid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay, parseISO } from "date-fns";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay, parseISO, startOfMonth, endOfMonth, addMonths, subMonths, eachDayOfInterval } from "date-fns";
 import { NDIS_ITEMS } from "@/utils/ndisItems";
 
 const STATUS_COLORS = {
@@ -31,6 +32,9 @@ export default function Rostering() {
   const [recurWeeks, setRecurWeeks] = useState(4);
   const [copying, setCopying] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [staffFilter, setStaffFilter] = useState("all");
+  const [participantFilter, setParticipantFilter] = useState("all");
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [showBulkDialog, setShowBulkDialog] = useState(false);
   const [bulkUpdating, setBulkUpdating] = useState(false);
   const [bulkResult, setBulkResult] = useState(null);
@@ -142,6 +146,20 @@ export default function Rostering() {
     load();
   };
 
+  // Filtered shifts for calendar and list
+  const filteredShifts = shifts.filter(s => {
+    if (staffFilter !== "all" && s.staff_name !== staffFilter) return false;
+    if (participantFilter !== "all" && s.participant_name !== participantFilter) return false;
+    return true;
+  });
+
+  // Month calendar helpers
+  const monthStart = startOfMonth(calendarMonth);
+  const monthEnd = endOfMonth(calendarMonth);
+  const calStart = startOfWeek(monthStart, { weekStartsOn: 1 });
+  const calEnd = addDays(startOfWeek(monthEnd, { weekStartsOn: 1 }), 6);
+  const calDays = eachDayOfInterval({ start: calStart, end: calEnd });
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -159,84 +177,174 @@ export default function Rostering() {
         </div>
       </div>
 
-      {/* Week Navigation */}
-      <div className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between">
-        <Button variant="outline" size="icon" onClick={() => setWeekStart(subWeeks(weekStart, 1))}><ChevronLeft size={18} /></Button>
-        <div className="flex items-center gap-2 font-bold text-foreground">
-          <Calendar size={18} className="text-primary" />
-          {format(weekStart, "d MMM")} – {format(addDays(weekStart, 6), "d MMM yyyy")}
+      {/* Filters */}
+      <div className="bg-card border border-border rounded-2xl p-4 flex flex-wrap gap-3 items-end">
+        <div className="flex-1 min-w-[160px]">
+          <Label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1 block">Filter by Staff</Label>
+          <Select value={staffFilter} onValueChange={setStaffFilter}>
+            <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Staff</SelectItem>
+              {staff.map(s => <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
         </div>
-        <Button variant="outline" size="icon" onClick={() => setWeekStart(addWeeks(weekStart, 1))}><ChevronRight size={18} /></Button>
+        <div className="flex-1 min-w-[160px]">
+          <Label className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1 block">Filter by Participant</Label>
+          <Select value={participantFilter} onValueChange={setParticipantFilter}>
+            <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Participants</SelectItem>
+              {participants.map(p => <SelectItem key={p.id} value={p.name}>{p.name}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        {(staffFilter !== "all" || participantFilter !== "all") && (
+          <Button variant="ghost" size="sm" className="text-xs font-bold text-muted-foreground" onClick={() => { setStaffFilter("all"); setParticipantFilter("all"); }}>
+            Clear filters
+          </Button>
+        )}
       </div>
 
-      {/* Weekly Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
-        {weekDays.map((day) => {
-          const dayShifts = getShiftsForDay(day);
-          const isToday = isSameDay(day, new Date());
-          return (
-            <div key={day.toISOString()} className={`bg-card border rounded-2xl p-3 min-h-[160px] ${isToday ? "border-primary" : "border-border"}`}>
-              <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isToday ? "text-primary" : "text-muted-foreground"}`}>
-                {format(day, "EEE")}
-              </p>
-              <p className={`text-lg font-black mb-3 ${isToday ? "text-primary" : "text-foreground"}`}>{format(day, "d")}</p>
-              <div className="space-y-1.5">
-                {dayShifts.map((s) => (
-                  <div key={s.id} className={`text-[10px] font-bold px-2 py-1.5 rounded-lg group relative ${STATUS_COLORS[s.status] || "bg-slate-100 text-slate-600"}`}>
-                    <p className="truncate">{s.staff_name}</p>
-                    <p className="truncate opacity-75">{s.participant_name}</p>
-                    <p>{s.start_time}–{s.end_time}</p>
-                    <div className="absolute top-1 right-1 hidden group-hover:flex gap-0.5">
-                      <button onClick={e => { e.stopPropagation(); openCopy(s); }} className="p-0.5 bg-white/70 rounded hover:bg-white text-blue-600" title="Copy/Repeat"><Copy size={10} /></button>
-                      <button onClick={e => { e.stopPropagation(); openEdit(s); }} className="p-0.5 bg-white/70 rounded hover:bg-white"><Pencil size={10} /></button>
-                      <button onClick={e => { e.stopPropagation(); deleteShift(s.id); }} className="p-0.5 bg-white/70 rounded hover:bg-white text-rose-600"><Trash2 size={10} /></button>
+      <Tabs defaultValue="week">
+        <TabsList className="rounded-xl">
+          <TabsTrigger value="week" className="gap-1.5 rounded-lg"><Calendar size={14} /> Week</TabsTrigger>
+          <TabsTrigger value="month" className="gap-1.5 rounded-lg"><LayoutGrid size={14} /> Month</TabsTrigger>
+          <TabsTrigger value="list" className="gap-1.5 rounded-lg"><List size={14} /> List</TabsTrigger>
+        </TabsList>
+
+        {/* WEEK TAB */}
+        <TabsContent value="week" className="mt-4 space-y-4">
+          <div className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between">
+            <Button variant="outline" size="icon" onClick={() => setWeekStart(subWeeks(weekStart, 1))}><ChevronLeft size={18} /></Button>
+            <div className="flex items-center gap-2 font-bold text-foreground">
+              <Calendar size={18} className="text-primary" />
+              {format(weekStart, "d MMM")} – {format(addDays(weekStart, 6), "d MMM yyyy")}
+            </div>
+            <Button variant="outline" size="icon" onClick={() => setWeekStart(addWeeks(weekStart, 1))}><ChevronRight size={18} /></Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
+            {weekDays.map((day) => {
+              const dayShifts = filteredShifts.filter(s => { try { return isSameDay(parseISO(s.date), day); } catch { return false; } });
+              const isToday = isSameDay(day, new Date());
+              return (
+                <div key={day.toISOString()} className={`bg-card border rounded-2xl p-3 min-h-[160px] ${isToday ? "border-primary" : "border-border"}`}>
+                  <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${isToday ? "text-primary" : "text-muted-foreground"}`}>{format(day, "EEE")}</p>
+                  <p className={`text-lg font-black mb-3 ${isToday ? "text-primary" : "text-foreground"}`}>{format(day, "d")}</p>
+                  <div className="space-y-1.5">
+                    {dayShifts.map((s) => (
+                      <div key={s.id} className={`text-[10px] font-bold px-2 py-1.5 rounded-lg group relative ${STATUS_COLORS[s.status] || "bg-slate-100 text-slate-600"}`}>
+                        <p className="truncate">{s.staff_name}</p>
+                        <p className="truncate opacity-75">{s.participant_name}</p>
+                        <p>{s.start_time}–{s.end_time}</p>
+                        <div className="absolute top-1 right-1 hidden group-hover:flex gap-0.5">
+                          <button onClick={e => { e.stopPropagation(); openCopy(s); }} className="p-0.5 bg-white/70 rounded hover:bg-white text-blue-600"><Copy size={10} /></button>
+                          <button onClick={e => { e.stopPropagation(); openEdit(s); }} className="p-0.5 bg-white/70 rounded hover:bg-white"><Pencil size={10} /></button>
+                          <button onClick={e => { e.stopPropagation(); deleteShift(s.id); }} className="p-0.5 bg-white/70 rounded hover:bg-white text-rose-600"><Trash2 size={10} /></button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+        {/* MONTH TAB */}
+        <TabsContent value="month" className="mt-4 space-y-4">
+          <div className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between">
+            <Button variant="outline" size="icon" onClick={() => setCalendarMonth(subMonths(calendarMonth, 1))}><ChevronLeft size={18} /></Button>
+            <div className="font-black text-foreground text-lg">{format(calendarMonth, "MMMM yyyy")}</div>
+            <Button variant="outline" size="icon" onClick={() => setCalendarMonth(addMonths(calendarMonth, 1))}><ChevronRight size={18} /></Button>
+          </div>
+          <div className="bg-card border border-border rounded-2xl overflow-hidden">
+            {/* Day headers */}
+            <div className="grid grid-cols-7 border-b border-border">
+              {["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d => (
+                <div key={d} className="px-2 py-2 text-center text-[10px] font-black text-muted-foreground uppercase tracking-widest border-r border-border last:border-r-0">{d}</div>
+              ))}
+            </div>
+            {/* Calendar grid */}
+            <div className="grid grid-cols-7">
+              {calDays.map((day, i) => {
+                const dayShifts = filteredShifts.filter(s => { try { return isSameDay(parseISO(s.date), day); } catch { return false; } });
+                const isToday = isSameDay(day, new Date());
+                const isCurrentMonth = day.getMonth() === calendarMonth.getMonth();
+                return (
+                  <div key={day.toISOString()} className={`min-h-[110px] p-1.5 border-r border-b border-border last:border-r-0 ${!isCurrentMonth ? "bg-secondary/30" : ""} ${i % 7 === 6 ? "border-r-0" : ""}`}>
+                    <p className={`text-xs font-black mb-1 w-6 h-6 flex items-center justify-center rounded-full ${isToday ? "bg-primary text-primary-foreground" : isCurrentMonth ? "text-foreground" : "text-muted-foreground/50"}`}>
+                      {format(day, "d")}
+                    </p>
+                    <div className="space-y-0.5">
+                      {dayShifts.slice(0, 3).map(s => (
+                        <div key={s.id} className={`text-[9px] font-bold px-1.5 py-0.5 rounded truncate cursor-pointer group relative ${STATUS_COLORS[s.status] || "bg-slate-100 text-slate-600"}`}
+                          title={`${s.staff_name} → ${s.participant_name} · ${s.start_time}–${s.end_time}`}
+                          onClick={() => openEdit(s)}>
+                          {s.staff_name} → {s.participant_name}
+                        </div>
+                      ))}
+                      {dayShifts.length > 3 && (
+                        <p className="text-[9px] text-muted-foreground font-bold pl-1">+{dayShifts.length - 3} more</p>
+                      )}
                     </div>
                   </div>
+                );
+              })}
+            </div>
+          </div>
+          {/* Legend */}
+          <div className="flex flex-wrap gap-3 px-1">
+            {Object.entries(STATUS_COLORS).map(([status, cls]) => (
+              <div key={status} className="flex items-center gap-1.5">
+                <div className={`w-3 h-3 rounded-sm ${cls.split(" ")[0]}`} />
+                <span className="text-xs text-muted-foreground font-semibold">{status}</span>
+              </div>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* LIST TAB */}
+        <TabsContent value="list" className="mt-4">
+          <div className="bg-card border border-border rounded-3xl overflow-hidden">
+            <div className="p-5 border-b border-border bg-secondary/50 flex flex-wrap items-center justify-between gap-3">
+              <h3 className="font-black">All Shifts {staffFilter !== "all" || participantFilter !== "all" ? "(filtered)" : ""}</h3>
+              <div className="flex flex-wrap gap-2">
+                {["all", "Scheduled", "Confirmed", "Completed", "Cancelled", "No Show"].map(s => (
+                  <button key={s} onClick={() => setStatusFilter(s)}
+                    className={`text-[10px] font-black px-3 py-1 rounded-full border transition-all ${
+                      statusFilter === s ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:border-primary/40"
+                    }`}>
+                    {s === "all" ? "All" : s}
+                  </button>
                 ))}
               </div>
             </div>
-          );
-        })}
-      </div>
-
-      {/* All Shifts List */}
-      <div className="bg-card border border-border rounded-3xl overflow-hidden">
-        <div className="p-5 border-b border-border bg-secondary/50 flex flex-wrap items-center justify-between gap-3">
-          <h3 className="font-black">All Shifts</h3>
-          <div className="flex flex-wrap gap-2">
-            {["all", "Scheduled", "Confirmed", "Completed", "Cancelled", "No Show"].map(s => (
-              <button key={s} onClick={() => setStatusFilter(s)}
-                className={`text-[10px] font-black px-3 py-1 rounded-full border transition-all ${
-                  statusFilter === s ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:border-primary/40"
-                }`}>
-                {s === "all" ? "All" : s}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="divide-y divide-border">
-          {shifts.filter(s => statusFilter === "all" || s.status === statusFilter).slice(0, 50).map((s) => (
-            <div key={s.id} className="px-6 py-4 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-black text-xs">{s.date?.slice(5)}</div>
-                <div>
-                  <p className="font-bold text-foreground text-sm">{s.staff_name} → {s.participant_name}</p>
-                  <p className="text-[10px] text-muted-foreground">{s.date} · {s.start_time}–{s.end_time} · {s.support_type}</p>
+            <div className="divide-y divide-border">
+              {filteredShifts.filter(s => statusFilter === "all" || s.status === statusFilter).slice(0, 100).map((s) => (
+                <div key={s.id} className="px-6 py-4 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-black text-xs">{s.date?.slice(5)}</div>
+                    <div>
+                      <p className="font-bold text-foreground text-sm">{s.staff_name} → {s.participant_name}</p>
+                      <p className="text-[10px] text-muted-foreground">{s.date} · {s.start_time}–{s.end_time} · {s.support_type}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-black px-3 py-1 rounded-full ${STATUS_COLORS[s.status]}`}>{s.status}</span>
+                    <button onClick={() => openCopy(s)} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-blue-600"><Copy size={14} /></button>
+                    <button onClick={() => openEdit(s)} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground"><Pencil size={14} /></button>
+                    <button onClick={() => deleteShift(s.id)} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-rose-600"><Trash2 size={14} /></button>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className={`text-[10px] font-black px-3 py-1 rounded-full ${STATUS_COLORS[s.status]}`}>{s.status}</span>
-                <button onClick={() => openCopy(s)} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-blue-600" title="Copy/Repeat"><Copy size={14} /></button>
-                <button onClick={() => openEdit(s)} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground"><Pencil size={14} /></button>
-                <button onClick={() => deleteShift(s.id)} className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-rose-600"><Trash2 size={14} /></button>
-              </div>
+              ))}
+              {filteredShifts.filter(s => statusFilter === "all" || s.status === statusFilter).length === 0 && (
+                <p className="p-8 text-center text-muted-foreground text-sm italic">No shifts found.</p>
+              )}
             </div>
-          ))}
-          {shifts.filter(s => statusFilter === "all" || s.status === statusFilter).length === 0 && (
-            <p className="p-8 text-center text-muted-foreground text-sm italic">{statusFilter === "all" ? "No shifts yet. Add your first shift." : `No ${statusFilter} shifts found.`}</p>
-          )}
-        </div>
-      </div>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="max-w-lg">
