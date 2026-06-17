@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Travel Itinerary</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #fff; color: #1e293b; font-size: 13px; }
+  .page { max-width: 900px; margin: 0 auto; padding: 28px 32px 32px 32px; background: #fff; }
+
+  /* HEADER */
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+  .header-logo { width: 150px; }
+  .header-contact { text-align: right; font-size: 11px; color: #475569; line-height: 1.75; }
+  .header-contact .row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+
+  /* TITLE ROW */
+  .title-row { display: flex; align-items: center; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .page-title { font-size: 32px; font-weight: 900; letter-spacing: 1px; }
+  .page-title span.teal { color: #06b6d4; }
+  .page-title span.dark { color: #1e293b; }
+  .conf-pill { border: 1.5px solid #94a3b8; color: #64748b; font-size: 10px; font-weight: bold; padding: 3px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .ndis-info { font-size: 13px; font-weight: 700; color: #1e293b; margin-left: auto; }
+  .ndis-info .ndis-num { color: #06b6d4; }
+
+  /* TWO-COLUMN JOURNEYS */
+  .journeys { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+
+  /* JOURNEY COLUMN */
+  .journey-col {}
+  .journey-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .journey-heading h2 { font-size: 20px; font-weight: 900; color: #1e293b; }
+  .est-badge { font-size: 11px; font-weight: bold; padding: 3px 10px; border-radius: 12px; }
+  .est-badge.outbound { background: #dbeafe; color: #1d4ed8; }
+  .est-badge.return { background: #f3e8ff; color: #7c3aed; }
+
+  /* STEP */
+  .step { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+  .step-icon {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: bold; color: white;
+  }
+  .icon-blue { background: #3b82f6; }
+  .icon-purple { background: #8b5cf6; }
+  .icon-grey { background: #94a3b8; font-size: 11px; }
+  .icon-teal { background: #06b6d4; }
+  .step-line-wrap { display: flex; flex-direction: column; gap: 0; flex: 1; }
+  .step-content { flex: 1; }
+  .step-content .sc-title { font-size: 14px; font-weight: bold; color: #1e293b; }
+  .step-content .sc-sub { font-size: 11.5px; color: #64748b; margin-top: 2px; }
+  .step-content .sc-note { font-size: 11.5px; color: #374151; margin-top: 3px; }
+  .step-content .sc-arrive { font-size: 13px; font-weight: bold; color: #16a34a; margin-top: 3px; }
+  .step-content .sc-arrive.late { color: #16a34a; }
+
+  /* WALK STEP */
+  .walk-step { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; padding-left: 8px; }
+  .walk-icon { width: 22px; height: 22px; border-radius: 4px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+  .walk-content .wc-title { font-size: 13px; font-weight: bold; color: #374151; }
+  .walk-content .wc-dur { font-size: 11px; color: #94a3b8; display: inline; margin-left: 6px; }
+  .walk-content .wc-note { font-size: 11.5px; color: #64748b; margin-top: 2px; }
+  .walk-content .wc-stopid { font-size: 10.5px; color: #94a3b8; margin-top: 2px; }
+
+  /* BUS STEP */
+  .bus-step { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; }
+  .bus-badge { border-radius: 6px; padding: 5px 10px; font-size: 13px; font-weight: 900; flex-shrink: 0; white-space: nowrap; }
+  .bus-badge.b350 { background: #1d4ed8; color: white; }
+  .bus-badge.b309 { background: #7c3aed; color: white; }
+  .bus-badge.b370 { background: #0891b2; color: white; }
+  .bus-content .bc-route { font-size: 14px; font-weight: bold; color: #1e293b; }
+  .bc-detail { font-size: 11.5px; color: #374151; margin-top: 2px; line-height: 1.5; }
+  .bc-green { color: #16a34a; font-weight: bold; font-size: 11.5px; margin-top: 3px; }
+
+  /* TRANSFER */
+  .transfer-step { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 14px; padding-left: 8px; }
+  .transfer-icon { width: 22px; height: 22px; border-radius: 4px; background: #fef3c7; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+  .transfer-content .tc-title { font-size: 13px; font-weight: bold; color: #374151; }
+  .transfer-content .tc-dur { font-size: 11px; color: #94a3b8; margin-left: 6px; }
+  .transfer-content .tc-note { font-size: 11.5px; color: #64748b; margin-top: 2px; }
+
+  .divider { border: none; border-top: 1px solid #e2e8f0; margin: 20px 0; }
+
+  .footnote { font-size: 10.5px; color: #94a3b8; font-style: italic; text-align: center; margin-top: 20px; padding-top: 14px; border-top: 1px solid #e2e8f0; }
+
+  /* PAGE 2 - COOGEE/RANDWICK STYLE */
+  .simple-journeys { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-top: 32px; }
+  .sj-col { }
+  .sj-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .sj-num { width: 28px; height: 28px; border-radius: 50%; font-size: 14px; font-weight: bold; color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sj-num.out { background: #3b82f6; }
+  .sj-num.ret { background: #8b5cf6; }
+  .sj-title { font-size: 15px; font-weight: bold; color: #1e293b; flex: 1; }
+  .sj-mins { font-size: 11px; font-weight: bold; color: #64748b; background: #f1f5f9; padding: 3px 8px; border-radius: 6px; }
+  .sj-start { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; }
+  .sj-dot { width: 18px; height: 18px; border-radius: 50%; flex-shrink: 0; margin-top: 2px; }
+  .dot-blue { background: #3b82f6; }
+  .dot-purple { background: #8b5cf6; }
+  .dot-green { background: #22c55e; }
+  .sj-start-text .st-name { font-size: 14px; font-weight: bold; color: #1e293b; }
+  .sj-start-text .st-sub { font-size: 11.5px; color: #64748b; }
+  .sj-bus-card { background: #f0f9ff; border: 1.5px solid #bae6fd; border-radius: 8px; padding: 10px 12px; margin-bottom: 12px; }
+  .sj-bus-card.ret { background: #faf5ff; border-color: #e9d5ff; }
+  .sj-bus-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .sj-bus-num { background: #3b82f6; color: white; font-size: 13px; font-weight: 900; padding: 3px 8px; border-radius: 6px; }
+  .sj-bus-num.ret { background: #8b5cf6; }
+  .sj-bus-route { font-size: 13px; font-weight: bold; color: #1e293b; }
+  .sj-stops-badge { background: #dbeafe; color: #1d4ed8; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 10px; margin-left: auto; }
+  .sj-stops-badge.ret { background: #ede9fe; color: #6d28d9; }
+  .sj-stop-list { list-style: none; }
+  .sj-stop-list li { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: #374151; margin-bottom: 4px; }
+  .sj-stop-list li::before { content: "●"; font-size: 7px; color: #94a3b8; flex-shrink: 0; }
+  .sj-stop-list li.final::before { color: #3b82f6; }
+  .sj-stop-list li.final { font-weight: bold; color: #1e293b; }
+  .sj-stop-list li.final.ret::before { color: #8b5cf6; }
+  .sj-dest { display: flex; align-items: flex-start; gap: 8px; }
+
+  @media print { body { background: white; } .page { padding: 20px; } .no-print { display: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" alt="SZ-JIE" class="header-logo" />
+    <div class="header-contact">
+      <div class="row">📋 SZ-JIE Support Services</div>
+      <div class="row">🏢 ABN: 86959042971</div>
+      <div class="row">📍 309/12 Broome St, Waterloo NSW, 2017</div>
+      <div class="row">✉️ jeff@szjiesupportservices.com</div>
+      <div class="row">🌐 www.szjiesupportservices.com</div>
+      <div class="row">📞 0401 343 876</div>
+    </div>
+  </div>
+
+  <!-- TITLE -->
+  <div class="title-row">
+    <div class="page-title"><span class="teal">TRAVEL</span> <span class="dark">ITINERARY</span></div>
+    <span class="conf-pill">Confidential</span>
+    <div class="ndis-info">Bronwyn Chau &nbsp;|&nbsp; <span class="ndis-num">NDIS: 430117666</span></div>
+  </div>
+
+  <!-- COOGEE ↔ BOTANY JOURNEYS -->
+  <div class="journeys">
+    <!-- OUTBOUND -->
+    <div class="journey-col">
+      <div class="journey-heading">
+        <h2>Outbound Journey</h2>
+        <span class="est-badge outbound">Est. 54 mins</span>
+      </div>
+
+      <div class="step">
+        <div class="step-icon icon-blue">+</div>
+        <div class="step-content">
+          <div class="sc-title">Coogee Beach</div>
+          <div class="sc-sub">Arden St, Coogee</div>
+          <div class="sc-note">Departing at 08:38 AM</div>
+        </div>
+      </div>
+
+      <div class="walk-step">
+        <div class="walk-icon">🚶</div>
+        <div class="walk-content">
+          <div class="wc-title">Walk to Arden St opp Coogee Bay Rd <span class="wc-dur">~2 min</span></div>
+          <div class="wc-note">Head south-west (83m), turn right, and reach stop.</div>
+          <div class="wc-stopid">Stop ID: 203471</div>
+        </div>
+      </div>
+
+      <div class="bus-step">
+        <div class="bus-badge b350">BUS 350</div>
+        <div class="bus-content">
+          <div class="bc-route">Domestic Airport</div>
+          <div class="bc-detail">Board at Arden St opp Coogee Bay Rd (Stop 203471)<br>Alight: Mascot Shops, Botany Rd (Stop 202017)<br>31 stops, ~37 min • Operated by Transdev John Holland Buses</div>
+        </div>
+      </div>
+
+      <div class="transfer-step">
+        <div class="transfer-icon">⇄</div>
+        <div class="transfer-content">
+          <div class="tc-title">Transfer Walk <span class="tc-dur">~2 min</span></div>
+          <div class="tc-note">Walk approx. 108m from Stop 202017 to Stop 202025 on Botany Rd.</div>
+        </div>
+      </div>
+
+      <div class="bus-step">
+        <div class="bus-badge b309">BUS 309</div>
+        <div class="bus-content">
+          <div class="bc-route">Mascot to Lord St</div>
+          <div class="bc-detail">Board at Mascot Shops, Botany Rd (Stop 202025)<br>Alight: Botany Rd at Lord St (Stop 202027)<br>2 stops, ~3 min</div>
+        </div>
+      </div>
+
+      <div class="walk-step">
+        <div class="walk-icon">🚶</div>
+        <div class="walk-content">
+          <div class="wc-title">Final Walk to Lord St <span class="wc-dur">~7 min</span></div>
+          <div class="wc-note">Head to Lord St, walk approx. 465m to destination.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-icon icon-teal">📋</div>
+        <div class="step-content">
+          <div class="sc-title">11-13 Lord St</div>
+          <div class="sc-sub">Botany NSW 2019</div>
+          <div class="sc-arrive">Arrive at 09:32 AM</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RETURN -->
+    <div class="journey-col">
+      <div class="journey-heading">
+        <h2>Return Journey</h2>
+        <span class="est-badge return">Est. 55 mins</span>
+      </div>
+
+      <div class="step">
+        <div class="step-icon icon-purple">+</div>
+        <div class="step-content">
+          <div class="sc-title">11-13 Lord St</div>
+          <div class="sc-sub">Botany NSW 2019</div>
+          <div class="sc-note">Departing at 03:09 PM</div>
+        </div>
+      </div>
+
+      <div class="walk-step">
+        <div class="walk-icon">🚶</div>
+        <div class="walk-content">
+          <div class="wc-title">Walk to Botany Public School <span class="wc-dur">~9 min</span></div>
+          <div class="wc-note">Walk approx. 593m down to Botany Rd.</div>
+          <div class="wc-stopid">Stop ID: 201921</div>
+        </div>
+      </div>
+
+      <div class="bus-step">
+        <div class="bus-badge b309">BUS 309</div>
+        <div class="bus-content">
+          <div class="bc-route">Mascot Shops</div>
+          <div class="bc-detail">Board at Botany Public School (Stop 201921)<br>Alight: Mascot Shops, Botany Rd (Stop 202017)<br>Ride 4 stops, ~4 min (Arrives 03:22 PM)</div>
+        </div>
+      </div>
+
+      <div class="transfer-step">
+        <div class="transfer-icon">⇄</div>
+        <div class="transfer-content">
+          <div class="tc-title">Transfer Walk <span class="tc-dur">~2 min</span></div>
+          <div class="tc-note">Exit via Mascot Shops (Stop 202017), cross road to Botany Rd Stop 202025.</div>
+          <div class="bc-green">Generous 7-minute buffer timing included! (Depart 03:29 PM)</div>
+        </div>
+      </div>
+
+      <div class="bus-step">
+        <div class="bus-badge b350">BUS 350</div>
+        <div class="bus-content">
+          <div class="bc-route">Coogee</div>
+          <div class="bc-detail">Board at Mascot Shops, Botany Rd (Stop 202025)<br>Alight: Arden St at Coogee Bay Rd (Stop 203489)<br>28 stops, ~33 min (Arrives 04:02 PM)</div>
+        </div>
+      </div>
+
+      <div class="walk-step">
+        <div class="walk-icon">🚶</div>
+        <div class="walk-content">
+          <div class="wc-title">Walk to Coogee Beach <span class="wc-dur">~2 min</span></div>
+          <div class="wc-note">Walk approx. 94m down to Arden St beach entrance.</div>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-icon icon-teal">📋</div>
+        <div class="step-content">
+          <div class="sc-title">Coogee Beach</div>
+          <div class="sc-sub">Arrive: Arden St, Coogee</div>
+          <div class="sc-arrive">Arrive at 04:04 PM</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footnote">Note: All durations are estimates based on standard transit schedules. Please check real-time transit apps for current service status.</div>
+
+  <!-- PAGE 2: COOGEE ↔ RANDWICK -->
+  <div style="margin-top: 36px; padding-top: 24px; border-top: 2px solid #e2e8f0;">
+    <div class="title-row" style="margin-bottom: 16px;">
+      <div style="font-size: 22px; font-weight: 900; color: #1e293b;">Coogee ↔ Randwick Coles — Local Route</div>
+    </div>
+    <div class="simple-journeys">
+      <!-- OUTBOUND COOGEE → RANDWICK -->
+      <div class="sj-col">
+        <div class="sj-header">
+          <div class="sj-num out">1</div>
+          <div class="sj-title">Outbound: Coogee to Randwick</div>
+          <div class="sj-mins">~10 MINS</div>
+        </div>
+        <div class="sj-start">
+          <div class="sj-dot dot-blue"></div>
+          <div class="sj-start-text">
+            <div class="st-name">Coogee Beach</div>
+            <div class="st-sub">Start: Arden St at Dolphin St</div>
+          </div>
+        </div>
+        <div class="sj-bus-card">
+          <div class="sj-bus-header">
+            <div class="sj-bus-num">370</div>
+            <div class="sj-bus-route">Bus 370 (Towards Glebe)</div>
+            <div class="sj-stops-badge">4 STOPS</div>
+          </div>
+          <ul class="sj-stop-list">
+            <li>Arden St at Dolphin St</li>
+            <li>Coogee Bay Rd at Arden St</li>
+            <li>Coogee Bay Rd at Perouse Rd</li>
+            <li class="final">Belmore Rd at Avoca St</li>
+          </ul>
+        </div>
+        <div class="sj-dest">
+          <div class="sj-dot dot-green"></div>
+          <div class="sj-start-text">
+            <div class="st-name">Randwick Coles</div>
+            <div class="st-sub">Arrive: Belmore Rd near Avoca St</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RETURN RANDWICK → COOGEE -->
+      <div class="sj-col">
+        <div class="sj-header">
+          <div class="sj-num ret">2</div>
+          <div class="sj-title">Return: Randwick to Coogee</div>
+          <div class="sj-mins">~10 MINS</div>
+        </div>
+        <div class="sj-start">
+          <div class="sj-dot dot-purple"></div>
+          <div class="sj-start-text">
+            <div class="st-name">Randwick Coles</div>
+            <div class="st-sub">Start: Belmore Rd near Avoca St</div>
+          </div>
+        </div>
+        <div class="sj-bus-card ret">
+          <div class="sj-bus-header">
+            <div class="sj-bus-num ret">370</div>
+            <div class="sj-bus-route">Bus 370 (Towards Coogee)</div>
+            <div class="sj-stops-badge ret">4 STOPS</div>
+          </div>
+          <ul class="sj-stop-list">
+            <li>Belmore Rd near Avoca St</li>
+            <li>Coogee Bay Rd near Perouse Rd</li>
+            <li>Coogee Bay Rd at Arden St</li>
+            <li class="final ret">Arden St at Dolphin St</li>
+          </ul>
+        </div>
+        <div class="sj-dest">
+          <div class="sj-dot dot-green"></div>
+          <div class="sj-start-text">
+            <div class="st-name">Coogee Beach</div>
+            <div class="st-sub">Arrive: Arden St at Dolphin St</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="no-print" style="text-align:center;padding:16px;">
+  <button onclick="window.print()" style="background:linear-gradient(90deg,#06b6d4,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
+</div>
+</body>
+</html>

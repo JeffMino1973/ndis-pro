@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Behavioural Support Strategy – Bronwyn Chau</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #fff; color: #1e293b; font-size: 13px; line-height: 1.5; }
+
+.page { max-width: 860px; margin: 0 auto; padding: 28px 36px; }
+
+/* HEADER */
+.logo { width: 130px; margin-bottom: 18px; }
+.doc-title { font-size: 34px; font-weight: 900; color: #1e293b; margin-bottom: 4px; }
+.doc-subtitle { font-size: 14px; color: #64748b; font-style: italic; margin-bottom: 6px; }
+.conf-badge { display: inline-block; border: 1px solid #94a3b8; border-radius: 12px; font-size: 10px; font-weight: bold; letter-spacing: 1px; color: #64748b; padding: 2px 14px; text-transform: uppercase; margin-bottom: 18px; }
+hr.divider { border: none; border-top: 1px solid #e2e8f0; margin: 18px 0; }
+
+/* SECTION HEADERS */
+.section-block { margin-bottom: 28px; }
+.section-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px;
+  color: #1e293b; border-left: 4px solid #0ea5e9; padding-left: 10px;
+  margin-bottom: 14px;
+}
+.section-label {
+  font-size: 9px; font-weight: bold; letter-spacing: 1.5px; text-transform: uppercase;
+  border-radius: 4px; padding: 2px 8px; margin-bottom: 6px; display: inline-block;
+}
+.label-core { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+.label-critical { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
+.label-protocols { background: #f0f9ff; color: #0369a1; border: 1px solid #bae6fd; }
+.label-confidential { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+.label-reference { background: #f5f3ff; color: #6d28d9; border: 1px solid #ddd6fe; }
+.label-data { background: #f0fdfa; color: #0f766e; border: 1px solid #99f6e4; }
+
+.page-heading { font-size: 28px; font-weight: 900; color: #1e293b; margin-bottom: 2px; }
+.page-sub { font-size: 13px; color: #64748b; margin-bottom: 14px; }
+
+/* CLIENT PROFILE BOX */
+.profile-box { background: #1e3a2f; border-radius: 8px; padding: 14px 20px; margin-bottom: 18px; }
+.profile-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #86efac; margin-bottom: 3px; }
+.profile-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; }
+.profile-cell { padding: 0 16px 0 0; }
+.profile-value { font-size: 14px; font-weight: bold; color: #fff; }
+.profile-cell-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #86efac; margin-bottom: 2px; }
+
+/* AROUSAL PHASES */
+.phases-label { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin-bottom: 8px; }
+.phases-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; margin-bottom: 18px; }
+.phase-card { border-radius: 8px; padding: 14px; text-align: center; }
+.phase-green { background: #f0fdf4; border: 1px solid #bbf7d0; }
+.phase-yellow { background: #fefce8; border: 1px solid #fde68a; }
+.phase-red { background: #fff1f2; border: 1px solid #fecdd3; }
+.phase-blue { background: #eff6ff; border: 1px solid #bfdbfe; }
+.phase-dot { font-size: 16px; margin-bottom: 4px; }
+.phase-name { font-size: 14px; font-weight: bold; }
+.phase-green .phase-name { color: #15803d; }
+.phase-yellow .phase-name { color: #b45309; }
+.phase-red .phase-name { color: #b91c1c; }
+.phase-blue .phase-name { color: #1d4ed8; }
+.phase-sub { font-size: 11px; color: #64748b; }
+
+/* QUICK ACCESS */
+.quick-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 18px; }
+.quick-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; }
+.quick-icon { font-size: 20px; }
+.quick-label { font-size: 13px; font-weight: bold; color: #1e293b; }
+.quick-desc { font-size: 11px; color: #64748b; }
+.ndis-bar { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 16px; font-size: 13px; color: #166534; }
+.ndis-bar strong { color: #15803d; }
+
+/* CARDS */
+.card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+.card-title { font-size: 15px; font-weight: bold; color: #1e293b; margin-bottom: 4px; }
+.card-desc { font-size: 13px; color: #374151; margin-bottom: 10px; }
+.card-inner { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 12px 14px; }
+.card-inner-label { font-size: 9.5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.8px; color: #15803d; margin-bottom: 6px; }
+.card-inner p { font-size: 12.5px; color: #374151; margin-bottom: 6px; }
+.card-inner p:last-child { margin-bottom: 0; }
+.card-inner strong { color: #166534; }
+.card-inner em { font-style: italic; }
+
+/* HIGHLIGHT BOX */
+.highlight-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 12px 14px; margin-top: 8px; }
+.highlight-box-amber { background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 12px 14px; }
+.highlight-box-label { font-size: 9.5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.8px; color: #b45309; margin-bottom: 5px; }
+
+/* 2-COL CARDS */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+.driver-card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; }
+.driver-title { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; margin-bottom: 6px; }
+.amber-box { background: #fffbeb; border: 1px solid #fbbf24; border-radius: 6px; padding: 12px; }
+.amber-title { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.8px; color: #b45309; margin-bottom: 6px; }
+.teal-box { background: #f0fdfa; border: 1px solid #5eead4; border-radius: 6px; padding: 12px; }
+.teal-title { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.8px; color: #0f766e; margin-bottom: 6px; }
+
+/* CRISIS PHASES */
+.phase-row { border-radius: 8px; padding: 14px 16px; margin-bottom: 10px; }
+.phase-row.green { background: #f0fdf4; border: 1px solid #bbf7d0; }
+.phase-row.yellow { background: #fefce8; border: 1px solid #fde68a; }
+.phase-row.red { background: #fff1f2; border: 1px solid #fecdd3; }
+.phase-row.blue { background: #eff6ff; border: 1px solid #bfdbfe; }
+.phase-row-title { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
+.phase-row.green .phase-row-title { color: #15803d; }
+.phase-row.yellow .phase-row-title { color: #b45309; }
+.phase-row.red .phase-row-title { color: #b91c1c; }
+.phase-row.blue .phase-row-title { color: #1d4ed8; }
+.phase-row-tag { font-size: 11px; color: #64748b; margin-bottom: 8px; font-style: italic; }
+.phase-row-obj { font-size: 13px; font-weight: bold; color: #374151; margin-bottom: 8px; }
+.phase-strategy { border-left: 3px solid; padding-left: 10px; margin-bottom: 6px; }
+.phase-strategy.green { border-color: #22c55e; }
+.phase-strategy.yellow { border-color: #f59e0b; }
+.phase-strategy.red { border-color: #ef4444; }
+.phase-strategy.blue { border-color: #3b82f6; }
+.phase-strategy-title { font-size: 12.5px; font-weight: bold; color: #1e293b; }
+.phase-strategy-desc { font-size: 12px; color: #374151; }
+
+/* SCRIPTS */
+.script-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin-bottom: 12px; }
+.script-title { font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 2px; }
+.script-note { font-size: 11.5px; color: #64748b; font-style: italic; margin-bottom: 10px; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; }
+.script-item { background: #f8fafc; border-radius: 4px; padding: 8px 12px; margin-bottom: 6px; }
+.script-item-label { font-size: 9.5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; margin-bottom: 3px; }
+.script-item-text { font-size: 13px; color: #1e293b; font-style: italic; }
+.script-item-text.action { font-style: normal; font-weight: bold; }
+
+/* EMERGENCY BOX */
+.emergency-box { background: #fff1f2; border: 2px solid #ef4444; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+.emergency-title { font-size: 14px; font-weight: bold; color: #b91c1c; margin-bottom: 4px; }
+.emergency-note { font-size: 11.5px; color: #b91c1c; font-style: italic; margin-bottom: 10px; }
+.emergency-quote { background: #fff; border: 1px solid #fecaca; border-radius: 6px; padding: 12px; font-size: 13px; font-style: italic; color: #1e293b; }
+
+/* CONTACTS */
+.contacts-section-label { font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; color: #64748b; margin: 14px 0 8px 0; }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.contact-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px; }
+.contact-card.emergency-c { border-color: #fca5a5; }
+.contact-name { font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 2px; }
+.contact-sub { font-size: 11px; color: #64748b; margin-bottom: 8px; }
+.contact-phone { display: inline-block; background: #ef4444; color: white; border-radius: 4px; padding: 4px 12px; font-size: 13px; font-weight: bold; }
+.contact-phone.green-ph { background: #22c55e; }
+.contact-badge { float: right; background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; font-size: 10px; font-weight: bold; border-radius: 4px; padding: 1px 8px; }
+.staff-list { border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin-bottom: 10px; }
+.staff-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+.staff-row:last-child { border-bottom: none; }
+.staff-phone { color: #0ea5e9; font-size: 12px; }
+.collab-box { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; }
+.collab-label { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.8px; color: #64748b; margin-bottom: 3px; font-weight: bold; }
+.collab-name { font-size: 14px; font-weight: bold; color: #1e293b; }
+.collab-sub { font-size: 12px; color: #64748b; }
+
+/* ABC TABLE */
+.abc-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 18px; }
+.abc-table th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.6px; color: #64748b; padding: 8px 10px; text-align: left; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+.abc-table td { padding: 14px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: top; }
+.abc-table tbody tr:last-child td { border-bottom: none; }
+.sig-line { border-top: 1px solid #94a3b8; padding-top: 6px; }
+.sig-label { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.6px; color: #94a3b8; }
+
+/* PRINT */
+@media print {
+  .no-print { display: none; }
+  .page { padding: 16px; }
+  .section-block { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ===== PAGE 1: HEADER + DASHBOARD ===== -->
+  <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" alt="SZ-JIE" class="logo" />
+  <div class="doc-title">Behavioural Support Strategy</div>
+  <div class="doc-subtitle">Comprehensive Analysis, Protocols, and Verbal Scripts for Bronwyn</div>
+  <hr class="divider">
+
+  <!-- DASHBOARD -->
+  <div class="section-block">
+    <span class="section-label label-core">Clinical Support Portal</span>
+    <div class="page-heading">Positive Behavior<br>Support Framework</div>
+    <div class="page-sub">Response framework, safety plan &amp; incident tracking for Bronwyn Chau.</div>
+
+    <div class="profile-box">
+      <div class="profile-label">Client Profile</div>
+      <div class="profile-grid">
+        <div class="profile-cell">
+          <div class="profile-cell-label">Client</div>
+          <div class="profile-value">Bronwyn Chau</div>
+        </div>
+        <div class="profile-cell">
+          <div class="profile-cell-label">Age</div>
+          <div class="profile-value">32 Years</div>
+        </div>
+        <div class="profile-cell">
+          <div class="profile-cell-label">Diagnosis</div>
+          <div class="profile-value">Autism, Mod. ID</div>
+        </div>
+        <div class="profile-cell">
+          <div class="profile-cell-label">Lead Worker</div>
+          <div class="profile-value">Mr. Minton</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phases-label">Arousal Phases</div>
+    <div class="phases-row">
+      <div class="phase-card phase-green">
+        <div class="phase-dot">🟢</div>
+        <div class="phase-name">GREEN</div>
+        <div class="phase-sub">Baseline</div>
+      </div>
+      <div class="phase-card phase-yellow">
+        <div class="phase-dot">🟡</div>
+        <div class="phase-name">YELLOW</div>
+        <div class="phase-sub">Rumble Stage</div>
+      </div>
+      <div class="phase-card phase-red">
+        <div class="phase-dot">🔴</div>
+        <div class="phase-name">RED</div>
+        <div class="phase-sub">Crisis</div>
+      </div>
+      <div class="phase-card phase-blue">
+        <div class="phase-dot">🔵</div>
+        <div class="phase-name">BLUE</div>
+        <div class="phase-sub">Recovery</div>
+      </div>
+    </div>
+
+    <div class="phases-label">Quick Access</div>
+    <div class="quick-grid">
+      <div class="quick-card">
+        <div class="quick-icon">🩺</div>
+        <div><div class="quick-label">Clinical Formulation</div><div class="quick-desc">The "Why" behind behaviours</div></div>
+      </div>
+      <div class="quick-card">
+        <div class="quick-icon">⚡</div>
+        <div><div class="quick-label">Crisis Phases</div><div class="quick-desc">GREEN → YELLOW → RED → BLUE</div></div>
+      </div>
+      <div class="quick-card">
+        <div class="quick-icon">🔧</div>
+        <div><div class="quick-label">Tactical Toolbox</div><div class="quick-desc">Protocols &amp; environmental rules</div></div>
+      </div>
+      <div class="quick-card">
+        <div class="quick-icon">🛡️</div>
+        <div><div class="quick-label">Safety Plan</div><div class="quick-desc">Crisis protocol &amp; chair rule</div></div>
+      </div>
+      <div class="quick-card">
+        <div class="quick-icon">💬</div>
+        <div><div class="quick-label">Scripts &amp; Cues</div><div class="quick-desc">Verbal scripts for staff</div></div>
+      </div>
+      <div class="quick-card">
+        <div class="quick-icon">📞</div>
+        <div><div class="quick-label">Emergency Contacts</div><div class="quick-desc">Crisis numbers &amp; services</div></div>
+      </div>
+      <div class="quick-card">
+        <div class="quick-icon">⚕️</div>
+        <div><div class="quick-label">Epilepsy Plan</div><div class="quick-desc">Seizure protocols &amp; management</div></div>
+      </div>
+    </div>
+
+    <div class="ndis-bar">
+      <strong>NDIS</strong> &nbsp; Participant No: <strong>430117666</strong> · Standard: CRISIS–V1.2 / 2026
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== SECTION 1: PRIMARY BEHAVIORAL PROFILES ===== -->
+  <div class="section-block">
+    <span class="section-label label-core">Core</span>
+    <div class="page-heading">Primary Clinical Formulation</div>
+    <div class="page-sub">Understanding the "Why" behind Bronwyn's behaviours</div>
+
+    <div class="section-title">1. Primary Behavioral Profiles &amp; Core Drivers</div>
+
+    <div class="card">
+      <div class="driver-title">⚡ The "Control vs. Chaos" Drive</div>
+      <p class="card-desc">Bronwyn's behaviours (including sudden hitting) are primarily driven by an <strong>acute need for predictability and external environmental ordering</strong>. When her strict internal rules are breached — e.g., Mom choosing a breakfast food out of turn, Dad returning food to the fridge half-eaten, or visible injuries on others — she experiences instantaneous neurological threat.</p>
+      <p class="card-desc">Unable to process this via complex expressive verbal language, she discharges this sudden internal panic physically through <strong>hitting</strong>.</p>
+    </div>
+
+    <div class="card">
+      <div class="driver-title">🍽️ Food Throwing &amp; Completion Dynamics</div>
+      <p class="card-desc">Half-eaten or visible "saved" food violates her rigid rule of <strong>"closed" items</strong>. This triggers an obsessive need to force consumption or completely discard the items to resolve her visual anxiety.</p>
+    </div>
+
+    <div class="card">
+      <div class="driver-title">👤 Professional-PDA Boundary Dynamic</div>
+      <div class="two-col" style="margin-top:10px; margin-bottom:0;">
+        <div class="amber-box">
+          <div class="amber-title">Parents = "Safe" Attachment</div>
+          <p style="font-size:12.5px; color:#374151;">Parents represent "safe" attachments where she feels empowered to enforce her own ordering systems — bossing, dictating stereo input, and rejecting hygiene items.</p>
+        </div>
+        <div class="teal-box">
+          <div class="teal-title">Mr. Minton = "System Framework"</div>
+          <p style="font-size:12.5px; color:#374151;">The support worker represents a formal "system framework." Her initial defensive comment ("Bye, Mr. Minton") and reference to "School" indicate she is hyper-aware that his presence challenges her established control.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== SECTION 2: AROUSAL & CRISIS RESPONSE ===== -->
+  <div class="section-block">
+    <span class="section-label label-critical">Critical</span>
+    <div class="page-heading">Arousal &amp; Crisis Response</div>
+    <div class="page-sub">Four escalation stages with phase-specific interventions</div>
+    <div style="display:flex; height:6px; border-radius:3px; overflow:hidden; margin-bottom:16px;">
+      <div style="flex:1; background:#22c55e;"></div>
+      <div style="flex:1; background:#f59e0b;"></div>
+      <div style="flex:1; background:#ef4444;"></div>
+      <div style="flex:1; background:#3b82f6;"></div>
+    </div>
+
+    <div class="phase-row green">
+      <div class="phase-row-title">1. GREEN Phase — <span style="font-weight:normal; font-size:13px;">Baseline / Regulated</span></div>
+      <div class="phase-row-obj">Objectives: Consolidate safety triggers &amp; respect routine rules.</div>
+      <div class="phase-strategy green">
+        <div class="phase-strategy-title">The Serviette Accommodation</div>
+        <div class="phase-strategy-desc">Ensure white serviettes are always readily available and physically presented with foods. Do not force direct touching.</div>
+      </div>
+      <div class="phase-strategy green">
+        <div class="phase-strategy-title">"Mom's Choice" Visuals</div>
+        <div class="phase-strategy-desc">Proactively schedule breakfast options so variations are visual events rather than surprises.</div>
+      </div>
+    </div>
+
+    <div class="phase-row yellow">
+      <div class="phase-row-title">2. YELLOW Phase — <span style="font-weight:normal; font-size:13px;">The "Rumble" Stage</span></div>
+      <div class="phase-row-obj">Warning Signs: Vocal repetitions, pacing, phone wiping, ordering parents.</div>
+      <div class="phase-strategy yellow">
+        <div class="phase-strategy-title">Immediate Non-Verbal Interventions</div>
+        <div class="phase-strategy-desc">Introduce "change cards" without complex speaking. Switch to quiet, low tone.</div>
+      </div>
+      <div class="phase-strategy yellow">
+        <div class="phase-strategy-title">Declarative Statements</div>
+        <div class="phase-strategy-desc">Avoid telling her what to do. Use: "I can see the cereal box is in the bin. Let's step away."</div>
+      </div>
+    </div>
+
+    <div class="phase-row red">
+      <div class="phase-row-title">3. RED Phase — <span style="font-weight:normal; font-size:13px;">Crisis / Hitting</span></div>
+      <div class="phase-row-obj">Intervention: Maximum Distance, Total Silence, Block Safely.</div>
+      <div class="phase-strategy red">
+        <div class="phase-strategy-title">Evacuate &amp; Step Back</div>
+        <div class="phase-strategy-desc">Both worker and parent must physically disengage. Speak 0 words.</div>
+      </div>
+      <div class="phase-strategy red">
+        <div class="phase-strategy-title">No Eye Contact</div>
+        <div class="phase-strategy-desc">Looking at her reinforces challenge loops. Look down or away while securing yourself behind a physical barrier (counter/sofa cushion).</div>
+      </div>
+    </div>
+
+    <div class="phase-row blue">
+      <div class="phase-row-title">4. BLUE Phase — <span style="font-weight:normal; font-size:13px;">Recovery / Fatigue</span></div>
+      <div class="phase-row-obj">Intervention: Low Demands, Extended Rest.</div>
+      <div class="phase-strategy blue">
+        <div class="phase-strategy-title">The Recovery Window</div>
+        <div class="phase-strategy-desc">Expect cortisol levels to remain elevated for up to 3 hours. Avoid asking her to choose anything or do any tasks.</div>
+      </div>
+      <div class="phase-strategy blue">
+        <div class="phase-strategy-title">Refusal Acceptance</div>
+        <div class="phase-strategy-desc">Accept she may be highly fragile or lethargic; let her reset without commentary.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== SECTION 2: TACTICAL CORE TOOLBOX ===== -->
+  <div class="section-block">
+    <span class="section-label label-protocols">Protocols</span>
+    <div class="page-heading">Tactical Core Toolbox</div>
+    <div class="page-sub">Targeted protocols &amp; environmental rules for primary anxiety-response profiles</div>
+
+    <div class="section-title">2. Tactical Core Toolbox</div>
+
+    <div class="two-col">
+      <div class="card" style="margin-bottom:0;">
+        <div class="card-title">🍽️ Food Throwing &amp; "Completion" Rules</div>
+        <p class="card-desc">She wants to control what is eaten. Half-eaten or "saved" food violates her rule of "closed" items, initiating an obsession to force consumption or discard.</p>
+        <div class="card-inner">
+          <div class="card-inner-label">Direct Protocol: Clean Counter Policy</div>
+          <p>All parental food prep and leftovers must be immediately closed and stored behind closed cupboard doors/fridges out of direct sight line.</p>
+          <p><strong>Verbal Script:</strong> <em>If she attempts to force her parent to finish food, use flat tone: "Dad's food is finished. It is away." Do not debate or justify. Walk away immediately.</em></p>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:0;">
+        <div class="card-title">🤍 Sensory Shields (White Serviette)</div>
+        <p class="card-desc">White napkins act as a mandatory protective shield against food textures. Her refusal of tissues from parents but acceptance from support workers is a direct test of relational boundaries.</p>
+        <div class="card-inner">
+          <div class="card-inner-label">Direct Protocol: Systemic Uniformity &amp; Deputized Control</div>
+          <p><strong>Systemic Uniformity:</strong> All staff and parents must use identical white serviettes. Stock them in identical plastic boxes.</p>
+          <p><strong>Deputize Control:</strong> Before meals: "Can you please put three clean serviettes on the table?" This translates bossing into a helpful structuring task.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="two-col" style="margin-top:12px;">
+      <div class="card" style="margin-bottom:0;">
+        <div class="card-title">🩹 Injury &amp; Hygiene Hyper-Fixations</div>
+        <p class="card-desc">Skin disruptions cause high tactile panic. Visible Band-Aids on others cause systemic uncertainty. Ear-inspections and cotton buds are OCD efforts to ensure "perfection."</p>
+        <div class="card-inner">
+          <div class="card-inner-label">Direct Protocol: Cotton Bud/Ear Boundary &amp; Band-Aid Script</div>
+          <p>State firmly: "My ears are clean. Cotton buds are away." Put all cotton buds in locked or out-of-reach storage.</p>
+          <p><strong>The Band-Aid Script:</strong> <em>"Mom's arm is healing. The Band-Aid is working. We are finished talking about it." Diversion must immediately follow.</em></p>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:0;">
+        <div class="card-title">📱 Phone Wiping &amp; Audio Control</div>
+        <p class="card-desc">Deleting notifications represents her attempt to keep her digital ecosystem perfectly neat. Restricting music/stereo play is a protective effort to reduce auditory chaos.</p>
+        <div class="card-inner">
+          <div class="card-inner-label">Direct Protocol: Let Her Delete &amp; "My Turn" Visual</div>
+          <p><strong>Let her delete:</strong> Allow deletion of harmless system assets. Use parental control locks to prevent deletion of critical communication tools or contacts.</p>
+          <p><strong>The "My Turn" Visual:</strong> Use a laminated double-sided token for the stereo: "Side A: Parent's Turn / Side B: Her Turn". When Side A is active, she cannot modify input.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px;">
+      <div class="card-title">👤 "Mr. Minton" Relationship &amp; PDA Boundary Plan</div>
+      <p class="card-desc">Her comment "By(e) Mr. Minton," paired with anxieties about "going back to school," confirms she perceives the support worker as a source of routine expectations and direct behaviour challenges.</p>
+      <div class="two-col" style="margin-top:10px; margin-bottom:0;">
+        <div class="teal-box">
+          <div class="teal-title">1. Neutral, High-Structure Re-Entry</div>
+          <p style="font-size:12.5px; color:#374151;">Do not over-explain or try to "win" a warm connection right away. Focus on highly predictable, low-demand activities she has complete control over. Use declarative language.</p>
+        </div>
+        <div class="teal-box">
+          <div class="teal-title">2. Establishing Unified Rules</div>
+          <p style="font-size:12.5px; color:#374151;">If she attempts to hit you or force boundaries upon you, she must experience the same immediate physical distance protocol as parents. Demonstrate structured, predictable boundaries.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== SECTION 3: SCRIPTS & VERBAL CUES ===== -->
+  <div class="section-block">
+    <span class="section-label label-reference">Reference</span>
+    <div class="page-heading">Scripts &amp; Verbal Cues Reference</div>
+    <div class="page-sub">Pre-written verbal scripts for consistent responses across staff and family</div>
+
+    <div class="section-title">3. Scripts &amp; Verbal Cues Reference</div>
+
+    <div class="script-card">
+      <div class="script-title">House Safety &amp; Food Rules</div>
+      <div class="script-note">To be read with Bronwyn during a GREEN Phase using a neutral, low, even teacher tone. Keep sentences short and objective.</div>
+      <div class="script-item">
+        <div class="script-item-label">The Food Rule</div>
+        <div class="script-item-text">"Mum and Dad choose what they eat. Mum's choices will be written on the visual schedule so there are no surprises. Throwing Mum or Dad's food is not okay. Their food will be put away."</div>
+      </div>
+      <div class="script-item">
+        <div class="script-item-label">The Hitting Rule</div>
+        <div class="script-item-text">"Hitting is not safe. If hitting happens, we will go to the calming blue chair in the park. Mum will call the support worker."</div>
+      </div>
+      <div class="script-item">
+        <div class="script-item-label">The Serviette Rule</div>
+        <div class="script-item-text">"Serviettes will always be on the table before food. You can put them there if you like."</div>
+      </div>
+    </div>
+
+    <div class="script-card">
+      <div class="script-title">Food Completion Script</div>
+      <div class="script-note">Use a flat, neutral tone. Do not debate or justify.</div>
+      <div class="script-item">
+        <div class="script-item-label">When She Forces Parent to Finish Food</div>
+        <div class="script-item-text">"Dad's food is finished. It is away."</div>
+      </div>
+      <div class="script-item">
+        <div class="script-item-label">Walk Away</div>
+        <div class="script-item-text action">Do not debate or justify the choice. Walk away immediately.</div>
+      </div>
+    </div>
+
+    <div class="script-card">
+      <div class="script-title">Cotton Bud / Ear Boundary</div>
+      <div class="script-note">Support worker must state firmly and then physically remove the items.</div>
+      <div class="script-item">
+        <div class="script-item-label">Verbal Script</div>
+        <div class="script-item-text">"My ears are clean. Cotton buds are away."</div>
+      </div>
+      <div class="script-item">
+        <div class="script-item-label">Action</div>
+        <div class="script-item-text action">Put all cotton buds in locked or out-of-reach storage.</div>
+      </div>
+    </div>
+
+    <div class="script-card">
+      <div class="script-title">Band-Aid Script</div>
+      <div class="script-note">Use when she obsesses over someone's bandage.</div>
+      <div class="script-item">
+        <div class="script-item-label">Verbal Script</div>
+        <div class="script-item-text">"Mom's arm is healing. The Band-Aid is working. We are finished talking about it."</div>
+      </div>
+      <div class="script-item">
+        <div class="script-item-label">Action</div>
+        <div class="script-item-text action">Diversion must immediately follow.</div>
+      </div>
+    </div>
+
+    <div class="script-card">
+      <div class="script-title">Declarative Statements (Yellow Phase)</div>
+      <div class="script-note">Avoid telling her what to do. Use observations instead.</div>
+      <div class="script-item">
+        <div class="script-item-label">Example</div>
+        <div class="script-item-text">"I can see the cereal box is in the bin. Let's step away."</div>
+      </div>
+      <div class="script-item">
+        <div class="script-item-label">Tone</div>
+        <div class="script-item-text action">Switch to quiet, low tone. No complex speaking.</div>
+      </div>
+    </div>
+
+    <div class="script-card">
+      <div class="script-title">Calm Blue Chair Script</div>
+      <div class="script-note">Use after hitting occurs, regardless of location.</div>
+      <div class="script-item">
+        <div class="script-item-label">At the Shop</div>
+        <div class="script-item-text">"Hitting is unacceptable and unsafe. She cannot remain at the shop. She must go to the calming blue chair in the park with a support person."</div>
+      </div>
+      <div class="script-item">
+        <div class="script-item-label">At Home</div>
+        <div class="script-item-text">"Hitting is unacceptable and unsafe. She cannot remain at home. She must go to the calming blue chair in the park with a support person."</div>
+      </div>
+      <div class="script-item">
+        <div class="script-item-label">In the Community</div>
+        <div class="script-item-text">"Hitting is unacceptable and unsafe. No activities. She must go to the calming blue chair in the park with a support person."</div>
+      </div>
+    </div>
+
+    <div class="emergency-box">
+      <div class="emergency-title">000 Emergency Operator Script</div>
+      <div class="emergency-note">If you need to call emergency services, say exactly this:</div>
+      <div class="emergency-quote">"My child has a disability and is currently experiencing a severe behavioral and mental health crisis. We are unsafe. Please dispatch police alongside an ambulance immediately so healthcare workers are present."</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== CRISIS MANAGEMENT & SAFETY PLAN ===== -->
+  <div class="section-block">
+    <span class="section-label label-confidential">Confidential</span>
+    <div class="page-heading">Crisis Management &amp; Safety Plan</div>
+    <div class="page-sub">Bronwyn's crisis protocol and the Calm Blue Chair Rule</div>
+
+    <div class="phase-row yellow" style="margin-bottom:10px;">
+      <div class="phase-row-title" style="color:#b45309;">1. Immediate Communication</div>
+      <div class="phase-strategy yellow" style="margin-top:8px;">
+        <div class="phase-strategy-title">Remain Calm</div>
+        <div class="phase-strategy-desc">Consistently remind Bronwyn "Everything will be ok."</div>
+      </div>
+      <div class="phase-strategy yellow">
+        <div class="phase-strategy-title">Cantonese Language Cue</div>
+        <div class="phase-strategy-desc">If she is speaking in Cantonese, remind her to be calm and breathe in/out slowly.</div>
+      </div>
+      <div class="phase-strategy yellow">
+        <div class="phase-strategy-title">Limit Input</div>
+        <div class="phase-strategy-desc">Do not offer any other instructions while she is in an escalated state.</div>
+      </div>
+    </div>
+
+    <div class="phase-row green" style="margin-bottom:10px;">
+      <div class="phase-row-title" style="color:#15803d;">2. Assess Escalation</div>
+      <p style="font-size:13px; color:#374151; margin-top:6px;">Assess Bronwyn's ability to calm herself. Once she demonstrates she is returning to a calm state, she can be gently reminded of the safety rules.</p>
+    </div>
+
+    <div class="phase-row red" style="margin-bottom:10px;">
+      <div class="phase-row-title" style="color:#b91c1c;">3. The "Calm Blue Chair" Rule</div>
+      <div style="display:grid; grid-template-columns:1fr; gap:8px; margin-top:8px;">
+        <div style="background:#fff; border:1px solid #fecaca; border-radius:6px; padding:10px 14px;">
+          <div style="font-size:12px; font-weight:bold; color:#1e293b; margin-bottom:3px;">🛒 At the Shop</div>
+          <div style="font-size:12.5px; color:#374151;">Hitting is unacceptable and unsafe. She cannot remain at the shop. She must go to the calming blue chair in the park with a support person. Mum will call the support worker to assess safety before she can return.</div>
+        </div>
+        <div style="background:#fff; border:1px solid #fecaca; border-radius:6px; padding:10px 14px;">
+          <div style="font-size:12px; font-weight:bold; color:#1e293b; margin-bottom:3px;">🏠 At Home</div>
+          <div style="font-size:12.5px; color:#374151;">Hitting is unacceptable and unsafe. She cannot remain at home. She must go to the calming blue chair in the park with a support person. Mum will call the support worker to assess safety before she can return.</div>
+        </div>
+        <div style="background:#fff; border:1px solid #fecaca; border-radius:6px; padding:10px 14px;">
+          <div style="font-size:12px; font-weight:bold; color:#1e293b; margin-bottom:3px;">🌳 In the Community</div>
+          <div style="font-size:12.5px; color:#374151;">Hitting is unacceptable and unsafe. No activities. She must go to the calming blue chair in the park with a support person. Mum will call the support worker to assess safety before returning home or to the shop.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="phase-row blue">
+      <div class="phase-row-title" style="color:#1d4ed8;">⚠️ Important Safeguarding Information</div>
+      <div class="phase-strategy blue" style="margin-top:8px;">
+        <div class="phase-strategy-title">NDIS Escalation</div>
+        <div class="phase-strategy-desc">Reach out to your NDIS planner immediately to request an unscheduled "Plan Review" due to safety risks.</div>
+      </div>
+      <div class="phase-strategy blue">
+        <div class="phase-strategy-title">Document Incidents</div>
+        <div class="phase-strategy-desc">Keep a secure diary of exact times, dates, triggers, and violent actions. This is crucial evidence.</div>
+      </div>
+      <div class="phase-strategy blue">
+        <div class="phase-strategy-title">You have a right to safety</div>
+        <div class="phase-strategy-desc">Caring for a disabled adult child does not require you to absorb physical harm.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== SUPPORT RESOURCES & IMPLEMENTATION ===== -->
+  <div class="section-block">
+    <div class="section-title">Support Resources and Implementation</div>
+    <div class="card">
+      <ul style="padding-left:18px; font-size:13px; color:#374151; line-height:2;">
+        <li>Jeff Minton will take Bronwyn for formalised sessions where she is seated at a desk which will assist her to enter a learning zone.</li>
+        <li>The "My Choice" visual and breakfast schedule will be clearly explained with Bronwyn practising using the provided laminated version and app version.</li>
+        <li>Bronwyn will engage with the Family Games in her <strong>My Schedule App</strong>.</li>
+        <li>Bronwyn will also complete formalised sessions on the <strong>Responsibility Circles</strong> where she has to decide whose responsibility or choice it is.</li>
+        <li>Each person interacting with Bronwyn will use the scripted responses provided.</li>
+      </ul>
+      <div class="card-inner" style="margin-top:12px;">
+        <div class="card-inner-label">When a Support Worker is Present — Escalating Behaviours Script</div>
+        <p><strong>Support Worker:</strong> "Bronwyn, I can see you are feeling anxious. What choice would you like to make?"</p>
+        <p>a. Calm yourself down — or</p>
+        <p>b. Would you like to go to the Blue Seat</p>
+        <p><em>This is a very important step as it removes the parent from being the person whom she will lay blame on.</em></p>
+      </div>
+      <p style="margin-top:10px; font-size:12.5px; color:#374151;">Laminated Breakfast Schedules and Whose Choice visuals will be displayed in an easy to access area for Bronwyn to view them.</p>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== EMERGENCY CONTACTS ===== -->
+  <div class="section-block">
+    <span class="section-label label-critical">Critical</span>
+    <div class="page-heading">Emergency Contacts</div>
+    <div class="page-sub">NSW crisis contacts and support worker numbers</div>
+
+    <div class="contacts-section-label">NSW Crisis Contacts</div>
+    <div class="contact-grid">
+      <div class="contact-card emergency-c">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div class="contact-name" style="color:#ef4444;">Emergency Services</div>
+          <span class="contact-badge">24/7</span>
+        </div>
+        <div class="contact-sub">Police, Ambulance, Fire</div>
+        <span class="contact-phone">📞 000</span>
+      </div>
+      <div class="contact-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div class="contact-name">Mental Health Line</div>
+          <span class="contact-badge">24/7</span>
+        </div>
+        <div class="contact-sub">NSW Health Triage</div>
+        <span class="contact-phone green-ph">📞 1800 011 511</span>
+      </div>
+      <div class="contact-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div class="contact-name">1800RESPECT</div>
+          <span class="contact-badge">24/7</span>
+        </div>
+        <div class="contact-sub">Family Violence Support</div>
+        <span class="contact-phone green-ph">📞 1800 737 732</span>
+      </div>
+      <div class="contact-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div class="contact-name">Carer Gateway</div>
+          <span class="contact-badge" style="background:#fef9c3; color:#b45309; border-color:#fde68a;">Mon–Fri</span>
+        </div>
+        <div class="contact-sub">Emergency Respite</div>
+        <span class="contact-phone green-ph">📞 1800 422 737</span>
+      </div>
+      <div class="contact-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div class="contact-name">Prince of Wales</div>
+          <span class="contact-badge">24/7</span>
+        </div>
+        <div class="contact-sub">Emergency Dept. (Randwick)</div>
+        <span class="contact-phone green-ph">📞 (02) 9382 2222</span>
+      </div>
+      <div class="contact-card">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+          <div class="contact-name">Abuse Helpline</div>
+          <span class="contact-badge" style="background:#fef9c3; color:#b45309; border-color:#fde68a;">Mon–Fri</span>
+        </div>
+        <div class="contact-sub">Safeguarding Guidance</div>
+        <span class="contact-phone green-ph">📞 1800 628 221</span>
+      </div>
+    </div>
+
+    <div class="contacts-section-label">Support Workers</div>
+    <div class="staff-list">
+      <div class="staff-row"><span style="font-weight:bold;">Jeff</span><span class="staff-phone">📞 0401 343 876</span></div>
+      <div class="staff-row"><span style="font-weight:bold;">Toby</span><span class="staff-phone">📞 0435 951 583</span></div>
+      <div class="staff-row"><span style="font-weight:bold;">Victoria</span><span style="color:#94a3b8; font-size:12px; font-style:italic;">Number pending</span></div>
+    </div>
+
+    <div class="collab-box">
+      <div class="collab-label">Collaboration Partner</div>
+      <div class="collab-name">Linh Phung (Mother)</div>
+      <div class="collab-sub">0424 377 062</div>
+    </div>
+
+    <div class="emergency-box">
+      <div class="emergency-title">000 Operator Script (What to Say)</div>
+      <div class="emergency-quote" style="margin-bottom:10px;">"My child has a disability and is currently experiencing a severe behavioral and mental health crisis. We are unsafe. Please dispatch police alongside an ambulance immediately so healthcare workers are present."</div>
+      <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:6px; padding:10px 12px; font-size:12.5px; color:#b45309;">
+        <strong>Immediate Safety Check:</strong> If threatened, step away immediately to a safe, lockable room, outside, or a trusted neighbour's house. Do not try to reason or argue during active escalation.
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- ===== ABC BEHAVIOR LOG ===== -->
+  <div class="section-block">
+    <span class="section-label label-data">Data Collection</span>
+    <div class="page-heading">Interactive ABC Behaviour Log</div>
+    <div class="page-sub">Logs chronological triggers (Antecedent), Actions (Behaviour), and responses/outcomes (Consequence) to pinpoint shifting baseline patterns.</div>
+
+    <table class="abc-table">
+      <thead>
+        <tr>
+          <th style="width:14%;">Date &amp; Time</th>
+          <th style="width:22%;">Antecedent (Trigger)</th>
+          <th style="width:22%;">Behaviour (Specific Action)</th>
+          <th style="width:26%;">Consequence (Staff/Family Action)</th>
+          <th style="width:16%;">Outcome / Lesson</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+        <tr><td style="height:40px;">&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td></tr>
+      </tbody>
+    </table>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:20px; margin-top:24px;">
+      <div>
+        <div class="sig-line"></div>
+        <div class="sig-label">Parent/Guardian Signature &amp; Date</div>
+      </div>
+      <div>
+        <div class="sig-line"></div>
+        <div class="sig-label">Lead Support Worker ("Mr. Minton") Signature</div>
+      </div>
+      <div>
+        <div class="sig-line"></div>
+        <div class="sig-label">Behaviour Support Specialist Sign-Off</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+  <div style="text-align:center; font-size:11px; color:#94a3b8; padding: 10px 0;">
+    Confidential – Behavioural Support Document &nbsp;|&nbsp; Standard: V1.2 – Updated Support Plan &nbsp;|&nbsp; Confidential Participant Document
+  </div>
+
+</div>
+
+<div class="no-print" style="text-align:center; padding:16px;">
+  <button onclick="window.print()" style="background:linear-gradient(90deg,#0ea5e9,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
+</div>
+
+</body>
+</html>

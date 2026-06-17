@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Travel Risk Assessment</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #fff; color: #1e293b; font-size: 12px; }
+  .page { max-width: 860px; margin: 0 auto; padding: 24px 28px 32px 28px; background: #fff; }
+
+  /* HEADER */
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+  .header-logo { width: 130px; }
+  .header-contact { text-align: right; font-size: 10.5px; color: #475569; line-height: 1.75; }
+  .header-contact .row { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
+
+  /* TITLE BLOCK */
+  .title-block { border-left: 4px solid #06b6d4; padding: 10px 14px; background: #f8fafc; margin-bottom: 18px; }
+  .doc-title { font-size: 22px; font-weight: 900; color: #1e293b; text-transform: uppercase; letter-spacing: 0.5px; }
+  .doc-sub { font-size: 11px; color: #64748b; margin-top: 2px; }
+
+  /* PARTICIPANT INFO GRID */
+  .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; margin-bottom: 18px; }
+  .info-cell { padding: 8px 12px; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+  .info-cell:nth-child(even) { border-right: none; }
+  .info-cell:nth-last-child(-n+2) { border-bottom: none; }
+  .ic-label { font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+  .ic-value { font-size: 13px; font-weight: 600; color: #1e293b; }
+
+  /* SECTION HEADING */
+  .sec-heading { font-size: 13px; font-weight: bold; color: #1e293b; text-transform: uppercase; letter-spacing: 0.5px; margin: 18px 0 10px 0; padding-bottom: 4px; border-bottom: 2px solid #06b6d4; }
+
+  /* RISK MATRIX TABLE */
+  .matrix-table { width: 100%; border-collapse: collapse; margin-bottom: 4px; font-size: 11.5px; }
+  .matrix-table th { background: #1e293b; color: white; padding: 7px 10px; text-align: center; font-size: 11px; font-weight: bold; }
+  .matrix-table th:first-child { text-align: left; }
+  .matrix-table td { padding: 6px 10px; border: 1px solid #e2e8f0; text-align: center; }
+  .matrix-table td:first-child { text-align: left; font-weight: 600; background: #f8fafc; }
+  .cell-medium-a { background: #fef9c3; color: #854d0e; font-weight: bold; }
+  .cell-high-a2 { background: #fee2e2; color: #dc2626; font-weight: bold; }
+  .cell-extreme { background: #fca5a5; color: #991b1b; font-weight: bold; }
+  .cell-low-b { background: #dcfce7; color: #166534; font-weight: bold; }
+  .cell-medium-b2 { background: #fef9c3; color: #854d0e; font-weight: bold; }
+  .cell-high-b3 { background: #fee2e2; color: #dc2626; font-weight: bold; }
+  .cell-low-c { background: #dcfce7; color: #166534; font-weight: bold; }
+  .cell-medium-c3 { background: #fef9c3; color: #854d0e; font-weight: bold; }
+
+  /* RISK ASSESSMENT TABLE */
+  .risk-table { width: 100%; border-collapse: collapse; font-size: 11.5px; margin-bottom: 4px; }
+  .risk-table thead tr { background: #1e293b; color: white; }
+  .risk-table thead th { padding: 7px 10px; text-align: left; font-size: 11px; font-weight: bold; }
+  .risk-table .cat-row td { background: #e2e8f0; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #475569; padding: 5px 10px; }
+  .risk-table tbody tr:not(.cat-row) { border-bottom: 1px solid #f1f5f9; }
+  .risk-table tbody tr:not(.cat-row):nth-child(even) { background: #fafafa; }
+  .risk-table tbody td { padding: 7px 10px; color: #374151; vertical-align: top; line-height: 1.4; }
+  .risk-table .col-like { width: 12%; }
+  .risk-table .col-risk { width: 10%; text-align: center; }
+  .risk-table .col-desc { width: 28%; font-weight: 600; color: #1e293b; }
+  .risk-table .col-mit { width: 50%; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; text-align: center; }
+  .badge-medium { background: #fef9c3; color: #854d0e; }
+  .badge-low { background: #dcfce7; color: #166534; }
+  .badge-high { background: #fee2e2; color: #dc2626; }
+
+  /* EMERGENCY SECTION */
+  .emergency-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .emerg-box { border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px; }
+  .emerg-label { font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .emerg-name { font-size: 14px; font-weight: bold; color: #1e293b; }
+  .emerg-phone { font-size: 13px; color: #06b6d4; font-weight: bold; margin-top: 2px; }
+  .emerg-none { font-size: 12px; color: #94a3b8; font-style: italic; margin-top: 4px; }
+
+  /* SIGN-OFF */
+  .signoff-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-top: 12px; }
+  .so-box { border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; }
+  .so-label { font-size: 9px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+  .so-value { font-size: 13px; font-weight: bold; color: #1e293b; }
+  .so-value.date { color: #06b6d4; }
+
+  @media print { body { background: white; } .page { padding: 18px; } .no-print { display: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" alt="SZ-JIE" class="header-logo" />
+    <div class="header-contact">
+      <div class="row">📋 <strong>SZ-JIE Support Services</strong></div>
+      <div class="row">🏢 ABN: 86959042971</div>
+      <div class="row">📍 309/12 Broome St, Waterloo NSW, 2017</div>
+      <div class="row">✉️ jeff@szjiesupportservices.com</div>
+      <div class="row">🌐 www.szjiesupportservices.com</div>
+      <div class="row">📞 0401 343 876</div>
+    </div>
+  </div>
+
+  <!-- TITLE -->
+  <div class="title-block">
+    <div class="doc-title">Travel Risk Assessment</div>
+    <div class="doc-sub">Bronwyn Chau | NDIS: 430117666 | Confidential</div>
+  </div>
+
+  <!-- PARTICIPANT INFO -->
+  <div class="info-grid">
+    <div class="info-cell">
+      <div class="ic-label">Participant Home Address</div>
+      <div class="ic-value">Coogee Beach Area (Arden St), NSW 2034</div>
+    </div>
+    <div class="info-cell">
+      <div class="ic-label">Workplace / Location</div>
+      <div class="ic-value">11-13 Lord St, Botany, NSW 2019</div>
+    </div>
+    <div class="info-cell">
+      <div class="ic-label">Parent / Guardian Name</div>
+      <div class="ic-value">Lynne Chau</div>
+    </div>
+    <div class="info-cell">
+      <div class="ic-label">Carer / Support Worker</div>
+      <div class="ic-value">SZ-Jie Wang</div>
+    </div>
+  </div>
+
+  <!-- 1. RISK RATING MATRIX -->
+  <div class="sec-heading">1. Risk Rating Matrix</div>
+  <table class="matrix-table">
+    <thead>
+      <tr>
+        <th>Likelihood</th>
+        <th>Minor (1)</th>
+        <th>Moderate (2)</th>
+        <th>Major (3)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Highly Likely (A)</td>
+        <td class="cell-medium-a">Medium (A1)</td>
+        <td class="cell-high-a2">High (A2)</td>
+        <td class="cell-extreme">Extreme (A3)</td>
+      </tr>
+      <tr>
+        <td>Possible (B)</td>
+        <td class="cell-low-b">Low (B1)</td>
+        <td class="cell-medium-b2">Medium (B2)</td>
+        <td class="cell-high-b3">High (B3)</td>
+      </tr>
+      <tr>
+        <td>Unlikely (C)</td>
+        <td class="cell-low-c">Low (C1)</td>
+        <td class="cell-low-c">Low (C2)</td>
+        <td class="cell-medium-c3">Medium (C3)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 2. COMPREHENSIVE RISK ASSESSMENT -->
+  <div class="sec-heading">2. Comprehensive Risk Assessment</div>
+  <table class="risk-table">
+    <thead>
+      <tr>
+        <th class="col-desc">Hazard Description</th>
+        <th class="col-like">Like.</th>
+        <th class="col-risk">Risk</th>
+        <th class="col-mit">Mitigation &amp; Control Measures</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="cat-row"><td colspan="4">Category: Pedestrian Safety</td></tr>
+      <tr>
+        <td class="col-desc">Traffic Collision / Road Crossing</td>
+        <td>Unlikely</td>
+        <td><span class="badge badge-medium">MEDIUM</span></td>
+        <td>Utilise signalised crossings only. Wear high-vis if travelling in low light.</td>
+      </tr>
+      <tr>
+        <td class="col-desc">Falls / Industrial Terrain</td>
+        <td>Possible</td>
+        <td><span class="badge badge-medium">MEDIUM</span></td>
+        <td>Sturdy, closed-toe footwear. Support worker to lead on narrow footpaths.</td>
+      </tr>
+      <tr>
+        <td class="col-desc">Disorientation / Getting Lost</td>
+        <td>Possible</td>
+        <td><span class="badge badge-low">LOW</span></td>
+        <td>Use "Visual Route Card" with landmarks. Phone GPS must be active.</td>
+      </tr>
+
+      <tr class="cat-row"><td colspan="4">Category: Public Transport (Bus 350/307)</td></tr>
+      <tr>
+        <td class="col-desc">Fall during Transit</td>
+        <td>Possible</td>
+        <td><span class="badge badge-medium">MEDIUM</span></td>
+        <td>Wait for bus to stop before standing. Use priority seating near doors.</td>
+      </tr>
+      <tr>
+        <td class="col-desc">Sensory Overload / Noise</td>
+        <td>Possible</td>
+        <td><span class="badge badge-low">LOW</span></td>
+        <td>Carry noise-cancelling headphones. Choose seat away from high-traffic zones.</td>
+      </tr>
+      <tr>
+        <td class="col-desc">Missed Stop / Transfer</td>
+        <td>Possible</td>
+        <td><span class="badge badge-low">LOW</span></td>
+        <td>Set "Location Alerts" on smartphone. Familiarise with Merchant St landmarks.</td>
+      </tr>
+
+      <tr class="cat-row"><td colspan="4">Category: Environmental &amp; Security</td></tr>
+      <tr>
+        <td class="col-desc">Heat / Weather Stress</td>
+        <td>Possible</td>
+        <td><span class="badge badge-medium">MEDIUM</span></td>
+        <td>Carry hydration, hat, and sunscreen. Plan for shade during the 7-min walk.</td>
+      </tr>
+      <tr>
+        <td class="col-desc">Stranded / Delayed Service</td>
+        <td>Unlikely</td>
+        <td><span class="badge badge-low">LOW</span></td>
+        <td>Backup plan in place (Taxi/Uber contact). Threshold for waiting is 20 mins.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 3. EMERGENCY MANAGEMENT PLAN -->
+  <div class="sec-heading">3. Emergency Management Plan</div>
+  <div class="emergency-grid">
+    <div class="emerg-box">
+      <div class="emerg-label">Primary Emergency Contact</div>
+      <div class="emerg-name">Lynne Chau (Parent/Guardian)</div>
+      <div class="emerg-phone">📞 0424 377 062</div>
+    </div>
+    <div class="emerg-box">
+      <div class="emerg-label">Secondary Emergency Contact</div>
+      <div class="emerg-none">Not Specified</div>
+    </div>
+  </div>
+
+  <!-- SIGN-OFF -->
+  <div class="signoff-grid">
+    <div class="so-box">
+      <div class="so-label">Assessor / Supervisor</div>
+      <div class="so-value">SZ-Jie Wang</div>
+    </div>
+    <div class="so-box">
+      <div class="so-label">Assessment Date</div>
+      <div class="so-value date">08 / 04 / 2026</div>
+    </div>
+    <div class="so-box">
+      <div class="so-label">Review Date</div>
+      <div class="so-value date">08 / 10 / 2026</div>
+    </div>
+  </div>
+
+</div>
+<div class="no-print" style="text-align:center;padding:16px;">
+  <button onclick="window.print()" style="background:linear-gradient(90deg,#06b6d4,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
+</div>
+</body>
+</html>

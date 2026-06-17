@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Travel Training Program</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #fff; color: #1e293b; font-size: 13px; }
+  .page { max-width: 860px; margin: 0 auto; padding: 28px 32px 32px 32px; background: #fff; }
+
+  /* HEADER */
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+  .header-logo { width: 150px; }
+  .header-contact { text-align: right; font-size: 11px; color: #475569; line-height: 1.75; }
+
+  /* TITLE */
+  .page-title { font-size: 34px; font-weight: 900; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .page-title .teal { color: #06b6d4; }
+  .page-title .dark { color: #1e293b; }
+  .title-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+  .conf-pill { border: 1.5px solid #94a3b8; color: #64748b; font-size: 10px; font-weight: bold; padding: 3px 12px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .ndis-tag { font-size: 12px; font-weight: bold; color: #1e293b; }
+
+  /* SECTION HEADING */
+  .sec-heading { font-size: 18px; font-weight: bold; color: #3b82f6; margin: 20px 0 8px 0; padding-bottom: 4px; border-bottom: 1.5px solid #e2e8f0; }
+  .sec-text { font-size: 13px; color: #374151; line-height: 1.6; margin-bottom: 6px; }
+
+  /* ITINERARY TABLE */
+  .itin-section { background: #f8fafc; border-radius: 8px; padding: 14px 16px; margin-bottom: 14px; }
+  .itin-section .is-label { font-size: 9.5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 10px; padding: 3px 8px; border-radius: 3px; display: inline-block; }
+  .is-label.outbound { background: #dbeafe; color: #1d4ed8; }
+  .is-label.return { background: #ede9fe; color: #6d28d9; }
+
+  .itin-row { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+  .itin-row:last-child { margin-bottom: 0; }
+  .itin-time { min-width: 56px; font-size: 12px; font-weight: 900; line-height: 1.3; flex-shrink: 0; }
+  .itin-time.arrive { color: #16a34a; }
+  .itin-time.bus { color: #1d4ed8; font-size: 11px; }
+  .itin-time.bus.purple { color: #7c3aed; }
+  .itin-time.transfer { color: #d97706; }
+  .itin-step { flex: 1; }
+  .itin-step .is-title { font-size: 13px; font-weight: bold; color: #1e293b; }
+  .itin-step .is-sub { font-size: 11.5px; color: #374151; font-style: italic; margin-top: 1px; line-height: 1.4; }
+  .itin-step .is-note { font-size: 11.5px; color: #64748b; margin-top: 2px; line-height: 1.4; }
+  .itin-divider { border: none; border-top: 1px dashed #e2e8f0; margin: 8px 0; }
+
+  /* MODULES */
+  .module { margin-bottom: 12px; }
+  .module-title { font-size: 13px; font-weight: bold; color: #3b82f6; text-decoration: underline; margin-bottom: 6px; }
+  .module ul { padding-left: 18px; }
+  .module ul li { font-size: 12.5px; color: #374151; margin-bottom: 4px; line-height: 1.4; }
+  .module ul li strong { color: #1e293b; }
+
+  /* MEDICAL CRITICAL */
+  .critical-heading { font-size: 18px; font-weight: bold; color: #dc2626; margin: 20px 0 8px 0; padding-bottom: 4px; border-bottom: 1.5px solid #fecaca; }
+  .epilepsy-subtitle { font-size: 13px; font-weight: bold; color: #dc2626; font-style: italic; margin-bottom: 8px; }
+  .medical-list ul { padding-left: 18px; margin-bottom: 10px; }
+  .medical-list ul li { font-size: 12.5px; color: #374151; margin-bottom: 4px; line-height: 1.4; }
+  .medical-list ul li strong { color: #1e293b; }
+  .emergency-box { border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px 14px; margin-top: 10px; background: #f8fafc; }
+  .emergency-box .eb-title { font-size: 10.5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; margin-bottom: 6px; }
+  .emergency-box .eb-row { font-size: 12.5px; color: #374151; margin-bottom: 3px; }
+  .emergency-box .eb-row strong { color: #1e293b; }
+  .sensory-box { border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 14px; margin-top: 8px; font-size: 12.5px; color: #374151; line-height: 1.5; }
+
+  /* RISK ASSESSMENT */
+  .risk-heading { font-size: 18px; font-weight: bold; color: #3b82f6; margin: 20px 0 8px 0; padding-bottom: 4px; border-bottom: 1.5px solid #e2e8f0; }
+  .risk-sub { font-size: 10.5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; margin: 10px 0 6px 0; }
+  .likelihood-table { width: 100%; border-collapse: collapse; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; margin-bottom: 14px; font-size: 12px; }
+  .likelihood-table th, .likelihood-table td { padding: 7px 10px; border: 1px solid #e2e8f0; text-align: center; }
+  .likelihood-table th { background: #f8fafc; font-weight: bold; color: #64748b; }
+  .likelihood-table td.row-head { font-weight: bold; text-align: left; background: #f8fafc; }
+  .cell-e { background: #fecaca; font-weight: bold; color: #dc2626; }
+  .cell-h { background: #fed7aa; font-weight: bold; color: #c2410c; }
+  .cell-m { background: #fef9c3; font-weight: bold; color: #854d0e; }
+  .cell-l { background: #dcfce7; font-weight: bold; color: #15803d; }
+
+  .hazard-table { width: 100%; border-collapse: collapse; border: 1px solid #e2e8f0; overflow: hidden; font-size: 12px; }
+  .hazard-table thead tr { background: #1e293b; color: white; }
+  .hazard-table thead th { padding: 8px 10px; text-align: left; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .hazard-table tbody tr { border-bottom: 1px solid #f1f5f9; }
+  .hazard-table tbody tr:nth-child(even) { background: #f8fafc; }
+  .hazard-table tbody td { padding: 8px 10px; vertical-align: top; color: #374151; }
+  .hazard-table tbody td.hazard-name { font-weight: 600; color: #1e293b; }
+  .level-med { background: #fef9c3; color: #854d0e; font-size: 10px; font-weight: bold; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+  .level-low { background: #dcfce7; color: #15803d; font-size: 10px; font-weight: bold; padding: 2px 7px; border-radius: 4px; white-space: nowrap; }
+
+  .assessor-block { margin-top: 14px; font-size: 12.5px; color: #374151; line-height: 1.8; }
+  .assessor-block strong { color: #1e293b; }
+
+  @media print { body { background: white; } .page { padding: 20px; } .no-print { display: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" alt="SZ-JIE" class="header-logo" />
+    <div class="header-contact">
+      <div>SZ-Jie Support Services</div>
+      <div>ABN: 86959042971</div>
+      <div>309/12 Broome St, Waterloo NSW, 2017</div>
+      <div>jeff@szjiesupportservices.com</div>
+      <div>0401 343 876</div>
+    </div>
+  </div>
+
+  <!-- TITLE -->
+  <div class="page-title"><span class="teal">TRAVEL</span> <span class="dark">TRAINING PROGRAM</span></div>
+  <div class="title-meta">
+    <span class="conf-pill">Confidential</span>
+    <span class="ndis-tag">Bronwyn Chau | NDIS: 430117666</span>
+  </div>
+
+  <!-- 1. PARTICIPANT OVERVIEW -->
+  <div class="sec-heading">1. Participant Overview</div>
+  <div class="sec-text">Achieve independence in travelling between Coogee Beach and 11-13 Lord St, Botany using the updated Coogee to Botany itinerary.</div>
+
+  <!-- 2. DETAILED TRAVEL ITINERARY -->
+  <div class="sec-heading">2. Detailed Travel Itinerary — Coogee to Botany</div>
+
+  <div class="itin-section">
+    <span class="is-label outbound">Outbound: Coogee Beach to 11-13 Lord St, Botany</span>
+
+    <div class="itin-row">
+      <div class="itin-time arrive">08:38<br>AM</div>
+      <div class="itin-step">
+        <div class="is-title">Depart Coogee Beach</div>
+        <div class="is-sub">Start at Coogee Beach / Arden St, Coogee.</div>
+      </div>
+    </div>
+    <hr class="itin-divider">
+    <div class="itin-row">
+      <div class="itin-time">Walk</div>
+      <div class="itin-step">
+        <div class="is-title">Walk to Arden St opp Coogee Bay Rd</div>
+        <div class="is-note">Use safe pedestrian crossings and wait at the correct bus stop.</div>
+      </div>
+    </div>
+    <hr class="itin-divider">
+    <div class="itin-row">
+      <div class="itin-time bus">Bus<br>350</div>
+      <div class="itin-step">
+        <div class="is-title">Coogee to Mascot Shops</div>
+        <div class="is-note">Board at Arden St opp Coogee Bay Rd. Alight at Mascot Shops, Botany Rd. 31 stops, approx. 37 minutes.</div>
+      </div>
+    </div>
+    <hr class="itin-divider">
+    <div class="itin-row">
+      <div class="itin-time transfer">Transfer</div>
+      <div class="itin-step">
+        <div class="is-title">Walk approx. 108m on Botany Rd</div>
+        <div class="is-note">Move from Stop 202017 to Stop 202025 on Botany Rd.</div>
+      </div>
+    </div>
+    <hr class="itin-divider">
+    <div class="itin-row">
+      <div class="itin-time bus">Bus<br>307</div>
+      <div class="itin-step">
+        <div class="is-title">Mascot Shops to Lord St</div>
+        <div class="is-note">Board at Mascot Shops, Botany Rd. Alight at Botany Rd at Lord St.</div>
+      </div>
+    </div>
+    <hr class="itin-divider">
+    <div class="itin-row">
+      <div class="itin-time arrive">09:32<br>AM</div>
+      <div class="itin-step">
+        <div class="is-title">Arrive at 11-13 Lord St, Botany NSW 2019</div>
+        <div class="is-note">Confirm arrival location and complete arrival check-in.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="itin-section">
+    <span class="is-label return">Return: 11-13 Lord St, Botany to Coogee Beach</span>
+
+    <div class="itin-row">
+      <div class="itin-time arrive" style="color:#7c3aed;">03:09<br>PM</div>
+      <div class="itin-step">
+        <div class="is-title">Depart 11-13 Lord St</div>
+        <div class="is-sub">Begin return journey from Botany NSW 2019.</div>
+      </div>
+    </div>
+    <hr class="itin-divider">
+    <div class="itin-row">
+      <div class="itin-time">Walk</div>
+      <div class="itin-step">
+        <div class="is-title">Walk to Botany Public School</div>
+        <div class="is-note">Walk approx. 593m down to Botany Rd.</div>
+      </div>
+    </div>
+    <hr class="itin-divider">
+    <div class="itin-row">
+      <div class="itin-time bus purple">Bus<br>307</div>
+      <div class="itin-step">
+        <div class="is-title">Botany Public School to Mascot Shops</div>
+        <div class="is-note">Board at Botany Public School. Alight at Mascot Shops, Botany Rd. Ride 4 stops, approx. 4 minutes; arrive about 03:22 PM.</div>
+      </div>
+    </div>
+    <hr class="itin-divider">
+    <div class="itin-row">
+      <div class="itin-time transfer">Transfer</div>
+      <div class="itin-step">
+        <div class="is-title">Mascot Shops transfer</div>
+        <div class="is-note">Exit via Mascot Shops Stop 202017, cross road to Botany Rd Stop 202025. Include 7-minute buffer; depart about 03:29 PM.</div>
+      </div>
+    </div>
+    <hr class="itin-divider">
+    <div class="itin-row">
+      <div class="itin-time bus">Bus<br>350</div>
+      <div class="itin-step">
+        <div class="is-title">Mascot Shops to Coogee</div>
+        <div class="is-note">Board at Mascot Shops, Botany Rd. Alight at Arden St at Coogee Bay Rd. 28 stops, approx. 33 minutes; arrive about 04:02 PM.</div>
+      </div>
+    </div>
+    <hr class="itin-divider">
+    <div class="itin-row">
+      <div class="itin-time arrive">04:04<br>PM</div>
+      <div class="itin-step">
+        <div class="is-title">Arrive at Coogee Beach</div>
+        <div class="is-note">Walk from Arden St, Coogee to Coogee Beach and complete final check-in.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. TRAINING COMPETENCIES -->
+  <div class="sec-heading">3. Training Competencies (Skill Modules)</div>
+
+  <div class="module">
+    <div class="module-title">Module A: Digital Literacy</div>
+    <ul>
+      <li><strong>Opal App:</strong> Ensure min $10 balance.</li>
+      <li><strong>Trip Planner:</strong> Use "Live View" for real-time tracking.</li>
+      <li><strong>Notifications:</strong> Set "Get Off" alerts.</li>
+    </ul>
+  </div>
+
+  <div class="module">
+    <div class="module-title">Module B: Pedestrian Safety</div>
+    <ul>
+      <li><strong>Crossings:</strong> Only use "Green Man" at Arden St &amp; Lord St.</li>
+      <li><strong>Industrial:</strong> High caution at Lord St (Heavy Vehicles).</li>
+      <li><strong>Prep:</strong> Hydration, hat, and identify shaded areas.</li>
+    </ul>
+  </div>
+
+  <div class="module">
+    <div class="module-title">Module C: Route Flow</div>
+    <ul>
+      <li><strong>Landmarks:</strong> Mascot Shops transfer and Botany Rd Stop 202025.</li>
+      <li><strong>Stop Request:</strong> Press button within 100m.</li>
+      <li><strong>Contingency:</strong> Wait 20m if cancelled; contact Linh.</li>
+    </ul>
+  </div>
+
+  <!-- 4. MEDICAL & EPILEPSY MANAGEMENT -->
+  <div class="critical-heading">4. Medical &amp; Epilepsy Management (CRITICAL)</div>
+  <div class="epilepsy-subtitle">Epilepsy Management (Generalised Tonic Seizure)</div>
+  <div class="medical-list">
+    <ul>
+      <li><strong>Warning Signs:</strong> Hyperactivity or excessive talking.</li>
+      <li><strong>During Seizure:</strong> Lie on side; do NOT restrain; do NOT put anything in mouth; do NOT let her fall asleep post-seizure.</li>
+      <li><strong>Ambulance:</strong> Call 000 ONLY if breathing difficulty occurs.</li>
+      <li><strong>Diagnosis Year:</strong> 2017 | Last Seizure: March 2024</li>
+    </ul>
+  </div>
+
+  <div class="emergency-box">
+    <div class="eb-title">Emergency Contacts</div>
+    <div class="eb-row"><strong>Mother (Linh Phung):</strong> 0424 377 062</div>
+    <div class="eb-row"><strong>Doctor (Dr Yoke Chan Choong):</strong> 02 9665 0330</div>
+  </div>
+
+  <div class="sensory-box" style="margin-top:8px;">
+    <strong>Sensory Support:</strong> Use noise-cancelling headphones if industrial noise or crowding becomes overwhelming.
+  </div>
+
+  <!-- 6. NDIS TRAVEL RISK ASSESSMENT -->
+  <div class="risk-heading">6. NDIS Travel Risk Assessment</div>
+
+  <div class="risk-sub">Likelihood Matrix</div>
+  <table class="likelihood-table">
+    <thead>
+      <tr>
+        <th>L'hood</th><th>Minor</th><th>Mod</th><th>Major</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="row-head">High</td>
+        <td class="cell-m">M</td>
+        <td class="cell-h">H</td>
+        <td class="cell-e">E</td>
+      </tr>
+      <tr>
+        <td class="row-head">Poss</td>
+        <td class="cell-l">L</td>
+        <td class="cell-m">M</td>
+        <td class="cell-h">H</td>
+      </tr>
+      <tr>
+        <td class="row-head">Unik</td>
+        <td class="cell-l">L</td>
+        <td class="cell-l">L</td>
+        <td class="cell-m">M</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="risk-sub">Hazard Control Measures</div>
+  <table class="hazard-table">
+    <thead>
+      <tr><th>Hazard</th><th>Level</th><th>Control Measures</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="hazard-name">Traffic Collision (Pedestrian)</td>
+        <td><span class="level-med">MED</span></td>
+        <td>Utilize signalized crossings ONLY. Wear high-vis in low light.</td>
+      </tr>
+      <tr>
+        <td class="hazard-name">Falls / Industrial Terrain</td>
+        <td><span class="level-med">MED</span></td>
+        <td>Sturdy, closed-toe footwear. Support worker to lead on narrow footpaths.</td>
+      </tr>
+      <tr>
+        <td class="hazard-name">Disorientation</td>
+        <td><span class="level-low">LOW</span></td>
+        <td>Visual Route Card with landmarks. Active Phone GPS.</td>
+      </tr>
+      <tr>
+        <td class="hazard-name">Heat / Weather Stress</td>
+        <td><span class="level-med">MED</span></td>
+        <td>Carry hydration, hat, and sunscreen. Plan for shade.</td>
+      </tr>
+      <tr>
+        <td class="hazard-name">Missed Stop / Transfer</td>
+        <td><span class="level-low">LOW</span></td>
+        <td>Set Location Alerts. Familiarize with Merchant St landmarks.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="assessor-block">
+    <div><strong>Assessor:</strong> SZ-Jie Wang</div>
+    <div><strong>Assessment Date:</strong> 08/04/2026</div>
+    <div><strong>Review Date:</strong> 08/10/2026</div>
+  </div>
+
+</div>
+<div class="no-print" style="text-align:center;padding:16px;">
+  <button onclick="window.print()" style="background:linear-gradient(90deg,#06b6d4,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
+</div>
+</body>
+</html>
