@@ -15,12 +15,28 @@ const TEMPLATES = [
     url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/df40c987a_General_Email_Template.html",
   },
   {
+    id: "general_email_v2",
+    label: "General Email (Updated)",
+    description: "Updated general purpose SZ-JIE branded email template",
+    icon: Mail,
+    color: "bg-blue-50 text-blue-700 border-blue-200",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/3e379866c_General_Email_Template.html",
+  },
+  {
     id: "invoice",
     label: "Invoice Email",
     description: "NDIS invoice claim email for plan managers",
     icon: Receipt,
     color: "bg-amber-50 text-amber-700 border-amber-200",
     url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/df36de2b3_Invoice.html",
+  },
+  {
+    id: "invoice_v2",
+    label: "Invoice Email (Updated)",
+    description: "Updated NDIS invoice claim email for plan managers",
+    icon: Receipt,
+    color: "bg-amber-50 text-amber-700 border-amber-200",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/1189154e2_Invoice_Email.html",
   },
   {
     id: "onboarding_client",
@@ -31,6 +47,14 @@ const TEMPLATES = [
     url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/bcd281f72_Onboarding_Client.html",
   },
   {
+    id: "onboarding_client_v2",
+    label: "Client Onboarding (Updated)",
+    description: "Updated welcome email for new participants and families",
+    icon: User,
+    color: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/0f5a62100_Onboarding_Client.html",
+  },
+  {
     id: "payslip_advice",
     label: "Payslip Advice",
     description: "Payslip notification email to send to staff members",
@@ -39,12 +63,28 @@ const TEMPLATES = [
     url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/dd239644c_Payslip_Advice.html",
   },
   {
+    id: "payslip_advice_v2",
+    label: "Payslip Advice (Updated)",
+    description: "Updated payslip notification email to send to staff members",
+    icon: FileText,
+    color: "bg-violet-50 text-violet-700 border-violet-200",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/c23215a33_Payslip_Advice.html",
+  },
+  {
     id: "staff_onboarding",
     label: "Staff Onboarding",
     description: "Welcome and onboarding email for new staff members",
     icon: Users,
     color: "bg-rose-50 text-rose-700 border-rose-200",
     url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/f1c350195_Staff_Onboarding.html",
+  },
+  {
+    id: "staff_onboarding_v2",
+    label: "Staff Onboarding (Updated)",
+    description: "Updated welcome and onboarding email for new staff members",
+    icon: Users,
+    color: "bg-rose-50 text-rose-700 border-rose-200",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/24a55ecd5_Staff_Onboarding.html",
   },
 ];
 
