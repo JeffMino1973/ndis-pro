@@ -25,6 +25,7 @@ const EMPTY_FORM = {
   wwcc_expiry: "", first_aid_expiry: "", police_check: "Cleared", training_status: "Complete", status: "Active",
   emergency_contact_name: "", emergency_contact_phone: "", emergency_contact_relationship: "",
   tfn: "", abn: "", bank_name: "", bank_account_name: "", bank_bsb: "", bank_account_number: "",
+  photo_url: "",
 };
 
 export default function Staff() {
@@ -35,6 +36,8 @@ export default function Staff() {
   const [editingId, setEditingId] = useState(null);
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
+  const [uploadingFormPhoto, setUploadingFormPhoto] = useState(false);
+  const formPhotoRef = useRef();
 
   const load = async () => {
     const data = await base44.entities.StaffMember.list();
@@ -49,8 +52,17 @@ export default function Staff() {
   const openAdd = () => { setEditingId(null); setForm(EMPTY_FORM); setShowForm(true); };
   const openEdit = (s) => {
     setEditingId(s.id);
-    setForm({ name: s.name || "", role: s.role || "", email: s.email || "", phone: s.phone || "", address: s.address || "", date_of_birth: s.date_of_birth || "", wwcc_expiry: s.wwcc_expiry || "", first_aid_expiry: s.first_aid_expiry || "", police_check: s.police_check || "Cleared", training_status: s.training_status || "Complete", status: s.status || "Active", emergency_contact_name: s.emergency_contact_name || "", emergency_contact_phone: s.emergency_contact_phone || "", emergency_contact_relationship: s.emergency_contact_relationship || "", tfn: s.tfn || "", abn: s.abn || "", bank_name: s.bank_name || "", bank_account_name: s.bank_account_name || "", bank_bsb: s.bank_bsb || "", bank_account_number: s.bank_account_number || "" });
+    setForm({ name: s.name || "", role: s.role || "", email: s.email || "", phone: s.phone || "", address: s.address || "", date_of_birth: s.date_of_birth || "", wwcc_expiry: s.wwcc_expiry || "", first_aid_expiry: s.first_aid_expiry || "", police_check: s.police_check || "Cleared", training_status: s.training_status || "Complete", status: s.status || "Active", emergency_contact_name: s.emergency_contact_name || "", emergency_contact_phone: s.emergency_contact_phone || "", emergency_contact_relationship: s.emergency_contact_relationship || "", tfn: s.tfn || "", abn: s.abn || "", bank_name: s.bank_name || "", bank_account_name: s.bank_account_name || "", bank_bsb: s.bank_bsb || "", bank_account_number: s.bank_account_number || "", photo_url: s.photo_url || "" });
     setShowForm(true);
+  };
+
+  const handleFormPhotoUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingFormPhoto(true);
+    const { file_url } = await base44.integrations.Core.UploadFile({ file });
+    set("photo_url", file_url);
+    setUploadingFormPhoto(false);
   };
 
   const handleSave = async () => {
@@ -157,6 +169,30 @@ export default function Staff() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editingId ? "Edit Staff Member" : "Add Staff Member"}</DialogTitle></DialogHeader>
           <div className="space-y-3">
+            {/* Photo Upload */}
+            <div className="flex items-center gap-4 p-4 bg-secondary rounded-2xl">
+              <div className="relative group cursor-pointer" onClick={() => formPhotoRef.current?.click()}>
+                {form.photo_url ? (
+                  <img src={form.photo_url} alt="Staff photo" className="w-16 h-16 rounded-2xl object-cover" />
+                ) : (
+                  <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary font-black text-2xl">
+                    {form.name?.charAt(0) || <User size={24} />}
+                  </div>
+                )}
+                <div className="absolute inset-0 bg-black/40 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  {uploadingFormPhoto ? <Loader2 size={16} className="text-white animate-spin" /> : <Camera size={16} className="text-white" />}
+                </div>
+                <input ref={formPhotoRef} type="file" accept="image/*" className="hidden" onChange={handleFormPhotoUpload} />
+              </div>
+              <div>
+                <p className="text-sm font-bold">Profile Photo</p>
+                <p className="text-xs text-muted-foreground mb-2">Used on business cards, lanyards & payslips</p>
+                <Button type="button" size="sm" variant="outline" className="rounded-xl text-xs gap-1" onClick={() => formPhotoRef.current?.click()} disabled={uploadingFormPhoto}>
+                  {uploadingFormPhoto ? <><Loader2 size={12} className="animate-spin" /> Uploading…</> : <><Camera size={12} /> {form.photo_url ? "Change Photo" : "Upload Photo"}</>}
+                </Button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Name *</Label><Input value={form.name} onChange={e => set("name", e.target.value)} /></div>
               <div><Label>Role *</Label><Input value={form.role} onChange={e => set("role", e.target.value)} /></div>
