@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Travel Itinerary – Coogee to Randwick</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #fff; color: #1e293b; font-size: 13px; }
+  .page { max-width: 900px; margin: 0 auto; padding: 28px 32px 32px 32px; background: #fff; }
+
+  /* HEADER */
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 1px solid #e2e8f0; }
+  .header-logo { width: 145px; }
+  .header-contact { text-align: right; font-size: 11px; color: #475569; line-height: 1.8; }
+  .header-contact .row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+
+  /* JOURNEY GRID */
+  .journeys { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px; }
+
+  /* JOURNEY CARD */
+  .journey-card { border: 1.5px solid #e2e8f0; border-radius: 12px; overflow: hidden; }
+  .journey-card-header { padding: 14px 16px; display: flex; align-items: flex-start; justify-content: space-between; }
+  .jch-left { display: flex; align-items: flex-start; gap: 10px; }
+  .jch-num { width: 28px; height: 28px; border-radius: 50%; background: #4f46e5; color: white; font-size: 13px; font-weight: bold; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .jch-num.two { background: #8b5cf6; }
+  .jch-title { font-size: 17px; font-weight: bold; color: #1e293b; line-height: 1.3; }
+  .jch-sub { font-size: 11.5px; color: #64748b; margin-top: 2px; }
+  .est-pill { background: #f1f5f9; color: #475569; font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 10px; text-align: center; flex-shrink: 0; }
+  .est-pill .ep-num { font-size: 16px; font-weight: 900; color: #4f46e5; display: block; line-height: 1; }
+  .est-pill .ep-label { font-size: 9px; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; }
+
+  .journey-body { padding: 14px 16px; border-top: 1px solid #f1f5f9; }
+
+  /* STOP ROW */
+  .stop-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+  .stop-icon { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+  .stop-icon.start { background: #dbeafe; color: #2563eb; }
+  .stop-icon.end { background: #e0e7ff; color: #4f46e5; }
+  .stop-icon.end2 { background: #ede9fe; color: #7c3aed; }
+  .stop-icon.start2 { background: #fce7f3; color: #db2777; }
+  .stop-label { font-size: 9.5px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1px; }
+  .stop-name { font-size: 14px; font-weight: bold; color: #1e293b; }
+  .stop-sub { font-size: 11.5px; color: #64748b; font-style: italic; }
+
+  /* CONNECTOR */
+  .connector { margin-left: 14px; border-left: 2px dashed #d1d5db; height: 10px; }
+
+  /* BUS CARD */
+  .bus-card { border: 1.5px solid #e2e8f0; border-radius: 8px; overflow: hidden; margin: 8px 0; }
+  .bc-header { background: #f8fafc; padding: 8px 12px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #e2e8f0; }
+  .bc-num { background: linear-gradient(90deg, #06b6d4, #4f46e5); color: white; font-size: 12px; font-weight: bold; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .bc-name { font-size: 13px; font-weight: bold; color: #1e293b; }
+  .bc-tag { background: #dbeafe; color: #1d4ed8; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 10px; margin-left: auto; }
+  .bc-stops { padding: 10px 12px; }
+  .bc-stop-row { display: flex; align-items: center; gap: 8px; padding: 4px 0; font-size: 12px; color: #374151; }
+  .bc-dot { width: 7px; height: 7px; border-radius: 50%; background: #d1d5db; flex-shrink: 0; }
+  .bc-dot.highlight { background: #4f46e5; width: 9px; height: 9px; }
+  .bc-stop-name { font-size: 12px; color: #374151; }
+  .bc-stop-name.bold { font-weight: bold; color: #1e293b; }
+
+  @media print { body { background: white; } .page { padding: 20px; } .no-print { display: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" alt="SZ-JIE" class="header-logo" />
+    <div class="header-contact">
+      <div class="row">📋 <strong>SZ-JIE Support Services</strong></div>
+      <div class="row">🏢 ABN: 86959042971</div>
+      <div class="row">📍 309/12 Broome St, Waterloo NSW, 2017</div>
+      <div class="row">✉️ jeff@szjiesupportservices.com</div>
+      <div class="row">🌐 www.szjiesupportservices.com</div>
+      <div class="row">📞 0401 343 876</div>
+    </div>
+  </div>
+
+  <!-- JOURNEYS -->
+  <div class="journeys">
+
+    <!-- OUTBOUND -->
+    <div class="journey-card">
+      <div class="journey-card-header">
+        <div class="jch-left">
+          <div class="jch-num">1</div>
+          <div>
+            <div class="jch-title">Outbound: Coogee to Randwick</div>
+          </div>
+        </div>
+        <div class="est-pill">
+          <span class="ep-num">~10</span>
+          <span class="ep-label">MINS</span>
+        </div>
+      </div>
+      <div class="journey-body">
+
+        <!-- START -->
+        <div class="stop-row">
+          <div class="stop-icon start">📍</div>
+          <div>
+            <div class="stop-label">Start</div>
+            <div class="stop-name">Coogee Beach</div>
+            <div class="stop-sub">Arden St at Dolphin St</div>
+          </div>
+        </div>
+        <div class="connector"></div>
+
+        <!-- BUS CARD -->
+        <div class="bus-card">
+          <div class="bc-header">
+            <div class="bc-num">370</div>
+            <div class="bc-name">Bus 370 (Towards Glebe)</div>
+            <span class="bc-tag">4 STOPS</span>
+          </div>
+          <div class="bc-stops">
+            <div class="bc-stop-row"><span class="bc-dot"></span><span class="bc-stop-name">Arden St at Dolphin St</span></div>
+            <div class="bc-stop-row"><span class="bc-dot"></span><span class="bc-stop-name">Coogee Bay Rd at Arden St</span></div>
+            <div class="bc-stop-row"><span class="bc-dot"></span><span class="bc-stop-name">Coogee Bay Rd at Perouse Rd</span></div>
+            <div class="bc-stop-row"><span class="bc-dot highlight"></span><span class="bc-stop-name bold">Belmore Rd at Avoca St</span></div>
+          </div>
+        </div>
+
+        <div class="connector"></div>
+        <!-- END -->
+        <div class="stop-row">
+          <div class="stop-icon end">🏠</div>
+          <div>
+            <div class="stop-label">Arrive</div>
+            <div class="stop-name">Randwick Coles</div>
+            <div class="stop-sub">Arrive: Belmore Rd near Avoca St</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RETURN -->
+    <div class="journey-card">
+      <div class="journey-card-header">
+        <div class="jch-left">
+          <div class="jch-num two">2</div>
+          <div>
+            <div class="jch-title">Return: Randwick to Coogee</div>
+          </div>
+        </div>
+        <div class="est-pill">
+          <span class="ep-num" style="color:#8b5cf6;">~10</span>
+          <span class="ep-label">MINS</span>
+        </div>
+      </div>
+      <div class="journey-body">
+
+        <!-- START -->
+        <div class="stop-row">
+          <div class="stop-icon start2">📍</div>
+          <div>
+            <div class="stop-label">Start</div>
+            <div class="stop-name">Randwick Coles</div>
+            <div class="stop-sub">Belmore Rd near Avoca St</div>
+          </div>
+        </div>
+        <div class="connector"></div>
+
+        <!-- BUS CARD -->
+        <div class="bus-card">
+          <div class="bc-header">
+            <div class="bc-num" style="background:linear-gradient(90deg,#8b5cf6,#4f46e5);">370</div>
+            <div class="bc-name">Bus 370 (Towards Coogee)</div>
+            <span class="bc-tag" style="background:#ede9fe;color:#6d28d9;">4 STOPS</span>
+          </div>
+          <div class="bc-stops">
+            <div class="bc-stop-row"><span class="bc-dot"></span><span class="bc-stop-name">Belmore Rd near Avoca St</span></div>
+            <div class="bc-stop-row"><span class="bc-dot"></span><span class="bc-stop-name">Coogee Bay Rd near Perouse Rd</span></div>
+            <div class="bc-stop-row"><span class="bc-dot"></span><span class="bc-stop-name">Coogee Bay Rd at Arden St</span></div>
+            <div class="bc-stop-row"><span class="bc-dot highlight" style="background:#8b5cf6;"></span><span class="bc-stop-name bold">Arden St at Dolphin St</span></div>
+          </div>
+        </div>
+
+        <div class="connector"></div>
+        <!-- END -->
+        <div class="stop-row">
+          <div class="stop-icon end2">🏠</div>
+          <div>
+            <div class="stop-label">Arrive</div>
+            <div class="stop-name">Coogee Beach</div>
+            <div class="stop-sub">Arrive: Arden St at Dolphin St</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</div>
+<div class="no-print" style="text-align:center;padding:16px;">
+  <button onclick="window.print()" style="background:linear-gradient(90deg,#06b6d4,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
+</div>
+</body>
+</html>
