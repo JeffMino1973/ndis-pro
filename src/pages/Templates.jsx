@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Download, FileText, Mail, User, Printer, ArrowLeft, Loader2, Receipt, Users, CreditCard, BadgeCheck, LayoutTemplate, ScrollText, ImageIcon, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -131,10 +131,53 @@ function FieldsForm({ template, htmlPages, onBack, onPreview }) {
 
 function Preview({ template, mergedPages, onBack, hasFields }) {
   const [activePage, setActivePage] = useState(0);
+  const iframeRef = useRef(null);
+  const [editMode, setEditMode] = useState(false);
+
+  const getIframeDoc = () => iframeRef.current?.contentDocument || iframeRef.current?.contentWindow?.document;
+
+  const enableEditing = () => {
+    const doc = getIframeDoc();
+    if (!doc) return;
+    doc.body.contentEditable = "true";
+    doc.body.style.outline = "none";
+    // Highlight editable areas on hover
+    const style = doc.createElement("style");
+    style.id = "edit-styles";
+    style.textContent = `
+      [contenteditable]:focus { outline: 2px solid #6366f1 !important; border-radius: 3px; }
+      body:hover p, body:hover td, body:hover li, body:hover h1, body:hover h2, body:hover h3, body:hover span, body:hover div {
+        cursor: text;
+      }
+      body { background: #fffdf0 !important; }
+    `;
+    doc.head.appendChild(style);
+    setEditMode(true);
+  };
+
+  const disableEditing = () => {
+    const doc = getIframeDoc();
+    if (!doc) return;
+    doc.body.contentEditable = "false";
+    const style = doc.getElementById("edit-styles");
+    if (style) style.remove();
+    doc.body.style.background = "";
+    setEditMode(false);
+  };
+
+  const getEditedHTML = () => {
+    const doc = getIframeDoc();
+    if (!doc) return mergedPages[activePage];
+    const clone = doc.documentElement.cloneNode(true);
+    clone.querySelector("#edit-styles")?.remove();
+    clone.querySelector("body").contentEditable = "";
+    clone.querySelector("body").style.background = "";
+    return "<!DOCTYPE html>" + clone.outerHTML;
+  };
 
   const downloadHTML = () => {
-    const combined = mergedPages.join('\n<div style="page-break-before:always"></div>\n');
-    const blob = new Blob([combined], { type: "text/html" });
+    const html = getEditedHTML();
+    const blob = new Blob([html], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url; a.download = `${template.label.replace(/\s+/g, "_")}.html`; a.click();
@@ -142,9 +185,9 @@ function Preview({ template, mergedPages, onBack, hasFields }) {
   };
 
   const printPDF = () => {
-    const combined = mergedPages.join('\n<div style="page-break-before:always"></div>\n');
+    const html = getEditedHTML();
     const win = window.open("", "_blank");
-    win.document.write(combined);
+    win.document.write(html);
     win.document.close();
     win.focus();
     setTimeout(() => win.print(), 600);
@@ -157,12 +200,23 @@ function Preview({ template, mergedPages, onBack, hasFields }) {
           <Button variant="ghost" size="sm" onClick={onBack} className="gap-2 font-bold"><ArrowLeft size={16} /> {hasFields ? "Edit Fields" : "Back"}</Button>
           <div>
             <h2 className="text-2xl font-black tracking-tight">{template.label}</h2>
-            <p className="text-xs text-muted-foreground">Preview — ready to print or download</p>
+            <p className="text-xs text-muted-foreground">
+              {editMode ? "✏️ Edit mode active — click any text in the document to change it" : "Preview — enable edit mode to update content directly"}
+            </p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={downloadHTML} className="gap-2 font-bold rounded-xl"><Download size={15} /> Download HTML</Button>
-          <Button onClick={printPDF} className="gap-2 font-bold rounded-xl"><Printer size={15} /> Print / Save PDF</Button>
+        <div className="flex gap-2 flex-wrap">
+          {editMode ? (
+            <Button variant="outline" onClick={disableEditing} className="gap-2 font-bold rounded-xl border-amber-300 text-amber-700 hover:bg-amber-50">
+              ✓ Done Editing
+            </Button>
+          ) : (
+            <Button variant="outline" onClick={enableEditing} className="gap-2 font-bold rounded-xl border-violet-300 text-violet-700 hover:bg-violet-50">
+              ✏️ Edit Document
+            </Button>
+          )}
+          <Button variant="outline" onClick={downloadHTML} className="gap-2 font-bold rounded-xl"><Download size={15} /> Download</Button>
+          <Button onClick={printPDF} className="gap-2 font-bold rounded-xl"><Printer size={15} /> Print / PDF</Button>
         </div>
       </div>
       {mergedPages.length > 1 && (
@@ -174,8 +228,20 @@ function Preview({ template, mergedPages, onBack, hasFields }) {
           ))}
         </div>
       )}
-      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-md">
-        <iframe srcDoc={mergedPages[activePage]} title="Template Preview" className="w-full border-0" style={{ height: "820px" }} />
+      {editMode && (
+        <div className="bg-violet-50 border border-violet-200 rounded-xl px-4 py-2.5 text-sm text-violet-800 font-medium flex items-center gap-2">
+          <span>✏️</span>
+          <span>Click directly on any text in the document below to edit it. Click <strong>Done Editing</strong> when finished, then Print or Download.</span>
+        </div>
+      )}
+      <div className={`bg-card border-2 rounded-2xl overflow-hidden shadow-md transition-colors ${editMode ? "border-violet-400" : "border-border"}`}>
+        <iframe
+          ref={iframeRef}
+          srcDoc={mergedPages[activePage]}
+          title="Template Preview"
+          className="w-full border-0"
+          style={{ height: "860px" }}
+        />
       </div>
     </div>
   );
