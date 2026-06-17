@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, FileText, Mail, User, Printer, ArrowLeft, Loader2, Receipt, Users } from "lucide-react";
+import { Download, FileText, Mail, User, Printer, ArrowLeft, Loader2, Receipt, Users, CreditCard, BadgeCheck, LayoutTemplate, ScrollText, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -85,6 +85,66 @@ const TEMPLATES = [
     icon: Users,
     color: "bg-rose-50 text-rose-700 border-rose-200",
     url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/24a55ecd5_Staff_Onboarding.html",
+  },
+  {
+    id: "letterhead",
+    label: "SZ-JIE Letterhead",
+    description: "Official SZ-JIE A4 page letterhead with standard header for formal documents",
+    icon: ScrollText,
+    color: "bg-slate-50 text-slate-700 border-slate-200",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/e541bebfa_SZ-JIE_A4_Page_Header_Template_CLEAN.html",
+  },
+  {
+    id: "page_header_gradient",
+    label: "Page Header – Gradient Style",
+    description: "Branded page header with gradient headings and step/list layout for plans and reports",
+    icon: LayoutTemplate,
+    color: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/0d2180264_Header_Title_List_Gradient_Standalone.html",
+  },
+  {
+    id: "business_card_jeffrey",
+    label: "Business Card – Jeffrey Minton",
+    description: "Print-ready business card for Jeffrey Minton, Principal Support Practitioner",
+    icon: CreditCard,
+    color: "bg-cyan-50 text-cyan-700 border-cyan-200",
+    isCard: true,
+    person: "jeffrey",
+  },
+  {
+    id: "business_card_toby",
+    label: "Business Card – SZ-Jie Wang",
+    description: "Print-ready business card for SZ-Jie Wang, Managing Director",
+    icon: CreditCard,
+    color: "bg-purple-50 text-purple-700 border-purple-200",
+    isCard: true,
+    person: "toby",
+  },
+  {
+    id: "lanyard_jeffrey",
+    label: "Lanyard / ID Badge – Jeffrey Minton",
+    description: "Print-ready lanyard ID badge for Jeffrey Minton",
+    icon: BadgeCheck,
+    color: "bg-teal-50 text-teal-700 border-teal-200",
+    isLanyard: true,
+    person: "jeffrey",
+  },
+  {
+    id: "lanyard_toby",
+    label: "Lanyard / ID Badge – SZ-Jie Wang",
+    description: "Print-ready lanyard ID badge for SZ-Jie Wang",
+    icon: BadgeCheck,
+    color: "bg-violet-50 text-violet-700 border-violet-200",
+    isLanyard: true,
+    person: "toby",
+  },
+  {
+    id: "logos",
+    label: "Brand Logos & Assets",
+    description: "All SZ-JIE logo variants — coloured, white, transparent, portrait and landscape",
+    icon: Image,
+    color: "bg-pink-50 text-pink-700 border-pink-200",
+    isLogos: true,
   },
 ];
 
@@ -264,6 +324,111 @@ function Preview({ template, mergedHtml, onBack }) {
   );
 }
 
+// ── Business Card / Lanyard Preview ──────────────────────────────────────────
+const CARD_DATA = {
+  jeffrey: {
+    name: "Jeffrey Minton",
+    title: "Principal Support Practitioner",
+    email: "jeff@szjiesupportservices.com",
+    phone: "0401 343 876",
+    address: "309/12 Broome St, Waterloo NSW, 2017",
+    abn: "86959042971",
+    photo: "https://media.base44.com/images/public/69d54775d9a169daad84a133/e563f2b06_Portraint_Transparent.png",
+    cardImage: "https://media.base44.com/images/public/69d54775d9a169daad84a133/e22a5ab83_jeffbusinesscard.png",
+    lanyardImage: "https://media.base44.com/images/public/69d54775d9a169daad84a133/ed925b089_JeffLanyard.png",
+  },
+  toby: {
+    name: "SZ-Jie Wang",
+    title: "Managing Director",
+    email: "toby@szjiesupportservices.com",
+    phone: "0435 951 563",
+    address: "309/12 Broome St, Waterloo NSW, 2017",
+    abn: "86959042971",
+    photo: "https://media.base44.com/images/public/69d54775d9a169daad84a133/7902e5c70_Portraint_Transparent_White.png",
+    cardImage: "https://media.base44.com/images/public/69d54775d9a169daad84a133/cb1c261a8_tobybusinesscard.png",
+    lanyardImage: "https://media.base44.com/images/public/69d54775d9a169daad84a133/91b3f1130_TobyLanyard.png",
+  },
+};
+
+const LOGOS = [
+  { label: "Main Logo (Coloured)", url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png", bg: "bg-white" },
+  { label: "Main Logo (Full)", url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/38e1d867e_Main_logo.png", bg: "bg-white" },
+  { label: "Logo (Transparent BG)", url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/482155c83_logo.png", bg: "bg-white" },
+  { label: "Portrait Logo (Transparent)", url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/e563f2b06_Portraint_Transparent.png", bg: "bg-white" },
+  { label: "White Logo (Dark BG)", url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/a20f3b7db_White_transparent.png", bg: "bg-slate-800" },
+  { label: "Portrait White (Dark BG)", url: "https://media.base44.com/images/public/69d54775d9a169daad84a133/7902e5c70_Portraint_Transparent_White.png", bg: "bg-slate-800" },
+];
+
+function ImagePreview({ template, onBack }) {
+  const isCard = template.isCard;
+  const isLanyard = template.isLanyard;
+  const isLogos = template.isLogos;
+  const person = CARD_DATA[template.person];
+
+  const imageUrl = isCard ? person?.cardImage : isLanyard ? person?.lanyardImage : null;
+
+  const downloadImage = (url, name) => {
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.target = "_blank";
+    a.click();
+  };
+
+  const printImage = (url) => {
+    const win = window.open("", "_blank");
+    win.document.write(`<!DOCTYPE html><html><head><style>body{margin:0;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#fff;}img{max-width:100%;height:auto;}</style></head><body><img src="${url}" onload="window.print()"/></body></html>`);
+    win.document.close();
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-3">
+        <Button variant="ghost" size="sm" onClick={onBack} className="gap-2 font-bold">
+          <ArrowLeft size={16} /> Back
+        </Button>
+        <div>
+          <h2 className="text-2xl font-black tracking-tight">{template.label}</h2>
+          <p className="text-xs text-muted-foreground">{template.description}</p>
+        </div>
+      </div>
+
+      {isLogos ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+          {LOGOS.map(logo => (
+            <div key={logo.url} className={`rounded-2xl border border-border p-4 ${logo.bg} flex flex-col items-center gap-3`}>
+              <img src={logo.url} alt={logo.label} className="h-24 object-contain" />
+              <p className="text-xs font-bold text-center text-foreground">{logo.label}</p>
+              <div className="flex gap-2">
+                <Button size="sm" variant="outline" className="rounded-xl gap-1 text-xs" onClick={() => downloadImage(logo.url, logo.label.replace(/\s+/g,"_") + ".png")}>
+                  <Download size={12} /> Download
+                </Button>
+                <Button size="sm" className="rounded-xl gap-1 text-xs" onClick={() => printImage(logo.url)}>
+                  <Printer size={12} /> Print
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-6">
+          <div className="bg-card border border-border rounded-2xl p-8 shadow-md">
+            <img src={imageUrl} alt={template.label} className={`object-contain ${isLanyard ? "max-h-[600px]" : "max-h-[340px]"}`} />
+          </div>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => downloadImage(imageUrl, template.label.replace(/\s+/g,"_") + ".png")} className="gap-2 font-bold rounded-xl">
+              <Download size={15} /> Download PNG
+            </Button>
+            <Button onClick={() => printImage(imageUrl)} className="gap-2 font-bold rounded-xl">
+              <Printer size={15} /> Print
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function Templates() {
   const [step, setStep] = useState("pick");
@@ -273,8 +438,12 @@ export default function Templates() {
   const [loading, setLoading] = useState(false);
 
   const handleSelectTemplate = async (template) => {
-    setLoading(true);
     setSelectedTemplate(template);
+    if (template.isCard || template.isLanyard || template.isLogos) {
+      setStep("image");
+      return;
+    }
+    setLoading(true);
     const res = await fetch(template.url);
     const html = await res.text();
     setTemplateHtml(html);
@@ -291,6 +460,10 @@ export default function Templates() {
         </div>
       </div>
     );
+  }
+
+  if (step === "image") {
+    return <ImagePreview template={selectedTemplate} onBack={() => setStep("pick")} />;
   }
 
   if (step === "fields") {
