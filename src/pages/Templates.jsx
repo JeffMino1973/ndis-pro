@@ -139,9 +139,36 @@ const TEMPLATES = [
     person: "toby",
   },
   {
+    id: "service_agreement",
+    label: "Service Agreement",
+    description: "NDIS service agreement with supports schedule, costing, responsibilities and signature section",
+    icon: FileText,
+    color: "bg-blue-50 text-blue-700 border-blue-200",
+    isLocal: true,
+    localPath: "/service_agreement.html",
+  },
+  {
+    id: "goal_setting_builder",
+    label: "Goal Setting & Support Justification Builder",
+    description: "Interactive builder — select NDIS goal areas, pre-filled statements and justified supports, then generate the final document",
+    icon: ScrollText,
+    color: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    isBuilder: true,
+    builderPath: "/dashboard/goal-setting-builder",
+  },
+  {
     id: "epilepsy_plan",
     label: "Epilepsy Management Plan",
     description: "Participant epilepsy plan with seizure table, triggers, during/after steps and physician endorsement",
+    icon: FileText,
+    color: "bg-cyan-50 text-cyan-700 border-cyan-200",
+    isLocal: true,
+    localPath: "/epilepsy_management_plan.html",
+  },
+  {
+    id: "epilepsy_plan",
+    label: "Epilepsy Management Plan",
+    description: "Clinical epilepsy management plan with seizure types, triggers, during/after protocols and physician endorsement",
     icon: FileText,
     color: "bg-cyan-50 text-cyan-700 border-cyan-200",
     isLocal: true,
@@ -490,6 +517,10 @@ export default function Templates() {
   const [loading, setLoading] = useState(false);
 
   const handleSelectTemplate = async (template) => {
+    if (template.isBuilder) {
+      window.location.href = template.builderPath;
+      return;
+    }
     setSelectedTemplate(template);
     if (template.isCard || template.isLanyard || template.isLogos) {
       setStep("image");

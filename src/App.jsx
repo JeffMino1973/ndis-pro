@@ -54,6 +54,7 @@ import UserGuide from './pages/UserGuide';
 import StaffPortal from './pages/StaffPortal';
 import AuditLogPage from './pages/AuditLogPage';
 import DataExport from './pages/DataExport';
+import GoalSettingBuilder from './pages/GoalSettingBuilder';
 
 
 const AuthenticatedApp = () => {
@@ -114,6 +115,7 @@ const AuthenticatedApp = () => {
       <Route path="/staff-portal" element={<StaffPortal />} />
       <Route path="/audit-log" element={<AuditLogPage />} />
       <Route path="/data-export" element={<DataExport />} />
+      <Route path="/goal-setting-builder" element={<GoalSettingBuilder />} />
       <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/quotes" element={<Quotes />} />
