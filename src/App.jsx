@@ -56,6 +56,7 @@ import AuditLogPage from './pages/AuditLogPage';
 import DataExport from './pages/DataExport';
 import GoalSettingBuilder from './pages/GoalSettingBuilder';
 import RosterBilling from './pages/RosterBilling';
+import FinancialReports from './pages/FinancialReports';
 
 
 const AuthenticatedApp = () => {
@@ -118,6 +119,7 @@ const AuthenticatedApp = () => {
       <Route path="/data-export" element={<DataExport />} />
       <Route path="/goal-setting-builder" element={<GoalSettingBuilder />} />
       <Route path="/roster-billing" element={<RosterBilling />} />
+      <Route path="/financial-reports" element={<FinancialReports />} />
       <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/quotes" element={<Quotes />} />

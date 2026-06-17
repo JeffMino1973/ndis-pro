@@ -70,6 +70,7 @@ const ADMIN_NAV_SECTIONS = [
       { path: "/quotes", label: "Quotes", icon: FileText },
       { path: "/finance", label: "Finance Centre", icon: DollarSign },
       { path: "/payslips", label: "Payslip Generator", icon: Banknote },
+      { path: "/financial-reports", label: "Financial Reports", icon: BarChart3 },
     ],
   },
   {
