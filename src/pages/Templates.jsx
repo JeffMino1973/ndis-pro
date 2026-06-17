@@ -139,6 +139,15 @@ const TEMPLATES = [
     person: "toby",
   },
   {
+    id: "epilepsy_plan",
+    label: "Epilepsy Management Plan",
+    description: "Participant epilepsy plan with seizure table, triggers, during/after steps and physician endorsement",
+    icon: FileText,
+    color: "bg-cyan-50 text-cyan-700 border-cyan-200",
+    isLocal: true,
+    localPath: "/epilepsy_management_plan.html",
+  },
+  {
     id: "crisis_plan_p1",
     label: "Crisis Management & Safety Plan — Page 1",
     description: "Participant-specific crisis protocol with NSW crisis contacts, support workers and safeguarding box",

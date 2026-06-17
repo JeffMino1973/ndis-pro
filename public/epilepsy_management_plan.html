@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Epilepsy Management Plan</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #fff; color: #1e293b; font-size: 13px; }
+
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 28px 32px 32px 32px;
+    background: #fff;
+  }
+
+  /* ===== HEADER ===== */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .header-logo { width: 150px; }
+  .header-contact { text-align: right; font-size: 11px; color: #475569; line-height: 1.75; }
+  .header-contact .row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+
+  /* ===== PAGE TITLE ===== */
+  .page-title {
+    font-size: 28px;
+    font-weight: 900;
+    color: #06b6d4;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  /* ===== CONFIDENTIAL BADGE ROW ===== */
+  .badge-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .conf-badge {
+    background: #1e293b;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 3px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .ndis-badge {
+    background: #dbeafe;
+    color: #1d4ed8;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 12px;
+    border-radius: 4px;
+  }
+
+  /* ===== SECTION LABEL ===== */
+  .section-label {
+    font-size: 11px;
+    font-weight: bold;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 8px;
+    margin-top: 14px;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 4px;
+  }
+
+  /* ===== GENERAL INFO GRID ===== */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 24px;
+    margin-bottom: 4px;
+  }
+  .info-cell .ic-label {
+    font-size: 9.5px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+  }
+  .info-cell .ic-value {
+    font-size: 15px;
+    font-weight: bold;
+    color: #1e293b;
+  }
+  .info-cell .ic-value-sm {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0ea5e9;
+  }
+
+  /* ===== BULLET LISTS (other medical) ===== */
+  .bullet-box {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 4px;
+  }
+  .bullet-box .b-item {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    color: #374151;
+    margin-bottom: 4px;
+  }
+  .bullet-box .b-item:last-child { margin-bottom: 0; }
+  .b-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #06b6d4; flex-shrink: 0;
+  }
+
+  /* ===== EMPTY BOX ===== */
+  .empty-box {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 18px 14px;
+    text-align: center;
+    color: #94a3b8;
+    font-style: italic;
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+
+  /* ===== EMERGENCY MEDICATION ===== */
+  .med-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 4px;
+  }
+  .yn-badge {
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    color: #94a3b8;
+  }
+  .yn-badge.active-no {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+  }
+  .yn-badge.active-yes {
+    background: #22c55e;
+    color: white;
+    border-color: #22c55e;
+  }
+  .med-note { font-size: 12.5px; color: #475569; margin-left: 4px; }
+
+  /* ===== TRIGGERS & WARNING SIGNS ===== */
+  .tw-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .tw-box {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 10px 14px;
+  }
+  .tw-box .tw-label {
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .tw-box.trigger .tw-label { color: #f97316; }
+  .tw-box.warning .tw-label { color: #8b5cf6; }
+  .tw-box .tw-value {
+    font-size: 13px;
+    font-weight: bold;
+    color: #1e293b;
+  }
+  .tw-box.warning .tw-value { color: #8b5cf6; font-style: italic; }
+
+  /* ===== SEIZURE TABLE ===== */
+  .seizure-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 4px;
+  }
+  .seizure-table thead tr {
+    background: #1e293b;
+    color: white;
+  }
+  .seizure-table thead th {
+    padding: 8px 12px;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: bold;
+    text-align: left;
+  }
+  .seizure-table thead th.ambulance-col {
+    background: #dc2626;
+  }
+  .seizure-table tbody tr { background: #fff; }
+  .seizure-table tbody td {
+    padding: 10px 12px;
+    font-size: 12.5px;
+    color: #374151;
+    vertical-align: top;
+    border-top: 1px solid #f1f5f9;
+  }
+  .dur-freq { font-size: 11px; }
+  .dur-freq .df-label { color: #94a3b8; text-transform: uppercase; font-size: 10px; }
+  .dur-freq .df-val { font-weight: bold; color: #1e293b; }
+  .ambulance-cell {
+    color: #dc2626;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+  }
+
+  /* ===== DURING / AFTER SEIZURE ===== */
+  .step-box {
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+  }
+  .step-box.during { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .step-box.after { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .step-box .sb-label {
+    font-size: 10.5px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .step-box.during .sb-label { color: #16a34a; }
+  .step-box.after .sb-label { color: #2563eb; }
+  .step-box ol { padding-left: 18px; }
+  .step-box ol li {
+    font-size: 13px;
+    font-weight: bold;
+    color: #1e293b;
+    margin-bottom: 5px;
+    line-height: 1.4;
+  }
+  .step-box ul { padding-left: 18px; }
+  .step-box ul li {
+    font-size: 13px;
+    font-weight: bold;
+    color: #1e293b;
+    margin-bottom: 5px;
+    line-height: 1.4;
+    list-style-type: disc;
+  }
+
+  /* ===== RISK/SAFETY ===== */
+  .risk-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 4px;
+  }
+  .risk-col .rc-label {
+    font-size: 9.5px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    padding: 2px 8px;
+    display: inline-block;
+  }
+  .risk-col .rc-value { font-size: 12.5px; color: #374151; margin-top: 4px; line-height: 1.5; }
+  .risk-col .rc-name { font-size: 13px; font-weight: bold; color: #1e293b; }
+  .risk-col .rc-phone { font-size: 12px; color: #374151; }
+
+  .physician-col { text-align: right; }
+  .physician-col .pc-label {
+    font-size: 9.5px; color: #94a3b8; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 4px;
+  }
+  .physician-col .pc-name { font-size: 15px; font-weight: bold; color: #1e293b; }
+  .physician-col .pc-phone { font-size: 12px; color: #374151; }
+  .physician-col .pc-endorsed {
+    font-size: 10px; color: #22c55e; font-weight: bold;
+    text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px;
+  }
+
+  /* FOOTER */
+  .doc-footer {
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #e2e8f0;
+    font-size: 10.5px;
+    color: #94a3b8;
+    text-align: right;
+  }
+
+  @media print {
+    body { background: white; }
+    .page { padding: 20px; }
+    .no-print { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" alt="SZ-JIE" class="header-logo" />
+    <div class="header-contact">
+      <div class="row">📋 SZ-JIE Support Services</div>
+      <div class="row">🏢 ABN: 86959042971</div>
+      <div class="row">📍 309/12 Broome St, Waterloo NSW, 2017</div>
+      <div class="row">✉️ jeff@szjiesupportservices.com</div>
+      <div class="row">🌐 www.szjiesupportservices.com</div>
+      <div class="row">📞 0401 343 876</div>
+    </div>
+  </div>
+
+  <!-- TITLE -->
+  <div class="page-title">Epilepsy Management Plan</div>
+
+  <!-- BADGES -->
+  <div class="badge-row">
+    <span class="conf-badge">Confidential</span>
+    <span class="ndis-badge">Bronwyn Chau | NDIS: 430117666</span>
+  </div>
+
+  <!-- 1. GENERAL INFORMATION -->
+  <div class="section-label">1. General Information</div>
+  <div class="info-grid">
+    <div class="info-cell">
+      <div class="ic-label">Name</div>
+      <div class="ic-value">Bronwyn Chau</div>
+    </div>
+    <div class="info-cell">
+      <div class="ic-label">DOB</div>
+      <div class="ic-value">08/05/1995</div>
+    </div>
+    <div class="info-cell">
+      <div class="ic-label">Diagnosis</div>
+      <div class="ic-value">2017</div>
+    </div>
+    <div class="info-cell">
+      <div class="ic-label">Emergency Contact</div>
+      <div class="ic-value-sm">Linh Phung (Mother)<br>0424 377 062</div>
+    </div>
+  </div>
+
+  <!-- 2. OTHER MEDICAL CONDITIONS -->
+  <div class="section-label">2. Other Medical Conditions</div>
+  <div class="bullet-box">
+    <div class="b-item"><span class="b-dot"></span> Intellectual disability</div>
+    <div class="b-item"><span class="b-dot"></span> Autism</div>
+  </div>
+
+  <!-- 3. OTHER IMPORTANT INFO -->
+  <div class="section-label">3. Other Important Info</div>
+  <div class="empty-box">No other information provided.</div>
+
+  <!-- 4. EMERGENCY MEDICATION -->
+  <div class="section-label">4. Emergency Medication</div>
+  <div class="med-row">
+    <span class="yn-badge">YES</span>
+    <span class="yn-badge active-no">NO</span>
+    <span class="med-note">No emergency medication has been prescribed.</span>
+  </div>
+
+  <!-- 5 & 6: TRIGGERS + WARNING SIGNS -->
+  <div class="tw-grid">
+    <div class="tw-box trigger">
+      <div class="tw-label">⚠️ 5. Triggers</div>
+      <div class="tw-value">Emotional upset</div>
+    </div>
+    <div class="tw-box warning">
+      <div class="tw-label">👁 6. Warning Signs</div>
+      <div class="tw-value">"Talks a lot, hyperactive"</div>
+    </div>
+  </div>
+
+  <!-- 7. SEIZURE DESCRIPTION & SUPPORT NEEDS -->
+  <div class="section-label">7. Seizure Description &amp; Support Needs</div>
+  <table class="seizure-table">
+    <thead>
+      <tr>
+        <th>Seizure Type</th>
+        <th>Duration/Freq</th>
+        <th>Medst</th>
+        <th class="ambulance-col">Ambulance Trigger</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Generalised tonic seizure</td>
+        <td>
+          <div class="dur-freq">
+            <div><span class="df-label">Duration: </span><span class="df-val">2 mins</span></div>
+            <div><span class="df-label">Freq: </span><span class="df-val">Infrequent</span></div>
+          </div>
+        </td>
+        <td>NO</td>
+        <td>
+          <div class="ambulance-cell">❌ During breathing difficulty</div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 8. DURING SEIZURE -->
+  <div class="step-box during">
+    <div class="sb-label">8. During Seizure</div>
+    <ol>
+      <li>Lie her on her side (prevent aspiration).</li>
+      <li>Prevent her from falling asleep.</li>
+    </ol>
+  </div>
+
+  <!-- 9. AFTER SEIZURE -->
+  <div class="step-box after">
+    <div class="sb-label">9. After Seizure</div>
+    <ul>
+      <li>Support her to sit up and calm her.</li>
+      <li>Assist her to the toilet.</li>
+    </ul>
+  </div>
+
+  <!-- 10. RISK/SAFETY & ENDORSEMENTS -->
+  <div class="section-label">10. Risk/Safety &amp; Endorsements</div>
+  <div class="risk-grid">
+    <div class="risk-col">
+      <div class="rc-label">Safety Note</div>
+      <div class="rc-value">Contact Linh for transport and overnight support.</div>
+      <br>
+      <div class="rc-label">Collaboration</div>
+      <div class="rc-name">Linh Phung (Mother)</div>
+      <div class="rc-phone">0424 377 062</div>
+    </div>
+    <div class="risk-col physician-col">
+      <div class="pc-label">Treating Physician</div>
+      <div class="pc-name">Dr Yoke Chan Choong</div>
+      <div class="pc-phone">02 9665 0330</div>
+      <div class="pc-endorsed">Endorsed: 14/08/2026</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="no-print" style="text-align:center; padding: 16px;">
+  <button onclick="window.print()" style="background:linear-gradient(90deg,#06b6d4,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
+</div>
+
+</body>
+</html>
