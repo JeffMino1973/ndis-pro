@@ -29,7 +29,7 @@ export default function Rostering() {
   const [copyDate, setCopyDate] = useState("");
   const [recurWeeks, setRecurWeeks] = useState(4);
   const [copying, setCopying] = useState(false);
-  const [form, setForm] = useState({ participant_name: "", staff_name: "", date: "", start_time: "09:00", end_time: "11:00", support_type: "", status: "Scheduled", notes: "" });
+  const [form, setForm] = useState({ participant_name: "", staff_name: "", date: "", start_time: "09:00", end_time: "11:00", support_type: "", support_item_code: "", hourly_rate: "", status: "Scheduled", notes: "" });
 
   const load = async () => {
     const [s, p, st] = await Promise.all([
@@ -46,10 +46,10 @@ export default function Rostering() {
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
-  const EMPTY_FORM = { participant_name: "", staff_name: "", date: "", start_time: "09:00", end_time: "11:00", support_type: "", status: "Scheduled", notes: "" };
+  const EMPTY_FORM = { participant_name: "", staff_name: "", date: "", start_time: "09:00", end_time: "11:00", support_type: "", support_item_code: "", hourly_rate: "", status: "Scheduled", notes: "" };
 
   const openAdd = () => { setEditingId(null); setForm(EMPTY_FORM); setShowForm(true); };
-  const openEdit = (s) => { setEditingId(s.id); setForm({ participant_name: s.participant_name, staff_name: s.staff_name, date: s.date, start_time: s.start_time, end_time: s.end_time, support_type: s.support_type || "", status: s.status, notes: s.notes || "" }); setShowForm(true); };
+  const openEdit = (s) => { setEditingId(s.id); setForm({ participant_name: s.participant_name, staff_name: s.staff_name, date: s.date, start_time: s.start_time, end_time: s.end_time, support_type: s.support_type || "", support_item_code: s.support_item_code || "", hourly_rate: s.hourly_rate || "", status: s.status, notes: s.notes || "" }); setShowForm(true); };
 
   const save = async () => {
     if (editingId) {
@@ -211,6 +211,14 @@ export default function Rostering() {
               <div>
                 <Label>Support Type</Label>
                 <Input value={form.support_type} onChange={e => update("support_type", e.target.value)} placeholder="e.g. Daily Living" />
+              </div>
+              <div>
+                <Label>Support Item Code</Label>
+                <Input value={form.support_item_code} onChange={e => update("support_item_code", e.target.value)} placeholder="e.g. 01_004_0107_1_1" />
+              </div>
+              <div>
+                <Label>Hourly Rate ($)</Label>
+                <Input type="number" step="0.01" value={form.hourly_rate} onChange={e => update("hourly_rate", parseFloat(e.target.value) || "")} placeholder="e.g. 70.23" />
               </div>
               <div>
                 <Label>Start Time</Label>

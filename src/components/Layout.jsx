@@ -66,6 +66,7 @@ const NAV_SECTIONS = [
     title: "Scheduling & Shifts",
     items: [
       { path: "/rostering", label: "Rostering", icon: Calendar },
+      { path: "/roster-billing", label: "Roster Billing", icon: DollarSign },
       { path: "/timesheets", label: "Timesheets & Travel", icon: Clock },
       { path: "/shift-logger", label: "Shift Logger", icon: Play },
       { path: "/progress-notes", label: "Progress Notes", icon: FileText },

@@ -35,6 +35,21 @@
       "type": "string",
       "title": "Support Item Code"
     },
+    "hourly_rate": {
+      "type": "number",
+      "title": "Hourly Rate ($)",
+      "default": 0
+    },
+    "hours": {
+      "type": "number",
+      "title": "Hours",
+      "default": 0
+    },
+    "amount": {
+      "type": "number",
+      "title": "Amount ($)",
+      "default": 0
+    },
     "status": {
       "type": "string",
       "title": "Status",
@@ -46,6 +61,16 @@
         "No Show"
       ],
       "default": "Scheduled"
+    },
+    "invoiced": {
+      "type": "boolean",
+      "title": "Added to Invoice",
+      "default": false
+    },
+    "payslip_added": {
+      "type": "boolean",
+      "title": "Added to Payslip",
+      "default": false
     },
     "notes": {
       "type": "string",
