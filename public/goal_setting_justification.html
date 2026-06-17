@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Goal Setting & Support Justification</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #fff; color: #1e293b; font-size: 13px; }
+  .page { max-width: 860px; margin: 0 auto; padding: 28px 32px 32px 32px; background: #fff; }
+
+  /* HEADER */
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+  .header-logo { width: 155px; }
+  .header-contact { text-align: right; font-size: 11px; color: #475569; line-height: 1.75; }
+  .header-contact .row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+
+  /* TITLE */
+  .title-block { border-left: 5px solid #06b6d4; padding-left: 14px; margin-bottom: 20px; }
+  .page-title { font-size: 26px; font-weight: 900; color: #1e293b; text-transform: uppercase; letter-spacing: 0.5px; }
+  .page-subtitle { font-size: 12px; color: #64748b; margin-top: 3px; }
+
+  /* PARTICIPANT BOX */
+  .participant-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; }
+  .pb-row { margin-bottom: 10px; }
+  .pb-row:last-child { margin-bottom: 0; }
+  .pb-label { font-size: 9.5px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+  .pb-value { font-size: 14px; font-weight: bold; color: #1e293b; }
+  .pb-value-sub { font-size: 12px; color: #475569; }
+
+  /* SECTION HEADING */
+  .section-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: #06b6d4; color: white; font-size: 11px; font-weight: bold;
+    margin-right: 8px; flex-shrink: 0;
+  }
+  .section-heading {
+    display: flex; align-items: center;
+    font-size: 16px; font-weight: bold; color: #1e293b;
+    margin: 20px 0 12px 0;
+  }
+
+  /* SCHEDULE TABLE */
+  .schedule-table { width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; margin-bottom: 4px; }
+  .schedule-table thead tr { background: #1e293b; color: white; }
+  .schedule-table thead th { padding: 10px 8px; font-size: 12px; font-weight: bold; text-align: center; }
+  .schedule-table tbody td { padding: 10px 8px; text-align: center; vertical-align: top; font-size: 11.5px; border: 1px solid #e2e8f0; min-height: 44px; }
+  .cell-yellow { background: #fef9c3; color: #713f12; font-weight: bold; }
+  .cell-green { background: #dcfce7; color: #14532d; font-weight: bold; }
+  .cell-blue { background: #dbeafe; color: #1e3a8a; font-weight: bold; }
+  .cell-empty { background: #fff; }
+  .cell-time { font-size: 11px; font-weight: bold; display: block; }
+  .cell-activity { font-size: 10.5px; display: block; margin-top: 2px; }
+
+  /* GOAL AREA CARD */
+  .goal-card { border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 16px; overflow: hidden; }
+  .gc-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; background: #fff; border-bottom: 1px solid #e2e8f0;
+  }
+  .gc-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: bold; color: #1e293b; }
+  .gc-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .gc-ndis-tag { font-size: 10.5px; font-weight: bold; padding: 3px 10px; border-radius: 10px; white-space: nowrap; }
+
+  /* dot/tag colors */
+  .dot-red { background: #ef4444; } .tag-red { background: #fee2e2; color: #dc2626; }
+  .dot-orange { background: #f97316; } .tag-orange { background: #ffedd5; color: #c2410c; }
+  .dot-blue { background: #3b82f6; } .tag-blue { background: #dbeafe; color: #1d4ed8; }
+  .dot-purple { background: #8b5cf6; } .tag-purple { background: #ede9fe; color: #6d28d9; }
+  .dot-green { background: #22c55e; } .tag-green { background: #dcfce7; color: #15803d; }
+  .dot-pink { background: #ec4899; } .tag-pink { background: #fce7f3; color: #be185d; }
+  .dot-teal { background: #06b6d4; } .tag-teal { background: #cffafe; color: #0e7490; }
+  .dot-indigo { background: #6366f1; } .tag-indigo { background: #e0e7ff; color: #4338ca; }
+
+  .goal-box { background: #f8fafc; border-bottom: 1px solid #e2e8f0; padding: 12px 16px; }
+  .goal-box .goal-label { font-size: 9.5px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .goal-box .goal-text { font-size: 13px; color: #374151; font-style: italic; line-height: 1.6; }
+
+  .supports-section { padding: 12px 16px; }
+  .supports-section .sup-label { font-size: 9.5px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .sup-item { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 7px; font-size: 12.5px; color: #374151; line-height: 1.5; }
+  .sup-item:last-child { margin-bottom: 0; }
+  .sup-check { color: #f97316; font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+  .sup-item strong { color: #1e293b; }
+
+  /* SIGN-OFF */
+  .signoff-box { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 20px; margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: center; }
+  .so-label { font-size: 9.5px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .so-name { font-size: 15px; font-weight: bold; color: #1e293b; }
+  .so-sub { font-size: 12px; color: #64748b; }
+  .so-date-box { border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 14px; display: inline-block; font-size: 13px; font-weight: bold; color: #1e293b; }
+  .so-date-col { text-align: right; }
+
+  @media print {
+    body { background: white; }
+    .page { padding: 20px; }
+    .no-print { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" alt="SZ-JIE" class="header-logo" />
+    <div class="header-contact">
+      <div class="row">📋 <strong>SZ-JIE Support Services</strong></div>
+      <div class="row">🏢 ABN: 86959042971</div>
+      <div class="row">📍 309/12 Broome St, Waterloo NSW, 2017</div>
+      <div class="row">✉️ jeff@szjiesupportservices.com</div>
+      <div class="row">🌐 www.szjiesupportservices.com</div>
+      <div class="row">📞 0401 343 876</div>
+    </div>
+  </div>
+
+  <!-- TITLE -->
+  <div class="title-block">
+    <div class="page-title">Goal Setting &amp; Support Justification</div>
+    <div class="page-subtitle">National Disability Insurance Scheme (NDIS) Supporting Evidence Document</div>
+  </div>
+
+  <!-- PARTICIPANT INFO -->
+  <div class="participant-box">
+    <div class="pb-row">
+      <div class="pb-label">Participant Name</div>
+      <div class="pb-value">Bronwyn Chau</div>
+    </div>
+    <div class="pb-row">
+      <div class="pb-label">Document Prepared By</div>
+      <div class="pb-value">Jeffrey Minton</div>
+      <div class="pb-value-sub">Bachelor of Education – Special Education</div>
+    </div>
+    <div class="pb-row">
+      <div class="pb-label">Date of Report</div>
+      <div class="pb-value">Friday, 8 May 2026</div>
+    </div>
+  </div>
+
+  <!-- 1. WEEKLY SCHEDULE -->
+  <div class="section-heading"><span class="section-num">1</span> Weekly Schedule &amp; Community Access</div>
+  <table class="schedule-table">
+    <thead>
+      <tr>
+        <th>Monday</th><th>Tuesday</th><th>Wednesday</th><th>Thursday</th><th>Friday</th><th>Saturday</th><th>Sunday</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="cell-empty"></td>
+        <td class="cell-blue"><span class="cell-time">8–10am</span><span class="cell-activity">Community Access</span></td>
+        <td class="cell-empty"></td>
+        <td class="cell-blue"><span class="cell-time">8–10am</span><span class="cell-activity">Community Access</span></td>
+        <td class="cell-empty"></td>
+        <td class="cell-empty"></td>
+        <td class="cell-empty"></td>
+      </tr>
+      <tr>
+        <td class="cell-yellow"><span class="cell-time">9–12pm</span><span class="cell-activity">Domestic Skills</span></td>
+        <td class="cell-green"><span class="cell-time">10–3pm</span><span class="cell-activity">The Avenue</span></td>
+        <td class="cell-yellow"><span class="cell-time">9–12pm</span><span class="cell-activity">Domestic Skills</span></td>
+        <td class="cell-green"><span class="cell-time">10–3pm</span><span class="cell-activity">The Avenue</span></td>
+        <td class="cell-blue"><span class="cell-time">10:30–1:30</span><span class="cell-activity">Community Access</span></td>
+        <td class="cell-yellow"><span class="cell-time">9–1:30pm</span><span class="cell-activity">Domestic Skills</span></td>
+        <td class="cell-green"><span class="cell-time">12:30–3:30pm</span><span class="cell-activity">Community Access</span></td>
+      </tr>
+      <tr>
+        <td class="cell-empty"></td>
+        <td class="cell-blue"><span class="cell-time">3–5pm</span><span class="cell-activity">Community Access</span></td>
+        <td class="cell-empty"></td>
+        <td class="cell-blue"><span class="cell-time">3–5pm</span><span class="cell-activity">Community Access</span></td>
+        <td class="cell-yellow"><span class="cell-time">2–5pm</span><span class="cell-activity">Domestic Skills</span></td>
+        <td class="cell-yellow"><span class="cell-time">4–7pm</span><span class="cell-activity">Domestic Skills</span></td>
+        <td class="cell-empty"></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 2. INDIVIDUAL PLANNING AREAS -->
+  <div class="section-heading"><span class="section-num">2</span> Individual Planning Areas &amp; Support Needs</div>
+
+  <!-- Behaviour Support & Emotional Regulation -->
+  <div class="goal-card">
+    <div class="gc-header">
+      <div class="gc-title"><span class="gc-dot dot-red"></span> Behaviour Support &amp; Emotional Regulation</div>
+      <span class="gc-ndis-tag tag-red">NDIS: Social, Community &amp; Relationships</span>
+    </div>
+    <div class="goal-box">
+      <div class="goal-label">My Goal</div>
+      <div class="goal-text">"I want to develop strategies to manage my anxiety and phobias so that I can interact safely with others and participate in my community without distress. I need to learn safe ways to communicate my feelings so that I do not become physically aggressive toward my family and carers."</div>
+    </div>
+    <div class="supports-section">
+      <div class="sup-label">Justified Supports Required</div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Specialist Behaviour Intervention:</strong> Comprehensive Behaviour Support Plan (BSP) to systematically address perseveration and escalation toward physical violence.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Therapeutic Supports (Psychologist):</strong> Regular 1:1 therapy targeting severe anxiety and phobias (focused on hygiene markers, medical supplies like bandaids, illness).</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>De-escalation Training:</strong> Specialised coaching for her primary carer (mother, aged 70) to safely defuse physical escalation.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Visual/Visual Scripting Tools:</strong> Developing a "safety script" to communicate distress safely as an alternative to physical aggression.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Functional Behaviour Assessment (FBA):</strong> Necessary to map internal and external sensory triggers causing physical outbursts.</span></div>
+    </div>
+  </div>
+
+  <!-- Social Inclusion & Community Skills -->
+  <div class="goal-card">
+    <div class="gc-header">
+      <div class="gc-title"><span class="gc-dot dot-orange"></span> Social Inclusion &amp; Community Skills</div>
+      <span class="gc-ndis-tag tag-orange">NDIS: Social &amp; Community Participation</span>
+    </div>
+    <div class="goal-box">
+      <div class="goal-label">My Goal</div>
+      <div class="goal-text">"I want to be able to enjoy social activities, such as eating out in public, without feeling overwhelmed by anxiety regarding germs or contamination."</div>
+    </div>
+    <div class="supports-section">
+      <div class="sup-label">Justified Supports Required</div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Exposure Therapy:</strong> Clinical support under a Psychologist to systematically reduce reliance on safety barriers (e.g., eating only with napkins) to broaden community settings.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Social Mentoring (1:1 Support):</strong> A trained support worker to co-regulate and model calm behavior when exposed to community triggers (contamination signs, public restrooms).</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Sensory &amp; Anxiety Strategies:</strong> Collaboration between Psychology and Occupational Therapy (OT) to equip her with sensory regulation tools in high-stimulus spaces.</span></div>
+    </div>
+  </div>
+
+  <!-- Employment Support -->
+  <div class="goal-card">
+    <div class="gc-header">
+      <div class="gc-title"><span class="gc-dot dot-blue"></span> Employment Support</div>
+      <span class="gc-ndis-tag tag-blue">NDIS: Work &amp; Relationships</span>
+    </div>
+    <div class="goal-box">
+      <div class="goal-label">My Goal</div>
+      <div class="goal-text">"I would like to continue in a social enterprise or a supported work site (ADE) and I will need support to learn work skills and to maintain my job. I currently attend The Avenue 2 days per week and I would like to increase that to 3 days."</div>
+    </div>
+    <div class="supports-section">
+      <div class="sup-label">Justified Supports Required</div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>ADE Funding Intake &amp; Quote:</strong> Support for the family to coordinate with providers to request an NDIS-compliant quote for the extra day.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Task Instruction Modalities:</strong> Use of explicit, max-2-step language, gestures, visual schedules, modeling, and repetitive coaching to maintain task focus.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Skill Development:</strong> Target areas including manual dexterity, interpersonal workplace social skills, basic currency math, and self-esteem as a team member.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Self-Regulation &amp; Resilience:</strong> Structured tasks with regular positive reinforcement/frequent praise to support her motivation and workplace endurance.</span></div>
+    </div>
+  </div>
+
+  <!-- Further Lifelong Education -->
+  <div class="goal-card">
+    <div class="gc-header">
+      <div class="gc-title"><span class="gc-dot dot-purple"></span> Further Lifelong Education</div>
+      <span class="gc-ndis-tag tag-purple">NDIS: Learning &amp; Cognitive Development</span>
+    </div>
+    <div class="goal-box">
+      <div class="goal-label">My Goal</div>
+      <div class="goal-text">"I need to continue building my communication skills."</div>
+    </div>
+    <div class="supports-section">
+      <div class="sup-label">Justified Supports Required</div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Re-engagement of Speech Pathology:</strong> 1 hour per week targeting functional vocabulary extension, structural sentences, and pronunciation clarity for professional environments.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>1:1 Weekly Educational Tutoring:</strong> Guided practice sessions utilizing structured roleplay, scripted interactions, and context-based visual aids.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Skills Integration:</strong> Collaboration with day program (post-school) staff to ensure language skills transfer seamlessly across vocational and personal settings.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Reciprocal Conversational Training:</strong> Interactive modeling to build shared conversation themes beyond Bronwyn's narrow, obsessive focus areas.</span></div>
+    </div>
+  </div>
+
+  <!-- Health & Wellbeing -->
+  <div class="goal-card">
+    <div class="gc-header">
+      <div class="gc-title"><span class="gc-dot dot-green"></span> Health &amp; Wellbeing</div>
+      <span class="gc-ndis-tag tag-green">NDIS: Health &amp; Wellbeing</span>
+    </div>
+    <div class="goal-box">
+      <div class="goal-label">My Goal</div>
+      <div class="goal-text">"I will need to build my health and wellbeing."</div>
+    </div>
+    <div class="supports-section">
+      <div class="sup-label">Justified Supports Required</div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Exercise Physiology (EP):</strong> Structured, clinical sessions designed to develop safe movement patterns and build functional cardiovascular endurance safely.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Supported Gym Access:</strong> Active support from a 1:1 worker to implement the EP program, ensuring exercise safety and consistency.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Dietetic Consultation:</strong> Engagement with a Dietician to establish balanced nutrition, health strategies, and structured diet plans.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>1:1 Diet Execution Support:</strong> Consistent prompting and implementation help from support staff to follow dietary recommendations at home.</span></div>
+    </div>
+  </div>
+
+  <!-- Social and Community Participation -->
+  <div class="goal-card">
+    <div class="gc-header">
+      <div class="gc-title"><span class="gc-dot dot-pink"></span> Social and Community Participation</div>
+      <span class="gc-ndis-tag tag-pink">NDIS: Relationships &amp; Community Inclusion</span>
+    </div>
+    <div class="goal-box">
+      <div class="goal-label">My Goal</div>
+      <div class="goal-text">"I need to build social connections. I need to build healthy relationships and an understanding of the different types of relationships that there are."</div>
+    </div>
+    <div class="supports-section">
+      <div class="sup-label">Justified Supports Required</div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Peer Group Activities:</strong> Scaffolded social opportunities to interact with peers her age in non-threatening, organized community settings.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Relationship Education:</strong> 1:1 modeling and support to teach interpersonal concepts: trust, respect, healthy boundaries, and equal communication.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Structured Group Support:</strong> Active 1:1 support workers to initially bridge and build peer connections before transitioning into self-motivated groups.</span></div>
+    </div>
+  </div>
+
+  <!-- Personal Care & Management -->
+  <div class="goal-card">
+    <div class="gc-header">
+      <div class="gc-title"><span class="gc-dot dot-teal"></span> Personal Care &amp; Management</div>
+      <span class="gc-ndis-tag tag-teal">NDIS: Choice &amp; Control / Daily Living / Home</span>
+    </div>
+    <div class="goal-box">
+      <div class="goal-label">My Goal</div>
+      <div class="goal-text">"I want to develop my independence skills inside and outside of the home to lead to Short Term Accommodation (STA)."</div>
+    </div>
+    <div class="supports-section">
+      <div class="sup-label">Justified Supports Required</div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>OT Functional Assessment:</strong> Detailed occupational therapist evaluation to identify physical independence blocks and suggest adaptive kitchen equipment (e.g., thick handles, non-slip mats).</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Independent Living Skills Training:</strong> 1:1 support to learn home skills: food prep, setting tables, dishwashing, and structured personal hygiene (showering/bathing routines).</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Motor Skill Exercises:</strong> Dedicated fine-motor instruction to ensure safe use of cutlery, kitchen knives, and appliances.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Short Term Accommodation (STA) &amp; Supported Breaks:</strong> Out-of-home experiential trials to generalize learned skills in structured, unfamiliar settings.</span></div>
+    </div>
+  </div>
+
+  <!-- Transport and Mobility -->
+  <div class="goal-card">
+    <div class="gc-header">
+      <div class="gc-title"><span class="gc-dot dot-indigo"></span> Transport and Mobility</div>
+      <span class="gc-ndis-tag tag-indigo">NDIS: Daily Living</span>
+    </div>
+    <div class="goal-box">
+      <div class="goal-label">My Goal</div>
+      <div class="goal-text">"I need to build my independent travel skills."</div>
+    </div>
+    <div class="supports-section">
+      <div class="sup-label">Justified Supports Required</div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Structured Travel Training Program:</strong> Highly scaffolded, step-by-step training to systematically reduce anxiety during route transition planning.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Assisted Transit Experiences:</strong> Utilizing door-to-door bus trips and taxi vouchers alongside an active 1:1 support worker to reinforce transit familiarity.</span></div>
+      <div class="sup-item"><span class="sup-check">✓</span><span><strong>Risk Management &amp; Safety Training:</strong> Direct training focusing on pedestrian rules, basic stranger danger, and problem-solving if lost.</span></div>
+    </div>
+  </div>
+
+  <!-- SIGN-OFF -->
+  <div class="signoff-box">
+    <div>
+      <div class="so-label">Authorised Sign-Off</div>
+      <div class="so-name">Jeffrey Minton</div>
+      <div class="so-sub">Bachelor of Education – Special Education</div>
+    </div>
+    <div class="so-date-col">
+      <div class="so-label">Date Signature Affixed</div>
+      <div class="so-date-box">Friday, 8 May 2026</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="no-print" style="text-align:center; padding:16px;">
+  <button onclick="window.print()" style="background:linear-gradient(90deg,#06b6d4,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
+</div>
+
+</body>
+</html>
