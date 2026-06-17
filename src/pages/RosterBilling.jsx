@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { format, parseISO, startOfWeek, endOfWeek, addWeeks, subWeeks } from "date-fns";
-import { FileText, DollarSign, ChevronLeft, ChevronRight, CheckCircle, AlertCircle, Send, Printer, RefreshCw, BarChart2, Globe } from "lucide-react";
+import { FileText, DollarSign, ChevronLeft, ChevronRight, CheckCircle, AlertCircle, Send, Printer, RefreshCw, BarChart2, Globe, SaveAll, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -285,8 +285,46 @@ export default function RosterBilling() {
     return s + (sh.amount || calcHours(sh.start_time, sh.end_time) * (sh.hourly_rate || 0));
   }, 0);
 
+  const [savingInvoice, setSavingInvoice] = useState(null);
+
   const markComplete = async (id) => {
     await base44.entities.Shift.update(id, { status: "Completed" });
+    load();
+  };
+
+  const saveToInvoices = async (participant, pShifts) => {
+    setSavingInvoice(participant);
+    const pData = participants.find(p => p.name === participant) || {};
+    const line_items = pShifts.map(sh => {
+      const hrs = sh.hours || calcHours(sh.start_time, sh.end_time);
+      const rate = sh.hourly_rate || 0;
+      return {
+        date: sh.date,
+        description: sh.support_type || sh.support_item_code || "Support Service",
+        support_item_code: sh.support_item_code || "",
+        hours: parseFloat(hrs.toFixed(2)),
+        rate: parseFloat(rate.toFixed(2)),
+        amount: parseFloat((hrs * rate).toFixed(2)),
+      };
+    });
+    const subtotal = line_items.reduce((a, l) => a + l.amount, 0);
+    await base44.entities.Invoice.create({
+      invoice_number: "INV-" + Date.now().toString().slice(-6),
+      participant_name: participant,
+      participant_id: pData.id || "",
+      participant_ndis_number: pData.ndis_number || "",
+      plan_manager_name: pData.plan_coordinator_name || "",
+      plan_manager_email: pData.plan_coordinator_email || "",
+      issue_date: new Date().toISOString().split("T")[0],
+      status: "Draft",
+      line_items,
+      subtotal: parseFloat(subtotal.toFixed(2)),
+      gst: 0,
+      total: parseFloat(subtotal.toFixed(2)),
+    });
+    // Mark shifts as invoiced
+    await Promise.all(pShifts.map(sh => base44.entities.Shift.update(sh.id, { invoiced: true })));
+    setSavingInvoice(null);
     load();
   };
 
@@ -435,7 +473,21 @@ export default function RosterBilling() {
                           <p className="text-xs text-muted-foreground">NDIS: {pData.ndis_number || "—"} · {pShifts.length} shift{pShifts.length !== 1 ? "s" : ""} · {formatCurrency(total)}</p>
                         </div>
                       </div>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
+                        {pShifts.every(s => s.invoiced) ? (
+                          <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 gap-1"><CheckCircle size={11} /> Invoiced</Badge>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-2 rounded-xl font-bold border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                            disabled={savingInvoice === participant}
+                            onClick={() => saveToInvoices(participant, pShifts)}
+                          >
+                            {savingInvoice === participant ? <Loader2 size={13} className="animate-spin" /> : <SaveAll size={13} />}
+                            Save to Invoices
+                          </Button>
+                        )}
                         <Button size="sm" className="gap-2 rounded-xl font-bold" onClick={() => printHTML(buildInvoiceHTML(participant, pShifts, participants))}>
                           <Printer size={14} /> Print Invoice
                         </Button>
