@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { base44 } from "@/api/base44Client";
 import { format, parseISO, startOfMonth, subMonths } from "date-fns";
-import { Printer, RefreshCw, TrendingUp, DollarSign, FileText, Users, Calendar, ChevronDown, ChevronUp, AlertTriangle } from "lucide-react";
+import { Printer, RefreshCw, TrendingUp, DollarSign, FileText, Users, Calendar, ChevronDown, ChevronUp, AlertTriangle, Receipt, CheckCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -166,6 +166,7 @@ function buildAccountantHtml(monthData, byCode, byStaff, byParticipant, staffTax
 
 export default function FinancialReports() {
   const [shifts, setShifts] = useState([]);
+  const [invoices, setInvoices] = useState([]);
   const [staffMembers, setStaffMembers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [periodMode, setPeriodMode] = useState("fy");
@@ -173,12 +174,14 @@ export default function FinancialReports() {
 
   const load = async () => {
     setLoading(true);
-    const [s, sm] = await Promise.all([
+    const [s, sm, inv] = await Promise.all([
       base44.entities.Shift.list("-date"),
       base44.entities.StaffMember.list(),
+      base44.entities.Invoice.list("-issue_date"),
     ]);
     setShifts(s);
     setStaffMembers(sm);
+    setInvoices(inv);
     setLoading(false);
   };
 
@@ -260,6 +263,41 @@ export default function FinancialReports() {
     });
     return map;
   }, [filtered]);
+
+  // Filter invoices to the selected period
+  const filteredInvoices = useMemo(() => {
+    const now = new Date();
+    let inv = invoices;
+    if (periodMode === "12months") {
+      const cutoff = subMonths(startOfMonth(now), 11);
+      inv = invoices.filter(i => i.issue_date && parseISO(i.issue_date) >= cutoff);
+    } else if (periodMode === "fy") {
+      const fyStart = now.getMonth() >= 6
+        ? new Date(now.getFullYear(), 6, 1)
+        : new Date(now.getFullYear() - 1, 6, 1);
+      inv = invoices.filter(i => i.issue_date && parseISO(i.issue_date) >= fyStart);
+    }
+    return inv;
+  }, [invoices, periodMode]);
+
+  // Monthly invoice aggregation
+  const invoiceMonthData = useMemo(() => {
+    const map = {};
+    filteredInvoices.forEach(inv => {
+      const key = inv.issue_date ? inv.issue_date.slice(0, 7) : "Unknown";
+      if (!map[key]) map[key] = { key, invoices: 0, total: 0, paid: 0, pending: 0, draft: 0 };
+      map[key].invoices++;
+      map[key].total += inv.total || 0;
+      if (inv.status === "Paid") map[key].paid += inv.total || 0;
+      else if (inv.status === "Draft") map[key].draft += inv.total || 0;
+      else map[key].pending += inv.total || 0;
+    });
+    return Object.values(map).sort((a, b) => a.key.localeCompare(b.key));
+  }, [filteredInvoices]);
+
+  const totalInvoiced = filteredInvoices.reduce((a, i) => a + (i.total || 0), 0);
+  const totalPaid = filteredInvoices.filter(i => i.status === "Paid").reduce((a, i) => a + (i.total || 0), 0);
+  const totalOutstanding = filteredInvoices.filter(i => ["Sent","Overdue"].includes(i.status)).reduce((a, i) => a + (i.total || 0), 0);
 
   // Tax summary per staff — annualise their period gross using ATO tables
   const staffTaxRows = useMemo(() => {
@@ -344,16 +382,17 @@ export default function FinancialReports() {
       {/* KPI Summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {[
-          { label: "Total Revenue (G1)", value: fmt(totalRevenue), color: "text-emerald-600", icon: <DollarSign size={18} className="text-emerald-500" /> },
-          { label: "Completed Shifts", value: filtered.length, color: "text-blue-600", icon: <TrendingUp size={18} className="text-blue-500" /> },
-          { label: "Est. PAYG Withheld", value: fmt(totalTax), color: "text-rose-600", icon: <FileText size={18} className="text-rose-500" /> },
-          { label: "Est. Superannuation", value: fmt(totalSuper), color: "text-violet-600", icon: <Users size={18} className="text-violet-500" /> },
+          { label: "Roster Revenue (Shifts)", value: fmt(totalRevenue), sub: `${filtered.length} completed shifts`, color: "text-emerald-600", icon: <DollarSign size={18} className="text-emerald-500" /> },
+          { label: "Invoiced (G1)", value: fmt(totalInvoiced), sub: `${filteredInvoices.length} invoices raised`, color: "text-blue-600", icon: <Receipt size={18} className="text-blue-500" /> },
+          { label: "Collected (Paid)", value: fmt(totalPaid), sub: fmt(totalOutstanding) + " outstanding", color: "text-emerald-600", icon: <CheckCircle size={18} className="text-emerald-500" /> },
+          { label: "Est. PAYG + Super", value: fmt(totalTax + totalSuper), sub: `Tax: ${fmt(totalTax)} · Super: ${fmt(totalSuper)}`, color: "text-rose-600", icon: <FileText size={18} className="text-rose-500" /> },
         ].map(k => (
           <div key={k.label} className="bg-card border border-border rounded-2xl p-4 flex items-start gap-3">
             <div className="w-9 h-9 bg-secondary rounded-xl flex items-center justify-center shrink-0">{k.icon}</div>
             <div>
               <p className="text-xs text-muted-foreground font-bold">{k.label}</p>
               <p className={`text-xl font-black mt-0.5 ${k.color}`}>{k.value}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">{k.sub}</p>
             </div>
           </div>
         ))}
@@ -368,6 +407,7 @@ export default function FinancialReports() {
       <Tabs defaultValue="monthly">
         <TabsList className="rounded-xl flex-wrap h-auto gap-1">
           <TabsTrigger value="monthly" className="rounded-lg">Monthly Breakdown</TabsTrigger>
+          <TabsTrigger value="invoices" className="rounded-lg">Invoices</TabsTrigger>
           <TabsTrigger value="ndis" className="rounded-lg">By NDIS Item</TabsTrigger>
           <TabsTrigger value="participants" className="rounded-lg">By Participant</TabsTrigger>
           <TabsTrigger value="staff" className="rounded-lg">Staff Labour</TabsTrigger>
@@ -445,6 +485,111 @@ export default function FinancialReports() {
                   <span>TOTAL — {periodLabel}</span>
                   <span className="text-emerald-700">{fmt(totalRevenue)}</span>
                 </div>
+              </div>
+            )}
+          </div>
+        </TabsContent>
+
+        {/* INVOICES TAB */}
+        <TabsContent value="invoices" className="mt-4 space-y-4">
+          {/* Monthly reconciliation table */}
+          <div className="bg-card border border-border rounded-2xl overflow-hidden">
+            <div className="p-4 border-b border-border bg-secondary/40">
+              <h3 className="font-black">Monthly Invoice Summary — {periodLabel}</h3>
+              <p className="text-xs text-muted-foreground">All invoices raised in the period, grouped by month</p>
+            </div>
+            {invoiceMonthData.length === 0 ? (
+              <p className="p-10 text-center text-muted-foreground italic text-sm">No invoices in this period.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead><tr className="bg-secondary/50 text-muted-foreground text-xs">
+                    <th className="px-5 py-3 text-left font-bold">Month</th>
+                    <th className="px-5 py-3 text-right font-bold">Invoices</th>
+                    <th className="px-5 py-3 text-right font-bold">Total Invoiced</th>
+                    <th className="px-5 py-3 text-right font-bold">Paid</th>
+                    <th className="px-5 py-3 text-right font-bold">Pending / Sent</th>
+                    <th className="px-5 py-3 text-right font-bold">Draft</th>
+                    <th className="px-5 py-3 text-right font-bold">Roster Rev.</th>
+                    <th className="px-5 py-3 text-right font-bold">Variance</th>
+                  </tr></thead>
+                  <tbody className="divide-y divide-border">
+                    {invoiceMonthData.map(m => {
+                      const rosterMonth = monthData.find(r => r.key === m.key);
+                      const rosterRev = rosterMonth ? rosterMonth.revenue : 0;
+                      const variance = m.total - rosterRev;
+                      return (
+                        <tr key={m.key} className="hover:bg-secondary/30">
+                          <td className="px-5 py-3 font-black">{m.key}</td>
+                          <td className="px-5 py-3 text-right">{m.invoices}</td>
+                          <td className="px-5 py-3 text-right font-bold text-blue-700">{fmt(m.total)}</td>
+                          <td className="px-5 py-3 text-right text-emerald-700 font-bold">{fmt(m.paid)}</td>
+                          <td className="px-5 py-3 text-right text-amber-700">{fmt(m.pending)}</td>
+                          <td className="px-5 py-3 text-right text-muted-foreground">{fmt(m.draft)}</td>
+                          <td className="px-5 py-3 text-right">{fmt(rosterRev)}</td>
+                          <td className={`px-5 py-3 text-right font-bold ${variance > 0 ? "text-blue-600" : variance < 0 ? "text-rose-600" : "text-muted-foreground"}`}>
+                            {variance > 0 ? "+" : ""}{fmt(variance)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot>
+                    <tr className="bg-secondary/30 font-black text-sm">
+                      <td className="px-5 py-3">TOTAL</td>
+                      <td className="px-5 py-3 text-right">{filteredInvoices.length}</td>
+                      <td className="px-5 py-3 text-right text-blue-700">{fmt(totalInvoiced)}</td>
+                      <td className="px-5 py-3 text-right text-emerald-700">{fmt(totalPaid)}</td>
+                      <td className="px-5 py-3 text-right text-amber-700">{fmt(totalOutstanding)}</td>
+                      <td className="px-5 py-3 text-right text-muted-foreground">{fmt(filteredInvoices.filter(i=>i.status==="Draft").reduce((a,i)=>a+(i.total||0),0))}</td>
+                      <td className="px-5 py-3 text-right">{fmt(totalRevenue)}</td>
+                      <td className={`px-5 py-3 text-right ${totalInvoiced - totalRevenue >= 0 ? "text-blue-600" : "text-rose-600"}`}>
+                        {totalInvoiced - totalRevenue >= 0 ? "+" : ""}{fmt(totalInvoiced - totalRevenue)}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            )}
+            <p className="px-5 py-2 text-[10px] text-muted-foreground border-t border-border">Variance = Invoiced − Roster Revenue. Positive = invoiced more than shifts; Negative = shifts not yet invoiced.</p>
+          </div>
+
+          {/* Individual invoice list */}
+          <div className="bg-card border border-border rounded-2xl overflow-hidden">
+            <div className="p-4 border-b border-border bg-secondary/40">
+              <h3 className="font-black">All Invoices — {periodLabel}</h3>
+            </div>
+            {filteredInvoices.length === 0 ? (
+              <p className="p-8 text-center text-muted-foreground italic text-sm">No invoices in this period.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead><tr className="bg-secondary/50 text-muted-foreground text-xs">
+                    <th className="px-5 py-3 text-left font-bold">Invoice #</th>
+                    <th className="px-5 py-3 text-left font-bold">Participant</th>
+                    <th className="px-5 py-3 text-left font-bold">Issue Date</th>
+                    <th className="px-5 py-3 text-left font-bold">Status</th>
+                    <th className="px-5 py-3 text-right font-bold">Total</th>
+                  </tr></thead>
+                  <tbody className="divide-y divide-border">
+                    {filteredInvoices.sort((a,b) => (b.issue_date||"").localeCompare(a.issue_date||"")).map(inv => (
+                      <tr key={inv.id} className="hover:bg-secondary/30">
+                        <td className="px-5 py-3 font-mono text-xs">{inv.invoice_number || "—"}</td>
+                        <td className="px-5 py-3 font-bold">{inv.participant_name}</td>
+                        <td className="px-5 py-3 text-muted-foreground">{inv.issue_date}</td>
+                        <td className="px-5 py-3">
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                            inv.status === "Paid" ? "bg-emerald-100 text-emerald-700" :
+                            inv.status === "Sent" ? "bg-blue-100 text-blue-700" :
+                            inv.status === "Overdue" ? "bg-rose-100 text-rose-700" :
+                            "bg-secondary text-muted-foreground"
+                          }`}>{inv.status}</span>
+                        </td>
+                        <td className="px-5 py-3 text-right font-bold">{fmt(inv.total)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
@@ -643,8 +788,8 @@ export default function FinancialReports() {
             <p className="text-xs text-muted-foreground">Calculated from completed roster shifts using NDIS support catalogue rates. Verify with your BAS agent before lodging.</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
-                { label: "G1 — Total Sales (including GST-free sales)", value: fmt(totalRevenue), color: "border-emerald-200 bg-emerald-50", vcolor: "text-emerald-700", note: "All NDIS service revenue for the period" },
-                { label: "G2 — GST-free Sales", value: fmt(totalRevenue), color: "border-emerald-200 bg-emerald-50", vcolor: "text-emerald-700", note: "All NDIS supports are GST-free (s38-30 GST Act)" },
+                { label: "G1 — Total Sales (including GST-free sales)", value: fmt(totalInvoiced || totalRevenue), color: "border-emerald-200 bg-emerald-50", vcolor: "text-emerald-700", note: totalInvoiced ? `From ${filteredInvoices.length} invoices raised` : "From completed roster shifts (no invoices yet)" },
+                { label: "G2 — GST-free Sales", value: fmt(totalInvoiced || totalRevenue), color: "border-emerald-200 bg-emerald-50", vcolor: "text-emerald-700", note: "All NDIS supports are GST-free (s38-30 GST Act)" },
                 { label: "G3 — Input-taxed Sales", value: "$0.00", color: "border-border bg-secondary/30", vcolor: "text-muted-foreground", note: "Not applicable" },
                 { label: "1A — GST on Sales", value: "$0.00", color: "border-border bg-secondary/30", vcolor: "text-muted-foreground", note: "No GST payable on NDIS services" },
                 { label: "W1 — Total Wages (for PAYG)", value: fmt(staffTaxRows.reduce((a,r) => a+r.gross, 0)), color: "border-amber-200 bg-amber-50", vcolor: "text-amber-700", note: "Total gross wages paid to all staff this period" },
