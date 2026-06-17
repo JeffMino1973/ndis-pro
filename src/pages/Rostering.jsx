@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, ChevronLeft, ChevronRight, Calendar, Pencil, Trash2, Copy, RefreshCw, Loader2 } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Calendar, Pencil, Trash2, Copy, RefreshCw, Loader2, Wrench, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay, parseISO } from "date-fns";
+import { NDIS_ITEMS } from "@/utils/ndisItems";
 
 const STATUS_COLORS = {
   Scheduled: "bg-blue-100 text-blue-700",
@@ -30,6 +31,9 @@ export default function Rostering() {
   const [recurWeeks, setRecurWeeks] = useState(4);
   const [copying, setCopying] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [showBulkDialog, setShowBulkDialog] = useState(false);
+  const [bulkUpdating, setBulkUpdating] = useState(false);
+  const [bulkResult, setBulkResult] = useState(null);
   const [form, setForm] = useState({ participant_name: "", staff_name: "", date: "", start_time: "09:00", end_time: "11:00", support_type: "", support_item_code: "", hourly_rate: "", status: "Scheduled", notes: "" });
 
   const load = async () => {
@@ -107,6 +111,37 @@ export default function Rostering() {
     try { return isSameDay(parseISO(s.date), day); } catch { return false; }
   });
 
+  const runBulkUpdate = async () => {
+    setBulkUpdating(true);
+    setBulkResult(null);
+    const ndisMap = Object.fromEntries(NDIS_ITEMS.map(i => [i.code, i]));
+    let updated = 0;
+    let skipped = 0;
+    const updates = shifts
+      .filter(s => s.support_item_code && ndisMap[s.support_item_code])
+      .map(s => {
+        const item = ndisMap[s.support_item_code];
+        const hrs = (() => {
+          if (!s.start_time || !s.end_time) return s.hours || 0;
+          const [sh, sm] = s.start_time.split(":").map(Number);
+          const [eh, em] = s.end_time.split(":").map(Number);
+          return Math.max(0, Math.round(((eh * 60 + em - sh * 60 - sm) / 60) * 100) / 100);
+        })();
+        const amount = Math.round(hrs * item.rate * 100) / 100;
+        return base44.entities.Shift.update(s.id, {
+          support_type: item.name,
+          hourly_rate: item.rate,
+          hours: hrs,
+          amount,
+        }).then(() => updated++);
+      });
+    skipped = shifts.filter(s => !s.support_item_code || !ndisMap[s.support_item_code]).length;
+    await Promise.all(updates);
+    setBulkUpdating(false);
+    setBulkResult({ updated, skipped });
+    load();
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -114,9 +149,14 @@ export default function Rostering() {
           <h2 className="text-3xl font-black tracking-tight">Rostering</h2>
           <p className="text-muted-foreground text-sm">Weekly shift scheduling for staff and participants.</p>
         </div>
-        <Button onClick={openAdd} className="rounded-xl font-bold gap-2">
-          <Plus size={18} /> Add Shift
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => { setBulkResult(null); setShowBulkDialog(true); }} className="rounded-xl font-bold gap-2 border-amber-300 text-amber-700 hover:bg-amber-50">
+            <Wrench size={16} /> Bulk Update Rates
+          </Button>
+          <Button onClick={openAdd} className="rounded-xl font-bold gap-2">
+            <Plus size={18} /> Add Shift
+          </Button>
+        </div>
       </div>
 
       {/* Week Navigation */}
@@ -250,6 +290,53 @@ export default function Rostering() {
               </Select>
             </div>
             <Button onClick={save} disabled={!form.staff_name || !form.participant_name || !form.date} className="w-full rounded-xl font-bold">Save Shift</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Update Dialog */}
+      <Dialog open={showBulkDialog} onOpenChange={setShowBulkDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2"><Wrench size={16} /> Bulk Update All Shifts</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-800 space-y-2">
+              <p className="font-black">What this does:</p>
+              <ul className="list-disc list-inside space-y-1 text-xs">
+                <li>Reads the item code on every shift</li>
+                <li>Sets the correct hourly rate from NDIS price guide</li>
+                <li>Sets the support type description to match the code</li>
+                <li>Recalculates hours and total amount</li>
+                <li>Invoices &amp; payslips will auto-reflect the updated figures</li>
+              </ul>
+            </div>
+            <div className="bg-secondary rounded-xl p-3 text-xs space-y-1">
+              <p className="font-black text-foreground mb-2">Current NDIS rates:</p>
+              {NDIS_ITEMS.map(i => (
+                <div key={i.code} className="flex justify-between">
+                  <span className="text-muted-foreground font-mono">{i.code}</span>
+                  <span className="font-bold text-foreground">${i.rate.toFixed(2)}/hr</span>
+                </div>
+              ))}
+            </div>
+            {bulkResult && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-3">
+                <CheckCircle2 size={18} className="text-emerald-600 shrink-0" />
+                <div className="text-sm">
+                  <p className="font-black text-emerald-800">Update complete!</p>
+                  <p className="text-emerald-700">{bulkResult.updated} shifts updated · {bulkResult.skipped} skipped (no item code)</p>
+                </div>
+              </div>
+            )}
+            <Button
+              onClick={runBulkUpdate}
+              disabled={bulkUpdating}
+              className="w-full rounded-xl font-bold gap-2 bg-amber-600 hover:bg-amber-700"
+            >
+              {bulkUpdating ? <Loader2 size={15} className="animate-spin" /> : <Wrench size={15} />}
+              {bulkUpdating ? `Updating ${shifts.length} shifts...` : `Update All ${shifts.length} Shifts`}
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

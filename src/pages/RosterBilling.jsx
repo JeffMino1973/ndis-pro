@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { format, parseISO, startOfWeek, endOfWeek, addWeeks, subWeeks } from "date-fns";
-import { FileText, DollarSign, ChevronLeft, ChevronRight, CheckCircle, AlertCircle, Send, Printer, RefreshCw } from "lucide-react";
+import { FileText, DollarSign, ChevronLeft, ChevronRight, CheckCircle, AlertCircle, Send, Printer, RefreshCw, BarChart2, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -148,6 +148,91 @@ function buildPayslipHTML(staffName, shifts, staffMembers) {
   </body></html>`;
 }
 
+function buildFinanceSummaryHTML(shifts, staffMembers) {
+  const completed = shifts.filter(s => s.status === "Completed");
+  const totalRevenue = completed.reduce((a, s) => a + (s.amount || calcHours(s.start_time, s.end_time) * (s.hourly_rate || 0)), 0);
+  const gst = totalRevenue / 11; // GST-inclusive — NDISis GST-free but we show it as reference
+  const byStaff = {};
+  completed.forEach(s => {
+    if (!byStaff[s.staff_name]) byStaff[s.staff_name] = { shifts: 0, hours: 0, gross: 0 };
+    const hrs = s.hours || calcHours(s.start_time, s.end_time);
+    byStaff[s.staff_name].shifts++;
+    byStaff[s.staff_name].hours += hrs;
+    byStaff[s.staff_name].gross += s.amount || hrs * (s.hourly_rate || 0);
+  });
+  const byCode = {};
+  completed.forEach(s => {
+    const code = s.support_item_code || "Unknown";
+    if (!byCode[code]) byCode[code] = { desc: s.support_type || code, shifts: 0, hours: 0, revenue: 0 };
+    const hrs = s.hours || calcHours(s.start_time, s.end_time);
+    byCode[code].shifts++;
+    byCode[code].hours += hrs;
+    byCode[code].revenue += s.amount || hrs * (s.hourly_rate || 0);
+  });
+  const byMonth = {};
+  completed.forEach(s => {
+    const m = s.date ? s.date.slice(0, 7) : "Unknown";
+    if (!byMonth[m]) byMonth[m] = { revenue: 0, shifts: 0 };
+    byMonth[m].revenue += s.amount || calcHours(s.start_time, s.end_time) * (s.hourly_rate || 0);
+    byMonth[m].shifts++;
+  });
+  const today = format(new Date(), "dd/MM/yyyy");
+  const staffRows = Object.entries(byStaff).map(([name, d]) =>
+    `<tr><td>${name}</td><td>${d.shifts}</td><td>${d.hours.toFixed(2)}</td><td>$${d.gross.toFixed(2)}</td></tr>`).join("");
+  const codeRows = Object.entries(byCode).map(([code, d]) =>
+    `<tr><td><code>${code}</code></td><td>${d.desc}</td><td>${d.shifts}</td><td>${d.hours.toFixed(2)}</td><td>$${d.revenue.toFixed(2)}</td></tr>`).join("");
+  const monthRows = Object.entries(byMonth).sort().map(([m, d]) =>
+    `<tr><td>${m}</td><td>${d.shifts}</td><td>$${d.revenue.toFixed(2)}</td><td>$${(d.revenue / 11).toFixed(2)}</td></tr>`).join("");
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Accountant Summary</title>
+  <style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#1e293b;font-size:13px;padding:28px 36px;}
+  .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #1e293b;}
+  .logo{width:140px;}.contact{text-align:right;font-size:11px;color:#475569;line-height:1.75;}
+  h1{font-size:28px;font-weight:900;color:#1e293b;margin-bottom:4px;}
+  h2{font-size:15px;font-weight:900;color:#1e293b;margin:20px 0 8px;padding-bottom:4px;border-bottom:1px solid #e2e8f0;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:8px;}
+  .kpi{border:1px solid #e2e8f0;border-radius:6px;padding:12px 14px;}
+  .kl{font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
+  .kv{font-size:18px;font-weight:900;color:#1e293b;}
+  .kv.green{color:#16a34a;}.kv.blue{color:#2563eb;}
+  table{width:100%;border-collapse:collapse;margin-bottom:8px;}
+  thead tr{background:#1e293b;color:white;}
+  thead th{padding:8px 10px;font-size:11px;text-align:left;}
+  tbody tr{border-bottom:1px solid #f1f5f9;}
+  tbody td{padding:7px 10px;font-size:12px;}
+  .note{background:#fef9c3;border:1px solid #fde68a;border-radius:6px;padding:10px 14px;font-size:11px;color:#854d0e;margin-bottom:12px;}
+  .footer{text-align:center;font-size:10px;color:#94a3b8;margin-top:24px;padding-top:12px;border-top:1px solid #e2e8f0;}
+  @media print{.no-print{display:none;}}
+  </style></head><body>
+  <div class="header">
+    <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" class="logo" />
+    <div class="contact"><div><strong>SZ-JIE Support Services</strong></div><div>ABN: 86959042971</div><div>309/12 Broome St, Waterloo NSW 2017</div><div>jeff@szjiesupportservices.com</div></div>
+  </div>
+  <h1>Accountant Summary &amp; BAS Report</h1>
+  <p style="font-size:12px;color:#64748b;margin-bottom:16px;">Generated: ${today} · All completed shifts to date</p>
+  <div class="kpi-grid">
+    <div class="kpi"><div class="kl">Total Revenue</div><div class="kv green">$${totalRevenue.toFixed(2)}</div></div>
+    <div class="kpi"><div class="kl">Completed Shifts</div><div class="kv blue">${completed.length}</div></div>
+    <div class="kpi"><div class="kl">Total Hours</div><div class="kv">${completed.reduce((a,s)=>a+(s.hours||calcHours(s.start_time,s.end_time)),0).toFixed(2)}</div></div>
+    <div class="kpi"><div class="kl">Staff Count</div><div class="kv">${Object.keys(byStaff).length}</div></div>
+  </div>
+  <div class="note">⚠️ NDIS services are GST-free under Australian tax law (s38-30 GST Act). The figures below show gross revenue only. Confirm with your accountant.</div>
+  <h2>BAS Statement – Monthly Revenue Breakdown</h2>
+  <table><thead><tr><th>Month</th><th>Shifts</th><th>Revenue (incl. adj)</th><th>GST Reference*</th></tr></thead>
+  <tbody>${monthRows}</tbody></table>
+  <p style="font-size:10px;color:#94a3b8;margin-bottom:16px;">*GST Reference = 1/11th of revenue. NDIS services are GST-free; this is for reference only.</p>
+  <h2>Revenue by Support Item Code</h2>
+  <table><thead><tr><th>Code</th><th>Description</th><th>Shifts</th><th>Hours</th><th>Revenue</th></tr></thead>
+  <tbody>${codeRows}</tbody></table>
+  <h2>Staff Payroll Summary</h2>
+  <table><thead><tr><th>Staff Member</th><th>Shifts</th><th>Hours</th><th>Gross Pay</th></tr></thead>
+  <tbody>${staffRows}</tbody></table>
+  <div class="footer">SZ-JIE Support Services · ABN 86959042971 · Confidential – For Accountant Use Only</div>
+  <div class="no-print" style="text-align:center;padding:20px;">
+    <button onclick="window.print()" style="background:linear-gradient(90deg,#06b6d4,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
+  </div>
+  </body></html>`;
+}
+
 export default function RosterBilling() {
   const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [shifts, setShifts] = useState([]);
@@ -274,10 +359,11 @@ export default function RosterBilling() {
       </div>
 
       <Tabs defaultValue="shifts">
-        <TabsList className="rounded-xl">
+        <TabsList className="rounded-xl flex-wrap h-auto gap-1">
           <TabsTrigger value="shifts" className="rounded-lg">Shifts This Week</TabsTrigger>
           <TabsTrigger value="invoices" className="rounded-lg">Invoices ({Object.keys(byParticipant).length})</TabsTrigger>
           <TabsTrigger value="payslips" className="rounded-lg">Payslips ({Object.keys(byStaff).length})</TabsTrigger>
+          <TabsTrigger value="finance" className="rounded-lg gap-1"><BarChart2 size={13} /> Finance & BAS</TabsTrigger>
         </TabsList>
 
         {/* SHIFTS TAB */}
@@ -472,7 +558,167 @@ export default function RosterBilling() {
             </div>
           )}
         </TabsContent>
+        {/* FINANCE & BAS TAB */}
+        <TabsContent value="finance" className="mt-4">
+          <FinanceSummary shifts={shifts} staffMembers={staffMembers} />
+        </TabsContent>
       </Tabs>
+    </div>
+  );
+}
+
+function FinanceSummary({ shifts, staffMembers }) {
+  const completed = shifts.filter(s => s.status === "Completed");
+  const totalRevenue = completed.reduce((a, s) => a + (s.amount || calcHours(s.start_time, s.end_time) * (s.hourly_rate || 0)), 0);
+  const totalHours = completed.reduce((a, s) => a + (s.hours || calcHours(s.start_time, s.end_time)), 0);
+
+  const byMonth = {};
+  completed.forEach(s => {
+    const m = s.date ? s.date.slice(0, 7) : "Unknown";
+    if (!byMonth[m]) byMonth[m] = { revenue: 0, shifts: 0, hours: 0 };
+    byMonth[m].revenue += s.amount || calcHours(s.start_time, s.end_time) * (s.hourly_rate || 0);
+    byMonth[m].shifts++;
+    byMonth[m].hours += s.hours || calcHours(s.start_time, s.end_time);
+  });
+
+  const byCode = {};
+  completed.forEach(s => {
+    const code = s.support_item_code || "No Code";
+    if (!byCode[code]) byCode[code] = { desc: s.support_type || code, revenue: 0, hours: 0, shifts: 0 };
+    const hrs = s.hours || calcHours(s.start_time, s.end_time);
+    byCode[code].revenue += s.amount || hrs * (s.hourly_rate || 0);
+    byCode[code].hours += hrs;
+    byCode[code].shifts++;
+  });
+
+  const byStaffAll = {};
+  completed.forEach(s => {
+    if (!byStaffAll[s.staff_name]) byStaffAll[s.staff_name] = { gross: 0, shifts: 0, hours: 0 };
+    const hrs = s.hours || calcHours(s.start_time, s.end_time);
+    byStaffAll[s.staff_name].gross += s.amount || hrs * (s.hourly_rate || 0);
+    byStaffAll[s.staff_name].shifts++;
+    byStaffAll[s.staff_name].hours += hrs;
+  });
+
+  return (
+    <div className="space-y-6">
+      {/* KPI Row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {[
+          { label: "Total Revenue (All Time)", value: formatCurrency(totalRevenue), color: "text-emerald-600" },
+          { label: "Total Completed Shifts", value: completed.length, color: "text-blue-600" },
+          { label: "Total Hours Delivered", value: totalHours.toFixed(1) + " hrs", color: "text-violet-600" },
+          { label: "Avg Revenue / Shift", value: completed.length ? formatCurrency(totalRevenue / completed.length) : "$0", color: "text-primary" },
+        ].map(k => (
+          <div key={k.label} className="bg-card border border-border rounded-2xl p-4">
+            <p className="text-xs text-muted-foreground font-bold">{k.label}</p>
+            <p className={`text-2xl font-black mt-1 ${k.color}`}>{k.value}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* BAS Note */}
+      <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3">
+        <Globe size={18} className="text-amber-600 shrink-0 mt-0.5" />
+        <div className="text-sm">
+          <p className="font-black text-amber-800">BAS / GST Note</p>
+          <p className="text-amber-700 text-xs mt-1">NDIS supports are GST-free under s38-30 of the GST Act. Your business should report revenue in Label G1 with G1 total = revenue, and G2 = 0 (GST-free). Confirm with your registered tax agent or BAS agent before lodging.</p>
+        </div>
+      </div>
+
+      {/* Monthly Breakdown */}
+      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+        <div className="p-4 border-b border-border bg-secondary/50 flex items-center justify-between">
+          <h3 className="font-black">Monthly Revenue (BAS Reference)</h3>
+          <Button size="sm" variant="outline" className="gap-1 rounded-xl" onClick={() => printHTML(buildFinanceSummaryHTML(shifts, staffMembers))}>
+            <Printer size={13} /> Print Full Report
+          </Button>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead>
+              <tr className="bg-secondary/50 text-muted-foreground">
+                <th className="px-4 py-2 text-left font-bold">Month</th>
+                <th className="px-4 py-2 text-right font-bold">Shifts</th>
+                <th className="px-4 py-2 text-right font-bold">Hours</th>
+                <th className="px-4 py-2 text-right font-bold">Revenue</th>
+                <th className="px-4 py-2 text-right font-bold">GST (ref only*)</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {Object.entries(byMonth).sort().map(([m, d]) => (
+                <tr key={m}>
+                  <td className="px-4 py-2.5 font-bold">{m}</td>
+                  <td className="px-4 py-2.5 text-right">{d.shifts}</td>
+                  <td className="px-4 py-2.5 text-right">{d.hours.toFixed(2)}</td>
+                  <td className="px-4 py-2.5 text-right font-bold text-emerald-700">{formatCurrency(d.revenue)}</td>
+                  <td className="px-4 py-2.5 text-right text-muted-foreground">{formatCurrency(d.revenue / 11)}</td>
+                </tr>
+              ))}
+              <tr className="bg-secondary/30 font-black">
+                <td className="px-4 py-2.5">TOTAL</td>
+                <td className="px-4 py-2.5 text-right">{completed.length}</td>
+                <td className="px-4 py-2.5 text-right">{totalHours.toFixed(2)}</td>
+                <td className="px-4 py-2.5 text-right text-emerald-700">{formatCurrency(totalRevenue)}</td>
+                <td className="px-4 py-2.5 text-right text-muted-foreground">{formatCurrency(totalRevenue / 11)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="px-4 py-2 text-[10px] text-muted-foreground border-t border-border">*GST reference = 1/11th. NDIS services are GST-free — this column is for reference only. Do not remit this amount to the ATO.</p>
+      </div>
+
+      {/* By Item Code */}
+      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+        <div className="p-4 border-b border-border bg-secondary/50"><h3 className="font-black">Revenue by Support Item Code</h3></div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead><tr className="bg-secondary/50 text-muted-foreground">
+              <th className="px-4 py-2 text-left font-bold">Code</th>
+              <th className="px-4 py-2 text-left font-bold">Description</th>
+              <th className="px-4 py-2 text-right font-bold">Shifts</th>
+              <th className="px-4 py-2 text-right font-bold">Hours</th>
+              <th className="px-4 py-2 text-right font-bold">Revenue</th>
+            </tr></thead>
+            <tbody className="divide-y divide-border">
+              {Object.entries(byCode).sort((a,b) => b[1].revenue - a[1].revenue).map(([code, d]) => (
+                <tr key={code}>
+                  <td className="px-4 py-2.5 font-mono">{code}</td>
+                  <td className="px-4 py-2.5 text-muted-foreground">{d.desc}</td>
+                  <td className="px-4 py-2.5 text-right">{d.shifts}</td>
+                  <td className="px-4 py-2.5 text-right">{d.hours.toFixed(2)}</td>
+                  <td className="px-4 py-2.5 text-right font-bold">{formatCurrency(d.revenue)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Staff Payroll Summary */}
+      <div className="bg-card border border-border rounded-2xl overflow-hidden">
+        <div className="p-4 border-b border-border bg-secondary/50"><h3 className="font-black">Staff Payroll Summary (All Time)</h3></div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-xs">
+            <thead><tr className="bg-secondary/50 text-muted-foreground">
+              <th className="px-4 py-2 text-left font-bold">Staff Member</th>
+              <th className="px-4 py-2 text-right font-bold">Shifts</th>
+              <th className="px-4 py-2 text-right font-bold">Hours</th>
+              <th className="px-4 py-2 text-right font-bold">Gross Pay</th>
+            </tr></thead>
+            <tbody className="divide-y divide-border">
+              {Object.entries(byStaffAll).sort((a,b) => b[1].gross - a[1].gross).map(([name, d]) => (
+                <tr key={name}>
+                  <td className="px-4 py-2.5 font-bold">{name}</td>
+                  <td className="px-4 py-2.5 text-right">{d.shifts}</td>
+                  <td className="px-4 py-2.5 text-right">{d.hours.toFixed(2)}</td>
+                  <td className="px-4 py-2.5 text-right font-bold text-emerald-700">{formatCurrency(d.gross)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
