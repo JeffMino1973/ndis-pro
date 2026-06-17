@@ -6,279 +6,88 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: Arial, sans-serif; background: #fff; color: #1e293b; font-size: 13px; }
+  .page { max-width: 860px; margin: 0 auto; padding: 28px 32px 32px 32px; background: #fff; }
 
-  .page {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 28px 32px 32px 32px;
-    background: #fff;
-  }
-
-  /* ===== HEADER ===== */
-  .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 18px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #e2e8f0;
-  }
-  .header-logo { width: 155px; }
+  /* HEADER */
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+  .header-logo { width: 150px; }
   .header-contact { text-align: right; font-size: 11px; color: #475569; line-height: 1.75; }
   .header-contact .row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
 
-  /* ===== TITLE ROW ===== */
-  .title-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .page-title {
-    font-size: 30px;
-    font-weight: 900;
-    color: #06b6d4;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  .title-badges {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .conf-badge {
-    background: #1e293b;
-    color: white;
-    font-size: 10px;
-    font-weight: bold;
-    padding: 3px 10px;
-    border-radius: 4px;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-  .ndis-badge {
-    background: #dbeafe;
-    color: #1d4ed8;
-    font-size: 11px;
-    font-weight: bold;
-    padding: 3px 12px;
-    border-radius: 4px;
-  }
+  /* TITLE ROW */
+  .title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .page-title { font-size: 34px; font-weight: 900; color: #06b6d4; text-transform: uppercase; letter-spacing: 1px; }
+  .title-right { display: flex; align-items: center; gap: 12px; }
+  .conf-badge { background: #1e293b; color: white; font-size: 10px; font-weight: bold; padding: 3px 10px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .ndis-badge { background: #dbeafe; color: #1d4ed8; font-size: 11px; font-weight: bold; padding: 3px 12px; border-radius: 4px; }
 
-  /* ===== SECTION HEADER ===== */
-  .section-header {
-    background: #1e293b;
-    color: white;
-    padding: 8px 14px;
-    font-size: 11px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    border-radius: 4px 4px 0 0;
-    margin-top: 14px;
-  }
-  .section-body {
-    border: 1px solid #e2e8f0;
-    border-top: none;
-    border-radius: 0 0 6px 6px;
-    padding: 14px;
-    margin-bottom: 4px;
-  }
+  /* SECTION HEADER */
+  .sec-header { background: #1e293b; color: white; padding: 8px 14px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.6px; border-radius: 4px; margin: 14px 0 10px 0; }
 
-  /* ===== GENERAL INFO GRID ===== */
-  .info-grid-4 {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0;
-  }
-  .info-cell {
-    padding: 10px 14px;
-    border-right: 1px solid #e2e8f0;
-  }
+  /* GENERAL INFO GRID */
+  .info-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; margin-bottom: 4px; }
+  .info-cell { padding: 10px 14px; border-right: 1px solid #e2e8f0; }
   .info-cell:last-child { border-right: none; }
-  .ic-label {
-    font-size: 9px;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.6px;
-    margin-bottom: 4px;
-  }
-  .ic-value {
-    font-size: 14px;
-    font-weight: bold;
-    color: #1e293b;
-  }
-  .ic-value.status { color: #0ea5e9; }
+  .ic-label { font-size: 9.5px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; border-left: 3px solid #06b6d4; padding-left: 6px; }
+  .ic-value { font-size: 14px; font-weight: bold; color: #1e293b; }
+  .ic-value.blue { color: #06b6d4; }
 
-  /* ===== PURPOSE BOX ===== */
-  .purpose-quote {
-    border-left: 4px solid #06b6d4;
-    background: #f0f9ff;
-    border-radius: 4px;
-    padding: 12px 16px;
-    font-size: 12.5px;
-    color: #374151;
-    font-style: italic;
-    line-height: 1.6;
-  }
+  /* PURPOSE BOX */
+  .purpose-box { border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px 16px; margin-bottom: 4px; }
+  .purpose-box p { font-size: 12.5px; color: #374151; font-style: italic; line-height: 1.6; }
 
-  /* ===== SUPPORTS TABLE ===== */
-  .supports-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12.5px;
-  }
-  .supports-table thead tr {
-    border-bottom: 1px solid #e2e8f0;
-  }
-  .supports-table thead th {
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #64748b;
-    padding: 6px 8px;
-    text-align: left;
-    font-weight: bold;
-  }
-  .supports-table thead th:last-child { text-align: right; }
-  .supports-table tbody tr { border-bottom: 1px solid #f1f5f9; }
-  .supports-table tbody tr:last-child { border-bottom: none; }
-  .supports-table tbody td { padding: 10px 8px; vertical-align: middle; }
-  .supports-table tbody td:last-child { text-align: right; }
-  .item-code {
-    font-size: 11px;
-    color: #0ea5e9;
-    font-weight: bold;
-    white-space: nowrap;
-  }
-  .item-desc { font-size: 13px; font-weight: 600; color: #1e293b; }
-  .item-rate { font-size: 14px; font-weight: bold; color: #1e293b; }
-  .table-footnote { font-size: 10px; color: #94a3b8; margin-top: 8px; font-style: italic; }
+  /* SUPPORT TABLE */
+  .support-table { width: 100%; border-collapse: collapse; border-radius: 6px; overflow: hidden; border: 1px solid #e2e8f0; margin-bottom: 4px; }
+  .support-table thead tr { background: #f8fafc; }
+  .support-table thead th { padding: 8px 12px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; font-weight: bold; text-align: left; border-bottom: 1px solid #e2e8f0; }
+  .support-table thead th.rate-col { text-align: right; }
+  .support-table tbody tr { border-bottom: 1px solid #f1f5f9; }
+  .support-table tbody tr:last-child { border-bottom: none; }
+  .support-table tbody td { padding: 10px 12px; font-size: 12.5px; color: #374151; }
+  .support-table tbody td.item-code { font-family: monospace; font-size: 11px; color: #6366f1; font-weight: bold; }
+  .support-table tbody td.rate { text-align: right; font-weight: bold; color: #1e293b; }
+  .support-table tbody td.desc { font-weight: 600; color: #1e293b; }
+  .table-note { font-size: 10px; color: #94a3b8; font-style: italic; margin-top: 4px; }
 
-  /* ===== SUPPORT DESCRIPTIONS ===== */
-  .desc-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-  }
-  .desc-box {
-    border-left: 3px solid #8b5cf6;
-    padding: 10px 14px;
-    background: #faf5ff;
-    border-radius: 0 6px 6px 0;
-  }
-  .desc-box.community { border-left-color: #06b6d4; background: #f0f9ff; }
-  .desc-box .db-label {
-    font-size: 9.5px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #8b5cf6;
-    margin-bottom: 5px;
-  }
-  .desc-box.community .db-label { color: #0891b2; }
-  .desc-box .db-text { font-size: 12.5px; color: #374151; line-height: 1.5; }
+  /* SUPPORT DESCRIPTIONS */
+  .desc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+  .desc-box { border-radius: 6px; padding: 12px 14px; }
+  .desc-box.social { border-left: 4px solid #8b5cf6; background: #faf5ff; }
+  .desc-box.community { border-left: 4px solid #06b6d4; background: #f0fdfe; }
+  .desc-box .db-label { font-size: 9.5px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; color: #94a3b8; margin-bottom: 5px; }
+  .desc-box p { font-size: 12.5px; color: #374151; line-height: 1.5; }
 
-  /* ===== RESPONSIBILITIES ===== */
-  .resp-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-top: 14px;
-    margin-bottom: 4px;
-  }
-  .resp-box { border-radius: 6px; overflow: hidden; }
-  .resp-header {
-    padding: 8px 14px;
-    font-size: 11px;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: white;
-  }
-  .resp-header.provider { background: #15803d; }
-  .resp-header.participant { background: #b45309; }
-  .resp-body {
-    border: 1px solid #e2e8f0;
-    border-top: none;
-    border-radius: 0 0 6px 6px;
-    padding: 12px 14px;
-  }
-  .resp-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    font-size: 12.5px;
-    color: #374151;
-    margin-bottom: 6px;
-    line-height: 1.4;
-  }
-  .resp-item:last-child { margin-bottom: 0; }
-  .resp-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    flex-shrink: 0; margin-top: 4px;
-  }
-  .dot-green { background: #16a34a; }
-  .dot-amber { background: #d97706; }
+  /* RESPONSIBILITIES */
+  .resp-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+  .resp-box { border-radius: 6px; padding: 12px 14px; }
+  .resp-box.provider { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .resp-box.participant { background: #fefce8; border: 1px solid #fde68a; }
+  .resp-box .rb-header { font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; padding: 6px 10px; border-radius: 4px; margin-bottom: 10px; color: white; }
+  .resp-box.provider .rb-header { background: #16a34a; }
+  .resp-box.participant .rb-header { background: #d97706; }
+  .resp-box ul { padding-left: 0; list-style: none; }
+  .resp-box ul li { display: flex; align-items: flex-start; gap: 7px; font-size: 12.5px; color: #374151; margin-bottom: 6px; line-height: 1.4; }
+  .resp-box ul li::before { content: "●"; font-size: 8px; margin-top: 4px; flex-shrink: 0; }
+  .resp-box.provider ul li::before { color: #16a34a; }
+  .resp-box.participant ul li::before { color: #d97706; }
 
-  /* ===== RISK/SAFETY SECTION ===== */
-  .risk-space {
-    min-height: 50px;
-  }
+  /* RISK/SAFETY BLANK */
+  .blank-section { border: 1px solid #e2e8f0; border-radius: 6px; padding: 30px 14px; margin-bottom: 4px; min-height: 60px; }
 
-  /* ===== SIGNATURE SECTION ===== */
-  .sig-row {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr auto 1fr;
-    gap: 12px;
-    align-items: end;
-    margin-top: 18px;
-    padding-top: 14px;
-    border-top: 1px solid #e2e8f0;
-  }
-  .sig-col .sig-label {
-    font-size: 9.5px;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 2px;
-  }
-  .sig-col .sig-name { font-size: 13px; font-weight: bold; color: #1e293b; }
-  .sig-col .sig-sub { font-size: 11px; color: #64748b; }
-  .sig-col .sig-line {
-    border-bottom: 1px solid #94a3b8;
-    margin-bottom: 4px;
-    height: 28px;
-  }
-  .sig-date {
-    font-size: 13px;
-    color: #374151;
-    white-space: nowrap;
-  }
-  .sig-date input[type="date"] {
-    border: 1px solid #d1d5db;
-    border-radius: 4px;
-    padding: 4px 8px;
-    font-size: 12px;
-    color: #1e293b;
-  }
+  /* SIGNATURES */
+  .sig-section { border: 1px solid #e2e8f0; border-radius: 6px; padding: 16px; margin-bottom: 4px; }
+  .sig-row { display: flex; align-items: flex-end; gap: 20px; }
+  .sig-col { flex: 1; }
+  .sig-col .sc-label { font-size: 9.5px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .sig-col .sc-name { font-size: 13px; font-weight: bold; color: #1e293b; }
+  .sig-col .sc-line { border-bottom: 1px solid #1e293b; margin: 18px 0 4px 0; }
+  .sig-col .sc-date { font-size: 12px; color: #374151; }
   .provider-sig { text-align: right; }
-  .provider-sig .ps-label {
-    font-size: 9.5px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px;
-  }
+  .provider-sig .ps-label { font-size: 9.5px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; }
   .provider-sig .ps-name { font-size: 14px; font-weight: bold; color: #1e293b; }
-  .provider-sig .ps-endorsed {
-    font-size: 10px; color: #22c55e; font-weight: bold; text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
+  .provider-sig .ps-endorsed { font-size: 10px; color: #22c55e; font-weight: bold; text-transform: uppercase; }
 
-  @media print {
-    body { background: white; }
-    .page { padding: 20px; }
-    .no-print { display: none; }
-  }
+  @media print { body { background: white; } .page { padding: 20px; } .no-print { display: none; } }
 </style>
 </head>
 <body>
@@ -288,7 +97,7 @@
   <div class="header">
     <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" alt="SZ-JIE" class="header-logo" />
     <div class="header-contact">
-      <div class="row">📋 <strong>SZ-JIE Support Services</strong></div>
+      <div class="row">📋 SZ-JIE Support Services</div>
       <div class="row">🏢 ABN: 86959042971</div>
       <div class="row">📍 309/12 Broome St, Waterloo NSW, 2017</div>
       <div class="row">✉️ jeff@szjiesupportservices.com</div>
@@ -297,153 +106,140 @@
     </div>
   </div>
 
-  <!-- TITLE ROW -->
+  <!-- TITLE -->
   <div class="title-row">
     <div class="page-title">Service Agreement</div>
-    <div class="title-badges">
+    <div class="title-right">
       <span class="conf-badge">Confidential</span>
       <span class="ndis-badge">Bronwyn Chau | NDIS: 430117666</span>
     </div>
   </div>
 
   <!-- 1. GENERAL INFORMATION -->
-  <div class="section-header">1. &nbsp;General Information</div>
-  <div class="section-body" style="padding: 0;">
-    <div class="info-grid-4">
-      <div class="info-cell">
-        <div class="ic-label">Participant Name</div>
-        <div class="ic-value">Bronwyn Chau</div>
-      </div>
-      <div class="info-cell">
-        <div class="ic-label">Agreement Date</div>
-        <div class="ic-value">11/06/2026</div>
-      </div>
-      <div class="info-cell">
-        <div class="ic-label">NDIS Number</div>
-        <div class="ic-value">430117666</div>
-      </div>
-      <div class="info-cell">
-        <div class="ic-label">Agreement Status</div>
-        <div class="ic-value status">Final Version</div>
-      </div>
+  <div class="sec-header">1. General Information</div>
+  <div class="info-grid-4">
+    <div class="info-cell">
+      <div class="ic-label">Participant Name</div>
+      <div class="ic-value">Bronwyn Chau</div>
+    </div>
+    <div class="info-cell">
+      <div class="ic-label">Agreement Date</div>
+      <div class="ic-value">11/06/2026</div>
+    </div>
+    <div class="info-cell">
+      <div class="ic-label">NDIS Number</div>
+      <div class="ic-value">430117666</div>
+    </div>
+    <div class="info-cell">
+      <div class="ic-label">Agreement Status</div>
+      <div class="ic-value blue">Final Version</div>
     </div>
   </div>
 
   <!-- 2. PURPOSE OF AGREEMENT -->
-  <div class="section-header">2. &nbsp;Purpose of Agreement</div>
-  <div class="section-body">
-    <div class="purpose-quote">
-      "This Service Agreement is made for the purpose of providing supports under the participant's National Disability Insurance Scheme (NDIS) plan. The parties agree to work together to provide supports that help Bronwyn Chau achieve their goals of developing life skills and increasing community participation."
-    </div>
+  <div class="sec-header">2. Purpose of Agreement</div>
+  <div class="purpose-box">
+    <p>"This Service Agreement is made for the purpose of providing supports under the participant's National Disability Insurance Scheme (NDIS) plan. The parties agree to work together to provide supports that help Bronwyn Chau achieve their goals of developing life skills and increasing community participation."</p>
   </div>
 
   <!-- 3. SCHEDULE OF SUPPORTS & COSTING -->
-  <div class="section-header">3. &nbsp;Schedule of Supports &amp; Costing</div>
-  <div class="section-body">
-    <table class="supports-table">
-      <thead>
-        <tr>
-          <th>Item Code</th>
-          <th>Support Description</th>
-          <th>Rate (Per Hour)</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><span class="item-code">01_004_0107_1_1</span></td>
-          <td><span class="item-desc">Assistance with Personal Domestic Activities</span></td>
-          <td><span class="item-rate">$59.06</span></td>
-        </tr>
-        <tr>
-          <td><span class="item-code">04_104_0125_6_1</span></td>
-          <td><span class="item-desc">Access Community, Social and Rec Activ – Standard – Weekday Daytime</span></td>
-          <td><span class="item-rate">$70.23</span></td>
-        </tr>
-        <tr>
-          <td><span class="item-code">04_105_0125_6_1</span></td>
-          <td><span class="item-desc">Access Community, Social and Rec Activ – Standard – Saturday</span></td>
-          <td><span class="item-rate">$98.83</span></td>
-        </tr>
-        <tr>
-          <td><span class="item-code">04_106_0125_6_1</span></td>
-          <td><span class="item-desc">Access Community, Social and Rec Activ – Standard – Sunday</span></td>
-          <td><span class="item-rate">$127.43</span></td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="table-footnote">Costs are based on the NDIS Pricing Arrangements and Price Limits 2025–2026 (National/Standard rates).</div>
-  </div>
+  <div class="sec-header">3. Schedule of Supports &amp; Costing</div>
+  <table class="support-table">
+    <thead>
+      <tr>
+        <th>Item Code</th>
+        <th>Support Description</th>
+        <th class="rate-col">Rate (Per Hour)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="item-code">01_004_0107_1_1</td>
+        <td class="desc">Assistance with Personal Domestic Activities</td>
+        <td class="rate">$59.06</td>
+      </tr>
+      <tr>
+        <td class="item-code">04_104_0125_6_1</td>
+        <td class="desc">Access Community, Social and Rec Activ – Standard – Weekday Daytime</td>
+        <td class="rate">$70.23</td>
+      </tr>
+      <tr>
+        <td class="item-code">04_105_0125_6_1</td>
+        <td class="desc">Access Community, Social and Rec Activ – Standard – Saturday</td>
+        <td class="rate">$98.83</td>
+      </tr>
+      <tr>
+        <td class="item-code">04_106_0125_6_1</td>
+        <td class="desc">Access Community, Social and Rec Activ – Standard – Sunday</td>
+        <td class="rate">$127.43</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="table-note">Costs are based on the NDIS Pricing Arrangements and Price Limits 2025-2026 (National/Standard rates).</div>
 
   <!-- 4. SUPPORT DESCRIPTIONS -->
-  <div class="section-header">4. &nbsp;Support Descriptions</div>
-  <div class="section-body">
-    <div class="desc-grid">
-      <div class="desc-box">
-        <div class="db-label">Social Participation</div>
-        <div class="db-text">Accompanying Bronwyn to local social hubs, clubs, or recreational events to foster engagement.</div>
-      </div>
-      <div class="desc-box community">
-        <div class="db-label">Community Access</div>
-        <div class="db-text">Providing physical support needed to engage in community-based activities and practice skills in social settings.</div>
-      </div>
+  <div class="sec-header">4. Support Descriptions</div>
+  <div class="desc-grid">
+    <div class="desc-box social">
+      <div class="db-label">Social Participation</div>
+      <p>Accompanying Bronwyn to local social hubs, clubs, or recreational events to foster engagement.</p>
+    </div>
+    <div class="desc-box community">
+      <div class="db-label">Community Access</div>
+      <p>Providing physical support needed to engage in community-based activities and practice skills in social settings.</p>
     </div>
   </div>
 
-  <!-- 5 & 6: RESPONSIBILITIES (side by side) -->
-  <div class="resp-grid">
-    <div class="resp-box">
-      <div class="resp-header provider">5. &nbsp;Provider Responsibilities</div>
-      <div class="resp-body">
-        <div class="resp-item"><span class="resp-dot dot-green"></span> Provide supports that meet Bronwyn's goals.</div>
-        <div class="resp-item"><span class="resp-dot dot-green"></span> Ensure workers are trained in transport safety.</div>
-        <div class="resp-item"><span class="resp-dot dot-green"></span> Provide clear, itemized invoices.</div>
-      </div>
+  <!-- 5 & 6. RESPONSIBILITIES -->
+  <div class="resp-grid" style="margin-top:10px;">
+    <div class="resp-box provider">
+      <div class="rb-header">5. Provider Responsibilities</div>
+      <ul>
+        <li>Provide supports that meet Bronwyn's goals.</li>
+        <li>Ensure workers are trained in transport safety.</li>
+        <li>Provide clear, itemized invoices.</li>
+      </ul>
     </div>
-    <div class="resp-box">
-      <div class="resp-header participant">6. &nbsp;Participant Responsibilities</div>
-      <div class="resp-body">
-        <div class="resp-item"><span class="resp-dot dot-amber"></span> Be ready for scheduled sessions.</div>
-        <div class="resp-item"><span class="resp-dot dot-amber"></span> Provide 24 hours notice for cancellations.</div>
-        <div class="resp-item"><span class="resp-dot dot-amber"></span> Inform provider of NDIS plan changes.</div>
-      </div>
+    <div class="resp-box participant">
+      <div class="rb-header">6. Participant Responsibilities</div>
+      <ul>
+        <li>Be ready for scheduled sessions.</li>
+        <li>Provide 24 hours notice for cancellations.</li>
+        <li>Inform provider of NDIS plan changes.</li>
+      </ul>
     </div>
   </div>
 
   <!-- 7. RISK/SAFETY & ENDORSEMENTS -->
-  <div class="section-header" style="margin-top: 14px;">7. &nbsp;Risk/Safety &amp; Endorsements</div>
-  <div class="section-body">
-    <div class="risk-space"></div>
+  <div class="sec-header">7. Risk/Safety &amp; Endorsements</div>
+  <div class="blank-section"></div>
 
-    <!-- SIGNATURES -->
-    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-top: 16px; align-items: end;">
-      <div>
-        <div style="font-size:9.5px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Participant / Representative</div>
-        <div style="border-bottom: 1px solid #94a3b8; height: 30px; margin-bottom: 4px;"></div>
-        <div style="font-size:13px;font-weight:bold;color:#1e293b;">Bronwyn Chau (or Representative)</div>
+  <!-- SIGNATURES -->
+  <div class="sig-section">
+    <div class="sig-row">
+      <div class="sig-col">
+        <div class="sc-label">Participant / Representative</div>
+        <div class="sc-name">Bronwyn Chau (or Representative)</div>
+        <div class="sc-line"></div>
+        <div class="sc-date">DATE: ____/____/2026</div>
       </div>
-      <div style="text-align:center;">
-        <div style="font-size:9.5px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Date</div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:13px;color:#374151;">
-          <input type="date" style="border:1px solid #d1d5db;border-radius:4px;padding:4px 8px;font-size:12px;">
-        </div>
-        <div style="font-size:9.5px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-top:8px;margin-bottom:4px;">Date</div>
-        <div style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:13px;color:#374151;">
-          <input type="date" style="border:1px solid #d1d5db;border-radius:4px;padding:4px 8px;font-size:12px;">
-        </div>
+      <div class="sig-col">
+        <div class="sc-label">&nbsp;</div>
+        <div class="sc-name">&nbsp;</div>
+        <div class="sc-line"></div>
+        <div class="sc-date">DATE: ____/____/2026</div>
       </div>
-      <div style="text-align:right;">
-        <div style="font-size:9.5px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Provider Representative</div>
-        <div style="font-size:15px;font-weight:bold;color:#1e293b;">SZ-JIE WANG</div>
-        <div style="font-size:10.5px;color:#22c55e;font-weight:bold;text-transform:uppercase;letter-spacing:0.5px;margin-top:3px;">Endorsed: 11/04/2026</div>
+      <div class="sig-col provider-sig">
+        <div class="ps-label">Provider Representative</div>
+        <div class="ps-name">SZ-JIE WANG</div>
+        <div class="ps-endorsed">Endorsed: 11/04/2026</div>
       </div>
     </div>
   </div>
 
 </div>
-
-<div class="no-print" style="text-align:center; padding:16px;">
+<div class="no-print" style="text-align:center;padding:16px;">
   <button onclick="window.print()" style="background:linear-gradient(90deg,#06b6d4,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
 </div>
-
 </body>
 </html>

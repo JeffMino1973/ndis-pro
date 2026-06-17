@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Support Plan</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; background: #fff; color: #1e293b; font-size: 13px; }
+  .page { max-width: 860px; margin: 0 auto; padding: 28px 32px 32px 32px; background: #fff; }
+
+  /* HEADER */
+  .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid #e2e8f0; }
+  .header-logo { width: 150px; }
+  .header-contact { text-align: right; font-size: 11px; color: #475569; line-height: 1.75; }
+  .header-contact .row { display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+
+  /* TITLE */
+  .page-title { font-size: 42px; font-weight: 900; color: #06b6d4; text-transform: uppercase; text-align: center; letter-spacing: 2px; margin-bottom: 6px; }
+  .plan-subtitle { text-align: center; font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 8px; }
+  .conf-center { text-align: center; margin-bottom: 18px; }
+  .conf-badge { display: inline-block; border: 2px solid #8b5cf6; color: #8b5cf6; font-size: 10px; font-weight: bold; padding: 3px 14px; border-radius: 20px; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* SECTION HEADER */
+  .sec-header { background: #1e293b; color: white; padding: 8px 14px; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.6px; border-radius: 4px; margin: 16px 0 10px 0; }
+
+  /* INFO GRID */
+  .info-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; margin-bottom: 4px; }
+  .info-row { display: contents; }
+  .info-cell { padding: 10px 14px; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+  .info-cell:nth-child(even) { border-right: none; }
+  .info-cell:nth-last-child(-n+2) { border-bottom: none; }
+  .ic-label { font-size: 9.5px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; border-left: 3px solid #06b6d4; padding-left: 6px; }
+  .ic-value { font-size: 14px; font-weight: bold; color: #1e293b; line-height: 1.3; }
+
+  /* SUPPORT FOCUS 3-COL */
+  .focus-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 4px; }
+  .focus-box { border-radius: 8px; padding: 14px; }
+  .focus-box.travel { background: #eff6ff; border: 1px solid #bfdbfe; }
+  .focus-box.daily { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .focus-box.community { background: #fdf4ff; border: 1px solid #e9d5ff; }
+  .focus-box .fb-title { font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 8px; }
+  .focus-box ul { padding-left: 18px; }
+  .focus-box ul li { font-size: 12px; color: #374151; margin-bottom: 4px; line-height: 1.4; }
+
+  /* CONTEXT BOX */
+  .context-box { border-left: 4px solid #06b6d4; background: #f0fdfe; border-radius: 0 6px 6px 0; padding: 14px 16px; margin-bottom: 4px; }
+  .context-box p { font-size: 13px; color: #1e293b; font-weight: 600; line-height: 1.7; }
+
+  /* JOURNEY 2-COL */
+  .journey-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+  .journey-box { border-radius: 8px; padding: 14px; }
+  .journey-box.outbound { background: #fffbeb; border: 1px solid #fde68a; }
+  .journey-box.return { background: #f0f9ff; border: 1px solid #bae6fd; }
+  .journey-box .jb-title { font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+  .journey-box ul { padding-left: 18px; }
+  .journey-box ul li { font-size: 12px; color: #374151; margin-bottom: 5px; line-height: 1.4; }
+
+  /* SKILL TABLE */
+  .skill-table { width: 100%; border-collapse: collapse; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; margin-bottom: 4px; }
+  .skill-table thead tr { background: #1e293b; color: white; }
+  .skill-table thead th { padding: 8px 12px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold; text-align: left; }
+  .skill-table tbody tr { border-bottom: 1px solid #f1f5f9; }
+  .skill-table tbody tr:last-child { border-bottom: none; }
+  .skill-table tbody tr:nth-child(even) { background: #f8fafc; }
+  .skill-table tbody td { padding: 9px 12px; font-size: 12px; color: #374151; vertical-align: top; }
+  .skill-table tbody td.goal-col { font-weight: bold; color: #1e293b; width: 18%; }
+  .skill-table tbody td.strat-col { width: 42%; }
+  .skill-table tbody td.success-col { width: 40%; }
+
+  /* DOMESTIC SECTION */
+  .domestic-intro { border-left: 4px solid #06b6d4; background: #f0fdfe; border-radius: 0 6px 6px 0; padding: 12px 14px; margin-bottom: 10px; font-size: 12.5px; color: #1e293b; line-height: 1.6; }
+  .domestic-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+  .domestic-box { border-radius: 8px; padding: 14px; }
+  .domestic-box.household { background: #f0fdf4; border: 1px solid #bbf7d0; }
+  .domestic-box.laundry { background: #f0f9ff; border: 1px solid #bae6fd; }
+  .domestic-box .db-title { font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 8px; }
+  .domestic-box ul { padding-left: 18px; }
+  .domestic-box ul li { font-size: 12px; color: #374151; margin-bottom: 4px; line-height: 1.4; }
+
+  /* COMMUNITY 3-COL */
+  .community-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 4px; }
+  .comm-box { border-radius: 8px; padding: 14px; }
+  .comm-box.bowling { background: #fdf4ff; border: 1px solid #e9d5ff; }
+  .comm-box.movies { background: #fff7ed; border: 1px solid #fed7aa; }
+  .comm-box.local { background: #fef2f2; border: 1px solid #fecaca; }
+  .comm-box .cb-title { font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 8px; }
+  .comm-box ul { padding-left: 18px; }
+  .comm-box ul li { font-size: 12px; color: #374151; margin-bottom: 4px; line-height: 1.4; }
+
+  /* SHOPPING TABLE */
+  .shopping-table { width: 100%; border-collapse: collapse; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; margin-bottom: 4px; }
+  .shopping-table thead tr { background: #1e293b; color: white; }
+  .shopping-table thead th { padding: 8px 12px; font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: bold; text-align: left; }
+  .shopping-table tbody tr { border-bottom: 1px solid #f1f5f9; }
+  .shopping-table tbody tr:last-child { border-bottom: none; }
+  .shopping-table tbody tr:nth-child(even) { background: #f8fafc; }
+  .shopping-table tbody td { padding: 9px 12px; font-size: 12px; color: #374151; vertical-align: top; }
+  .shopping-table tbody td.step-num { font-weight: bold; color: #1e293b; width: 6%; text-align: center; }
+  .shopping-table tbody td.activity { font-weight: 600; color: #1e293b; width: 34%; }
+
+  /* EDUCATIONAL 3-COL */
+  .edu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 4px; }
+  .edu-box { border-radius: 8px; padding: 14px; border: 1px solid #e2e8f0; background: #f8fafc; }
+  .edu-box .eb-title { font-size: 13px; font-weight: bold; color: #1e293b; margin-bottom: 8px; line-height: 1.3; }
+  .edu-box ul { padding-left: 18px; }
+  .edu-box ul li { font-size: 12px; color: #374151; margin-bottom: 4px; line-height: 1.4; }
+
+  /* CHECKBOX GRID */
+  .check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 4px; }
+  .check-item { border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px 12px; font-size: 12px; color: #374151; display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; }
+  .check-item input[type="checkbox"] { margin-top: 2px; flex-shrink: 0; }
+
+  /* RISK 2-COL */
+  .risk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 4px; }
+  .risk-box { border-radius: 8px; padding: 14px; }
+  .risk-box.safety { background: #fef2f2; border: 1px solid #fecaca; }
+  .risk-box.approach { background: #f0f9ff; border: 1px solid #bae6fd; }
+  .risk-box .rb-title { font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 8px; }
+  .risk-box ul { padding-left: 18px; }
+  .risk-box ul li { font-size: 12px; color: #374151; margin-bottom: 4px; line-height: 1.4; }
+
+  /* ENDORSEMENTS */
+  .endorse-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid #e2e8f0; border-radius: 6px; overflow: hidden; margin-bottom: 4px; }
+  .endorse-cell { padding: 12px 14px; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; }
+  .endorse-cell:nth-child(even) { border-right: none; }
+  .endorse-cell:nth-last-child(-n+2) { border-bottom: none; }
+  .ec-label { font-size: 9.5px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; border-left: 3px solid #06b6d4; padding-left: 6px; }
+  .ec-value { font-size: 14px; font-weight: bold; color: #1e293b; }
+
+  .doc-footer { text-align: center; margin-top: 16px; font-size: 10px; color: #94a3b8; font-style: italic; padding-top: 12px; border-top: 1px solid #e2e8f0; }
+
+  @media print { body { background: white; } .page { padding: 20px; } .no-print { display: none; } }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" alt="SZ-JIE" class="header-logo" />
+    <div class="header-contact">
+      <div class="row">📋 SZ-JIE Support Services</div>
+      <div class="row">🏢 ABN: 86959042971</div>
+      <div class="row">📍 309/12 Broome St, Waterloo NSW, 2017</div>
+      <div class="row">✉️ jeff@szjiesupportservices.com</div>
+      <div class="row">🌐 www.szjiesupportservices.com</div>
+      <div class="row">📞 0401 343 876</div>
+    </div>
+  </div>
+
+  <!-- TITLE -->
+  <div class="page-title">Support Plan</div>
+  <div class="plan-subtitle">Bronwyn Chau | NDIS: 430117666 | Updated Capacity Building Support Plan</div>
+  <div class="conf-center"><span class="conf-badge">Confidential</span></div>
+
+  <!-- 1. GENERAL INFORMATION -->
+  <div class="sec-header">1. General Information</div>
+  <div class="info-grid-2">
+    <div class="info-cell">
+      <div class="ic-label">Participant Name</div>
+      <div class="ic-value">Bronwyn Chau</div>
+    </div>
+    <div class="info-cell">
+      <div class="ic-label">NDIS Number</div>
+      <div class="ic-value">430117666</div>
+    </div>
+    <div class="info-cell">
+      <div class="ic-label">Plan Date</div>
+      <div class="ic-value">10/06/2026</div>
+    </div>
+    <div class="info-cell">
+      <div class="ic-label">Primary Goal</div>
+      <div class="ic-value">Independent Travel, Domestic Living Skills, Community Access and Capacity Building</div>
+    </div>
+  </div>
+
+  <!-- 2. SUPPORT FOCUS -->
+  <div class="sec-header">2. Support Focus</div>
+  <div class="focus-grid">
+    <div class="focus-box travel">
+      <div class="fb-title">Travel Training</div>
+      <ul>
+        <li>Route familiarisation</li>
+        <li>Public transport confidence</li>
+        <li>Safe road crossing and transfer skills</li>
+        <li>Digital literacy using transport apps</li>
+      </ul>
+    </div>
+    <div class="focus-box daily">
+      <div class="fb-title">Daily Living</div>
+      <ul>
+        <li>Domestic routines</li>
+        <li>Laundry and linen changes</li>
+        <li>Meal preparation</li>
+        <li>Independent household task completion</li>
+      </ul>
+    </div>
+    <div class="focus-box community">
+      <div class="fb-title">Community Participation</div>
+      <ul>
+        <li>Bowling and movies</li>
+        <li>Sunday shopping</li>
+        <li>Library and community resources</li>
+        <li>Social participation and choice making</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 3. IMPORTANT CONTEXT -->
+  <div class="sec-header">3. Important Context</div>
+  <div class="context-box">
+    <p>This plan is focused on building Bronwyn's independence across everyday routines, including safe travel between Coogee and Botany, domestic living skills, community access, Sunday shopping, educational capacity building and digital literacy. Support should remain respectful, discreet and independence-focused. Verbal prompts should only be offered when necessary so that Bronwyn can continue to develop problem-solving skills and confidence.</p>
+  </div>
+
+  <!-- 4. JOURNEY OVERVIEW -->
+  <div class="sec-header">4. Journey Overview</div>
+  <div class="journey-grid">
+    <div class="journey-box outbound">
+      <div class="jb-title">🟡 Tuesday Travel Training: Coogee to Botany</div>
+      <ul>
+        <li>Prepare for the outing using a visual schedule and the current itinerary.</li>
+        <li>Check weather and travel conditions before leaving.</li>
+        <li>Use public transport route information to support predictable travel.</li>
+        <li>Practise identifying stops, transfers, landmarks and arrival points.</li>
+        <li>Use the Opal App or other travel tools to check balance, service times and trip progress.</li>
+      </ul>
+    </div>
+    <div class="journey-box return">
+      <div class="jb-title">🔵 Return Travel: Botany to Coogee</div>
+      <ul>
+        <li>Locate the correct return stop and confirm the direction of travel.</li>
+        <li>Use landmarks and street signs to confirm location.</li>
+        <li>Practise safe crossing routines including Stop, Look, Listen and Think.</li>
+        <li>Use phone-based supports if a service changes or Bronwyn requires assistance.</li>
+        <li>Review the trip after completion and identify what went well.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 5. SKILL DEVELOPMENT & SUCCESS CRITERIA -->
+  <div class="sec-header">5. Skill Development &amp; Success Criteria</div>
+  <table class="skill-table">
+    <thead>
+      <tr>
+        <th>Goal</th>
+        <th>Support Strategy</th>
+        <th>Success Criteria</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="goal-col">Route Familiarisation</td>
+        <td>Support worker points out consistent landmarks, bus stops, crossings and transfer points during Coogee to Botany travel training.</td>
+        <td>Bronwyn identifies key stops, landmarks and safe crossing points with reduced prompting.</td>
+      </tr>
+      <tr>
+        <td class="goal-col">Opal App / Travel App Usage</td>
+        <td>Guided practice checking balance, service times, live trip information and next services.</td>
+        <td>Bronwyn checks travel information on her phone before or during travel with minimal assistance.</td>
+      </tr>
+      <tr>
+        <td class="goal-col">Physical Safety</td>
+        <td>Practise Stop, Look, Listen and Think at intersections, driveways and industrial/community access areas.</td>
+        <td>Bronwyn waits for safe crossing opportunities and follows road safety routines consistently.</td>
+      </tr>
+      <tr>
+        <td class="goal-col">Contingency Planning</td>
+        <td>Role-play what to do if a bus is late, cancelled or the route changes, including checking the next service or calling a support person.</td>
+        <td>Bronwyn can identify the next safe step when travel does not go to plan.</td>
+      </tr>
+      <tr>
+        <td class="goal-col">Domestic Living Skills</td>
+        <td>Support Bronwyn to complete household routines including vacuuming, laundry, dryer settings, linen changes, rice cooker use and simple meal preparation.</td>
+        <td>Bronwyn completes familiar domestic tasks independently or with only subtle safety monitoring.</td>
+      </tr>
+      <tr>
+        <td class="goal-col">Community Access</td>
+        <td>Support structured participation in bowling, movies, cafes, library visits and other community outings.</td>
+        <td>Bronwyn participates in chosen community activities and practises communication, money handling and social interaction skills.</td>
+      </tr>
+      <tr>
+        <td class="goal-col">Sunday Shopping Program</td>
+        <td>Support Bronwyn and her mother to create a shopping list, enter it into Bronwyn's phone, locate items, select groceries and complete payment.</td>
+        <td>Bronwyn follows her phone list, selects required groceries and participates in payment routines with increasing independence.</td>
+      </tr>
+      <tr>
+        <td class="goal-col">Educational Capacity Building</td>
+        <td>Provide structured online learning activities focused on visual schedules, personal forms, library systems and digital independence.</td>
+        <td>Bronwyn demonstrates improved confidence using planners, forms, community systems and technology-based supports.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 6. DOMESTIC LIVING SKILLS PROGRAM -->
+  <div class="sec-header">6. Domestic Living Skills Program</div>
+  <div class="domestic-intro">Bronwyn is a capable and independent young woman. Domestic living support should focus on maintaining independence, building confidence and avoiding learned helplessness. Staff should provide discreet observation and only offer verbal prompts when required for safety, timing or task completion.</div>
+  <div class="domestic-grid">
+    <div class="domestic-box household">
+      <div class="db-title">Household Tasks</div>
+      <ul>
+        <li>Vacuuming the home independently.</li>
+        <li>Changing bed linen on the agreed weekly rotation.</li>
+        <li>Maintaining personal living spaces.</li>
+        <li>Completing household routines in the correct sequence.</li>
+      </ul>
+    </div>
+    <div class="domestic-box laundry">
+      <div class="db-title">Laundry &amp; Meal Preparation</div>
+      <ul>
+        <li>Putting clothes into the dryer and selecting drying time.</li>
+        <li>Understanding that the dryer and rice cooker cannot run at the same time.</li>
+        <li>Preparing rice using the rice cooker.</li>
+        <li>Preparing light afternoon tea such as fresh fruit.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 7. COMMUNITY ACCESS & SOCIAL PARTICIPATION -->
+  <div class="sec-header">7. Community Access &amp; Social Participation</div>
+  <div class="community-grid">
+    <div class="comm-box bowling">
+      <div class="cb-title">Bowling</div>
+      <ul>
+        <li>Attend bowling as a structured recreational activity.</li>
+        <li>Practise turn-taking, social interaction and following venue routines.</li>
+        <li>Build confidence in community leisure settings.</li>
+      </ul>
+    </div>
+    <div class="comm-box movies">
+      <div class="cb-title">Movies</div>
+      <ul>
+        <li>Select movie options and session times.</li>
+        <li>Practise purchasing tickets or snacks where appropriate.</li>
+        <li>Follow cinema routines and community expectations.</li>
+      </ul>
+    </div>
+    <div class="comm-box local">
+      <div class="cb-title">Local Community</div>
+      <ul>
+        <li>Access cafes, shops, libraries and community facilities.</li>
+        <li>Practise communication with staff and community members.</li>
+        <li>Use visual schedules to prepare for transitions.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 8. SUNDAY SHOPPING PROGRAM -->
+  <div class="sec-header">8. Sunday Shopping Program</div>
+  <table class="shopping-table">
+    <thead>
+      <tr><th>Step</th><th>Activity</th><th>Support Approach</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="step-num">1</td>
+        <td class="activity">Plan the shopping list with Bronwyn's mother.</td>
+        <td>Encourage Bronwyn to contribute items, confirm priorities and understand the purpose of the shopping trip.</td>
+      </tr>
+      <tr>
+        <td class="step-num">2</td>
+        <td class="activity">Enter the shopping list into Bronwyn's phone.</td>
+        <td>Use Apple Notes or a preferred list app so Bronwyn can follow the list during shopping.</td>
+      </tr>
+      <tr>
+        <td class="step-num">3</td>
+        <td class="activity">Locate and select groceries.</td>
+        <td>Support Bronwyn to navigate aisles, compare products and select the correct grocery items.</td>
+      </tr>
+      <tr>
+        <td class="step-num">4</td>
+        <td class="activity">Pay for groceries.</td>
+        <td>Support Bronwyn to participate in checkout routines, payment and receipt collection as appropriate.</td>
+      </tr>
+      <tr>
+        <td class="step-num">5</td>
+        <td class="activity">Review the activity.</td>
+        <td>Discuss what went well, what was difficult and what can be practised again next week.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- 9. EDUCATIONAL CAPACITY BUILDING ACTIVITIES -->
+  <div class="sec-header">9. Educational Capacity Building Activities</div>
+  <div class="edu-grid">
+    <div class="edu-box">
+      <div class="eb-title">Topic 1: Visual Schedule Construction &amp; Maintenance</div>
+      <ul>
+        <li>Read daily visual schedules.</li>
+        <li>Update personal planners.</li>
+        <li>Build structured daily timetables.</li>
+        <li>Reduce anxiety around unexpected transitions.</li>
+      </ul>
+    </div>
+    <div class="edu-box">
+      <div class="eb-title">Topic 2: Filling Out Personal Forms</div>
+      <ul>
+        <li>Practise step-by-step paperwork formats.</li>
+        <li>Complete library card, membership and emergency contact forms.</li>
+        <li>Build confidence with official documents.</li>
+        <li>Develop accuracy and independence.</li>
+      </ul>
+    </div>
+    <div class="edu-box">
+      <div class="eb-title">Topic 3: Library &amp; Resource Systems</div>
+      <ul>
+        <li>Use community borrowing systems.</li>
+        <li>Track due dates and return dates.</li>
+        <li>Follow borrowing rules.</li>
+        <li>Build responsibility with shared resources.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 10. DIGITAL LITERACY & TECHNOLOGY SKILLS -->
+  <div class="sec-header">10. Digital Literacy &amp; Technology Skills</div>
+  <div class="check-grid">
+    <div class="check-item"><input type="checkbox"> Weather App: check weather before community access or travel.</div>
+    <div class="check-item"><input type="checkbox"> Apple Notes: create shopping lists, reminders and visual routines.</div>
+    <div class="check-item"><input type="checkbox"> Gmail: read, send and organise emails with support as required.</div>
+    <div class="check-item"><input type="checkbox"> Google Drive: locate, open and organise documents.</div>
+    <div class="check-item"><input type="checkbox"> Windows PC: access online learning activities safely.</div>
+    <div class="check-item"><input type="checkbox"> Internet Safety: practise safe searching and responsible app use.</div>
+  </div>
+
+  <!-- 11. OPAL APP & TRAVEL CHECKLIST -->
+  <div class="sec-header">11. Opal App &amp; Travel Checklist</div>
+  <div class="check-grid">
+    <div class="check-item"><input type="checkbox"> Opening the App: locate app icon and open successfully.</div>
+    <div class="check-item"><input type="checkbox"> Balance Check: confirm sufficient balance before travel.</div>
+    <div class="check-item"><input type="checkbox"> Trip Planner: search Coogee to Botany and return trips.</div>
+    <div class="check-item"><input type="checkbox"> Live View: track bus or service progress on the map.</div>
+    <div class="check-item"><input type="checkbox"> Alerts: use get-off reminders or haptic alerts where available.</div>
+    <div class="check-item"><input type="checkbox"> Next Service: identify what to do if the planned service changes.</div>
+  </div>
+
+  <!-- 12. RISK, SAFETY & SUPPORT APPROACH -->
+  <div class="sec-header">12. Risk, Safety &amp; Support Approach</div>
+  <div class="risk-grid">
+    <div class="risk-box safety">
+      <div class="rb-title">Safety Considerations</div>
+      <ul>
+        <li>Road crossings and busy community areas.</li>
+        <li>Unexpected changes to transport routes or times.</li>
+        <li>Managing personal belongings, phone and Opal card.</li>
+        <li>Maintaining safe routines during shopping and community access.</li>
+      </ul>
+    </div>
+    <div class="risk-box approach">
+      <div class="rb-title">Support Approach</div>
+      <ul>
+        <li>Use least intrusive prompting.</li>
+        <li>Allow time for independent problem solving.</li>
+        <li>Provide verbal prompts only when required.</li>
+        <li>Follow health care plan and emergency contacts if illness or injury occurs.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- 13. PLAN ENDORSEMENTS -->
+  <div class="sec-header">13. Plan Endorsements</div>
+  <div class="endorse-grid">
+    <div class="endorse-cell">
+      <div class="ec-label">Assessor / Provider</div>
+      <div class="ec-value">SZ-JIE Support Services</div>
+    </div>
+    <div class="endorse-cell">
+      <div class="ec-label">Review Date</div>
+      <div class="ec-value">10/06/2027</div>
+    </div>
+    <div class="endorse-cell">
+      <div class="ec-label">Shadowing Phase Commencement</div>
+      <div class="ec-value">10/12/2026</div>
+    </div>
+    <div class="endorse-cell">
+      <div class="ec-label">Collaboration Partner</div>
+      <div class="ec-value">Linh Phung / Chau (Mother) — 0424 377 062</div>
+    </div>
+  </div>
+
+  <div class="doc-footer">Standard: V1.2 - Updated Support Plan | Confidential Participant Document</div>
+
+</div>
+<div class="no-print" style="text-align:center;padding:16px;">
+  <button onclick="window.print()" style="background:linear-gradient(90deg,#06b6d4,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
+</div>
+</body>
+</html>
