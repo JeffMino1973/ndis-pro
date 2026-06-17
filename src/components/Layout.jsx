@@ -1,48 +1,17 @@
-import { Outlet, Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
-  LayoutDashboard,
-  Users,
-  ShieldCheck,
-  Brain,
-  Pill,
-  Heart,
-  ShieldAlert,
-  ClipboardCheck,
-  UserCircle,
-  AlertTriangle,
-  ClipboardList,
-  FileText,
-  Flame,
-  Settings,
-  Menu,
-  ChevronRight,
-  Receipt,
-  Calendar,
-  Clock,
-  Target,
-  FolderOpen,
-  MessageSquareWarning,
-  CheckSquare,
-  BarChart3,
-  BookTemplate,
-  Play,
-  Zap,
-  Navigation,
-  Mail,
-  DollarSign,
-  Activity,
-  Banknote,
-  LogOut,
-  Link2,
-  BookOpen,
-  Shield,
-  Database,
+  LayoutDashboard, Users, ShieldCheck, Brain, Pill, Heart, ShieldAlert,
+  ClipboardCheck, UserCircle, AlertTriangle, ClipboardList, FileText, Flame,
+  Settings, Menu, ChevronRight, Receipt, Calendar, Clock, Target, FolderOpen,
+  MessageSquareWarning, CheckSquare, BarChart3, BookTemplate, Play, Zap,
+  Navigation, DollarSign, Activity, Banknote, LogOut, Link2, BookOpen,
+  Shield, Database,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 
-const NAV_SECTIONS = [
+const ADMIN_NAV_SECTIONS = [
   {
     title: "Home",
     items: [
@@ -127,39 +96,60 @@ const NAV_SECTIONS = [
   },
 ];
 
+// Staff-only nav — just their portal
+const STAFF_NAV_SECTIONS = [
+  {
+    title: "My Portal",
+    items: [
+      { path: "/staff-portal", label: "My Staff Portal", icon: UserCircle },
+    ],
+  },
+];
+
 export default function Layout() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [hiddenPaths, setHiddenPaths] = useState(null); // null = loading, [] = no restrictions
+  const [currentUser, setCurrentUser] = useState(null);
+  const [hiddenPaths, setHiddenPaths] = useState(null); // null = loading
 
   useEffect(() => {
     async function loadPerms() {
       const me = await base44.auth.me();
+      setCurrentUser(me);
       if (!me) { setHiddenPaths([]); return; }
-      // Admins see everything
-      if (me.role === "admin") { setHiddenPaths([]); return; }
-      const perms = await base44.entities.NavPermissions.filter({ user_email: me.email });
-      setHiddenPaths(perms?.[0]?.hidden_paths ?? []);
+
+      // Staff (user role) — redirect to staff portal if not already there
+      if (me.role === "user") {
+        setHiddenPaths([]); // no per-user filtering needed, nav is already staff-only
+        if (!location.pathname.endsWith("/staff-portal")) {
+          navigate("/dashboard/staff-portal", { replace: true });
+        }
+        return;
+      }
+
+      // Admins — respect NavPermissions overrides
+      if (me.role === "admin") {
+        const perms = await base44.entities.NavPermissions.filter({ user_email: me.email });
+        setHiddenPaths(perms?.[0]?.hidden_paths ?? []);
+        return;
+      }
+
+      setHiddenPaths([]);
     }
     loadPerms();
   }, []);
 
+  const isStaff = currentUser?.role === "user";
+  const navSections = isStaff ? STAFF_NAV_SECTIONS : ADMIN_NAV_SECTIONS;
+
   return (
     <div className="min-h-screen flex bg-background">
-      {/* Mobile overlay */}
       {sidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/30 z-40 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-        />
+        <div className="fixed inset-0 bg-black/30 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
-      <aside
-        className={`fixed lg:sticky top-0 left-0 h-screen w-72 bg-card border-r border-border flex flex-col z-50 transition-transform duration-300 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
-        }`}
-      >
+      <aside className={`fixed lg:sticky top-0 left-0 h-screen w-72 bg-card border-r border-border flex flex-col z-50 transition-transform duration-300 ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
         <div className="p-4 pb-2">
           <img
             src="https://media.base44.com/images/public/69d54775d9a169daad84a133/641f2cf35_3cb3f155-51c2-49f0-993b-fc2df2583281.jpg"
@@ -168,62 +158,72 @@ export default function Layout() {
           />
         </div>
 
+        {/* Staff role banner */}
+        {isStaff && (
+          <div className="mx-4 mb-2 bg-primary/10 border border-primary/20 rounded-xl px-3 py-2 text-center">
+            <p className="text-xs font-black text-primary">Staff Portal</p>
+            <p className="text-[10px] text-muted-foreground truncate">{currentUser?.full_name}</p>
+          </div>
+        )}
+
         <nav className="flex-1 px-4 pb-4 overflow-y-auto space-y-6">
-          {NAV_SECTIONS.map((section) => {
-            const visibleItems = section.items.filter(item => !(hiddenPaths ?? []).includes(item.path));
+          {navSections.map((section) => {
+            const visibleItems = isStaff
+              ? section.items
+              : section.items.filter(item => !(hiddenPaths ?? []).includes(item.path));
             if (visibleItems.length === 0) return null;
             return (
-            <div key={section.title}>
-              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-3 mb-2">
-                {section.title}
-              </p>
-              <div className="space-y-0.5">
-                {visibleItems.map((item) => {
-                  const isActive = location.pathname === item.path;
-                  const Icon = item.icon;
-                  const isExternal = item.path.startsWith("EXTERNAL:");
-                  const href = isExternal ? item.path.replace("EXTERNAL:", "") : `/dashboard${item.path}`;
-                  const linkClass = `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                    isActive
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                  }`;
-                  return isExternal ? (
-                    <a key={item.path} href={href} target="_blank" rel="noopener noreferrer" className={linkClass}>
-                      <Icon size={18} />
-                      <span>{item.label}</span>
-                    </a>
-                  ) : (
-                    <Link
-                      key={item.path}
-                      to={href}
-                      onClick={() => setSidebarOpen(false)}
-                      className={linkClass}
-                    >
-                      <Icon size={18} />
-                      <span>{item.label}</span>
-                      {isActive && <ChevronRight size={14} className="ml-auto" />}
-                    </Link>
-                  );
-                })}
+              <div key={section.title}>
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-3 mb-2">
+                  {section.title}
+                </p>
+                <div className="space-y-0.5">
+                  {visibleItems.map((item) => {
+                    const isActive = location.pathname === `/dashboard${item.path}`;
+                    const Icon = item.icon;
+                    const isExternal = item.path.startsWith("EXTERNAL:");
+                    const href = isExternal ? item.path.replace("EXTERNAL:", "") : `/dashboard${item.path}`;
+                    const linkClass = `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                      isActive
+                        ? "bg-primary text-primary-foreground shadow-md"
+                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                    }`;
+                    return isExternal ? (
+                      <a key={item.path} href={href} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                        <Icon size={18} />
+                        <span>{item.label}</span>
+                      </a>
+                    ) : (
+                      <Link
+                        key={item.path}
+                        to={href}
+                        onClick={() => setSidebarOpen(false)}
+                        className={linkClass}
+                      >
+                        <Icon size={18} />
+                        <span>{item.label}</span>
+                        {isActive && <ChevronRight size={14} className="ml-auto" />}
+                      </Link>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
             );
           })}
         </nav>
 
         <div className="p-4 border-t border-border space-y-3">
-          <div className="bg-secondary rounded-2xl p-4">
+          <div className="bg-secondary rounded-2xl p-3">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-xs">
-                AD
+                {currentUser?.full_name?.charAt(0) || "?"}
               </div>
               <div className="overflow-hidden">
                 <p className="text-xs font-bold text-foreground truncate">
-                  Admin Manager
+                  {currentUser?.full_name || "Loading…"}
                 </p>
-                <p className="text-[10px] text-muted-foreground">
-                  NSW Provider
+                <p className="text-[10px] text-muted-foreground capitalize">
+                  {currentUser?.role === "user" ? "Support Worker" : "Administrator"}
                 </p>
               </div>
             </div>
@@ -240,14 +240,9 @@ export default function Layout() {
         </div>
       </aside>
 
-      {/* Main content */}
       <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
-        {/* Top bar */}
         <header className="h-16 bg-card border-b border-border px-4 lg:px-8 flex items-center justify-between shrink-0">
-          <button
-            onClick={() => setSidebarOpen(true)}
-            className="lg:hidden p-2 rounded-lg hover:bg-secondary"
-          >
+          <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-lg hover:bg-secondary">
             <Menu size={20} />
           </button>
           <div className="hidden lg:flex items-center gap-2 text-sm text-muted-foreground">
@@ -258,12 +253,11 @@ export default function Layout() {
           </div>
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-bold text-sm">
-              SZ
+              {currentUser?.full_name?.charAt(0) || "SZ"}
             </div>
           </div>
         </header>
 
-        {/* Page content */}
         <main className="flex-1 overflow-y-auto p-4 lg:p-8">
           <Outlet />
         </main>

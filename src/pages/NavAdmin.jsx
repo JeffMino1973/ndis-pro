@@ -3,14 +3,14 @@ import { base44 } from "@/api/base44Client";
 import { Users, ChevronDown, ChevronRight, Eye, EyeOff, Save, Check } from "lucide-react";
 import { toast } from "sonner";
 
-// All nav items mirrored from Layout
+// All nav items mirrored from Layout (admin view only)
 const ALL_NAV_SECTIONS = [
   {
-    title: "Dashboard",
+    title: "Home",
     items: [
       { path: "/", label: "Dashboard" },
-      { path: "/kpi", label: "KPI Dashboard" },
-      { path: "/ai-reports", label: "AI Report Centre" },
+      { path: "/kpi", label: "KPI & Analytics" },
+      { path: "/ai-reports", label: "AI Reports" },
     ],
   },
   {
@@ -19,36 +19,30 @@ const ALL_NAV_SECTIONS = [
       { path: "/participants", label: "Participants" },
       { path: "/onboarding", label: "Onboarding" },
       { path: "/goal-tracking", label: "Goal Tracking" },
-      { path: "/document-vault", label: "Document Vault" },
+      { path: "/progress-notes", label: "Progress Notes" },
       { path: "EXTERNAL:/participant-portal", label: "Participant Portal" },
     ],
   },
   {
-    title: "Scheduling & Shifts",
+    title: "Shifts & Billing",
     items: [
       { path: "/rostering", label: "Rostering" },
-      { path: "/timesheets", label: "Timesheets & Travel" },
       { path: "/shift-logger", label: "Shift Logger" },
-      { path: "/progress-notes", label: "Progress Notes" },
-      { path: "/travel-guide", label: "Travel Guide Generator" },
+      { path: "/timesheets", label: "Timesheets" },
+      { path: "/roster-billing", label: "Invoices & Payslips" },
     ],
   },
   {
-    title: "Health & Medication",
+    title: "Clinical & Support",
     items: [
-      { path: "/medications", label: "Medication Dashboard" },
-      { path: "/medication-hub", label: "Medication Forms Hub" },
-      { path: "/epilepsy-plans", label: "Epilepsy Plans" },
-      { path: "/health-care-plans", label: "Health Support Plans" },
+      { path: "/support-plans", label: "Support Plans" },
+      { path: "/service-agreements", label: "Service Agreements" },
       { path: "/implementation-programs", label: "Implementation Programs" },
-    ],
-  },
-  {
-    title: "Behaviour Support",
-    items: [
-      { path: "/behaviour-continuum", label: "Behaviour Continuum" },
-      { path: "/behaviour-support-plans", label: "Behaviour Support Plans" },
+      { path: "/behaviour-support-plans", label: "Behaviour Support" },
       { path: "/positive-behaviour-support-plans", label: "PBS Plans" },
+      { path: "/epilepsy-plans", label: "Epilepsy Plans" },
+      { path: "/health-care-plans", label: "Health Care Plans" },
+      { path: "/medications", label: "Medications" },
     ],
   },
   {
@@ -57,35 +51,39 @@ const ALL_NAV_SECTIONS = [
       { path: "/staff", label: "Staff & Compliance" },
       { path: "/risk-assessments", label: "Risk Assessments" },
       { path: "/incidents", label: "Incidents" },
-      { path: "/audit-checklists", label: "Audit Checklists" },
-      { path: "/complaints", label: "Complaints Register" },
+      { path: "/complaints", label: "Complaints" },
       { path: "/restrictive-practices", label: "Restrictive Practices" },
+      { path: "/audit-checklists", label: "Audit Checklists" },
     ],
   },
   {
-    title: "Finance & Billing",
+    title: "Finance",
     items: [
-      { path: "/finance", label: "Finance Centre" },
-      { path: "/invoices", label: "Invoices & Claims" },
+      { path: "/invoices", label: "Invoices" },
       { path: "/quotes", label: "Quotes" },
-      { path: "/support-plans", label: "Support Plans" },
-      { path: "/service-agreements", label: "Service Agreements" },
+      { path: "/finance", label: "Finance Centre" },
+      { path: "/payslips", label: "Payslip Generator" },
     ],
   },
   {
-    title: "Documents & Templates",
+    title: "Tools & Resources",
     items: [
-      { path: "/stationery", label: "Templates & Stationery" },
-      { path: "/email-templates", label: "Email Templates" },
-      { path: "/links", label: "Links" },
+      { path: "/templates", label: "Templates" },
+      { path: "/travel-guide", label: "Travel Guide" },
+      { path: "/document-vault", label: "Document Vault" },
+      { path: "/links", label: "Quick Links" },
+      { path: "/staff-portal", label: "Staff Portal" },
     ],
   },
   {
-    title: "System",
+    title: "Admin",
     items: [
-      { path: "/policy-manual", label: "Policy & Compliance Manual" },
-      { path: "/toby", label: "Toby's Profile" },
-      { path: "/jeffrey", label: "Jeffrey's Profile" },
+      { path: "/reports", label: "Reports Centre" },
+      { path: "/audit-log", label: "Audit Log" },
+      { path: "/data-export", label: "Data Export" },
+      { path: "/nav-admin", label: "Menu Permissions" },
+      { path: "/policy-manual", label: "Policy Manual" },
+      { path: "/user-guide", label: "User Guide" },
       { path: "/settings", label: "Settings" },
     ],
   },
