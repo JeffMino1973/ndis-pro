@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Download, FileText, Mail, User, Printer, ArrowLeft, Loader2, Receipt, Users, CreditCard, BadgeCheck, LayoutTemplate, ScrollText, Image } from "lucide-react";
+import { Download, FileText, Mail, User, Printer, ArrowLeft, Loader2, Receipt, Users, CreditCard, BadgeCheck, LayoutTemplate, ScrollText, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -139,10 +139,35 @@ const TEMPLATES = [
     person: "toby",
   },
   {
+    id: "ndis_onboarding_intake",
+    label: "NDIS Client Onboarding Intake Form",
+    description: "Professional client onboarding and intake form with SZ-JIE header",
+    icon: FileText,
+    color: "bg-sky-50 text-sky-700 border-sky-200",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/5670e5533_NDIS_Onboarding_Intake_Form_Professional_UPDATED_HEADER.html",
+  },
+  {
+    id: "staff_portal_user_guide",
+    label: "Staff Portal User Guide",
+    description: "Printable staff portal user guide with SZ-JIE branded header",
+    icon: ScrollText,
+    color: "bg-slate-50 text-slate-700 border-slate-200",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/e8d05e545_Staff_Portal_User_Guide_SZJIE_Header_Standalone.html",
+  },
+  {
+    id: "dsw_registration",
+    label: "Disability Support Worker Registration",
+    description: "Staff registration form with TFN, bank account, BSB, compliance checks and signatures",
+    icon: BadgeCheck,
+    color: "bg-green-50 text-green-700 border-green-200",
+    isLocal: true,
+    localPath: "/disability_support_worker_registration.html",
+  },
+  {
     id: "logos",
     label: "Brand Logos & Assets",
     description: "All SZ-JIE logo variants — coloured, white, transparent, portrait and landscape",
-    icon: Image,
+    icon: ImageIcon,
     color: "bg-pink-50 text-pink-700 border-pink-200",
     isLogos: true,
   },
@@ -444,7 +469,8 @@ export default function Templates() {
       return;
     }
     setLoading(true);
-    const res = await fetch(template.url);
+    const fetchUrl = template.isLocal ? template.localPath : template.url;
+    const res = await fetch(fetchUrl);
     const html = await res.text();
     setTemplateHtml(html);
     setLoading(false);

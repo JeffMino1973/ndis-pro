@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Disability Support Worker Registration Form</title>
+    <style>
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .form-container { max-width: 900px; margin: 0 auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+
+        /* ===== STANDARD SZ-JIE HEADER ===== */
+        .manual-brand-header { width: 100%; padding: 0 0 6px 0; margin: 0 0 18px 0; border-bottom: 2px solid #e5e7eb; background: #ffffff; }
+        .manual-brand-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; width: 100%; }
+        .manual-brand-logo { width: 200px; max-width: 200px; height: auto; display: block; object-fit: contain; }
+        .manual-brand-contact { text-align: right; font-size: 12px; line-height: 1.4; color: #64748b; font-weight: 500; }
+        .manual-brand-contact strong { color: #1e293b; font-size: 13px; }
+        .manual-brand-divider { border: none; border-top: 1px solid #e5e7eb; margin: 6px 0; }
+        .manual-brand-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; font-size: 11px; color: #94a3b8; }
+
+        .instructions-box { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; font-size: 13px; color: #0369a1; }
+        .instructions-box ol { margin: 6px 0 0 0; padding-left: 18px; }
+        .instructions-box li { margin-bottom: 4px; }
+
+        .main-banner { background: linear-gradient(90deg, #0ea5e9 0%, #6366f1 100%); color: white; text-align: center; padding: 14px 24px; font-size: 20px; font-weight: bold; border-radius: 8px; margin-bottom: 20px; letter-spacing: 0.5px; }
+
+        .section-header { background: #1e293b; color: white; padding: 9px 16px; font-size: 13px; font-weight: bold; border-radius: 6px; margin: 20px 0 12px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .form-row { display: flex; gap: 14px; margin-bottom: 12px; flex-wrap: wrap; }
+        .form-group { display: flex; flex-direction: column; flex: 1; min-width: 150px; }
+        label { font-size: 12px; font-weight: bold; color: #374151; margin-bottom: 4px; }
+        input[type="text"], input[type="email"], input[type="date"], input[type="tel"], select, textarea {
+            border: 1px solid #d1d5db; border-radius: 5px; padding: 7px 10px; font-size: 13px; color: #111827; background: #fff; width: 100%;
+        }
+        input:focus, select:focus, textarea:focus { outline: 2px solid #0ea5e9; border-color: #0ea5e9; }
+
+        .compliance-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+        .compliance-row { display: flex; gap: 12px; }
+        .compliance-cell { flex: 1; border: 1px solid #e5e7eb; border-radius: 6px; padding: 10px; background: #f9fafb; }
+        .compliance-cell input[type="checkbox"] { width: auto; margin-right: 6px; }
+        .checkbox-label { font-weight: bold; font-size: 12px; }
+        .sub-label { display: block; font-size: 11px; color: #6b7280; margin: 4px 0 3px; }
+
+        .footer-table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+        .photo-upload-box { width: 140px; height: 170px; border: 2px dashed #9ca3af; border-radius: 8px; text-align: center; vertical-align: middle; cursor: pointer; font-size: 12px; color: #6b7280; padding: 10px; }
+        .photo-upload-box input[type="file"] { display: none; }
+        .photo-upload-box img { max-width: 100%; max-height: 140px; object-fit: cover; border-radius: 6px; }
+        .signature-section { padding: 14px 24px; vertical-align: bottom; text-align: center; }
+        .sig-line { border-bottom: 2px solid #374151; width: 100%; margin-bottom: 5px; height: 40px; }
+        .sig-label { font-size: 11px; font-weight: bold; color: #374151; text-transform: uppercase; letter-spacing: 0.5px; }
+        .date-input-row { margin-top: 6px; font-size: 12px; }
+
+        .action-buttons { margin-top: 20px; display: flex; gap: 12px; justify-content: flex-end; }
+        .btn-print { background: linear-gradient(90deg, #0ea5e9, #6366f1); color: white; border: none; padding: 10px 28px; border-radius: 6px; font-size: 14px; font-weight: bold; cursor: pointer; }
+        .btn-print:hover { opacity: 0.9; }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .form-container { box-shadow: none; border-radius: 0; }
+            .action-buttons, .instructions-box { display: none; }
+        }
+    </style>
+    <script>
+        function previewImage(event) {
+            const reader = new FileReader();
+            reader.onload = function() {
+                const preview = document.getElementById('photo_preview');
+                preview.innerHTML = '<img src="' + reader.result + '" style="max-width:100%;max-height:140px;object-fit:cover;border-radius:6px;">';
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        }
+    </script>
+</head>
+<body>
+<div class="form-container">
+
+    <!-- SZ-JIE Standard Header -->
+    <div class="manual-brand-header">
+        <div class="manual-brand-top">
+            <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" alt="SZ-JIE Support Services" class="manual-brand-logo" />
+            <div class="manual-brand-contact">
+                <strong>SZ-JIE Support Services</strong><br/>
+                309/12 Broome St, Waterloo NSW 2017<br/>
+                ABN: 86 959 042 971<br/>
+                P: 0401 343 876 &nbsp;|&nbsp; 0435 951 563<br/>
+                E: jeff@szjiesupportservices.com<br/>
+                W: szjiesupportservices.com
+            </div>
+        </div>
+        <hr class="manual-brand-divider"/>
+        <div class="manual-brand-bottom">
+            <span>NDIS Registered Provider &nbsp;|&nbsp; NSW &nbsp;|&nbsp; ABN 86 959 042 971</span>
+            <span>Confidential Document</span>
+        </div>
+    </div>
+
+    <div class="instructions-box">
+        <strong>Instructions for Fillable Form:</strong>
+        <ol>
+            <li>Fill out all the fields directly in your web browser or interactive reader.</li>
+            <li>To upload your photo, click inside the dashed passport box at the bottom.</li>
+            <li>Once complete, print to PDF and email to <strong>jeff@szjiesupportservices.com</strong>. Attach copies of all supporting compliance and identification documents.</li>
+        </ol>
+    </div>
+
+    <form>
+        <div class="main-banner">Disability Support Worker Registration</div>
+
+        <!-- Section 1: Support Worker Details -->
+        <div class="section-header">Support Worker Details</div>
+        <div class="form-row">
+            <div class="form-group" style="flex:2">
+                <label>Worker Full Name</label>
+                <input type="text" name="worker_name" placeholder="Enter Full Name">
+            </div>
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" name="worker_phone" placeholder="0400 000 000">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="worker_email" placeholder="name@example.com">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group" style="flex:2">
+                <label>Address</label>
+                <input type="text" name="worker_address" placeholder="Street, Suburb, State, Postcode">
+            </div>
+            <div class="form-group">
+                <label>ABN</label>
+                <input type="text" name="worker_abn" placeholder="XX XXX XXX XXX">
+            </div>
+            <div class="form-group">
+                <label>Date of Birth</label>
+                <input type="date" name="worker_dob">
+            </div>
+        </div>
+
+        <!-- Section 2: Tax & Financial Details -->
+        <div class="section-header">Tax &amp; Financial Details</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Tax File Number (TFN)</label>
+                <input type="text" name="tfn" placeholder="XXX XXX XXX">
+            </div>
+            <div class="form-group">
+                <label>Bank Account Name</label>
+                <input type="text" name="bank_account_name" placeholder="Account holder name">
+            </div>
+            <div class="form-group">
+                <label>BSB Number</label>
+                <input type="text" name="bank_bsb" placeholder="XXX-XXX">
+            </div>
+            <div class="form-group">
+                <label>Bank Account Number</label>
+                <input type="text" name="bank_account_number" placeholder="XXXXXXXXX">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Bank Name</label>
+                <input type="text" name="bank_name" placeholder="e.g. Commonwealth Bank">
+            </div>
+            <div class="form-group">
+                <label>Superannuation Fund Name</label>
+                <input type="text" name="super_fund" placeholder="e.g. AustralianSuper">
+            </div>
+            <div class="form-group">
+                <label>Super Member Number</label>
+                <input type="text" name="super_member" placeholder="Member No.">
+            </div>
+        </div>
+
+        <!-- Section 3: Emergency Contact Details -->
+        <div class="section-header">Emergency Contact Details</div>
+        <div class="form-row">
+            <div class="form-group" style="flex:2">
+                <label>Emergency Contact Name</label>
+                <input type="text" name="emergency_name" placeholder="Enter Contact Name">
+            </div>
+            <div class="form-group">
+                <label>Relationship</label>
+                <input type="text" name="emergency_relationship" placeholder="e.g. Partner, Parent">
+            </div>
+            <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" name="emergency_phone" placeholder="0400 000 000">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group" style="flex:2">
+                <label>Address</label>
+                <input type="text" name="emergency_address" placeholder="Street, Suburb, State, Postcode">
+            </div>
+            <div class="form-group" style="flex:2">
+                <label>Email</label>
+                <input type="email" name="emergency_email" placeholder="contact@example.com">
+            </div>
+        </div>
+
+        <!-- Section 4: Car Registration and Insurance Details -->
+        <div class="section-header">Car Registration and Insurance Details</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Car Registration / Rego</label>
+                <input type="text" name="car_rego" placeholder="e.g. ABC12D">
+            </div>
+            <div class="form-group">
+                <label>Vehicle Make / Model</label>
+                <input type="text" name="car_model" placeholder="e.g. Toyota Corolla">
+            </div>
+            <div class="form-group">
+                <label>Insurance Provider</label>
+                <input type="text" name="insurance_provider" placeholder="Provider Name">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Policy Number</label>
+                <input type="text" name="insurance_policy" placeholder="Policy No.">
+            </div>
+            <div class="form-group">
+                <label>Insurance Expiry</label>
+                <input type="date" name="insurance_expiry">
+            </div>
+            <div class="form-group">
+                <label>Comprehensive / CTP Notes</label>
+                <input type="text" name="ctp_notes" placeholder="Notes...">
+            </div>
+        </div>
+
+        <!-- Section 5: Compliance Checks -->
+        <div class="section-header">Compliance Checks</div>
+        <div class="compliance-grid">
+            <div class="compliance-row">
+                <div class="compliance-cell">
+                    <input type="checkbox" id="chk_wwcc" name="chk_wwcc">
+                    <label for="chk_wwcc" class="checkbox-label">Working With Children Check</label>
+                    <span class="sub-label">Number / Expiry / Notes</span>
+                    <input type="text" name="wwcc_notes" placeholder="WWC number and expiry">
+                </div>
+                <div class="compliance-cell">
+                    <input type="checkbox" id="chk_photo_id" name="chk_photo_id">
+                    <label for="chk_photo_id" class="checkbox-label">Photo ID Check</label>
+                    <span class="sub-label">ID Type</span>
+                    <input type="text" name="photo_id_notes" placeholder="Passport / Driver Licence">
+                </div>
+                <div class="compliance-cell">
+                    <input type="checkbox" id="chk_insurance" name="chk_insurance">
+                    <label for="chk_insurance" class="checkbox-label">Insurance</label>
+                    <span class="sub-label">Policy / Expiry / Notes</span>
+                    <input type="text" name="insurance_notes" placeholder="Policy and expiry details">
+                </div>
+            </div>
+            <div class="compliance-row">
+                <div class="compliance-cell">
+                    <input type="checkbox" id="chk_licence" name="chk_licence">
+                    <label for="chk_licence" class="checkbox-label">Driver Licence / Alternative ID</label>
+                    <span class="sub-label">Licence Number or Alternative ID</span>
+                    <input type="text" name="licence_notes" placeholder="Licence No.">
+                </div>
+                <div class="compliance-cell">
+                    <input type="checkbox" id="chk_first_aid" name="chk_first_aid">
+                    <label for="chk_first_aid" class="checkbox-label">First Aid Certification</label>
+                    <span class="sub-label">Provider / Expiry / Notes</span>
+                    <input type="text" name="first_aid_notes" placeholder="Provider, Expiry">
+                </div>
+                <div class="compliance-cell">
+                    <input type="checkbox" id="chk_police" name="chk_police">
+                    <label for="chk_police" class="checkbox-label">Police Check</label>
+                    <span class="sub-label">Police Check Number</span>
+                    <input type="text" name="police_notes" placeholder="Check Number">
+                </div>
+            </div>
+        </div>
+
+        <!-- Signatures -->
+        <table class="footer-table">
+            <tr>
+                <td class="photo-upload-box" onclick="document.getElementById('photo_upload').click();">
+                    <div id="photo_preview"><strong>[ Click here to upload Passport Size Photo ]</strong></div>
+                    <input type="file" id="photo_upload" name="photo_upload" accept="image/*" onchange="previewImage(event)">
+                </td>
+                <td class="signature-section">
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Worker Signature</div>
+                    <div class="date-input-row">DATE: <input type="date" name="worker_sig_date" style="width:auto;display:inline-block;"></div>
+                </td>
+                <td class="signature-section">
+                    <div class="sig-line"></div>
+                    <div class="sig-label">Authorised Representative</div>
+                    <div class="date-input-row">DATE: <input type="date" name="auth_sig_date" style="width:auto;display:inline-block;"></div>
+                </td>
+            </tr>
+        </table>
+
+        <div class="action-buttons">
+            <button type="button" class="btn-print" onclick="window.print()">🖨️ Print / Save as PDF</button>
+        </div>
+    </form>
+</div>
+</body>
+</html>
