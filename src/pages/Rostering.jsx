@@ -29,6 +29,7 @@ export default function Rostering() {
   const [copyDate, setCopyDate] = useState("");
   const [recurWeeks, setRecurWeeks] = useState(4);
   const [copying, setCopying] = useState(false);
+  const [statusFilter, setStatusFilter] = useState("all");
   const [form, setForm] = useState({ participant_name: "", staff_name: "", date: "", start_time: "09:00", end_time: "11:00", support_type: "", support_item_code: "", hourly_rate: "", status: "Scheduled", notes: "" });
 
   const load = async () => {
@@ -160,11 +161,21 @@ export default function Rostering() {
 
       {/* All Shifts List */}
       <div className="bg-card border border-border rounded-3xl overflow-hidden">
-        <div className="p-5 border-b border-border bg-secondary/50">
+        <div className="p-5 border-b border-border bg-secondary/50 flex flex-wrap items-center justify-between gap-3">
           <h3 className="font-black">All Shifts</h3>
+          <div className="flex flex-wrap gap-2">
+            {["all", "Scheduled", "Confirmed", "Completed", "Cancelled", "No Show"].map(s => (
+              <button key={s} onClick={() => setStatusFilter(s)}
+                className={`text-[10px] font-black px-3 py-1 rounded-full border transition-all ${
+                  statusFilter === s ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover:border-primary/40"
+                }`}>
+                {s === "all" ? "All" : s}
+              </button>
+            ))}
+          </div>
         </div>
         <div className="divide-y divide-border">
-          {shifts.slice(0, 20).map((s) => (
+          {shifts.filter(s => statusFilter === "all" || s.status === statusFilter).slice(0, 50).map((s) => (
             <div key={s.id} className="px-6 py-4 flex items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-black text-xs">{s.date?.slice(5)}</div>
@@ -181,7 +192,9 @@ export default function Rostering() {
               </div>
             </div>
           ))}
-          {shifts.length === 0 && <p className="p-8 text-center text-muted-foreground text-sm italic">No shifts yet. Add your first shift.</p>}
+          {shifts.filter(s => statusFilter === "all" || s.status === statusFilter).length === 0 && (
+            <p className="p-8 text-center text-muted-foreground text-sm italic">{statusFilter === "all" ? "No shifts yet. Add your first shift." : `No ${statusFilter} shifts found.`}</p>
+          )}
         </div>
       </div>
 
