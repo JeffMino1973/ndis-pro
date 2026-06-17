@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Target, Plus, CheckCircle, Circle, Edit2, Save } from "lucide-react";
+import { Target, Plus, Edit2, Save, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,6 +10,7 @@ export default function GoalTracking() {
   const [selected, setSelected] = useState(null);
   const [editGoals, setEditGoals] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [supportPlanGoals, setSupportPlanGoals] = useState([]);
 
   const load = async () => {
     const p = await base44.entities.Participant.list("-updated_date");
@@ -19,6 +20,16 @@ export default function GoalTracking() {
 
   useEffect(() => { load(); }, []);
 
+  // When a participant is selected, fetch their active support plan
+  useEffect(() => {
+    if (!selected) { setSupportPlanGoals([]); return; }
+    base44.entities.SupportPlan.filter({ participant_id: selected.id }).then(plans => {
+      const active = plans.find(p => p.status === "Active") || plans[0];
+      const goals = (active?.goals || []).map(g => g.text).filter(Boolean);
+      setSupportPlanGoals(goals);
+    });
+  }, [selected?.id]);
+
   const startEdit = (p) => {
     const goals = (p.goals || []).map(g =>
       typeof g === "string"
@@ -27,6 +38,14 @@ export default function GoalTracking() {
     );
     setEditGoals(goals);
     setSelected(p);
+  };
+
+  const importFromSupportPlan = () => {
+    const existing = new Set((editGoals || []).map(g => g.text?.trim()));
+    const toAdd = supportPlanGoals
+      .filter(text => !existing.has(text?.trim()))
+      .map(text => ({ text, progress: 0, status: "In Progress", milestones: [] }));
+    setEditGoals(prev => [...(prev || []), ...toAdd]);
   };
 
   const saveGoals = async () => {
@@ -90,9 +109,14 @@ export default function GoalTracking() {
             </div>
           ) : editGoals ? (
             <div className="bg-card border border-border rounded-3xl p-6 space-y-4">
-              <div className="flex justify-between items-center">
+              <div className="flex justify-between items-center flex-wrap gap-2">
                 <h3 className="font-black text-lg">{selected.name} — Goals</h3>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  {supportPlanGoals.length > 0 && (
+                    <Button variant="outline" size="sm" onClick={importFromSupportPlan} className="rounded-lg gap-1 text-primary border-primary/30">
+                      <Download size={14} /> Import from Support Plan ({supportPlanGoals.length})
+                    </Button>
+                  )}
                   <Button variant="outline" size="sm" onClick={() => setEditGoals(null)} className="rounded-lg">Cancel</Button>
                   <Button size="sm" onClick={saveGoals} disabled={saving} className="rounded-lg gap-1"><Save size={14} />{saving ? "Saving..." : "Save"}</Button>
                 </div>
@@ -131,7 +155,24 @@ export default function GoalTracking() {
                 <h3 className="font-black text-lg">{selected.name} — Goals</h3>
                 <Button variant="outline" size="sm" onClick={() => startEdit(selected)} className="rounded-lg gap-1"><Edit2 size={14} /> Edit Goals</Button>
               </div>
-              {(selected.goals || []).length === 0 ? (
+              {(selected.goals || []).length === 0 && supportPlanGoals.length > 0 && (
+                <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-bold text-blue-800">Support Plan goals available</p>
+                    <p className="text-xs text-blue-600">{supportPlanGoals.length} goal{supportPlanGoals.length !== 1 ? "s" : ""} found in the linked Support Plan.</p>
+                  </div>
+                  <Button size="sm" onClick={() => {
+                    const goals = (selected.goals || []).map(g => typeof g === "string" ? { text: g, progress: 0, status: "In Progress", milestones: [] } : g);
+                    const existing = new Set(goals.map(g => g.text?.trim()));
+                    const toAdd = supportPlanGoals.filter(t => !existing.has(t?.trim())).map(text => ({ text, progress: 0, status: "In Progress", milestones: [] }));
+                    setEditGoals([...goals, ...toAdd]);
+                    setSelected(selected);
+                  }} className="rounded-xl gap-1 shrink-0">
+                    <Download size={13} /> Import Goals
+                  </Button>
+                </div>
+              )}
+              {(selected.goals || []).length === 0 && supportPlanGoals.length === 0 ? (
                 <p className="text-muted-foreground italic text-sm">No goals recorded. Click Edit to add goals.</p>
               ) : (
                 <div className="space-y-4">
