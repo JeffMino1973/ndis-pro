@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { format, parseISO, startOfWeek, endOfWeek, addWeeks, subWeeks } from "date-fns";
-import { FileText, DollarSign, Users, ChevronLeft, ChevronRight, CheckCircle, AlertCircle, Send, Printer, RefreshCw } from "lucide-react";
+import { FileText, DollarSign, ChevronLeft, ChevronRight, CheckCircle, AlertCircle, Send, Printer, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -216,12 +216,34 @@ export default function RosterBilling() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-black tracking-tight">Roster Billing</h2>
-          <p className="text-muted-foreground text-sm">Completed shifts auto-populate invoices and payslips ready to send.</p>
+          <h2 className="text-3xl font-black tracking-tight">Invoices & Payslips</h2>
+          <p className="text-muted-foreground text-sm">Roster → Complete Shifts → Auto-generate Invoices & Payslips</p>
         </div>
         <Button variant="outline" onClick={load} className="gap-2 rounded-xl">
           <RefreshCw size={15} /> Refresh
         </Button>
+      </div>
+
+      {/* Workflow Steps Banner */}
+      <div className="bg-card border border-border rounded-2xl p-4">
+        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">How the workflow operates</p>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+          {[
+            { num: "1", label: "Schedule in Rostering", desc: "Add shifts with hourly rate & item code", color: "bg-blue-100 text-blue-700" },
+            { num: "2", label: "Log in Shift Logger", desc: "Staff clock in/out and record notes", color: "bg-violet-100 text-violet-700" },
+            { num: "3", label: "Mark Shifts Complete", desc: "Use the Shifts tab below", color: "bg-amber-100 text-amber-700" },
+            { num: "4", label: "Print Invoice / Payslip", desc: "Auto-generated from completed shifts", color: "bg-emerald-100 text-emerald-700" },
+          ].map((step, i) => (
+            <div key={i} className="flex items-center gap-2 flex-1 min-w-0">
+              <div className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-xs shrink-0 ${step.color}`}>{step.num}</div>
+              <div className="min-w-0">
+                <p className="text-xs font-black text-foreground">{step.label}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{step.desc}</p>
+              </div>
+              {i < 3 && <Send size={12} className="text-muted-foreground shrink-0 hidden sm:block" />}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Week Selector */}
