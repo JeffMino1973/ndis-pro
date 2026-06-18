@@ -371,11 +371,23 @@ export default function Rostering() {
               </div>
               <div>
                 <Label>Support Type</Label>
-                <Input value={form.support_type} onChange={e => update("support_type", e.target.value)} placeholder="e.g. Daily Living" />
+                <Input value={form.support_type} onChange={e => update("support_type", e.target.value)} placeholder="Auto-filled from item code, or type manually" />
               </div>
               <div>
                 <Label>Support Item Code</Label>
-                <Input value={form.support_item_code} onChange={e => update("support_item_code", e.target.value)} placeholder="e.g. 01_004_0107_1_1" />
+                <Select value={form.support_item_code} onValueChange={(v) => {
+                  const item = NDIS_ITEMS.find(i => i.code === v);
+                  setForm(p => ({ ...p, support_item_code: v, support_type: item ? item.name : p.support_type, hourly_rate: item ? item.rate : p.hourly_rate }));
+                }}>
+                  <SelectTrigger><SelectValue placeholder="Select item code..." /></SelectTrigger>
+                  <SelectContent>
+                    {NDIS_ITEMS.map(i => (
+                      <SelectItem key={i.code} value={i.code}>
+                        <span className="font-mono text-xs">{i.code}</span> — {i.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label>Hourly Rate ($)</Label>
