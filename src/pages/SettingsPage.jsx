@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Building2, Mail, Phone, MapPin, Hash, Shield, Landmark } from "lucide-react";
+import { Building2, Mail, Phone, MapPin, Hash, Shield, Landmark, Trash2 } from "lucide-react";
 
 const FIELDS = [
   { key: "businessName", label: "Legal Trading Name", placeholder: "e.g. Nexus Care Solutions", icon: Building2 },
@@ -47,6 +47,8 @@ export default function SettingsPage() {
   });
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [clearing, setClearing] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -65,6 +67,25 @@ export default function SettingsPage() {
   };
 
   const update = (field, value) => setConfig((prev) => ({ ...prev, [field]: value }));
+
+  const handleClearFinancialRecords = async () => {
+    setClearing(true);
+    try {
+      const [invoices, payslips] = await Promise.all([
+        base44.entities.Invoice.list(),
+        base44.entities.PayslipRecord.list(),
+      ]);
+      await Promise.all([
+        ...invoices.map(i => base44.entities.Invoice.delete(i.id)),
+        ...payslips.map(p => base44.entities.PayslipRecord.delete(p.id)),
+      ]);
+      toast.success(`Cleared ${invoices.length} invoice(s) and ${payslips.length} payslip(s).`);
+    } catch (e) {
+      toast.error("Something went wrong clearing records.");
+    }
+    setClearing(false);
+    setConfirmClear(false);
+  };
 
   if (loading) {
     return <div className="flex items-center justify-center h-40"><div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" /></div>;
@@ -149,6 +170,27 @@ export default function SettingsPage() {
             {saving ? "Saving..." : "Save Configuration"}
           </Button>
         </div>
+      </div>
+
+      {/* Danger Zone */}
+      <div className="bg-card border-2 border-red-200 rounded-3xl p-6">
+        <p className="text-[10px] font-black text-red-500 uppercase tracking-widest mb-1 flex items-center gap-1.5"><Trash2 size={12} /> Danger Zone</p>
+        <p className="text-sm text-muted-foreground mb-4">Permanently delete all saved invoices and payslip records. Use this to start fresh after re-entering shifts from your new start date. <strong>This cannot be undone.</strong></p>
+        {!confirmClear ? (
+          <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-50 font-bold rounded-xl" onClick={() => setConfirmClear(true)}>
+            <Trash2 size={15} /> Clear All Financial Records
+          </Button>
+        ) : (
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-4 space-y-3">
+            <p className="text-sm font-bold text-red-700">⚠️ Are you sure? This will permanently delete ALL invoices and payslip records.</p>
+            <div className="flex gap-3">
+              <Button className="bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl" onClick={handleClearFinancialRecords} disabled={clearing}>
+                {clearing ? "Clearing..." : "Yes, Delete Everything"}
+              </Button>
+              <Button variant="outline" className="rounded-xl font-bold" onClick={() => setConfirmClear(false)}>Cancel</Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Preview Card */}
