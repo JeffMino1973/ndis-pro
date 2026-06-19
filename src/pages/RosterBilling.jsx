@@ -1,6 +1,40 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { format, parseISO, startOfWeek, endOfWeek, addWeeks, subWeeks } from "date-fns";
+
+// Returns the correct business entity config based on shift date vs ABN change date
+function getEntityForDate(shiftDate, config) {
+  if (!config?.abnChangeDate || !shiftDate) {
+    return {
+      name: config?.businessName || "SZ-JIE Support Services",
+      abn: config?.abn || "86959042971",
+      address: config?.address || "309/12 Broome St, Waterloo NSW 2017",
+      email: config?.email || "jeff@szjiesupportservices.com",
+      phone: config?.phone || "0401 343 876",
+    };
+  }
+  const date = typeof shiftDate === "string" ? shiftDate : format(shiftDate, "yyyy-MM-dd");
+  const isLegacy = date < config.abnChangeDate;
+  return isLegacy ? {
+    name: config.legacyBusinessName || config.businessName || "SZ-JIE Support Services",
+    abn: config.legacyAbn || config.abn || "",
+    address: config.address || "309/12 Broome St, Waterloo NSW 2017",
+    email: config.email || "jeff@szjiesupportservices.com",
+    phone: config.phone || "0401 343 876",
+  } : {
+    name: config.businessName || "SZ-JIE Support Services",
+    abn: config.abn || "86959042971",
+    address: config.address || "309/12 Broome St, Waterloo NSW 2017",
+    email: config.email || "jeff@szjiesupportservices.com",
+    phone: config.phone || "0401 343 876",
+  };
+}
+
+// Pick the entity for a group of shifts (use the first/earliest date)
+function getEntityForShifts(shifts, config) {
+  const dates = shifts.map(s => s.date).filter(Boolean).sort();
+  return getEntityForDate(dates[0] || null, config);
+}
 import { FileText, DollarSign, ChevronLeft, ChevronRight, CheckCircle, AlertCircle, Send, Printer, RefreshCw, BarChart2, Globe, SaveAll, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +60,8 @@ function printHTML(html) {
   setTimeout(() => win.print(), 600);
 }
 
-function buildInvoiceHTML(participant, shifts, participants) {
+function buildInvoiceHTML(participant, shifts, participants, entity) {
+  entity = entity || { name: "SZ-JIE Support Services", abn: "86959042971", address: "309/12 Broome St, Waterloo NSW 2017", email: "jeff@szjiesupportservices.com", phone: "0401 343 876" };
   const pData = participants.find(p => p.name === participant) || {};
   const total = shifts.reduce((s, sh) => s + (sh.amount || (calcHours(sh.start_time, sh.end_time) * (sh.hourly_rate || 0))), 0);
   const rows = shifts.map(sh => {
@@ -59,7 +94,7 @@ function buildInvoiceHTML(participant, shifts, participants) {
   </style></head><body>
   <div class="header">
     <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" class="logo" />
-    <div class="contact"><div>SZ-JIE Support Services</div><div>ABN: 86959042971</div><div>309/12 Broome St, Waterloo NSW 2017</div><div>jeff@szjiesupportservices.com</div><div>0401 343 876</div></div>
+    <div class="contact"><div>${entity.name}</div><div>ABN: ${entity.abn}</div><div>${entity.address}</div><div>${entity.email}</div><div>${entity.phone}</div></div>
   </div>
   <h1>Invoice <span class="status-badge">Draft</span></h1>
   <p style="font-size:12px;color:#64748b;margin-bottom:16px;">${invoiceNum} · Issued: ${today}</p>
@@ -74,14 +109,15 @@ function buildInvoiceHTML(participant, shifts, participants) {
     <tbody>${rows}</tbody>
   </table>
   <div class="total-row">Total: ${formatCurrency(total)}</div>
-  <div class="footer">SZ-JIE Support Services · ABN 86959042971 · This invoice was generated from completed roster shifts.</div>
+  <div class="footer">${entity.name} · ABN ${entity.abn} · This invoice was generated from completed roster shifts.</div>
   <div class="no-print" style="text-align:center;padding:16px;">
     <button onclick="window.print()" style="background:linear-gradient(90deg,#06b6d4,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
   </div>
   </body></html>`;
 }
 
-function buildPayslipHTML(staffName, shifts, staffMembers) {
+function buildPayslipHTML(staffName, shifts, staffMembers, entity) {
+  entity = entity || { name: "SZ-JIE Support Services", abn: "86959042971", address: "309/12 Broome St, Waterloo NSW 2017", email: "jeff@szjiesupportservices.com", phone: "0401 343 876" };
   const sm = staffMembers.find(s => s.name === staffName) || {};
   const grossPay = shifts.reduce((s, sh) => s + (sh.amount || calcHours(sh.start_time, sh.end_time) * (sh.hourly_rate || 0)), 0);
   const rows = shifts.map(sh => {
@@ -117,7 +153,7 @@ function buildPayslipHTML(staffName, shifts, staffMembers) {
   </style></head><body>
   <div class="header">
     <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" class="logo" />
-    <div class="contact"><div>SZ-JIE Support Services</div><div>ABN: 86959042971</div><div>309/12 Broome St, Waterloo NSW 2017</div><div>jeff@szjiesupportservices.com</div><div>0401 343 876</div></div>
+    <div class="contact"><div>${entity.name}</div><div>ABN: ${entity.abn}</div><div>${entity.address}</div><div>${entity.email}</div><div>${entity.phone}</div></div>
   </div>
   <h1>Payslip</h1>
   <p style="font-size:12px;color:#64748b;margin-bottom:16px;">${payslipNum} · Pay Period: ${from} to ${to}</p>
@@ -141,14 +177,15 @@ function buildPayslipHTML(staffName, shifts, staffMembers) {
     <div class="bank-cell"><div class="bl">BSB</div><div class="bv">${sm.bank_bsb || "—"}</div></div>
     <div class="bank-cell"><div class="bl">Account Number</div><div class="bv">${sm.bank_account_number || "—"}</div></div>
   </div>
-  <div class="footer">SZ-JIE Support Services · Confidential Payslip · Generated from completed roster shifts.</div>
+  <div class="footer">${entity.name} · ABN ${entity.abn} · Confidential Payslip · Generated from completed roster shifts.</div>
   <div class="no-print" style="text-align:center;padding:16px;">
     <button onclick="window.print()" style="background:linear-gradient(90deg,#06b6d4,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
   </div>
   </body></html>`;
 }
 
-function buildFinanceSummaryHTML(shifts, staffMembers) {
+function buildFinanceSummaryHTML(shifts, staffMembers, entity) {
+  entity = entity || { name: "SZ-JIE Support Services", abn: "86959042971", address: "309/12 Broome St, Waterloo NSW 2017", email: "jeff@szjiesupportservices.com" };
   const completed = shifts.filter(s => s.status === "Completed");
   const totalRevenue = completed.reduce((a, s) => a + (s.amount || calcHours(s.start_time, s.end_time) * (s.hourly_rate || 0)), 0);
   const gst = totalRevenue / 11; // GST-inclusive — NDISis GST-free but we show it as reference
@@ -205,7 +242,7 @@ function buildFinanceSummaryHTML(shifts, staffMembers) {
   </style></head><body>
   <div class="header">
     <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" class="logo" />
-    <div class="contact"><div><strong>SZ-JIE Support Services</strong></div><div>ABN: 86959042971</div><div>309/12 Broome St, Waterloo NSW 2017</div><div>jeff@szjiesupportservices.com</div></div>
+    <div class="contact"><div><strong>${entity.name}</strong></div><div>ABN: ${entity.abn}</div><div>${entity.address}</div><div>${entity.email}</div></div>
   </div>
   <h1>Accountant Summary &amp; BAS Report</h1>
   <p style="font-size:12px;color:#64748b;margin-bottom:16px;">Generated: ${today} · All completed shifts to date</p>
@@ -226,7 +263,7 @@ function buildFinanceSummaryHTML(shifts, staffMembers) {
   <h2>Staff Payroll Summary</h2>
   <table><thead><tr><th>Staff Member</th><th>Shifts</th><th>Hours</th><th>Gross Pay</th></tr></thead>
   <tbody>${staffRows}</tbody></table>
-  <div class="footer">SZ-JIE Support Services · ABN 86959042971 · Confidential – For Accountant Use Only</div>
+  <div class="footer">${entity.name} · ABN ${entity.abn} · Confidential – For Accountant Use Only</div>
   <div class="no-print" style="text-align:center;padding:20px;">
     <button onclick="window.print()" style="background:linear-gradient(90deg,#06b6d4,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
   </div>
@@ -238,6 +275,7 @@ export default function RosterBilling() {
   const [shifts, setShifts] = useState([]);
   const [participants, setParticipants] = useState([]);
   const [staffMembers, setStaffMembers] = useState([]);
+  const [businessConfig, setBusinessConfig] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
@@ -245,14 +283,16 @@ export default function RosterBilling() {
 
   const load = async () => {
     setLoading(true);
-    const [s, p, sm] = await Promise.all([
+    const [s, p, sm, me] = await Promise.all([
       base44.entities.Shift.list("-date"),
       base44.entities.Participant.list(),
       base44.entities.StaffMember.list(),
+      base44.auth.me(),
     ]);
     setShifts(s);
     setParticipants(p);
     setStaffMembers(sm);
+    if (me?.businessConfig) setBusinessConfig(me.businessConfig);
     setLoading(false);
   };
 
@@ -488,7 +528,7 @@ export default function RosterBilling() {
                             Save to Invoices
                           </Button>
                         )}
-                        <Button size="sm" className="gap-2 rounded-xl font-bold" onClick={() => printHTML(buildInvoiceHTML(participant, pShifts, participants))}>
+                        <Button size="sm" className="gap-2 rounded-xl font-bold" onClick={() => printHTML(buildInvoiceHTML(participant, pShifts, participants, getEntityForShifts(pShifts, businessConfig)))}>
                           <Printer size={14} /> Print Invoice
                         </Button>
                       </div>
@@ -563,7 +603,7 @@ export default function RosterBilling() {
                           {sm.bank_bsb && <p className="text-xs text-muted-foreground">BSB: {sm.bank_bsb} · Acc: {sm.bank_account_number}</p>}
                         </div>
                       </div>
-                      <Button size="sm" className="gap-2 rounded-xl font-bold" onClick={() => printHTML(buildPayslipHTML(staffName, sShifts, staffMembers))}>
+                      <Button size="sm" className="gap-2 rounded-xl font-bold" onClick={() => printHTML(buildPayslipHTML(staffName, sShifts, staffMembers, getEntityForShifts(sShifts, businessConfig)))}>
                         <Printer size={14} /> Print Payslip
                       </Button>
                     </div>
@@ -612,14 +652,14 @@ export default function RosterBilling() {
         </TabsContent>
         {/* FINANCE & BAS TAB */}
         <TabsContent value="finance" className="mt-4">
-          <FinanceSummary shifts={shifts} staffMembers={staffMembers} />
+          <FinanceSummary shifts={shifts} staffMembers={staffMembers} businessConfig={businessConfig} />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
 
-function FinanceSummary({ shifts, staffMembers }) {
+function FinanceSummary({ shifts, staffMembers, businessConfig }) {
   const completed = shifts.filter(s => s.status === "Completed");
   const totalRevenue = completed.reduce((a, s) => a + (s.amount || calcHours(s.start_time, s.end_time) * (s.hourly_rate || 0)), 0);
   const totalHours = completed.reduce((a, s) => a + (s.hours || calcHours(s.start_time, s.end_time)), 0);
@@ -682,7 +722,7 @@ function FinanceSummary({ shifts, staffMembers }) {
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
         <div className="p-4 border-b border-border bg-secondary/50 flex items-center justify-between">
           <h3 className="font-black">Monthly Revenue (BAS Reference)</h3>
-          <Button size="sm" variant="outline" className="gap-1 rounded-xl" onClick={() => printHTML(buildFinanceSummaryHTML(shifts, staffMembers))}>
+          <Button size="sm" variant="outline" className="gap-1 rounded-xl"           onClick={() => printHTML(buildFinanceSummaryHTML(shifts, staffMembers, getEntityForShifts(shifts.filter(s=>s.status==="Completed"), businessConfig)))}>
             <Printer size={13} /> Print Full Report
           </Button>
         </div>

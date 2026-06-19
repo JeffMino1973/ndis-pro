@@ -15,6 +15,13 @@ const FIELDS = [
   { key: "providerNumber", label: "NDIS Provider Number", placeholder: "e.g. 40500111", icon: Shield },
 ];
 
+// Legacy entity fields (pre-ABN-change)
+const LEGACY_FIELDS = [
+  { key: "legacyBusinessName", label: "Legacy Trading Name (old ABN)", placeholder: "e.g. SZ-Jie Wang", icon: Building2 },
+  { key: "legacyAbn", label: "Legacy ABN", placeholder: "e.g. 44 833 193 250", icon: Hash },
+  { key: "abnChangeDate", label: "ABN Change Date", placeholder: "e.g. 2026-05-18", icon: Hash },
+];
+
 const BANK_FIELDS = [
   { key: "bankName", label: "Bank Name", placeholder: "e.g. Commonwealth Bank", icon: Landmark },
   { key: "accountName", label: "Account Name", placeholder: "e.g. Nexus Care Solutions Pty Ltd", icon: Building2 },
@@ -34,6 +41,9 @@ export default function SettingsPage() {
     accountName: "",
     bsb: "",
     accountNumber: "",
+    legacyBusinessName: "",
+    legacyAbn: "",
+    abnChangeDate: "",
   });
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -83,6 +93,33 @@ export default function SettingsPage() {
             />
           </div>
         ))}
+
+        <div className="pt-4 mt-4 border-t border-border">
+          <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-1">ABN Transition (Legacy Entity)</p>
+          <p className="text-xs text-muted-foreground mb-4">If your ABN changed, fill in the old details below. Documents will automatically use the correct ABN based on the shift date.</p>
+          <div className="space-y-6 bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6">
+            {LEGACY_FIELDS.map(({ key, label, placeholder, icon: Icon }) => (
+              <div key={key}>
+                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                  <Icon size={12} /> {label}
+                </Label>
+                <Input
+                  value={config[key] || ""}
+                  onChange={(e) => update(key, e.target.value)}
+                  placeholder={placeholder}
+                  className="rounded-xl"
+                  type={key === "abnChangeDate" ? "date" : "text"}
+                />
+              </div>
+            ))}
+            {config.abnChangeDate && (
+              <div className="text-xs text-amber-800 bg-amber-100 rounded-xl p-3">
+                📋 Shifts before <strong>{config.abnChangeDate}</strong> → <strong>{config.legacyBusinessName || "Legacy Entity"}</strong> (ABN {config.legacyAbn || "—"})<br/>
+                📋 Shifts from <strong>{config.abnChangeDate}</strong> onwards → <strong>{config.businessName || "Current Entity"}</strong> (ABN {config.abn || "—"})
+              </div>
+            )}
+          </div>
+        </div>
 
         <div className="pt-4 mt-4 border-t border-border">
           <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-4">Bank Account Details (shown on invoices)</p>
