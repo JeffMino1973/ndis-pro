@@ -19,6 +19,8 @@ const FIELDS = [
 const LEGACY_FIELDS = [
   { key: "legacyBusinessName", label: "Legacy Trading Name (old ABN)", placeholder: "e.g. SZ-Jie Wang", icon: Building2 },
   { key: "legacyAbn", label: "Legacy ABN", placeholder: "e.g. 44 833 193 250", icon: Hash },
+  { key: "legacyEmail", label: "Legacy Email", placeholder: "e.g. Toby7796@gmail.com", icon: Mail },
+  { key: "legacyPhone", label: "Legacy Phone", placeholder: "e.g. 0435 951 563", icon: Phone },
   { key: "abnChangeDate", label: "ABN Change Date", placeholder: "e.g. 2026-05-18", icon: Hash },
 ];
 
@@ -43,6 +45,8 @@ export default function SettingsPage() {
     accountNumber: "",
     legacyBusinessName: "",
     legacyAbn: "",
+    legacyEmail: "",
+    legacyPhone: "",
     abnChangeDate: "",
   });
   const [saving, setSaving] = useState(false);
