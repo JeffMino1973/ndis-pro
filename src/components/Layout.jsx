@@ -37,6 +37,9 @@ const ADMIN_NAV_SECTIONS = [
       { path: "/shift-logger", label: "Shift Logger", icon: Play },
       { path: "/timesheets", label: "Timesheets", icon: Clock },
       { path: "/roster-billing", label: "Invoices & Payslips", icon: DollarSign },
+      { path: "/quotes", label: "Quotes", icon: FileText },
+      { path: "/finance", label: "Finance Centre", icon: BarChart3 },
+      { path: "/financial-reports", label: "Financial Reports", icon: BarChart3 },
     ],
   },
   {
@@ -63,16 +66,7 @@ const ADMIN_NAV_SECTIONS = [
       { path: "/audit-checklists", label: "Audit Checklists", icon: CheckSquare },
     ],
   },
-  {
-    title: "Finance",
-    items: [
-      { path: "/invoices", label: "Invoices", icon: Receipt },
-      { path: "/quotes", label: "Quotes", icon: FileText },
-      { path: "/finance", label: "Finance Centre", icon: DollarSign },
-      { path: "/payslips", label: "Payslip Generator", icon: Banknote },
-      { path: "/financial-reports", label: "Financial Reports", icon: BarChart3 },
-    ],
-  },
+
   {
     title: "Tools & Resources",
     items: [

@@ -337,9 +337,19 @@ function InvoiceTracker({ onReload }) {
 }
 
 // ─── Tax Calculator ───────────────────────────────────────────────────────────
+const TAX_DAYS = [
+  { label: "Monday", key: "mon" },
+  { label: "Tuesday", key: "tue" },
+  { label: "Wednesday", key: "wed" },
+  { label: "Thursday", key: "thu" },
+  { label: "Friday", key: "fri" },
+  { label: "Saturday", key: "sat" },
+  { label: "Sunday", key: "sun" },
+];
+
 function TaxCalculator() {
-  const [income, setIncome] = useState({ tue: 280.92, thu: 280.92, sun: 382.29 });
-  const weekly = (income.tue || 0) + (income.thu || 0) + (income.sun || 0);
+  const [income, setIncome] = useState({ mon: 0, tue: 280.92, wed: 0, thu: 280.92, fri: 0, sat: 0, sun: 382.29 });
+  const weekly = TAX_DAYS.reduce((a, d) => a + (income[d.key] || 0), 0);
   const annual = weekly * 52;
   const super12 = weekly * 0.12;
   const calcTax = (g) => { if (g <= 18200) return 0; if (g <= 45000) return (g - 18200) * 0.19; if (g <= 135000) return 5092 + (g - 45000) * 0.325; if (g <= 190000) return 34204 + (g - 135000) * 0.37; return 54630 + (g - 190000) * 0.45; };
@@ -362,10 +372,10 @@ function TaxCalculator() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-card border border-border rounded-3xl p-6 space-y-4">
           <h3 className="font-black text-lg">Your Weekly Shifts</h3>
-          {[{ label: "Tuesday Income ($)", key: "tue" }, { label: "Thursday Income ($)", key: "thu" }, { label: "Sunday Income ($)", key: "sun" }].map(({ label, key }) => (
+          {TAX_DAYS.map(({ label, key }) => (
             <div key={key}>
-              <Label className="text-xs">{label}</Label>
-              <Input type="number" step="0.01" value={income[key]} onChange={e => setIncome(p => ({ ...p, [key]: parseFloat(e.target.value) || 0 }))} className="mt-1 font-bold" />
+              <Label className="text-xs">{label} Income ($)</Label>
+              <Input type="number" step="0.01" value={income[key] || ""} placeholder="0.00" onChange={e => setIncome(p => ({ ...p, [key]: parseFloat(e.target.value) || 0 }))} className="mt-1 font-bold" />
             </div>
           ))}
           <div className="bg-primary/5 rounded-2xl p-4 text-sm space-y-1">
