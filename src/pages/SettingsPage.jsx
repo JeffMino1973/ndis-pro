@@ -148,6 +148,24 @@ export default function SettingsPage() {
                 />
               </div>
             ))}
+            <div className="pt-2 border-t border-amber-200">
+              <p className="text-xs font-black text-amber-700 uppercase tracking-widest mb-3">Legacy Bank Details</p>
+              <div className="space-y-4">
+                {LEGACY_BANK_FIELDS.map(({ key, label, placeholder, icon: Icon }) => (
+                  <div key={key}>
+                    <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                      <Icon size={12} /> {label}
+                    </Label>
+                    <Input
+                      value={config[key] || ""}
+                      onChange={(e) => update(key, e.target.value)}
+                      placeholder={placeholder}
+                      className="rounded-xl"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
             {config.abnChangeDate && (
               <div className="text-xs text-amber-800 bg-amber-100 rounded-xl p-3">
                 📋 Shifts before <strong>{config.abnChangeDate}</strong> → <strong>{config.legacyBusinessName || "Legacy Entity"}</strong> (ABN {config.legacyAbn || "—"})<br/>
@@ -174,24 +192,7 @@ export default function SettingsPage() {
               </div>
             ))}
           </div>
-          {config.abnChangeDate && (
-            <div className="mt-6 space-y-4">
-              <p className="text-xs font-black text-muted-foreground uppercase tracking-widest">Legacy Bank Details (pre {config.abnChangeDate})</p>
-              {LEGACY_BANK_FIELDS.map(({ key, label, placeholder, icon: Icon }) => (
-                <div key={key}>
-                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                    <Icon size={12} /> {label}
-                  </Label>
-                  <Input
-                    value={config[key] || ""}
-                    onChange={(e) => update(key, e.target.value)}
-                    placeholder={placeholder}
-                    className="rounded-xl"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+
         </div>
 
         <div className="pt-2">
