@@ -25,10 +25,17 @@ const LEGACY_FIELDS = [
 ];
 
 const BANK_FIELDS = [
-  { key: "bankName", label: "Bank Name", placeholder: "e.g. Commonwealth Bank", icon: Landmark },
-  { key: "accountName", label: "Account Name", placeholder: "e.g. Nexus Care Solutions Pty Ltd", icon: Building2 },
-  { key: "bsb", label: "BSB", placeholder: "e.g. 062-000", icon: Hash },
-  { key: "accountNumber", label: "Account Number", placeholder: "e.g. 1234 5678", icon: Hash },
+  { key: "bankName", label: "Bank Name (Current Entity)", placeholder: "e.g. NAB", icon: Landmark },
+  { key: "accountName", label: "Account Name (Current Entity)", placeholder: "e.g. SZ-JIE WANG JEFFREY KENNETH MINTON", icon: Building2 },
+  { key: "bsb", label: "BSB (Current Entity)", placeholder: "e.g. 083-054", icon: Hash },
+  { key: "accountNumber", label: "Account Number (Current Entity)", placeholder: "e.g. 42-731-9774", icon: Hash },
+];
+
+const LEGACY_BANK_FIELDS = [
+  { key: "legacyBankName", label: "Bank Name (Legacy Entity)", placeholder: "e.g. NAB", icon: Landmark },
+  { key: "legacyAccountName", label: "Account Name (Legacy Entity)", placeholder: "e.g. SZ-JIE WANG", icon: Building2 },
+  { key: "legacyBsb", label: "BSB (Legacy Entity)", placeholder: "e.g. 083-054", icon: Hash },
+  { key: "legacyAccountNumber", label: "Account Number (Legacy Entity)", placeholder: "e.g. 429014456", icon: Hash },
 ];
 
 export default function SettingsPage() {
@@ -48,6 +55,10 @@ export default function SettingsPage() {
     legacyEmail: "",
     legacyPhone: "",
     abnChangeDate: "",
+    legacyBankName: "",
+    legacyAccountName: "",
+    legacyBsb: "",
+    legacyAccountNumber: "",
   });
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -147,7 +158,7 @@ export default function SettingsPage() {
         </div>
 
         <div className="pt-4 mt-4 border-t border-border">
-          <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-4">Bank Account Details (shown on invoices)</p>
+          <p className="text-xs font-black text-muted-foreground uppercase tracking-widest mb-4">Bank Account Details (shown on invoices & payslips)</p>
           <div className="space-y-6">
             {BANK_FIELDS.map(({ key, label, placeholder, icon: Icon }) => (
               <div key={key}>
@@ -163,6 +174,24 @@ export default function SettingsPage() {
               </div>
             ))}
           </div>
+          {config.abnChangeDate && (
+            <div className="mt-6 space-y-4">
+              <p className="text-xs font-black text-muted-foreground uppercase tracking-widest">Legacy Bank Details (pre {config.abnChangeDate})</p>
+              {LEGACY_BANK_FIELDS.map(({ key, label, placeholder, icon: Icon }) => (
+                <div key={key}>
+                  <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1.5">
+                    <Icon size={12} /> {label}
+                  </Label>
+                  <Input
+                    value={config[key] || ""}
+                    onChange={(e) => update(key, e.target.value)}
+                    placeholder={placeholder}
+                    className="rounded-xl"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="pt-2">

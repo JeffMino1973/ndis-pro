@@ -3,50 +3,55 @@ import { base44 } from "@/api/base44Client";
 import { format, parseISO, startOfWeek, endOfWeek, addWeeks, subWeeks } from "date-fns";
 
 // Returns the correct business entity config based on shift date vs ABN change date
-// Settings keys: businessName, abn, email, phone, address, legacyBusinessName, legacyAbn, abnChangeDate, bankName, accountName, bsb, accountNumber
 function getEntityForDate(shiftDate, config) {
-  // Bank details are always from the current config (same bank regardless of entity)
-  const bank = {
+  const newBank = {
     bankName: config?.bankName || "NAB",
     accountName: config?.accountName || "",
     bsb: config?.bsb || "",
     accountNumber: config?.accountNumber || "",
   };
+  const legacyBank = {
+    bankName: config?.legacyBankName || config?.bankName || "NAB",
+    accountName: config?.legacyAccountName || config?.accountName || "",
+    bsb: config?.legacyBsb || config?.bsb || "",
+    accountNumber: config?.legacyAccountNumber || config?.accountNumber || "",
+  };
 
-  // No config or no ABN change date — use current entity
   if (!config || !config.abnChangeDate || !shiftDate) {
     return {
       name: config?.businessName || "SZ-Jie Support Services",
       abn: config?.abn || "86959042971",
-      address: config?.address || "309/12 Broome Street Waterloo, NSW 2017",
+      address: config?.address || "309/12 Broome St, Waterloo NSW 2017",
       email: config?.email || "jeff@szjiesupportservices.com",
-      phone: config?.phone || "0401343876",
-      ...bank,
+      phone: config?.phone || "0401 343 876",
+      website: config?.website || "www.szjiesupportservices.com",
+      ...newBank,
     };
   }
 
   const date = typeof shiftDate === "string" ? shiftDate : format(shiftDate, "yyyy-MM-dd");
-  // Shifts BEFORE the ABN change date use the legacy (old) entity
   const isLegacy = date < config.abnChangeDate;
 
   if (isLegacy) {
     return {
       name: config.legacyBusinessName || "SZ-Jie Wang",
       abn: config.legacyAbn || "44833193250",
-      address: config.address || "309/12 Broome Street Waterloo, NSW 2017",
+      address: config.address || "309/12 Broome St, Waterloo NSW 2017",
       email: config.legacyEmail || "Toby7796@gmail.com",
-      phone: config.legacyPhone || "0435951563",
-      ...bank,
+      phone: config.legacyPhone || "0435 951 563",
+      website: config?.website || "www.szjiesupportservices.com",
+      ...legacyBank,
     };
   }
 
   return {
     name: config.businessName || "SZ-Jie Support Services",
     abn: config.abn || "86959042971",
-    address: config.address || "309/12 Broome Street Waterloo, NSW 2017",
+    address: config.address || "309/12 Broome St, Waterloo NSW 2017",
     email: config.email || "jeff@szjiesupportservices.com",
-    phone: config.phone || "0401343876",
-    ...bank,
+    phone: config.phone || "0401 343 876",
+    website: config?.website || "www.szjiesupportservices.com",
+    ...newBank,
   };
 }
 
@@ -81,63 +86,69 @@ function printHTML(html) {
 }
 
 function buildInvoiceHTML(participant, shifts, participants, entity) {
-  entity = entity || { name: "SZ-Jie Support Services", abn: "86959042971", address: "309/12 Broome Street Waterloo, NSW 2017", email: "jeff@szjiesupportservices.com", phone: "0401343876" };
+  entity = entity || { name: "SZ-Jie Support Services", abn: "86959042971", address: "309/12 Broome St, Waterloo NSW 2017", email: "jeff@szjiesupportservices.com", phone: "0401 343 876" };
   const pData = participants.find(p => p.name === participant) || {};
   const subtotal = shifts.reduce((s, sh) => s + (sh.amount || (calcHours(sh.start_time, sh.end_time) * (sh.hourly_rate || 0))), 0);
   const invoiceNum = Date.now().toString().slice(-3);
   const today = format(new Date(), "dd/MM/yyyy");
 
-  const oddBg = "#ffffff";
-  const evenBg = "#f0f4fa";
-
+  // Alternating rows: white / light blue (inline styles — CSS nth-child unreliable in print)
   const rows = shifts.map((sh, i) => {
     const hrs = sh.hours || calcHours(sh.start_time, sh.end_time);
     const rate = sh.hourly_rate || 0;
     const amt = sh.amount || hrs * rate;
     const timeStr = sh.start_time && sh.end_time ? `${sh.start_time}–${sh.end_time}` : "";
     const dateShort = sh.date ? sh.date.replace(/^20/, "").replace(/-/g, "/") : "";
-    const bg = i % 2 === 0 ? oddBg : evenBg;
-    return `<tr style="background:${bg};">
-      <td style="padding:7px 10px;border-bottom:1px solid #dde6f0;">${dateShort}</td>
-      <td style="padding:7px 10px;border-bottom:1px solid #dde6f0;">${timeStr}</td>
-      <td style="padding:7px 10px;border-bottom:1px solid #dde6f0;">${sh.support_item_code || ""}</td>
-      <td style="padding:7px 10px;border-bottom:1px solid #dde6f0;">${sh.support_type || ""}</td>
-      <td style="padding:7px 10px;border-bottom:1px solid #dde6f0;text-align:right;">${rate > 0 ? "$"+rate.toFixed(2) : ""}</td>
-      <td style="padding:7px 10px;border-bottom:1px solid #dde6f0;text-align:center;">${hrs > 0 ? Math.round(hrs) : ""}</td>
-      <td style="padding:7px 10px;border-bottom:1px solid #dde6f0;text-align:right;">${amt.toFixed(2)}</td>
+    const rowBg = i % 2 === 0 ? "#ffffff" : "#dce8f5";
+    const td = `padding:8px 10px;border-bottom:1px solid #c5d7ec;font-size:11.5px;color:#1a2e4a;background:${rowBg};`;
+    return `<tr>
+      <td style="${td}">${dateShort}</td>
+      <td style="${td}">${timeStr}</td>
+      <td style="${td}">${sh.support_item_code || ""}</td>
+      <td style="${td}">${sh.support_type || ""}</td>
+      <td style="${td}text-align:right;">${rate > 0 ? "$"+rate.toFixed(2) : ""}</td>
+      <td style="${td}text-align:center;">${hrs > 0 ? Math.round(hrs) : ""}</td>
+      <td style="${td}text-align:right;">${amt.toFixed(2)}</td>
     </tr>`;
   }).join("");
 
-  const bankName = entity.bankName || "NAB";
-  const bankAccName = entity.accountName || "";
-  const bankBSB = entity.bsb || "";
-  const bankAcc = entity.accountNumber || "";
+  // Totals block: right-aligned, partial width (matches reference ~35% of page)
+  const totalsRows = [
+    ["Subtotal", `$${subtotal.toFixed(2)}`],
+    ["GST", "$0.00"],
+    ["Total", `$${subtotal.toFixed(2)}`],
+  ].map(([lbl, val], i) => {
+    const isTot = i === 2;
+    const lbg = isTot ? "#c5d7ec" : "#dce8f5";
+    const vbg = isTot ? "#c5d7ec" : "#ffffff";
+    const fw = isTot ? "font-weight:bold;" : "";
+    return `<tr>
+      <td style="padding:7px 14px;border:1px solid #c5d7ec;background:${lbg};text-align:right;${fw}font-size:12px;color:#1a2e4a;">${lbl}</td>
+      <td style="padding:7px 14px;border:1px solid #c5d7ec;background:${vbg};text-align:right;${fw}font-size:12px;color:#1a2e4a;">${val}</td>
+    </tr>`;
+  }).join("");
 
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Tax Invoice</title>
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Tax Invoice – ${participant}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:Arial,Helvetica,sans-serif;color:#1a2e4a;font-size:12px;padding:36px 48px;background:#fff;}
-.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;}
-.logo{width:120px;}
+body{font-family:Arial,Helvetica,sans-serif;color:#1a2e4a;font-size:12px;padding:40px 52px;background:#fff;}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;}
+.logo{width:170px;}
 .right-block{text-align:right;}
-.tax-title{font-size:28px;font-weight:900;color:#00b0d8;letter-spacing:2px;margin-bottom:10px;}
-.entity-name{font-weight:bold;font-size:13px;color:#1a2e4a;}
-.entity-detail{font-size:12px;color:#1a2e4a;line-height:1.8;}
-.meta{margin-bottom:8px;font-size:12px;line-height:1.9;}
-.meta b{font-weight:bold;}
-.spacer{height:14px;}
-table.data{width:100%;border-collapse:collapse;margin-bottom:0;}
+.tax-title{font-size:32px;font-weight:900;color:#00b0d8;letter-spacing:3px;margin-bottom:12px;line-height:1;}
+.entity-name{font-weight:bold;font-size:13px;color:#1a2e4a;margin-bottom:2px;}
+.entity-detail{font-size:12px;color:#1a2e4a;line-height:1.85;}
+.meta-section{margin-bottom:8px;font-size:12px;line-height:2.0;}
+.meta-section b{font-weight:bold;}
+.gap{height:16px;}
+table.data{width:100%;border-collapse:collapse;}
 table.data thead tr{background:#1a2e4a;color:#fff;}
-table.data thead th{padding:9px 10px;font-size:11.5px;font-weight:bold;text-align:left;}
+table.data thead th{padding:9px 10px;font-size:12px;font-weight:bold;text-align:left;color:#fff;}
 table.data thead th.r{text-align:right;}
 table.data thead th.c{text-align:center;}
-table.data tbody td{font-size:11.5px;color:#1a2e4a;}
-table.totals{width:100%;border-collapse:collapse;}
-table.totals td{padding:7px 12px;font-size:12px;border:1px solid #c8d6e8;}
-table.totals .lbl{background:#dde8f4;text-align:right;font-weight:normal;color:#1a2e4a;width:80%;}
-table.totals .val{text-align:right;background:#fff;color:#1a2e4a;width:20%;}
-table.totals tr:last-child .lbl,table.totals tr:last-child .val{font-weight:bold;}
-.payment{margin-top:22px;font-size:12px;line-height:1.9;color:#1a2e4a;}
+.totals-wrap{display:flex;justify-content:flex-end;margin-top:0;}
+table.totals{width:340px;border-collapse:collapse;}
+.payment{margin-top:28px;font-size:13px;line-height:2.0;color:#1a2e4a;}
 .payment b{font-weight:bold;}
 @media print{.no-print{display:none;}}
 </style></head><body>
@@ -156,46 +167,55 @@ table.totals tr:last-child .lbl,table.totals tr:last-child .val{font-weight:bold
   </div>
 </div>
 
-<div class="meta"><div><b>INVOICE #</b> ${invoiceNum}</div><div><b>Date:</b> ${today}</div></div>
-<div class="spacer"></div>
-<div class="meta"><div><b>Client:</b> ${participant}</div><div><b>NDIS:</b> ${pData.ndis_number || "—"}</div></div>
-${pData.plan_coordinator_email ? `<div class="spacer"></div><div class="meta"><div><b>To:</b> ${pData.plan_coordinator_email}</div></div>` : ""}
-<div class="spacer"></div>
+<div class="meta-section">
+  <div><b>INVOICE #</b> ${invoiceNum}</div>
+  <div><b>Date:</b> ${today}</div>
+</div>
+<div class="gap"></div>
+<div class="meta-section">
+  <div><b>Client:</b> ${participant}</div>
+  <div><b>NDIS:</b> ${pData.ndis_number || "—"}</div>
+</div>
+${pData.plan_coordinator_email ? `<div class="gap"></div><div class="meta-section"><div><b>To:</b> ${pData.plan_coordinator_email}</div></div>` : ""}
+<div class="gap"></div>
 
 <table class="data">
   <thead><tr>
-    <th>Date</th><th>Time</th><th>Item Number</th><th>Description</th>
-    <th class="r">Unit price</th><th class="c">Qty</th><th class="r">Line total</th>
+    <th>Date</th>
+    <th>Time</th>
+    <th>Item Number</th>
+    <th>Description</th>
+    <th class="r">Unit price</th>
+    <th class="c">Qty</th>
+    <th class="r">Line total</th>
   </tr></thead>
   <tbody>${rows}</tbody>
 </table>
 
-<table class="totals">
-  <tr><td class="lbl">Subtotal</td><td class="val">$${subtotal.toFixed(2)}</td></tr>
-  <tr><td class="lbl">GST</td><td class="val">$0.00</td></tr>
-  <tr><td class="lbl">Total</td><td class="val">$${subtotal.toFixed(2)}</td></tr>
-</table>
+<div class="totals-wrap">
+  <table class="totals">${totalsRows}</table>
+</div>
 
 <div class="payment">
   <div><b>Please make payment to:</b></div>
-  <div>${bankName}</div>
-  <div>Account Name ${bankAccName}</div>
-  <div>BSB : ${bankBSB}</div>
-  <div>Account : ${bankAcc}</div>
+  <div>${entity.bankName || "NAB"}</div>
+  <div>Account Name ${entity.accountName || ""}</div>
+  <div>BSB : ${entity.bsb || ""}</div>
+  <div>Account : ${entity.accountNumber || ""}</div>
 </div>
 
-<div class="no-print" style="text-align:center;padding:20px;">
+<div class="no-print" style="text-align:center;padding:24px;">
   <button onclick="window.print()" style="background:#1a2e4a;color:#fff;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
 </div>
 </body></html>`;
 }
 
 function buildPayslipHTML(staffName, shifts, staffMembers, entity) {
-  entity = entity || { name: "SZ-Jie Support Services", abn: "86959042971", address: "309/12 Broome Street Waterloo, NSW 2017", email: "jeff@szjiesupportservices.com", phone: "0401343876" };
+  entity = entity || { name: "SZ-Jie Support Services", abn: "86959042971", address: "309/12 Broome St, Waterloo NSW 2017", email: "jeff@szjiesupportservices.com", phone: "0401 343 876", website: "www.szjiesupportservices.com" };
   const sm = staffMembers.find(s => s.name === staffName) || {};
   const grossPay = shifts.reduce((s, sh) => s + (sh.amount || calcHours(sh.start_time, sh.end_time) * (sh.hourly_rate || 0)), 0);
 
-  // Tax / Medicare / Super — ATO 2025-26 resident with LITO
+  // ATO 2025-26 resident tax + LITO
   const periodsPerYear = 26;
   const annual = grossPay * periodsPerYear;
   function resTax(a) {
@@ -219,90 +239,110 @@ function buildPayslipHTML(staffName, shifts, staffMembers, entity) {
   const netPay = Math.max(0, grossPay - taxPerPeriod - medicarePerPeriod - superAmt);
 
   const dates = shifts.map(s => s.date).filter(Boolean).sort();
-  const from = dates[0] ? dates[0].replace(/-/g, "/") : "";
-  const to = dates[dates.length - 1] ? dates[dates.length - 1].replace(/-/g, "/") : "";
+  const fromRaw = dates[0] || "";
+  const toRaw = dates[dates.length - 1] || "";
+  // Format as YYYY/MM/DD → keep YYYY/MM/DD style matching reference: "2026/04/07 – 2026/04/12"
+  const from = fromRaw.replace(/-/g, "/");
+  const to = toRaw.replace(/-/g, "/");
   const payslipNum = `PS-${Date.now().toString().slice(-6)}`;
 
-  const oddBg = "#ffffff";
-  const evenBg = "#eef3fa";
+  // Bank — prefer staff member bank, fall back to entity bank
+  const bankName = sm.bank_name || entity.bankName || "NAB";
+  const bankAccName = sm.bank_account_name || entity.accountName || "";
+  const bankBSB = sm.bank_bsb || entity.bsb || "";
+  const bankAcc = sm.bank_account_number || entity.accountNumber || "";
 
+  // Inline alternating rows — white / light blue
   const rows = shifts.map((sh, i) => {
     const hrs = sh.hours || calcHours(sh.start_time, sh.end_time);
     const rate = sh.hourly_rate || 0;
     const amt = sh.amount || hrs * rate;
     const timeStr = sh.start_time && sh.end_time ? `${sh.start_time}–${sh.end_time}` : "";
     const dateShort = sh.date ? sh.date.replace(/^20/, "").replace(/-/g, "/") : "";
-    const bg = i % 2 === 0 ? oddBg : evenBg;
-    return `<tr style="background:${bg};">
-      <td style="padding:9px 10px;border-bottom:1px solid #dde6f0;">${dateShort}</td>
-      <td style="padding:9px 10px;border-bottom:1px solid #dde6f0;border-left:3px solid #c0392b;color:#c0392b;font-weight:bold;">${timeStr}</td>
-      <td style="padding:9px 10px;border-bottom:1px solid #dde6f0;">${sh.support_item_code || ""}</td>
-      <td style="padding:9px 10px;border-bottom:1px solid #dde6f0;">${sh.support_type || ""}</td>
-      <td style="padding:9px 10px;border-bottom:1px solid #dde6f0;text-align:right;">${rate > 0 ? "$"+rate.toFixed(2) : ""}</td>
-      <td style="padding:9px 10px;border-bottom:1px solid #dde6f0;text-align:center;">${hrs > 0 ? Math.round(hrs) : ""}</td>
-      <td style="padding:9px 10px;border-bottom:1px solid #dde6f0;text-align:right;">${amt.toFixed(2)}</td>
+    const rowBg = i % 2 === 0 ? "#ffffff" : "#dce8f5";
+    const baseTd = `padding:10px 10px;border-bottom:1px solid #c5d7ec;font-size:12px;color:#1a2e4a;background:${rowBg};`;
+    return `<tr>
+      <td style="${baseTd}">${dateShort}</td>
+      <td style="${baseTd}border-left:4px solid #c0392b;color:#c0392b;font-weight:bold;">${timeStr}</td>
+      <td style="${baseTd}">${sh.support_item_code || ""}</td>
+      <td style="${baseTd}">${sh.support_type || ""}</td>
+      <td style="${baseTd}text-align:right;">${rate > 0 ? "$"+rate.toFixed(2) : ""}</td>
+      <td style="${baseTd}text-align:center;">${hrs > 0 ? Math.round(hrs) : ""}</td>
+      <td style="${baseTd}text-align:right;">${amt.toFixed(2)}</td>
     </tr>`;
   }).join("");
 
-  // Bank — prefer staff member's own bank details
-  const bankName = sm.bank_name || entity.bankName || "NAB";
-  const bankAccName = sm.bank_account_name || entity.accountName || "";
-  const bankBSB = sm.bank_bsb || entity.bsb || "";
-  const bankAcc = sm.bank_account_number || entity.accountNumber || "";
+  // Totals rows inline
+  const totalsData = [
+    { lbl: "Gross Pay", val: `$${grossPay.toFixed(2)}`, net: false },
+    { lbl: "Tax", val: `-$${taxPerPeriod.toFixed(2)}`, net: false },
+    { lbl: "Medicare", val: `-$${medicarePerPeriod.toFixed(2)}`, net: false },
+    { lbl: "Super 12%", val: `$${superAmt.toFixed(2)}`, net: false },
+    { lbl: "Net Pay", val: `$${netPay.toFixed(2)}`, net: true },
+  ];
+  const totalsRows = totalsData.map(r => {
+    const lbg = r.net ? "#1a2e4a" : "#dce8f5";
+    const vbg = r.net ? "#1a2e4a" : "#ffffff";
+    const clr = r.net ? "#ffffff" : "#1a2e4a";
+    const fw = r.net ? "font-weight:bold;" : "font-weight:bold;";
+    return `<tr>
+      <td style="padding:9px 14px;border:1px solid #c5d7ec;background:${lbg};color:${clr};${fw}font-size:12px;text-align:left;">${r.lbl}</td>
+      <td style="padding:9px 14px;border:1px solid #c5d7ec;background:${vbg};color:${clr};${fw}font-size:12px;text-align:right;">${r.val}</td>
+    </tr>`;
+  }).join("");
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Payslip – ${staffName}</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:Arial,Helvetica,sans-serif;color:#1a2e4a;font-size:12px;padding:36px 48px;background:#fff;}
-.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;}
-.logo{width:120px;}
-.entity-block{text-align:right;font-size:11.5px;color:#1a2e4a;line-height:1.85;}
-.entity-row{display:flex;align-items:center;justify-content:flex-end;gap:7px;margin-bottom:1px;}
-.entity-name{font-weight:bold;font-size:13px;}
-.ico{font-size:12px;min-width:16px;}
-.meta{margin-bottom:6px;font-size:12px;line-height:1.9;}
+body{font-family:Arial,Helvetica,sans-serif;color:#1a2e4a;font-size:12px;padding:40px 52px;background:#fff;}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;}
+.logo{width:160px;}
+.entity-block{text-align:right;font-size:12px;color:#1a2e4a;line-height:1.9;}
+.er{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-bottom:2px;}
+.ename{font-weight:bold;font-size:13px;}
+.ico{font-size:13px;min-width:18px;}
+.meta{font-size:12px;line-height:2.0;margin-bottom:5px;}
 .meta b{font-weight:bold;}
-.spacer{height:12px;}
+.gap{height:14px;}
 table.data{width:100%;border-collapse:collapse;}
 table.data thead tr{background:#1a2e4a;color:#fff;}
-table.data thead th{padding:10px 10px;font-size:11.5px;font-weight:bold;text-align:left;}
+table.data thead th{padding:10px 10px;font-size:12px;font-weight:bold;text-align:left;color:#fff;}
 table.data thead th.r{text-align:right;}
 table.data thead th.c{text-align:center;}
-table.data tbody td{font-size:11.5px;color:#1a2e4a;}
-.layout{display:flex;justify-content:space-between;align-items:flex-start;margin-top:22px;gap:24px;}
-.payment{font-size:12px;line-height:1.9;color:#1a2e4a;}
+.layout{display:flex;justify-content:space-between;align-items:flex-start;margin-top:28px;gap:28px;}
+.payment{font-size:13px;line-height:2.1;color:#1a2e4a;}
 .payment b{font-weight:bold;}
-table.totals{width:320px;border-collapse:collapse;flex-shrink:0;}
-table.totals td{padding:8px 12px;font-size:12px;border:1px solid #c8d6e8;}
-table.totals .lbl{background:#dde8f4;text-align:left;font-weight:bold;color:#1a2e4a;width:60%;}
-table.totals .val{text-align:right;background:#fff;color:#1a2e4a;width:40%;}
-table.totals tr.net .lbl{background:#1a2e4a;color:#fff;}
-table.totals tr.net .val{background:#1a2e4a;color:#fff;font-weight:bold;}
-.footer{text-align:center;font-size:9px;color:#94a3b8;margin-top:32px;padding-top:10px;border-top:1px solid #e2e8f0;}
+table.totals{width:340px;border-collapse:collapse;flex-shrink:0;}
+.footer{text-align:center;font-size:9.5px;color:#94a3b8;margin-top:36px;padding-top:10px;border-top:1px solid #e2e8f0;}
 @media print{.no-print{display:none;}}
 </style></head><body>
 
 <div class="header">
   <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" class="logo"/>
   <div class="entity-block">
-    <div class="entity-row"><span class="ico">📋</span><span class="entity-name">${entity.name}</span></div>
-    <div class="entity-row"><span class="ico">🪪</span><span><b>ABN:</b> ${entity.abn}</span></div>
-    <div class="entity-row"><span class="ico">📍</span><span>${entity.address}</span></div>
-    <div class="entity-row"><span class="ico">✉️</span><span>${entity.email}</span></div>
-    <div class="entity-row"><span class="ico">🌐</span><span>www.szjiesupportservices.com</span></div>
-    <div class="entity-row"><span class="ico">📞</span><span>${entity.phone}</span></div>
+    <div class="er"><span class="ico">📋</span><span class="ename">${entity.name}</span></div>
+    <div class="er"><span class="ico">🪪</span><span><b>ABN:</b> ${entity.abn}</span></div>
+    <div class="er"><span class="ico">📍</span><span>${entity.address}</span></div>
+    <div class="er"><span class="ico">✉️</span><span>${entity.email}</span></div>
+    <div class="er"><span class="ico">🌐</span><span>${entity.website || "www.szjiesupportservices.com"}</span></div>
+    <div class="er"><span class="ico">📞</span><span>${entity.phone}</span></div>
   </div>
 </div>
 
 <div class="meta"><div><b>PAYSLIP #</b> ${payslipNum}</div><div><b>Pay Period:</b> ${from} – ${to}</div></div>
-<div class="spacer"></div>
+<div class="gap"></div>
 <div class="meta"><div><b>Employee:</b> ${staffName}</div><div><b>Employee ID:</b> ${payslipNum}</div></div>
-<div class="spacer"></div>
+<div class="gap"></div>
 
 <table class="data">
   <thead><tr>
-    <th>Date</th><th>Time</th><th>Item Number</th><th>Description</th>
-    <th class="r">Unit price</th><th class="c">Qty</th><th class="r">Line total</th>
+    <th>Date</th>
+    <th>Time</th>
+    <th>Item Number</th>
+    <th>Description</th>
+    <th class="r">Unit price</th>
+    <th class="c">Qty</th>
+    <th class="r">Line total</th>
   </tr></thead>
   <tbody>${rows}</tbody>
 </table>
@@ -315,18 +355,12 @@ table.totals tr.net .val{background:#1a2e4a;color:#fff;font-weight:bold;}
     <div>BSB : ${bankBSB}</div>
     <div>Account : ${bankAcc}</div>
   </div>
-  <table class="totals">
-    <tr><td class="lbl">Gross Pay</td><td class="val">$${grossPay.toFixed(2)}</td></tr>
-    <tr><td class="lbl">Tax</td><td class="val">-$${taxPerPeriod.toFixed(2)}</td></tr>
-    <tr><td class="lbl">Medicare</td><td class="val">-$${medicarePerPeriod.toFixed(2)}</td></tr>
-    <tr><td class="lbl">Super 12%</td><td class="val">$${superAmt.toFixed(2)}</td></tr>
-    <tr class="net"><td class="lbl">Net Pay</td><td class="val">$${netPay.toFixed(2)}</td></tr>
-  </table>
+  <table class="totals">${totalsRows}</table>
 </div>
 
 <div class="footer">Tax calculated on ATO 2025-26 resident rates with LITO. Superannuation 12% per SGC. This payslip is computer-generated by ${entity.name} management system.</div>
 
-<div class="no-print" style="text-align:center;padding:20px;">
+<div class="no-print" style="text-align:center;padding:24px;">
   <button onclick="window.print()" style="background:#1a2e4a;color:#fff;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
 </div>
 </body></html>`;
