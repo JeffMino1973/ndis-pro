@@ -4,6 +4,12 @@ import { format, parseISO, startOfWeek, endOfWeek, addWeeks, subWeeks } from "da
 
 // Returns the correct business entity config based on shift date vs ABN change date
 function getEntityForDate(shiftDate, config) {
+  const base = {
+    bankName: config?.bankName || "NAB",
+    accountName: config?.accountName || "",
+    bsb: config?.bsb || "",
+    accountNumber: config?.accountNumber || "",
+  };
   if (!config?.abnChangeDate || !shiftDate) {
     return {
       name: config?.businessName || "SZ-JIE Support Services",
@@ -11,6 +17,7 @@ function getEntityForDate(shiftDate, config) {
       address: config?.address || "309/12 Broome St, Waterloo NSW 2017",
       email: config?.email || "jeff@szjiesupportservices.com",
       phone: config?.phone || "0401 343 876",
+      ...base,
     };
   }
   const date = typeof shiftDate === "string" ? shiftDate : format(shiftDate, "yyyy-MM-dd");
@@ -19,14 +26,16 @@ function getEntityForDate(shiftDate, config) {
     name: config.legacyBusinessName || config.businessName || "SZ-JIE Support Services",
     abn: config.legacyAbn || config.abn || "",
     address: config.address || "309/12 Broome St, Waterloo NSW 2017",
-    email: config.email || "jeff@szjiesupportservices.com",
-    phone: config.phone || "0401 343 876",
+    email: config.legacyEmail || config.email || "jeff@szjiesupportservices.com",
+    phone: config.legacyPhone || config.phone || "0401 343 876",
+    ...base,
   } : {
     name: config.businessName || "SZ-JIE Support Services",
     abn: config.abn || "86959042971",
     address: config.address || "309/12 Broome St, Waterloo NSW 2017",
     email: config.email || "jeff@szjiesupportservices.com",
     phone: config.phone || "0401 343 876",
+    ...base,
   };
 }
 
@@ -63,55 +72,118 @@ function printHTML(html) {
 function buildInvoiceHTML(participant, shifts, participants, entity) {
   entity = entity || { name: "SZ-JIE Support Services", abn: "86959042971", address: "309/12 Broome St, Waterloo NSW 2017", email: "jeff@szjiesupportservices.com", phone: "0401 343 876" };
   const pData = participants.find(p => p.name === participant) || {};
-  const total = shifts.reduce((s, sh) => s + (sh.amount || (calcHours(sh.start_time, sh.end_time) * (sh.hourly_rate || 0))), 0);
+  const subtotal = shifts.reduce((s, sh) => s + (sh.amount || (calcHours(sh.start_time, sh.end_time) * (sh.hourly_rate || 0))), 0);
+  const invoiceNum = `${Date.now().toString().slice(-3)}`;
+  const today = format(new Date(), "dd/MM/yyyy");
+
   const rows = shifts.map(sh => {
     const hrs = sh.hours || calcHours(sh.start_time, sh.end_time);
     const rate = sh.hourly_rate || 0;
     const amt = sh.amount || hrs * rate;
-    return `<tr><td>${sh.date}</td><td>${sh.support_type || ""}</td><td>${sh.support_item_code || ""}</td><td>${hrs.toFixed(2)}</td><td>$${rate.toFixed(2)}</td><td>$${amt.toFixed(2)}</td></tr>`;
+    const timeStr = sh.start_time && sh.end_time ? `${sh.start_time}–${sh.end_time}` : "";
+    const dateShort = sh.date ? sh.date.replace(/^20/, "").replace(/-/g, "/") : "";
+    return `<tr>
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;">${dateShort}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;">${timeStr}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;">${sh.support_item_code || ""}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;">${sh.support_type || ""}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;text-align:right;">${rate > 0 ? "$"+rate.toFixed(2) : ""}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;text-align:center;">${hrs > 0 ? Math.round(hrs) : ""}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;text-align:right;">${amt.toFixed(2)}</td>
+    </tr>`;
   }).join("");
-  const invoiceNum = `INV-${Date.now().toString().slice(-6)}`;
-  const today = format(new Date(), "dd/MM/yyyy");
-  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice – ${participant}</title>
-  <style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#1e293b;font-size:13px;padding:28px 36px;}
-  .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #e2e8f0;}
-  .logo{width:140px;}.contact{text-align:right;font-size:11px;color:#475569;line-height:1.75;}
-  h1{font-size:30px;font-weight:900;color:#06b6d4;text-transform:uppercase;margin-bottom:4px;}
-  .meta{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;margin-bottom:16px;}
-  .mc{padding:8px 14px;border-right:1px solid #e2e8f0;border-bottom:1px solid #e2e8f0;}
-  .mc:nth-child(even){border-right:none;}.mc:nth-last-child(-n+2){border-bottom:none;}
-  .ml{font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:2px;}
-  .mv{font-size:13px;font-weight:bold;}
-  table{width:100%;border-collapse:collapse;margin-bottom:12px;}
-  thead tr{background:#1e293b;color:white;}
-  thead th{padding:8px 10px;font-size:11px;text-align:left;}
-  tbody tr{border-bottom:1px solid #f1f5f9;}
-  tbody td{padding:8px 10px;font-size:12px;}
-  .total-row{font-weight:bold;font-size:14px;text-align:right;padding:10px 10px;border-top:2px solid #1e293b;}
-  .footer{text-align:center;font-size:10px;color:#94a3b8;margin-top:20px;padding-top:12px;border-top:1px solid #e2e8f0;}
-  .status-badge{display:inline-block;background:#fef9c3;color:#854d0e;font-size:10px;font-weight:bold;padding:2px 10px;border-radius:10px;margin-left:8px;}
-  @media print{.no-print{display:none;}}
+
+  // Bank details from entity config
+  const bankName = entity.bankName || "NAB";
+  const bankAccName = entity.accountName || entity.bankAccountName || "";
+  const bankBSB = entity.bsb || entity.bankBSB || "";
+  const bankAcc = entity.accountNumber || entity.bankAccountNumber || "";
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Tax Invoice – ${participant}</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,sans-serif;color:#1e293b;font-size:12px;padding:32px 40px;background:#fff;}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;}
+    .logo{width:130px;}
+    .title-block{text-align:right;}
+    .tax-invoice-title{font-size:26px;font-weight:900;color:#06b6d4;letter-spacing:1px;margin-bottom:6px;}
+    .entity-block{font-size:12px;color:#1e293b;text-align:right;line-height:1.9;}
+    .entity-name{font-weight:bold;font-size:13px;}
+    .meta-left{margin-bottom:16px;font-size:12px;line-height:2;}
+    .meta-left strong{font-weight:bold;}
+    .to-line{margin-bottom:20px;font-size:12px;}
+    table{width:100%;border-collapse:collapse;margin-bottom:0;}
+    thead tr{background:#1e3a5f;color:white;}
+    thead th{padding:9px 10px;font-size:11.5px;font-weight:bold;text-align:left;}
+    thead th.right{text-align:right;}
+    thead th.center{text-align:center;}
+    tbody tr:nth-child(even){background:#f0f4fa;}
+    tbody tr:nth-child(odd){background:#fff;}
+    .totals-table{width:100%;border-collapse:collapse;margin-top:0;}
+    .totals-table td{padding:7px 10px;font-size:12px;border:1px solid #cdd8e8;}
+    .totals-table .lbl{font-weight:bold;background:#e8eef6;text-align:right;}
+    .totals-table .val{text-align:right;background:#fff;}
+    .totals-table .total-row td{font-weight:bold;font-size:13px;background:#e8eef6;}
+    .payment-block{margin-top:24px;font-size:12px;line-height:1.9;}
+    .payment-block strong{font-weight:bold;}
+    @media print{.no-print{display:none;}}
   </style></head><body>
+
   <div class="header">
     <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" class="logo" />
-    <div class="contact"><div>${entity.name}</div><div>ABN: ${entity.abn}</div><div>${entity.address}</div><div>${entity.email}</div><div>${entity.phone}</div></div>
+    <div class="title-block">
+      <div class="tax-invoice-title">TAX INVOICE</div>
+      <div class="entity-block">
+        <div class="entity-name">${entity.name}</div>
+        <div><strong>ABN:</strong> ${entity.abn}</div>
+        <div>${entity.address}</div>
+        <div>${entity.email}</div>
+        <div>${entity.phone}</div>
+      </div>
+    </div>
   </div>
-  <h1>Invoice <span class="status-badge">Draft</span></h1>
-  <p style="font-size:12px;color:#64748b;margin-bottom:16px;">${invoiceNum} · Issued: ${today}</p>
-  <div class="meta">
-    <div class="mc"><div class="ml">Bill To</div><div class="mv">${participant}</div></div>
-    <div class="mc"><div class="ml">NDIS Number</div><div class="mv">${pData.ndis_number || "—"}</div></div>
-    <div class="mc"><div class="ml">Plan Manager</div><div class="mv">${pData.plan_coordinator_name || "—"}</div></div>
-    <div class="mc"><div class="ml">Plan Manager Email</div><div class="mv">${pData.plan_coordinator_email || "—"}</div></div>
+
+  <div class="meta-left">
+    <div><strong>INVOICE #</strong> ${invoiceNum}</div>
+    <div><strong>Date:</strong> ${today}</div>
   </div>
+  <div class="meta-left">
+    <div><strong>Client:</strong> ${participant}</div>
+    <div><strong>NDIS:</strong> ${pData.ndis_number || "—"}</div>
+  </div>
+  ${pData.plan_coordinator_email ? `<div class="to-line"><strong>To:</strong> ${pData.plan_coordinator_email}</div>` : ""}
+
   <table>
-    <thead><tr><th>Date</th><th>Description</th><th>Item Code</th><th>Hours</th><th>Rate</th><th>Amount</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Item Number</th>
+        <th>Description</th>
+        <th class="right">Unit price</th>
+        <th class="center">Qty</th>
+        <th class="right">Line total</th>
+      </tr>
+    </thead>
     <tbody>${rows}</tbody>
   </table>
-  <div class="total-row">Total: ${formatCurrency(total)}</div>
-  <div class="footer">${entity.name} · ABN ${entity.abn} · This invoice was generated from completed roster shifts.</div>
-  <div class="no-print" style="text-align:center;padding:16px;">
-    <button onclick="window.print()" style="background:linear-gradient(90deg,#06b6d4,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
+
+  <table class="totals-table" style="margin-top:0;">
+    <tr><td class="lbl" style="width:70%;border-top:none;" colspan="1">Subtotal</td><td class="val" style="width:30%;">$${subtotal.toFixed(2)}</td></tr>
+    <tr><td class="lbl">GST</td><td class="val">$0.00</td></tr>
+    <tr class="total-row"><td class="lbl">Total</td><td class="val">$${subtotal.toFixed(2)}</td></tr>
+  </table>
+
+  <div class="payment-block">
+    <div><strong>Please make payment to:</strong></div>
+    <div>${bankName}</div>
+    <div>Account Name ${bankAccName}</div>
+    <div>BSB : ${bankBSB}</div>
+    <div>Account : ${bankAcc}</div>
+  </div>
+
+  <div class="no-print" style="text-align:center;padding:20px;">
+    <button onclick="window.print()" style="background:#1e3a5f;color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
   </div>
   </body></html>`;
 }
@@ -120,66 +192,148 @@ function buildPayslipHTML(staffName, shifts, staffMembers, entity) {
   entity = entity || { name: "SZ-JIE Support Services", abn: "86959042971", address: "309/12 Broome St, Waterloo NSW 2017", email: "jeff@szjiesupportservices.com", phone: "0401 343 876" };
   const sm = staffMembers.find(s => s.name === staffName) || {};
   const grossPay = shifts.reduce((s, sh) => s + (sh.amount || calcHours(sh.start_time, sh.end_time) * (sh.hourly_rate || 0)), 0);
+
+  // Tax / Medicare / Super calcs (fortnightly by default)
+  const periodsPerYear = 26;
+  const annual = grossPay * periodsPerYear;
+  // Resident with threshold + LITO
+  function residentTax(a) {
+    if (a <= 18200) return 0;
+    if (a <= 45000) return (a - 18200) * 0.19;
+    if (a <= 135000) return 5092 + (a - 45000) * 0.325;
+    if (a <= 190000) return 34204 + (a - 135000) * 0.37;
+    return 54630 + (a - 190000) * 0.45;
+  }
+  function lito(a) {
+    if (a <= 37500) return 700;
+    if (a <= 45000) return 700 - (a - 37500) * 0.05;
+    if (a <= 66667) return 325 - (a - 45000) * 0.015;
+    return 0;
+  }
+  const annualTax = Math.max(0, residentTax(annual) - Math.max(0, lito(annual)));
+  const taxPerPeriod = annualTax / periodsPerYear;
+  const medicareAnnual = annual <= 26000 ? 0 : annual <= 32500 ? (annual - 26000) * 0.10 : annual * 0.02;
+  const medicarePerPeriod = medicareAnnual / periodsPerYear;
+  const superAmt = grossPay * 0.12;
+  const netPay = Math.max(0, grossPay - taxPerPeriod - medicarePerPeriod - superAmt);
+
+  const dates = shifts.map(s => s.date).sort();
+  const from = dates[0] ? dates[0].replace(/-/g, "/") : "";
+  const to = dates[dates.length - 1] ? dates[dates.length - 1].replace(/-/g, "/") : "";
+  const payslipNum = `PS-${Date.now().toString().slice(-6)}`;
+
   const rows = shifts.map(sh => {
     const hrs = sh.hours || calcHours(sh.start_time, sh.end_time);
     const rate = sh.hourly_rate || 0;
     const amt = sh.amount || hrs * rate;
-    return `<tr><td>${sh.date}</td><td>${sh.start_time}–${sh.end_time}</td><td>${sh.support_type || ""}</td><td>${sh.participant_name}</td><td>${hrs.toFixed(2)}</td><td>$${rate.toFixed(2)}</td><td>$${amt.toFixed(2)}</td></tr>`;
+    const timeStr = sh.start_time && sh.end_time ? `${sh.start_time}–${sh.end_time}` : "";
+    const dateShort = sh.date ? sh.date.replace(/^20/, "").replace(/-/g, "/") : "";
+    return `<tr>
+      <td style="padding:9px 10px;border-bottom:1px solid #dde6f0;">${dateShort}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #dde6f0;border-left:3px solid #e63946;color:#e63946;font-weight:bold;">${timeStr}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #dde6f0;">${sh.support_item_code || ""}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #dde6f0;">${sh.support_type || sh.participant_name || ""}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #dde6f0;text-align:right;">${rate > 0 ? "$"+rate.toFixed(2) : ""}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #dde6f0;text-align:center;">${hrs > 0 ? Math.round(hrs) : ""}</td>
+      <td style="padding:9px 10px;border-bottom:1px solid #dde6f0;text-align:right;">${amt.toFixed(2)}</td>
+    </tr>`;
   }).join("");
-  const dates = shifts.map(s => s.date).sort();
-  const from = dates[0] || "";
-  const to = dates[dates.length - 1] || "";
-  const payslipNum = `PAY-${Date.now().toString().slice(-6)}`;
+
+  // Bank – prefer staff member bank data
+  const bankName = sm.bank_name || entity.bankName || "NAB";
+  const bankAccName = sm.bank_account_name || entity.accountName || "";
+  const bankBSB = sm.bank_bsb || entity.bsb || "";
+  const bankAcc = sm.bank_account_number || entity.accountNumber || "";
+
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Payslip – ${staffName}</title>
-  <style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#1e293b;font-size:13px;padding:28px 36px;}
-  .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid #e2e8f0;}
-  .logo{width:140px;}.contact{text-align:right;font-size:11px;color:#475569;line-height:1.75;}
-  h1{font-size:28px;font-weight:900;color:#1e293b;text-transform:uppercase;margin-bottom:4px;}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
-  .box{border:1px solid #e2e8f0;border-radius:6px;padding:12px 14px;}
-  .bl{font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;}
-  .bv{font-size:13px;font-weight:bold;color:#1e293b;}
-  .bv.green{color:#16a34a;font-size:20px;}
-  table{width:100%;border-collapse:collapse;margin-bottom:12px;}
-  thead tr{background:#1e293b;color:white;}
-  thead th{padding:8px 10px;font-size:10.5px;text-align:left;}
-  tbody tr{border-bottom:1px solid #f1f5f9;}
-  tbody td{padding:7px 10px;font-size:12px;}
-  .sec{font-size:11px;font-weight:bold;text-transform:uppercase;letter-spacing:.5px;color:#64748b;margin:14px 0 6px;}
-  .bank-row{display:flex;gap:8px;flex-wrap:wrap;}
-  .bank-cell{flex:1;min-width:120px;border:1px solid #e2e8f0;border-radius:6px;padding:8px 12px;}
-  .footer{text-align:center;font-size:10px;color:#94a3b8;margin-top:20px;padding-top:12px;border-top:1px solid #e2e8f0;}
-  @media print{.no-print{display:none;}}
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:Arial,sans-serif;color:#1e293b;font-size:12px;padding:32px 40px;background:#fff;}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;}
+    .logo{width:130px;}
+    .entity-block{text-align:right;font-size:12px;line-height:2;}
+    .entity-name{font-weight:bold;font-size:13px;}
+    .entity-row{display:flex;align-items:center;justify-content:flex-end;gap:6px;}
+    .ico{font-size:13px;}
+    .meta{margin-bottom:16px;font-size:12px;line-height:2;}
+    .meta strong{font-weight:bold;}
+    table{width:100%;border-collapse:collapse;margin-bottom:0;}
+    thead tr{background:#1e3a5f;color:white;}
+    thead th{padding:10px 10px;font-size:11.5px;font-weight:bold;text-align:left;}
+    thead th.right{text-align:right;}thead th.center{text-align:center;}
+    tbody tr:nth-child(even){background:#eef3fa;}
+    tbody tr:nth-child(odd){background:#fff;}
+    .totals-wrap{display:flex;justify-content:flex-end;margin-top:0;}
+    .totals-table{width:340px;border-collapse:collapse;}
+    .totals-table td{padding:8px 12px;border:1px solid #cdd8e8;font-size:12px;}
+    .totals-table .lbl{font-weight:bold;background:#e8eef6;text-align:left;}
+    .totals-table .val{text-align:right;background:#fff;}
+    .totals-table .net-lbl{font-weight:bold;background:#1e3a5f;color:white;text-align:left;}
+    .totals-table .net-val{font-weight:bold;background:#1e3a5f;color:white;text-align:right;}
+    .layout{display:flex;justify-content:space-between;align-items:flex-start;margin-top:20px;gap:20px;}
+    .payment-block{font-size:12px;line-height:2;}
+    .payment-block strong{font-weight:bold;}
+    .footer{text-align:center;font-size:9.5px;color:#94a3b8;margin-top:28px;padding-top:12px;border-top:1px solid #e2e8f0;}
+    @media print{.no-print{display:none;}}
   </style></head><body>
+
   <div class="header">
     <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" class="logo" />
-    <div class="contact"><div>${entity.name}</div><div>ABN: ${entity.abn}</div><div>${entity.address}</div><div>${entity.email}</div><div>${entity.phone}</div></div>
+    <div class="entity-block">
+      <div class="entity-row"><span class="ico">📋</span><span class="entity-name">${entity.name}</span></div>
+      <div class="entity-row"><span class="ico">🪪</span><span><strong>ABN:</strong> ${entity.abn}</span></div>
+      <div class="entity-row"><span class="ico">📍</span><span>${entity.address}</span></div>
+      <div class="entity-row"><span class="ico">✉️</span><span>${entity.email}</span></div>
+      <div class="entity-row"><span class="ico">🌐</span><span>www.szjiesupportservices.com</span></div>
+      <div class="entity-row"><span class="ico">📞</span><span>${entity.phone}</span></div>
+    </div>
   </div>
-  <h1>Payslip</h1>
-  <p style="font-size:12px;color:#64748b;margin-bottom:16px;">${payslipNum} · Pay Period: ${from} to ${to}</p>
-  <div class="grid2">
-    <div class="box"><div class="bl">Employee</div><div class="bv">${staffName}</div></div>
-    <div class="box"><div class="bl">Gross Pay</div><div class="bv green">${formatCurrency(grossPay)}</div></div>
-    <div class="box"><div class="bl">Email</div><div class="bv">${sm.email || "—"}</div></div>
-    <div class="box"><div class="bl">Phone</div><div class="bv">${sm.phone || "—"}</div></div>
-    <div class="box"><div class="bl">TFN</div><div class="bv">${sm.tfn || "—"}</div></div>
-    <div class="box"><div class="bl">ABN</div><div class="bv">${sm.abn || "—"}</div></div>
+
+  <div class="meta">
+    <div><strong>PAYSLIP #</strong> ${payslipNum}</div>
+    <div><strong>Pay Period:</strong> ${from} – ${to}</div>
   </div>
-  <div class="sec">Shift Line Items</div>
+  <div class="meta">
+    <div><strong>Employee:</strong> ${staffName}</div>
+    <div><strong>Employee ID:</strong> ${payslipNum}</div>
+  </div>
+
   <table>
-    <thead><tr><th>Date</th><th>Time</th><th>Support Type</th><th>Participant</th><th>Hours</th><th>Rate</th><th>Amount</th></tr></thead>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Item Number</th>
+        <th>Description</th>
+        <th class="right">Unit price</th>
+        <th class="center">Qty</th>
+        <th class="right">Line total</th>
+      </tr>
+    </thead>
     <tbody>${rows}</tbody>
   </table>
-  <div class="sec">Bank Details</div>
-  <div class="bank-row">
-    <div class="bank-cell"><div class="bl">Bank</div><div class="bv">${sm.bank_name || "—"}</div></div>
-    <div class="bank-cell"><div class="bl">Account Name</div><div class="bv">${sm.bank_account_name || "—"}</div></div>
-    <div class="bank-cell"><div class="bl">BSB</div><div class="bv">${sm.bank_bsb || "—"}</div></div>
-    <div class="bank-cell"><div class="bl">Account Number</div><div class="bv">${sm.bank_account_number || "—"}</div></div>
+
+  <div class="layout">
+    <div class="payment-block">
+      <div><strong>Payment to:</strong></div>
+      <div>${bankName}</div>
+      <div>Account Name ${bankAccName}</div>
+      <div>BSB : ${bankBSB}</div>
+      <div>Account : ${bankAcc}</div>
+    </div>
+    <table class="totals-table">
+      <tr><td class="lbl">Gross Pay</td><td class="val">$${grossPay.toFixed(2)}</td></tr>
+      <tr><td class="lbl">Tax</td><td class="val">-$${taxPerPeriod.toFixed(2)}</td></tr>
+      <tr><td class="lbl">Medicare</td><td class="val">-$${medicarePerPeriod.toFixed(2)}</td></tr>
+      <tr><td class="lbl">Super 12%</td><td class="val">$${superAmt.toFixed(2)}</td></tr>
+      <tr><td class="net-lbl">Net Pay</td><td class="net-val">$${netPay.toFixed(2)}</td></tr>
+    </table>
   </div>
-  <div class="footer">${entity.name} · ABN ${entity.abn} · Confidential Payslip · Generated from completed roster shifts.</div>
-  <div class="no-print" style="text-align:center;padding:16px;">
-    <button onclick="window.print()" style="background:linear-gradient(90deg,#06b6d4,#6366f1);color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
+
+  <div class="footer">Tax calculated on ATO 2025-26 resident rates with LITO. Superannuation 12% per SGC. This payslip is computer-generated by ${entity.name} management system.</div>
+
+  <div class="no-print" style="text-align:center;padding:20px;">
+    <button onclick="window.print()" style="background:#1e3a5f;color:white;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button>
   </div>
   </body></html>`;
 }
