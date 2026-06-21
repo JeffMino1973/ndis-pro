@@ -6,7 +6,7 @@ import {
   Settings, Menu, ChevronRight, Receipt, Calendar, Clock, Target, FolderOpen,
   MessageSquareWarning, CheckSquare, BarChart3, BookTemplate, Play, Zap,
   Navigation, DollarSign, Activity, Banknote, LogOut, Link2, BookOpen,
-  Shield, Database,
+  Shield, Database, CheckCircle2,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ const ADMIN_NAV_SECTIONS = [
       { path: "/shift-logger", label: "Shift Logger", icon: Play },
       { path: "/timesheets", label: "Timesheets", icon: Clock },
       { path: "/roster-billing", label: "Invoices & Payslips", icon: DollarSign },
+      { path: "/weekly-tasks", label: "Weekly Tasks", icon: CheckCircle2 },
       { path: "/quotes", label: "Quotes", icon: FileText },
       { path: "/finance", label: "Finance Centre", icon: BarChart3 },
       { path: "/financial-reports", label: "Financial Reports", icon: BarChart3 },

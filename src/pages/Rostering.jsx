@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, ChevronLeft, ChevronRight, Calendar, Pencil, Trash2, Copy, RefreshCw, Loader2, Wrench, CheckCircle2, LayoutGrid, List } from "lucide-react";
+import { Plus, ChevronLeft, ChevronRight, Calendar, Pencil, Trash2, Copy, RefreshCw, Loader2, Wrench, CheckCircle2, LayoutGrid, List, Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,85 @@ const STATUS_COLORS = {
   Cancelled: "bg-rose-100 text-rose-700",
   "No Show": "bg-amber-100 text-amber-700",
 };
+
+function buildPrintHTML(title, shifts) {
+  const sorted = [...shifts].sort((a, b) => (a.date || "") < (b.date || "") ? -1 : 1);
+  const rows = sorted.map((s, i) => {
+    const bg = i % 2 === 0 ? "#f8fafc" : "#fff";
+    const statusColors = { Completed: "#dcfce7", Scheduled: "#dbeafe", Confirmed: "#d1fae5", Cancelled: "#fee2e2", "No Show": "#fef9c3" };
+    const statusBg = statusColors[s.status] || "#f1f5f9";
+    return `<tr style="background:${bg}">
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;">${s.date||""}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;">${s.start_time||""}–${s.end_time||""}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:bold;">${s.staff_name||""}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;">${s.participant_name||""}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;">${s.support_type||""}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;"><span style="background:${statusBg};padding:2px 7px;border-radius:9999px;font-size:10px;">${s.status||""}</span></td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;text-align:right;">${s.hourly_rate ? "$"+Number(s.hourly_rate).toFixed(2)+"/hr" : ""}</td>
+    </tr>`;
+  }).join("");
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${title}</title>
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#1a2e4a;font-size:12px;padding:36px 48px;background:#fff;}
+h1{font-size:20px;font-weight:900;color:#1a2e4a;margin-bottom:4px;}
+table{width:100%;border-collapse:collapse;margin-top:12px;}
+thead tr{background:#1a2e4a;color:#fff;}thead th{padding:8px 10px;font-size:11px;font-weight:bold;text-align:left;color:#fff;}
+@media print{.no-print{display:none;}}</style></head><body>
+<img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" style="width:150px;margin-bottom:16px;"/>
+<h1>${title}</h1>
+<p style="color:#64748b;font-size:12px;margin-bottom:4px;">${shifts.length} shift${shifts.length!==1?"s":""} · Generated: ${format(new Date(), "dd/MM/yyyy")}</p>
+<table><thead><tr><th>Date</th><th>Time</th><th>Staff</th><th>Participant</th><th>Support Type</th><th>Status</th><th style="text-align:right">Rate</th></tr></thead>
+<tbody>${rows}</tbody></table>
+<div class="no-print" style="text-align:center;padding:24px;"><button onclick="window.print()" style="background:#1a2e4a;color:#fff;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button></div>
+</body></html>`;
+}
+
+function PrintRoster({ shifts, weekStart, calendarMonth }) {
+  const weekEnd = addDays(weekStart, 6);
+  const prevWeekStart = subWeeks(weekStart, 1);
+  const prevWeekEnd = addDays(prevWeekStart, 6);
+  const mStart = startOfMonth(calendarMonth);
+  const mEnd = endOfMonth(calendarMonth);
+
+  const weekShifts = shifts.filter(s => s.date && s.date >= format(weekStart, "yyyy-MM-dd") && s.date <= format(weekEnd, "yyyy-MM-dd"));
+  const prevWeekShifts = shifts.filter(s => s.date && s.date >= format(prevWeekStart, "yyyy-MM-dd") && s.date <= format(prevWeekEnd, "yyyy-MM-dd"));
+  const monthShifts = shifts.filter(s => s.date && s.date >= format(mStart, "yyyy-MM-dd") && s.date <= format(mEnd, "yyyy-MM-dd"));
+
+  const print = (title, data) => {
+    const html = buildPrintHTML(title, data);
+    const win = window.open("", "_blank");
+    win.document.write(html);
+    win.document.close();
+    setTimeout(() => win.print(), 600);
+  };
+
+  const options = [
+    { label: "Current Week Roster", sub: `${format(weekStart, "d MMM")} – ${format(weekEnd, "d MMM yyyy")}`, data: weekShifts, color: "border-blue-300 bg-blue-50 hover:bg-blue-100" },
+    { label: "Previous Week Roster", sub: `${format(prevWeekStart, "d MMM")} – ${format(prevWeekEnd, "d MMM yyyy")}`, data: prevWeekShifts, color: "border-violet-300 bg-violet-50 hover:bg-violet-100" },
+    { label: "Monthly Roster", sub: format(calendarMonth, "MMMM yyyy"), data: monthShifts, color: "border-emerald-300 bg-emerald-50 hover:bg-emerald-100" },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="bg-card border border-border rounded-2xl p-4">
+        <p className="font-black mb-1">Print Roster</p>
+        <p className="text-sm text-muted-foreground">Select a period to generate a print-ready PDF roster. Filtered staff/participant selections are respected.</p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {options.map(opt => (
+          <button key={opt.label} onClick={() => print(opt.label, opt.data)}
+            className={`text-left p-5 rounded-2xl border-2 transition-all ${opt.color}`}>
+            <div className="flex items-center gap-2 mb-2">
+              <Printer size={18} className="text-foreground" />
+              <p className="font-black text-sm">{opt.label}</p>
+            </div>
+            <p className="text-xs text-muted-foreground">{opt.sub}</p>
+            <p className="text-xs font-bold mt-2 text-foreground">{opt.data.length} shift{opt.data.length !== 1 ? "s" : ""}</p>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Rostering() {
   const [weekStart, setWeekStart] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
@@ -211,6 +290,7 @@ export default function Rostering() {
           <TabsTrigger value="week" className="gap-1.5 rounded-lg"><Calendar size={14} /> Week</TabsTrigger>
           <TabsTrigger value="month" className="gap-1.5 rounded-lg"><LayoutGrid size={14} /> Month</TabsTrigger>
           <TabsTrigger value="list" className="gap-1.5 rounded-lg"><List size={14} /> List</TabsTrigger>
+          <TabsTrigger value="print" className="gap-1.5 rounded-lg"><Printer size={14} /> Print Roster</TabsTrigger>
         </TabsList>
 
         {/* WEEK TAB */}
@@ -343,6 +423,10 @@ export default function Rostering() {
               )}
             </div>
           </div>
+        </TabsContent>
+        {/* PRINT ROSTER TAB */}
+        <TabsContent value="print" className="mt-4">
+          <PrintRoster shifts={filteredShifts} weekStart={weekStart} calendarMonth={calendarMonth} />
         </TabsContent>
       </Tabs>
 
