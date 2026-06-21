@@ -134,11 +134,17 @@ export default function PayslipPreview({ record, staffMember }) {
         </div>
       </div>
 
-      {/* Tax Declaration Badge */}
-      <div style={{ backgroundColor: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "6px 10px", marginBottom: "10px", fontSize: "9px", color: "#475569" }}>
-        <strong>Tax Declaration:</strong> {taxLabel} · <strong>ATO 2025–26 rates</strong> · LITO applied where eligible
-        {medicareExemption && " · Medicare Levy Exemption applied"}
-      </div>
+      {/* ABN Contractor notice OR Tax Declaration Badge */}
+      {taxStatus === "abn_contractor" ? (
+        <div style={{ backgroundColor: "#fffbeb", border: "1px solid #fde68a", borderRadius: "6px", padding: "8px 12px", marginBottom: "10px", fontSize: "10px", color: "#92400e" }}>
+          <strong>⚠️ ABN Contractor</strong> — This worker is engaged under their own ABN. Tax, Medicare and Super are <strong>not withheld</strong>. The contractor manages their own ATO obligations.
+        </div>
+      ) : (
+        <div style={{ backgroundColor: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "6px 10px", marginBottom: "10px", fontSize: "9px", color: "#475569" }}>
+          <strong>Tax Declaration:</strong> {taxLabel} · <strong>ATO 2025–26 rates</strong> · LITO applied where eligible
+          {medicareExemption && " · Medicare Levy Exemption applied"}
+        </div>
+      )}
 
       {/* Bank Details */}
       <div style={{ border: "1px solid #e2e8f0", borderRadius: "8px", padding: "10px", backgroundColor: "#f8fafc", marginBottom: "10px", fontSize: "10px" }}>

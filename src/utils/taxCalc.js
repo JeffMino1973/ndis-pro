@@ -127,6 +127,16 @@ export function calcPayPeriodDeductions(
         net: Math.max(0, grossPerPeriod - annualTax / periodsPerYear - grossPerPeriod * 0.12),
         annualised: annual,
       };
+    case "abn_contractor":
+      // ABN contractors invoice for their full gross. No PAYG withholding,
+      // no Medicare levy, no employer super obligations. Net = Gross.
+      return {
+        tax: 0,
+        medicare: 0,
+        super: 0,
+        net: grossPerPeriod,
+        annualised: annual,
+      };
     default:
       annualTax = Math.max(0, calcResidentTax(annual) - Math.max(0, calcLITO(annual)));
   }
@@ -160,6 +170,7 @@ function calcResidentTaxNoThreshold(annual) {
  * Human-readable label for each tax status.
  */
 export const TAX_STATUS_LABELS = {
+  abn_contractor: "ABN Contractor — No PAYG / No Super / No Medicare",
   resident_with_threshold: "Australian Resident — Tax-Free Threshold Claimed",
   resident_no_threshold: "Australian Resident — No Tax-Free Threshold",
   non_resident: "Non-Resident for Tax Purposes",

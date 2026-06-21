@@ -334,14 +334,12 @@ function Step3Payslips({ weekStart, shifts, staffMembers, config, onDone, done }
 
   function buildPayslipHTML(staffName, sShifts, sm) {
     const gross = sShifts.reduce((a, sh) => a + (sh.amount || calcHours(sh.start_time, sh.end_time) * (sh.hourly_rate || 0)), 0);
-    const annual = gross * 26;
-    function resTax(a) { if (a <= 18200) return 0; if (a <= 45000) return (a - 18200) * 0.19; if (a <= 135000) return 5092 + (a - 45000) * 0.325; if (a <= 190000) return 34204 + (a - 135000) * 0.37; return 54630 + (a - 190000) * 0.45; }
-    function lito(a) { if (a <= 37500) return 700; if (a <= 45000) return 700 - (a - 37500) * 0.05; if (a <= 66667) return 325 - (a - 45000) * 0.015; return 0; }
-    const annualTax = Math.max(0, resTax(annual) - Math.max(0, lito(annual)));
-    const tax = annualTax / 26;
-    const medicare = (annual * 0.02) / 26;
-    const superAmt = gross * 0.12;
-    const netPay = Math.max(0, gross - tax - medicare - superAmt);
+    // ABN contractors: no tax, no medicare, no super withheld — net = gross
+    const isABN = !sm?.tax_status || sm?.tax_status === "abn_contractor";
+    const tax = 0;
+    const medicare = 0;
+    const superAmt = 0;
+    const netPay = gross;
     const psNum = `PS-${Date.now().toString().slice(-6)}`;
     const dates = sShifts.map(s => s.date).filter(Boolean).sort();
     const from = dates[0]?.replace(/-/g, "/") || "";
@@ -368,13 +366,11 @@ table{width:100%;border-collapse:collapse;}thead tr{background:#1a2e4a;color:#ff
 <table><thead><tr><th>Date</th><th>Time</th><th>Item Number</th><th>Description</th><th style="text-align:right">Unit price</th><th style="text-align:center">Qty</th><th style="text-align:right">Line total</th></tr></thead><tbody>${rows}</tbody></table>
 <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-top:28px;gap:28px;">
 <div style="font-size:13px;line-height:2.1;"><div><b>Payment to:</b></div><div>${sm?.bank_name||config?.bankName||"NAB"}</div><div>Account Name ${sm?.bank_account_name||""}</div><div>BSB : ${sm?.bank_bsb||""}</div><div>Account : ${sm?.bank_account_number||""}</div></div>
-<table style="width:340px;border-collapse:collapse;">
+${isABN ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;padding:12px 14px;font-size:11px;color:#92400e;max-width:340px;"><strong>ABN Contractor</strong><br/>Tax, Medicare &amp; Super not withheld.<br/>Contractor manages own ATO obligations.<br/><br/><strong>Invoice Total (Net): $${gross.toFixed(2)}</strong></div>` : `<table style="width:340px;border-collapse:collapse;">
 <tr><td style="padding:9px 14px;border:1px solid #c5d7ec;background:#dce8f5;font-weight:bold;font-size:12px;text-align:left;">Gross Pay</td><td style="padding:9px 14px;border:1px solid #c5d7ec;background:#fff;font-weight:bold;font-size:12px;text-align:right;">$${gross.toFixed(2)}</td></tr>
-<tr><td style="padding:9px 14px;border:1px solid #c5d7ec;background:#dce8f5;font-weight:bold;font-size:12px;text-align:left;">Tax</td><td style="padding:9px 14px;border:1px solid #c5d7ec;background:#fff;font-weight:bold;font-size:12px;text-align:right;">-$${tax.toFixed(2)}</td></tr>
-<tr><td style="padding:9px 14px;border:1px solid #c5d7ec;background:#dce8f5;font-weight:bold;font-size:12px;text-align:left;">Medicare</td><td style="padding:9px 14px;border:1px solid #c5d7ec;background:#fff;font-weight:bold;font-size:12px;text-align:right;">-$${medicare.toFixed(2)}</td></tr>
-<tr><td style="padding:9px 14px;border:1px solid #c5d7ec;background:#dce8f5;font-weight:bold;font-size:12px;text-align:left;">Super 12%</td><td style="padding:9px 14px;border:1px solid #c5d7ec;background:#fff;font-weight:bold;font-size:12px;text-align:right;">$${superAmt.toFixed(2)}</td></tr>
 <tr><td style="padding:9px 14px;border:1px solid #c5d7ec;background:#1a2e4a;font-weight:bold;font-size:12px;text-align:left;color:#fff;">Net Pay</td><td style="padding:9px 14px;border:1px solid #c5d7ec;background:#1a2e4a;font-weight:bold;font-size:12px;text-align:right;color:#fff;">$${netPay.toFixed(2)}</td></tr>
-</table></div>
+</table>`}
+</div>
 <div class="no-print" style="text-align:center;padding:24px;"><button onclick="window.print()" style="background:#1a2e4a;color:#fff;border:none;padding:10px 28px;border-radius:6px;font-size:14px;font-weight:bold;cursor:pointer;">🖨️ Print / Save as PDF</button></div>
 </body></html>`;
   }
@@ -488,15 +484,13 @@ function Step4BankRec({ weekStart, shifts, staffMembers, config, onDone, done })
   const bankRows = Object.entries(byStaff).map(([staffName, sShifts]) => {
     const sm = staffMembers.find(s => s.name === staffName) || {};
     const gross = sShifts.reduce((a, sh) => a + (sh.amount || calcHours(sh.start_time, sh.end_time) * (sh.hourly_rate || 0)), 0);
-    const annual = gross * 26;
-    function resTax(a) { if (a <= 18200) return 0; if (a <= 45000) return (a - 18200) * 0.19; if (a <= 135000) return 5092 + (a - 45000) * 0.325; if (a <= 190000) return 34204 + (a - 135000) * 0.37; return 54630 + (a - 190000) * 0.45; }
-    function lito(a) { if (a <= 37500) return 700; if (a <= 45000) return 700 - (a - 37500) * 0.05; if (a <= 66667) return 325 - (a - 45000) * 0.015; return 0; }
-    const annualTax = Math.max(0, resTax(annual) - Math.max(0, lito(annual)));
-    const tax = annualTax / 26;
-    const medicare = (annual * 0.02) / 26;
-    const superAmt = gross * 0.12;
-    const netPay = Math.max(0, gross - tax - medicare - superAmt);
-    return { staffName, sm, gross, tax, medicare, superAmt, netPay };
+    const isABN = !sm?.tax_status || sm?.tax_status === "abn_contractor";
+    // ABN contractors: pay gross directly, no deductions
+    const tax = 0;
+    const medicare = 0;
+    const superAmt = 0;
+    const netPay = gross;
+    return { staffName, sm, gross, tax, medicare, superAmt, netPay, isABN };
   });
 
   const totalNet = bankRows.reduce((a, r) => a + r.netPay, 0);

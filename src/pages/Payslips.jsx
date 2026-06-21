@@ -68,7 +68,7 @@ export default function Payslips() {
   const [dateTo, setDateTo] = useState(format(new Date(), "yyyy-MM-dd"));
   const [lines, setLines] = useState([EMPTY_LINE()]);
   const [payslipNo, setPayslipNo] = useState("PS-" + String(Date.now()).slice(-6));
-  const [taxStatus, setTaxStatus] = useState("resident_with_threshold");
+  const [taxStatus, setTaxStatus] = useState("abn_contractor");
   const [medicareExemption, setMedicareExemption] = useState(false);
 
   useEffect(() => {

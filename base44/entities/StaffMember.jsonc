@@ -101,13 +101,14 @@
       "type": "string",
       "title": "Tax Declaration Status",
       "enum": [
+        "abn_contractor",
         "resident_with_threshold",
         "resident_no_threshold",
         "non_resident",
         "working_holiday",
         "no_tfn"
       ],
-      "default": "resident_with_threshold"
+      "default": "abn_contractor"
     },
     "medicare_exemption": {
       "type": "boolean",

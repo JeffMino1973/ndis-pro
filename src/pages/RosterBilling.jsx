@@ -215,28 +215,12 @@ function buildPayslipHTML(staffName, shifts, staffMembers, entity) {
   const sm = staffMembers.find(s => s.name === staffName) || {};
   const grossPay = shifts.reduce((s, sh) => s + (sh.amount || calcHours(sh.start_time, sh.end_time) * (sh.hourly_rate || 0)), 0);
 
-  // ATO 2025-26 resident tax + LITO
-  const periodsPerYear = 26;
-  const annual = grossPay * periodsPerYear;
-  function resTax(a) {
-    if (a <= 18200) return 0;
-    if (a <= 45000) return (a - 18200) * 0.19;
-    if (a <= 135000) return 5092 + (a - 45000) * 0.325;
-    if (a <= 190000) return 34204 + (a - 135000) * 0.37;
-    return 54630 + (a - 190000) * 0.45;
-  }
-  function lito(a) {
-    if (a <= 37500) return 700;
-    if (a <= 45000) return 700 - (a - 37500) * 0.05;
-    if (a <= 66667) return 325 - (a - 45000) * 0.015;
-    return 0;
-  }
-  const annualTax = Math.max(0, resTax(annual) - Math.max(0, lito(annual)));
-  const taxPerPeriod = annualTax / periodsPerYear;
-  const medicareAnnual = annual <= 26000 ? 0 : annual <= 32500 ? (annual - 26000) * 0.10 : annual * 0.02;
-  const medicarePerPeriod = medicareAnnual / periodsPerYear;
-  const superAmt = grossPay * 0.12;
-  const netPay = Math.max(0, grossPay - taxPerPeriod - medicarePerPeriod - superAmt);
+  // ABN contractors: no PAYG, no Medicare, no Super — net = gross
+  const isABN = !sm?.tax_status || sm?.tax_status === "abn_contractor";
+  const taxPerPeriod = 0;
+  const medicarePerPeriod = 0;
+  const superAmt = 0;
+  const netPay = grossPay;
 
   const dates = shifts.map(s => s.date).filter(Boolean).sort();
   const fromRaw = dates[0] || "";
@@ -273,23 +257,17 @@ function buildPayslipHTML(staffName, shifts, staffMembers, entity) {
   }).join("");
 
   // Totals rows inline
-  const totalsData = [
-    { lbl: "Gross Pay", val: `$${grossPay.toFixed(2)}`, net: false },
-    { lbl: "Tax", val: `-$${taxPerPeriod.toFixed(2)}`, net: false },
-    { lbl: "Medicare", val: `-$${medicarePerPeriod.toFixed(2)}`, net: false },
-    { lbl: "Super 12%", val: `$${superAmt.toFixed(2)}`, net: false },
-    { lbl: "Net Pay", val: `$${netPay.toFixed(2)}`, net: true },
-  ];
-  const totalsRows = totalsData.map(r => {
-    const lbg = r.net ? "#1a2e4a" : "#dce8f5";
-    const vbg = r.net ? "#1a2e4a" : "#ffffff";
-    const clr = r.net ? "#ffffff" : "#1a2e4a";
-    const fw = r.net ? "font-weight:bold;" : "font-weight:bold;";
-    return `<tr>
-      <td style="padding:9px 14px;border:1px solid #c5d7ec;background:${lbg};color:${clr};${fw}font-size:12px;text-align:left;">${r.lbl}</td>
-      <td style="padding:9px 14px;border:1px solid #c5d7ec;background:${vbg};color:${clr};${fw}font-size:12px;text-align:right;">${r.val}</td>
-    </tr>`;
-  }).join("");
+  const totalsRows = isABN
+    ? `<tr><td colspan="2" style="padding:12px 14px;background:#fffbeb;border:1px solid #fde68a;font-size:11px;color:#92400e;"><strong>ABN Contractor</strong> — Tax, Medicare &amp; Super not withheld. Contractor manages own ATO obligations.<br/><strong style="font-size:13px;">Invoice Total: $${grossPay.toFixed(2)}</strong></td></tr>`
+    : [
+        { lbl: "Gross Pay", val: `$${grossPay.toFixed(2)}`, net: false },
+        { lbl: "Net Pay", val: `$${netPay.toFixed(2)}`, net: true },
+      ].map(r => {
+        const lbg = r.net ? "#1a2e4a" : "#dce8f5";
+        const vbg = r.net ? "#1a2e4a" : "#ffffff";
+        const clr = r.net ? "#ffffff" : "#1a2e4a";
+        return `<tr><td style="padding:9px 14px;border:1px solid #c5d7ec;background:${lbg};color:${clr};font-weight:bold;font-size:12px;text-align:left;">${r.lbl}</td><td style="padding:9px 14px;border:1px solid #c5d7ec;background:${vbg};color:${clr};font-weight:bold;font-size:12px;text-align:right;">${r.val}</td></tr>`;
+      }).join("");
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Payslip – ${staffName}</title>
 <style>
