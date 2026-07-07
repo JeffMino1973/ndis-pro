@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import WeeklyCalendar from "@/components/staffportal/WeeklyCalendar";
 import StaffMyProfile from "@/components/staffportal/StaffMyProfile";
+import StaffComplianceDocs from "@/components/staffportal/StaffComplianceDocs";
 import JeffreyProfile from "@/pages/JeffreyProfile";
 import TobyProfile from "@/pages/TobyProfile";
 
@@ -393,10 +394,13 @@ export default function StaffPortal() {
                   </div>
                 ))}
               </div>
-            </>
-          )}
-        </div>
-      )}
+              </>
+              )}
+
+              {/* Document upload */}
+              <StaffComplianceDocs staffRecord={staffRecord} />
+              </div>
+              )}
 
       {/* ── DOCUMENTS TAB ──────────────────────────────────────────────────────── */}
       {tab === "documents" && (
