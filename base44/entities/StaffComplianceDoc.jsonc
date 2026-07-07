@@ -1,0 +1,64 @@
+{
+  "name": "StaffComplianceDoc",
+  "type": "object",
+  "properties": {
+    "staff_name": {
+      "type": "string",
+      "title": "Staff Name"
+    },
+    "staff_id": {
+      "type": "string",
+      "title": "Staff ID"
+    },
+    "title": {
+      "type": "string",
+      "title": "Document Title"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "WWCC",
+        "First Aid",
+        "Police Check",
+        "Driver Licence",
+        "Qualifications",
+        "Insurance",
+        "Other"
+      ],
+      "default": "Other"
+    },
+    "file_url": {
+      "type": "string",
+      "title": "File URL"
+    },
+    "expiry_date": {
+      "type": "string",
+      "title": "Expiry Date",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "title": "Verification Status",
+      "enum": [
+        "Pending",
+        "Verified",
+        "Rejected"
+      ],
+      "default": "Pending"
+    },
+    "reviewed_by": {
+      "type": "string",
+      "title": "Reviewed By"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "staff_name",
+    "title",
+    "category"
+  ]
+}

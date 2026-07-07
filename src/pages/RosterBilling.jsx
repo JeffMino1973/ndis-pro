@@ -486,9 +486,58 @@ export default function RosterBilling() {
   }, 0);
 
   const [savingInvoice, setSavingInvoice] = useState(null);
+  const [savingPayslip, setSavingPayslip] = useState(null);
+  const [savedPayslips, setSavedPayslips] = useState(new Set());
 
   const markComplete = async (id) => {
     await base44.entities.Shift.update(id, { status: "Completed" });
+    load();
+  };
+
+  const savePayslip = async (staffName, sShifts) => {
+    setSavingPayslip(staffName);
+    const sm = staffMembers.find(s => s.name === staffName) || {};
+    const entity = getEntityForShifts(sShifts, businessConfig);
+    const grossPay = sShifts.reduce((s, sh) => s + (sh.amount || calcHours(sh.start_time, sh.end_time) * (sh.hourly_rate || 0)), 0);
+    const dates = sShifts.map(s => s.date).filter(Boolean).sort();
+    const line_items = sShifts.map(sh => {
+      const hrs = sh.hours || calcHours(sh.start_time, sh.end_time);
+      const rate = sh.hourly_rate || 0;
+      return {
+        date: sh.date,
+        time: sh.start_time && sh.end_time ? `${sh.start_time}–${sh.end_time}` : "",
+        item_code: sh.support_item_code || "",
+        description: sh.support_type || "Support Service",
+        unit_price: parseFloat(rate.toFixed(2)),
+        qty: parseFloat(hrs.toFixed(2)),
+        total: parseFloat((hrs * rate).toFixed(2)),
+      };
+    });
+    await base44.entities.PayslipRecord.create({
+      payslip_number: "PS-" + Date.now().toString().slice(-6),
+      staff_name: staffName,
+      pay_period: "Weekly",
+      date_from: dates[0] || "",
+      date_to: dates[dates.length - 1] || "",
+      gross_pay: parseFloat(grossPay.toFixed(2)),
+      tax: 0,
+      medicare: 0,
+      super_amount: 0,
+      net_pay: parseFloat(grossPay.toFixed(2)),
+      employer_name: entity.name,
+      staff_email: sm.email || "",
+      staff_phone: sm.phone || "",
+      staff_address: sm.address || "",
+      staff_abn: sm.abn || "",
+      bank_name: sm.bank_name || entity.bankName || "",
+      bank_account_name: sm.bank_account_name || entity.accountName || "",
+      bank_bsb: sm.bank_bsb || entity.bsb || "",
+      bank_account_number: sm.bank_account_number || entity.accountNumber || "",
+      line_items,
+    });
+    await Promise.all(sShifts.map(sh => base44.entities.Shift.update(sh.id, { payslip_added: true })));
+    setSavedPayslips(prev => new Set([...prev, staffName]));
+    setSavingPayslip(null);
     load();
   };
 
@@ -763,9 +812,25 @@ export default function RosterBilling() {
                           {sm.bank_bsb && <p className="text-xs text-muted-foreground">BSB: {sm.bank_bsb} · Acc: {sm.bank_account_number}</p>}
                         </div>
                       </div>
-                      <Button size="sm" className="gap-2 rounded-xl font-bold" onClick={() => printHTML(buildPayslipHTML(staffName, sShifts, staffMembers, getEntityForShifts(sShifts, businessConfig)))}>
-                        <Printer size={14} /> Print Payslip
-                      </Button>
+                      <div className="flex gap-2 flex-wrap">
+                        {sShifts.every(s => s.payslip_added) || savedPayslips.has(staffName) ? (
+                          <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 gap-1"><CheckCircle size={11} /> Saved</Badge>
+                        ) : (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-2 rounded-xl font-bold border-emerald-300 text-emerald-700 hover:bg-emerald-50"
+                            disabled={savingPayslip === staffName}
+                            onClick={() => savePayslip(staffName, sShifts)}
+                          >
+                            {savingPayslip === staffName ? <Loader2 size={13} className="animate-spin" /> : <SaveAll size={13} />}
+                            Save Payslip
+                          </Button>
+                        )}
+                        <Button size="sm" className="gap-2 rounded-xl font-bold" onClick={() => printHTML(buildPayslipHTML(staffName, sShifts, staffMembers, getEntityForShifts(sShifts, businessConfig)))}>
+                          <Printer size={14} /> Print Payslip
+                        </Button>
+                      </div>
                     </div>
                     <div className="overflow-x-auto">
                       <table className="w-full text-xs">

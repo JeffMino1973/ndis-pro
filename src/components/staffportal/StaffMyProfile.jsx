@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { base44 } from "@/api/base44Client";
-import { Mail, Phone, MapPin, Printer, Send, Check } from "lucide-react";
+import { Mail, Phone, MapPin, Printer, Send, Check, Shield, Banknote, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function StaffMyProfile({ staffRecord, user }) {
+export default function StaffMyProfile({ staffRecord, user, onUpdated }) {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showEmail, setShowEmail] = useState(false);
@@ -15,24 +15,40 @@ export default function StaffMyProfile({ staffRecord, user }) {
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
 
-  const [bio, setBio] = useState(staffRecord?.bio || "");
-  const [languages, setLanguages] = useState(staffRecord?.languages || "");
+  const [form, setForm] = useState({
+    bio: staffRecord?.bio || "",
+    languages: staffRecord?.languages || "",
+    phone: staffRecord?.phone || "",
+    address: staffRecord?.address || "",
+    emergency_contact_name: staffRecord?.emergency_contact_name || "",
+    emergency_contact_phone: staffRecord?.emergency_contact_phone || "",
+    emergency_contact_relationship: staffRecord?.emergency_contact_relationship || "",
+    bank_name: staffRecord?.bank_name || "",
+    bank_account_name: staffRecord?.bank_account_name || "",
+    bank_bsb: staffRecord?.bank_bsb || "",
+    bank_account_number: staffRecord?.bank_account_number || "",
+  });
+
+  const upd = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   const handleSave = async () => {
     if (!staffRecord) return;
     setSaving(true);
-    await base44.entities.StaffMember.update(staffRecord.id, { bio, languages });
+    await base44.entities.StaffMember.update(staffRecord.id, form);
     setSaving(false);
     setEditing(false);
+    if (onUpdated) onUpdated();
   };
 
   const getProfileHTML = () => {
     const name = staffRecord?.name || user?.full_name || "Staff Member";
     const role = staffRecord?.role || "";
-    const phone = staffRecord?.phone || "";
+    const phone = form.phone || staffRecord?.phone || "";
     const email = staffRecord?.email || user?.email || "";
-    const address = staffRecord?.address || "";
+    const address = form.address || staffRecord?.address || "";
     const photo = staffRecord?.photo_url || "";
+    const bio = form.bio || staffRecord?.bio || "";
+    const languages = form.languages || staffRecord?.languages || "";
 
     return `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
     <style>
@@ -98,6 +114,7 @@ export default function StaffMyProfile({ staffRecord, user }) {
 
   if (!staffRecord) return (
     <div className="bg-amber-50 border border-amber-200 rounded-2xl p-8 text-center">
+      <AlertCircle size={32} className="text-amber-500 mx-auto mb-2" />
       <p className="font-black text-amber-800">No staff profile found</p>
       <p className="text-sm text-amber-600 mt-1">Ask your admin to create your staff profile so your details appear here.</p>
     </div>
@@ -105,6 +122,7 @@ export default function StaffMyProfile({ staffRecord, user }) {
 
   const name = staffRecord.name;
   const photo = staffRecord.photo_url;
+  const isABN = !staffRecord.tax_status || staffRecord.tax_status === "abn_contractor";
 
   return (
     <div className="space-y-4">
@@ -112,7 +130,7 @@ export default function StaffMyProfile({ staffRecord, user }) {
       <div className="flex gap-2 flex-wrap">
         <Button onClick={() => editing ? handleSave() : setEditing(true)} disabled={saving}
           className={`rounded-xl gap-2 font-bold text-xs ${editing ? "bg-emerald-600 hover:bg-emerald-700" : ""}`} size="sm">
-          {editing ? <><Check size={13} /> {saving ? "Saving…" : "Save Changes"}</> : "✏️ Edit Bio"}
+          {editing ? <><Check size={13} /> {saving ? "Saving…" : "Save Changes"}</> : "✏️ Edit Profile"}
         </Button>
         <Button onClick={() => { setShowEmail(true); setSent(false); setRecipient(""); }} variant="outline" size="sm" className="rounded-xl gap-2 font-bold text-xs">
           <Mail size={13} /> Email Profile
@@ -121,6 +139,14 @@ export default function StaffMyProfile({ staffRecord, user }) {
           <Printer size={13} /> Print / PDF
         </Button>
       </div>
+
+      {/* ABN Notice */}
+      {isABN && editing && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-2">
+          <AlertCircle size={16} className="text-amber-500 shrink-0 mt-0.5" />
+          <p className="text-xs text-amber-700">You are registered as an <strong>ABN Contractor</strong>. Tax and super are not withheld from your pay. Please keep your bank details up to date for payments.</p>
+        </div>
+      )}
 
       {/* Profile Card */}
       <div className="bg-gradient-to-r from-blue-500 to-blue-700 h-32 rounded-t-2xl" />
@@ -134,9 +160,9 @@ export default function StaffMyProfile({ staffRecord, user }) {
             <h2 className="text-2xl font-black">{name}</h2>
             <p className="text-primary font-semibold text-sm">{staffRecord.role}</p>
             <div className="flex flex-wrap gap-3 mt-2 text-xs text-muted-foreground">
-              {staffRecord.phone && <span className="flex items-center gap-1"><Phone size={11} /> {staffRecord.phone}</span>}
+              {(editing ? form.phone : staffRecord.phone) && <span className="flex items-center gap-1"><Phone size={11} /> {editing ? form.phone : staffRecord.phone}</span>}
               {(staffRecord.email || user?.email) && <span className="flex items-center gap-1"><Mail size={11} /> {staffRecord.email || user?.email}</span>}
-              {staffRecord.address && <span className="flex items-center gap-1"><MapPin size={11} /> {staffRecord.address}</span>}
+              {(editing ? form.address : staffRecord.address) && <span className="flex items-center gap-1"><MapPin size={11} /> {editing ? form.address : staffRecord.address}</span>}
             </div>
           </div>
         </div>
@@ -146,8 +172,8 @@ export default function StaffMyProfile({ staffRecord, user }) {
           <div>
             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">About</p>
             {editing
-              ? <Textarea value={bio} onChange={e => setBio(e.target.value)} rows={4} className="text-sm" placeholder="Write a short bio about yourself…" />
-              : <p className="text-sm text-muted-foreground leading-relaxed">{bio || <span className="italic">No bio added yet.</span>}</p>
+              ? <Textarea value={form.bio} onChange={e => upd("bio", e.target.value)} rows={4} className="text-sm" placeholder="Write a short bio about yourself…" />
+              : <p className="text-sm text-muted-foreground leading-relaxed">{form.bio || <span className="italic">No bio added yet.</span>}</p>
             }
           </div>
 
@@ -155,14 +181,64 @@ export default function StaffMyProfile({ staffRecord, user }) {
           <div>
             <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Languages</p>
             {editing
-              ? <Input value={languages} onChange={e => setLanguages(e.target.value)} className="text-sm max-w-xs" placeholder="e.g. English · Mandarin" />
-              : <p className="text-sm font-semibold">{languages || <span className="italic text-muted-foreground">Not specified</span>}</p>
+              ? <Input value={form.languages} onChange={e => upd("languages", e.target.value)} className="text-sm max-w-xs" placeholder="e.g. English · Mandarin" />
+              : <p className="text-sm font-semibold">{form.languages || <span className="italic text-muted-foreground">Not specified</span>}</p>
             }
           </div>
 
+          {/* Contact Details */}
+          {editing && (
+            <div className="space-y-3 pt-2">
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Contact Details</p>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div><Label className="text-xs">Phone</Label><Input value={form.phone} onChange={e => upd("phone", e.target.value)} className="mt-1 text-sm" /></div>
+                <div><Label className="text-xs">Address</Label><Input value={form.address} onChange={e => upd("address", e.target.value)} className="mt-1 text-sm" /></div>
+              </div>
+            </div>
+          )}
+
+          {/* Emergency Contact */}
+          {editing ? (
+            <div className="space-y-3 pt-2">
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Emergency Contact</p>
+              <div className="grid sm:grid-cols-3 gap-3">
+                <div><Label className="text-xs">Name</Label><Input value={form.emergency_contact_name} onChange={e => upd("emergency_contact_name", e.target.value)} className="mt-1 text-sm" /></div>
+                <div><Label className="text-xs">Phone</Label><Input value={form.emergency_contact_phone} onChange={e => upd("emergency_contact_phone", e.target.value)} className="mt-1 text-sm" /></div>
+                <div><Label className="text-xs">Relationship</Label><Input value={form.emergency_contact_relationship} onChange={e => upd("emergency_contact_relationship", e.target.value)} className="mt-1 text-sm" /></div>
+              </div>
+            </div>
+          ) : (
+            (staffRecord.emergency_contact_name || form.emergency_contact_name) && (
+              <div>
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Emergency Contact</p>
+                <p className="text-sm font-semibold">{form.emergency_contact_name || staffRecord.emergency_contact_name} · {form.emergency_contact_phone || staffRecord.emergency_contact_phone} · {form.emergency_contact_relationship || staffRecord.emergency_contact_relationship}</p>
+              </div>
+            )
+          )}
+
+          {/* Bank Details */}
+          {editing ? (
+            <div className="space-y-3 pt-2">
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest flex items-center gap-1"><Banknote size={11} /> Bank Details</p>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <div><Label className="text-xs">Bank Name</Label><Input value={form.bank_name} onChange={e => upd("bank_name", e.target.value)} className="mt-1 text-sm" /></div>
+                <div><Label className="text-xs">Account Name</Label><Input value={form.bank_account_name} onChange={e => upd("bank_account_name", e.target.value)} className="mt-1 text-sm" /></div>
+                <div><Label className="text-xs">BSB</Label><Input value={form.bank_bsb} onChange={e => upd("bank_bsb", e.target.value)} className="mt-1 text-sm" /></div>
+                <div><Label className="text-xs">Account Number</Label><Input value={form.bank_account_number} onChange={e => upd("bank_account_number", e.target.value)} className="mt-1 text-sm" /></div>
+              </div>
+            </div>
+          ) : (
+            staffRecord.bank_name && (
+              <div>
+                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1"><Banknote size={11} /> Bank Details</p>
+                <p className="text-sm font-semibold">{staffRecord.bank_name} · BSB: {staffRecord.bank_bsb} · Acc: {staffRecord.bank_account_number}</p>
+              </div>
+            )
+          )}
+
           {/* Compliance summary */}
           <div>
-            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2">Credentials</p>
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2 flex items-center gap-1"><Shield size={11} /> Credentials</p>
             <div className="flex flex-wrap gap-2">
               {staffRecord.police_check && (
                 <span className={`text-[10px] font-black px-2 py-1 rounded-full ${staffRecord.police_check === "Cleared" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>

@@ -62,6 +62,7 @@ function ComplianceBadge({ label, value, isDate }) {
   const days = Math.ceil((new Date(value) - new Date()) / 86400000);
   let icon, cls, note;
   if (days < 0) {
+    // expired
     icon = <XCircle size={14} className="text-rose-500" />;
     cls = "text-rose-600 font-black";
     note = "EXPIRED";
