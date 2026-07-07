@@ -9,6 +9,8 @@ import {
 import { Button } from "@/components/ui/button";
 import WeeklyCalendar from "@/components/staffportal/WeeklyCalendar";
 import StaffMyProfile from "@/components/staffportal/StaffMyProfile";
+import JeffreyProfile from "@/pages/JeffreyProfile";
+import TobyProfile from "@/pages/TobyProfile";
 
 // ─── All possible portal feature tabs ──────────────────────────────────────────
 export const ALL_PORTAL_FEATURES = [
@@ -128,12 +130,14 @@ export default function StaffPortal() {
         setLinkedParticipants(allParticipants.filter(p => matched.linked_participant_ids.includes(p.id)));
       }
 
+      const matchName = (matched?.name || myName || "").toLowerCase().trim();
+      const ci = (a, b) => (a || "").toLowerCase().trim() === b;
       if (matched) {
-        setShifts(allShifts.filter(s => s.staff_name === matched.name));
-        setPayslips(allPayslips.filter(p => p.staff_name === matched.name));
+        setShifts(allShifts.filter(s => ci(s.staff_name, matchName)));
+        setPayslips(allPayslips.filter(p => ci(p.staff_name, matchName)));
       } else {
-        setShifts(allShifts.filter(s => s.staff_name === myName));
-        setPayslips(allPayslips.filter(p => p.staff_name === myName));
+        setShifts(allShifts.filter(s => ci(s.staff_name, matchName)));
+        setPayslips(allPayslips.filter(p => ci(p.staff_name, matchName)));
       }
 
       setLoading(false);
@@ -518,7 +522,12 @@ export default function StaffPortal() {
 
       {/* ── MY PROFILE TAB ─────────────────────────────────────────────────────── */}
       {tab === "profile" && (
-        <StaffMyProfile staffRecord={staffRecord} user={user} />
+        (() => {
+          const nm = (staffRecord?.name || user?.full_name || "").toLowerCase();
+          if (nm.includes("jeffrey")) return <JeffreyProfile embedded />;
+          if (nm.includes("toby")) return <TobyProfile embedded />;
+          return <StaffMyProfile staffRecord={staffRecord} user={user} />;
+        })()
       )}
     </div>
   );
