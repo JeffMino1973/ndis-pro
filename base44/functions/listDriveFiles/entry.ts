@@ -12,8 +12,22 @@ Deno.serve(async (req) => {
     const folderId = body.folder_id || null;
     const query = body.query || null;
     const pageToken = body.page_token || null;
+    const sharedDriveId = body.shared_drive_id || null;
 
-    const { accessToken } = await base44.asServiceRole.connectors.getConnection('googledrive');
+    const { accessToken: authToken } = await base44.asServiceRole.connectors.getConnection('googledrive');
+
+    // List shared drives
+    if (sharedDriveId === '__list_drives__') {
+      const drivesRes = await fetch('https://www.googleapis.com/drive/v3/drives?pageSize=50&fields=nextPageToken,drives(id,name)', {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      if (!drivesRes.ok) {
+        const err = await drivesRes.json();
+        return Response.json({ error: err.error?.message || 'Drive API error' }, { status: drivesRes.status });
+      }
+      const drivesData = await drivesRes.json();
+      return Response.json({ drives: drivesData.drives || [], nextPageToken: drivesData.nextPageToken || null });
+    }
 
     let q = query || '';
     if (folderId) {
@@ -30,9 +44,17 @@ Deno.serve(async (req) => {
     });
     if (pageToken) params.set('pageToken', pageToken);
 
+    // Shared drive browsing
+    if (sharedDriveId) {
+      params.set('corpora', 'drive');
+      params.set('driveId', sharedDriveId);
+      params.set('includeItemsFromAllDrives', 'true');
+      params.set('supportsAllDrives', 'true');
+    }
+
     const apiUrl = `https://www.googleapis.com/drive/v3/files?${params.toString()}`;
     const response = await fetch(apiUrl, {
-      headers: { Authorization: `Bearer ${accessToken}` },
+      headers: { Authorization: `Bearer ${authToken}` },
     });
 
     if (!response.ok) {
