@@ -150,14 +150,14 @@ function CheckItem({ label, checked, onToggle }) {
   );
 }
 
-export default function ShiftNoteForm({ staffMembers, participants, defaultStaffName, onSubmit, onCancel }) {
+export default function ShiftNoteForm({ staffMembers, participants, defaultStaffName, prefill, onSubmit, onCancel }) {
   const [form, setForm] = useState({
-    staff_name: defaultStaffName || "",
-    participant_name: "",
-    shift_date: new Date().toISOString().split("T")[0],
-    day_of_week: "",
-    program_type: "Life Skills Program",
-    travel_route: "Rainbow Street → Royal Randwick Shopping Centre",
+    staff_name: prefill?.staff_name || defaultStaffName || "",
+    participant_name: prefill?.participant_name || "",
+    shift_date: prefill?.shift_date || new Date().toISOString().split("T")[0],
+    day_of_week: prefill?.day_of_week || "",
+    program_type: prefill?.program_type || "Life Skills Program",
+    travel_route: prefill?.travel_route || ROUTES[prefill?.program_type] || "Rainbow Street → Royal Randwick Shopping Centre",
     tasks_completed: [],
     participant_engagement: "",
     support_level: "",
@@ -166,7 +166,7 @@ export default function ShiftNoteForm({ staffMembers, participants, defaultStaff
     progress_notes: "",
     safety_observations: "",
     next_session_goals: "",
-    staff_signature: defaultStaffName || "",
+    staff_signature: prefill?.staff_name || defaultStaffName || "",
   });
   const [saving, setSaving] = useState(false);
 
