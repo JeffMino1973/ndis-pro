@@ -1,15 +1,11 @@
-import { useState, useMemo } from "react";
-import { BarChart3, DollarSign, Clock, FileText, TrendingDown, Loader2 } from "lucide-react";
+import { useMemo } from "react";
+import { BarChart3, DollarSign, Clock, FileText, TrendingDown } from "lucide-react";
 
 export default function SpendingTracker({ invoices, participant }) {
-  const [statusFilter, setStatusFilter] = useState("all");
-
   // Flatten all invoice line items into a unified list
   const allLineItems = useMemo(() => {
     const items = [];
     (invoices || []).forEach(inv => {
-      const statusOk = statusFilter === "all" || inv.status === statusFilter;
-      if (!statusOk) return;
       (inv.line_items || []).forEach(li => {
         items.push({
           invoice_number: inv.invoice_number || "—",
@@ -25,7 +21,7 @@ export default function SpendingTracker({ invoices, participant }) {
       });
     });
     return items;
-  }, [invoices, statusFilter]);
+  }, [invoices]);
 
   // Aggregate by support item code
   const byCode = useMemo(() => {
@@ -48,8 +44,6 @@ export default function SpendingTracker({ invoices, participant }) {
     invoices: new Set(allLineItems.map(li => li.invoice_number)).size,
     lineItems: allLineItems.length,
   }), [byCode, allLineItems]);
-
-  const statusOptions = ["all", "Draft", "Sent", "Paid", "Overdue"];
 
   if (!invoices || invoices.length === 0) {
     return (
@@ -98,24 +92,6 @@ export default function SpendingTracker({ invoices, participant }) {
         </div>
       </div>
 
-      {/* Filter */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs font-black text-slate-500 uppercase tracking-widest">Invoice Status:</span>
-        {statusOptions.map(s => (
-          <button
-            key={s}
-            onClick={() => setStatusFilter(s)}
-            className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all ${
-              statusFilter === s
-                ? "bg-primary text-white shadow"
-                : "bg-white border border-slate-200 text-slate-600 hover:border-primary"
-            }`}
-          >
-            {s === "all" ? "All" : s}
-          </button>
-        ))}
-      </div>
-
       {/* Spending table by line item code */}
       {byCode.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-2xl p-8 text-center">
@@ -156,42 +132,6 @@ export default function SpendingTracker({ invoices, participant }) {
         </div>
       )}
 
-      {/* Detailed line items */}
-      {allLineItems.length > 0 && (
-        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
-          <div className="bg-slate-100 px-4 py-3 border-b border-slate-200">
-            <h3 className="font-black text-sm text-slate-700">Invoice Line Item Breakdown ({allLineItems.length})</h3>
-          </div>
-          <div className="overflow-x-auto max-h-[400px]">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-[10px] font-black text-slate-500 uppercase tracking-widest sticky top-0">
-                <tr>
-                  <th className="px-4 py-2.5 text-left">Date</th>
-                  <th className="px-4 py-2.5 text-left">Invoice #</th>
-                  <th className="px-4 py-2.5 text-left">Code</th>
-                  <th className="px-4 py-2.5 text-left">Description</th>
-                  <th className="px-4 py-2.5 text-right">Hours</th>
-                  <th className="px-4 py-2.5 text-right">Rate</th>
-                  <th className="px-4 py-2.5 text-right">Amount</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {allLineItems.map((li, i) => (
-                  <tr key={i} className="hover:bg-slate-50">
-                    <td className="px-4 py-2 text-xs text-slate-500">{li.date}</td>
-                    <td className="px-4 py-2 text-xs font-bold text-slate-600">{li.invoice_number}</td>
-                    <td className="px-4 py-2 font-mono text-[10px] font-bold text-primary">{li.support_item_code}</td>
-                    <td className="px-4 py-2 text-xs text-slate-700 max-w-[200px] truncate">{li.description}</td>
-                    <td className="px-4 py-2 text-right text-xs font-bold text-blue-600">{li.hours.toFixed(1)}</td>
-                    <td className="px-4 py-2 text-right text-xs text-slate-500">${li.rate.toFixed(2)}</td>
-                    <td className="px-4 py-2 text-right text-xs font-bold text-emerald-600">${li.amount.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
