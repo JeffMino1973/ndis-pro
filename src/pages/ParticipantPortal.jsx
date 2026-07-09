@@ -4,7 +4,7 @@ import {
   ShieldCheck, FileText, Receipt, ClipboardList, CheckCircle, PenLine,
   Loader2, User, Target, AlertTriangle, MessageSquareWarning, Navigation, Pencil,
   ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File, Circle, Menu, Pill,
-  ChevronDown, ChevronUp, BarChart3, BookOpen, Printer, Link as LinkIcon, ExternalLink, ImageIcon
+  ChevronDown, ChevronUp, BarChart3, BookOpen, Printer, Link as LinkIcon, ExternalLink, ImageIcon, LogOut
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -323,72 +323,86 @@ export default function ParticipantPortal() {
   const pendingCount = agreements.filter(a => !a.signed_by).length + quotes.filter(q => !q.signed_by && q.status === "Sent").length + invoices.filter(i => !i.acknowledged_by && i.status === "Sent").length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+    <div className="min-h-screen flex bg-background">
       {signingDoc && <SignatureModal docLabel={signingDoc.label} onSign={handleSign} onCancel={() => setSigningDoc(null)} />}
 
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-4 py-4 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-primary rounded-xl flex items-center justify-center text-white">
-            <ShieldCheck size={18} />
+      {/* Mobile sidebar overlay */}
+      {menuOpen && (
+        <div className="fixed inset-0 bg-black/30 z-40 lg:hidden" onClick={() => setMenuOpen(false)} />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`fixed lg:sticky top-0 left-0 h-screen w-72 bg-card border-r border-border flex flex-col z-50 transition-transform duration-300 ${menuOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}>
+        <div className="p-4 pb-2 flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-primary-foreground shrink-0">
+            <ShieldCheck size={20} />
           </div>
           <div>
-            <p className="font-black text-slate-900 leading-none text-sm">NDIS PRO</p>
+            <p className="font-black text-foreground leading-none text-sm">NDIS PRO</p>
             <p className="text-[10px] text-primary font-bold">Participant Portal</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="text-right hidden sm:block">
-            <p className="font-black text-slate-900 text-sm">{participant.name}</p>
-            <p className="text-[10px] text-slate-500">NDIS: {participant.ndis_number}</p>
-          </div>
-          <button onClick={() => { setParticipant(null); setNdisNumber(""); }} className="text-xs text-slate-500 hover:text-slate-700 border border-slate-200 px-3 py-1.5 rounded-lg">Sign Out</button>
-        </div>
-      </div>
 
-      {/* Tab Nav - Hamburger */}
-      <div className="bg-white border-b border-slate-200 sticky top-16 z-30">
-        <div className="px-4 py-3 flex items-center justify-between">
+        <nav className="flex-1 px-4 pb-4 overflow-y-auto space-y-0.5">
+          {TABS.map(tab => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => { setActiveTab(tab.id); setMenuOpen(false); }}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
+                  isActive
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                }`}
+              >
+                <Icon size={18} />
+                <span className="truncate">{tab.label}</span>
+                {tab.id === "documents" && pendingCount > 0 && (
+                  <span className="ml-auto w-4 h-4 bg-rose-500 text-white text-[9px] rounded-full flex items-center justify-center font-black shrink-0">{pendingCount}</span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="p-4 border-t border-border space-y-3">
+          <div className="bg-secondary rounded-2xl p-3">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center text-primary font-bold text-xs">
+                {participant.name?.charAt(0) || "?"}
+              </div>
+              <div className="overflow-hidden">
+                <p className="text-xs font-bold text-foreground truncate">{participant.name}</p>
+                <p className="text-[10px] text-muted-foreground truncate">NDIS: {participant.ndis_number}</p>
+              </div>
+            </div>
+          </div>
+          <Button onClick={() => { setParticipant(null); setNdisNumber(""); }} variant="outline" className="w-full gap-2 rounded-xl" size="sm">
+            <LogOut size={16} />
+            Sign Out
+          </Button>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <div className="flex-1 flex flex-col min-h-screen overflow-hidden">
+        <header className="h-16 bg-card border-b border-border px-4 lg:px-8 flex items-center justify-between shrink-0">
+          <button onClick={() => setMenuOpen(true)} className="lg:hidden p-2 rounded-lg hover:bg-secondary">
+            <Menu size={20} />
+          </button>
           <div className="flex items-center gap-2">
-            {(() => { const activeTabObj = TABS.find(t => t.id === activeTab); const Icon = activeTabObj?.icon; return Icon ? <><Icon size={16} className="text-primary" /><span className="text-sm font-bold text-slate-800">{activeTabObj.label}</span></> : null; })()}
+            {(() => { const activeTabObj = TABS.find(t => t.id === activeTab); const Icon = activeTabObj?.icon; return Icon ? <><Icon size={16} className="text-primary" /><span className="text-sm font-bold text-foreground">{activeTabObj.label}</span></> : null; })()}
             {pendingCount > 0 && activeTab === "documents" && (
               <span className="w-5 h-5 bg-rose-500 text-white text-[9px] rounded-full flex items-center justify-center font-black">{pendingCount}</span>
             )}
           </div>
-          <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 transition-colors">
-            <Menu size={18} className="text-slate-700" />
-            <span className="text-sm font-bold text-slate-700">Menu</span>
-          </button>
-        </div>
+          <div className="text-xs text-muted-foreground font-semibold">Participant Portal</div>
+        </header>
 
-        {menuOpen && (
-          <div className="absolute top-full left-0 right-0 bg-white border-b border-slate-200 shadow-lg z-50">
-            <div className="grid grid-cols-2 gap-px bg-slate-100">
-              {TABS.map(tab => {
-                const Icon = tab.icon;
-                const isActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => { setActiveTab(tab.id); setMenuOpen(false); }}
-                    className={`flex items-center gap-2.5 px-4 py-3 text-sm font-semibold transition-all bg-white ${
-                      isActive ? "text-primary bg-primary/5" : "text-slate-600 hover:bg-slate-50"
-                    }`}
-                  >
-                    <Icon size={15} className={isActive ? "text-primary" : "text-slate-400"} />
-                    <span className="truncate">{tab.label}</span>
-                    {tab.id === "documents" && pendingCount > 0 && (
-                      <span className="ml-auto w-4 h-4 bg-rose-500 text-white text-[9px] rounded-full flex items-center justify-center font-black shrink-0">{pendingCount}</span>
-                    )}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="max-w-2xl mx-auto p-4 py-6 space-y-4">
+        <main className="flex-1 overflow-y-auto p-4 lg:p-8">
+          <div className="max-w-6xl mx-auto space-y-6">
 
         {/* DOCUMENTS TAB */}
         {activeTab === "documents" && (
@@ -1373,9 +1387,11 @@ export default function ParticipantPortal() {
           </div>
         )}
 
-        <p className="text-[10px] text-slate-400 text-center pb-4">
+        <p className="text-[10px] text-muted-foreground text-center pb-4">
           Secured · NDIS PRO Participant Portal · Your data is encrypted and protected
         </p>
+          </div>
+        </main>
       </div>
     </div>
   );
