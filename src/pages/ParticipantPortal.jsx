@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PolicyManualViewer from "@/components/PolicyManualViewer";
+import SpendingTracker from "@/components/participantportal/SpendingTracker";
 
 const IP_PHASE_COLORS = ["bg-blue-600", "bg-amber-500", "bg-emerald-500", "bg-purple-600"];
 
@@ -129,6 +130,7 @@ const TABS = [
   { id: "risk_assessment", label: "Travel Risk Assessment", icon: AlertTriangle },
   { id: "implementation", label: "Implementation Program", icon: Target },
   { id: "travel", label: "Travel Guides", icon: Navigation },
+  { id: "spending", label: "My Spending", icon: BarChart3 },
   { id: "reports", label: "Session Notes", icon: Navigation },
   { id: "complaint", label: "Lodge Complaint", icon: MessageSquareWarning },
   { id: "policies", label: "Policy Manual", icon: BookOpen },
@@ -1309,6 +1311,11 @@ export default function ParticipantPortal() {
               </div>
             )}
           </div>
+        )}
+
+        {/* SPENDING TRACKER TAB */}
+        {activeTab === "spending" && (
+          <SpendingTracker invoices={invoices} participant={participant} />
         )}
 
         {/* POLICY MANUAL TAB */}
