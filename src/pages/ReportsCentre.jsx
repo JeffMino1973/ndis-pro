@@ -516,6 +516,185 @@ function PayrollTaxRecon({ payslips }) {
   );
 }
 
+// ─── SHIFT NOTE SUMMARY REPORT ────────────────────────────────────────────────
+function ShiftNoteSummaryReport() {
+  const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const now = new Date();
+  const [month, setMonth] = useState(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`);
+  const [generating, setGenerating] = useState(false);
+
+  useEffect(() => {
+    base44.entities.ShiftNote.list("-shift_date", 500)
+      .then(n => { setNotes(n); setLoading(false); })
+      .catch(() => { setNotes([]); setLoading(false); });
+  }, []);
+
+  const [year, mon] = month.split("-");
+  const monthStart = `${month}-01`;
+  const monthEnd = `${month}-${new Date(parseInt(year), parseInt(mon), 0).getDate()}`;
+
+  const filtered = notes.filter(n => {
+    const d = n.shift_date || "";
+    return d >= monthStart && d <= monthEnd && n.status === "Submitted";
+  }).sort((a, b) => (a.shift_date || "").localeCompare(b.shift_date || ""));
+
+  const byStaff = {};
+  const byParticipant = {};
+  filtered.forEach(n => {
+    byStaff[n.staff_name || "Unknown"] = (byStaff[n.staff_name || "Unknown"] || 0) + 1;
+    byParticipant[n.participant_name || "Unknown"] = (byParticipant[n.participant_name || "Unknown"] || 0) + 1;
+  });
+
+  const engagementCounts = { High: 0, Medium: 0, Low: 0 };
+  filtered.forEach(n => { if (n.participant_engagement) engagementCounts[n.participant_engagement]++; });
+
+  const generate = () => {
+    setGenerating(true);
+    const monthLabel = format(new Date(year, parseInt(mon) - 1, 1), "MMMM yyyy");
+
+    const noteCards = filtered.map((n, i) => {
+      const tasks = (n.tasks_completed || []).map(t =>
+        `<span style="display:inline-block;background:#dcfce7;color:#166534;padding:2px 6px;border-radius:4px;font-size:9px;margin:1px;">✓ ${t}</span>`
+      ).join(" ");
+      return `
+        <div style="page-break-inside:avoid;margin-bottom:14px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;">
+          <div style="background:#f1f5f9;padding:6px 10px;font-size:10px;font-weight:900;color:#1e3a5f;display:flex;justify-content:space-between;">
+            <span>${i + 1}. ${n.shift_date || "—"} (${n.day_of_week || "—"})</span>
+            <span style="font-weight:400;color:#475569;">${n.staff_name || "—"} → ${n.participant_name || "—"}</span>
+          </div>
+          <div style="padding:8px 10px;">
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;font-size:9px;">
+              <span style="background:#ede9fe;color:#5b21b6;padding:2px 6px;border-radius:4px;font-weight:700;">${n.program_type || "—"}</span>
+              ${n.participant_engagement ? `<span style="background:#dbeafe;color:#1d4ed8;padding:2px 6px;border-radius:4px;font-weight:700;">Engagement: ${n.participant_engagement}</span>` : ""}
+              ${n.support_level ? `<span style="background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-weight:700;">Support: ${n.support_level}</span>` : ""}
+              ${n.mood_behaviour ? `<span style="background:#fce7f3;color:#9f1239;padding:2px 6px;border-radius:4px;font-weight:700;">Mood: ${n.mood_behaviour}</span>` : ""}
+              ${n.weather ? `<span style="background:#e0f2fe;color:#075985;padding:2px 6px;border-radius:4px;font-weight:700;">Weather: ${n.weather}</span>` : ""}
+            </div>
+            ${n.travel_route ? `<div style="font-size:9px;color:#475569;margin-bottom:4px;"><strong>Route:</strong> ${n.travel_route}</div>` : ""}
+            ${tasks ? `<div style="font-size:9px;margin-bottom:4px;"><strong>Tasks:</strong> ${tasks}</div>` : ""}
+            ${n.progress_notes ? `<div style="font-size:9px;margin-bottom:3px;"><strong>Progress:</strong> ${n.progress_notes}</div>` : ""}
+            ${n.safety_observations ? `<div style="font-size:9px;color:#991b1b;margin-bottom:3px;"><strong>Safety:</strong> ${n.safety_observations}</div>` : ""}
+            ${n.next_session_goals ? `<div style="font-size:9px;color:#1e3a5f;margin-bottom:3px;"><strong>Next Session Goals:</strong> ${n.next_session_goals}</div>` : ""}
+            ${n.staff_signature ? `<div style="font-size:9px;color:#64748b;margin-top:4px;border-top:1px solid #e2e8f0;padding-top:3px;">Signed: <strong>${n.staff_signature}</strong></div>` : ""}
+          </div>
+        </div>`;
+    }).join("");
+
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+      <style>
+        @media print { @page { size: A4 portrait; margin: 10mm; } body { margin: 0; } .no-print { display: none !important; } }
+        body { font-family: Arial, sans-serif; color: #1e293b; max-width: 820px; margin: 0 auto; padding: 24px; font-size: 11px; }
+        h1 { color: #1e3a5f; font-size: 20px; border-bottom: 3px solid #1e3a5f; padding-bottom: 8px; margin-bottom: 6px; }
+        h2 { color: #1e3a5f; font-size: 12px; margin-top: 18px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: .06em; border-left: 4px solid #1e3a5f; padding-left: 8px; }
+        .meta { font-size: 11px; color: #475569; margin-bottom: 12px; }
+        .summary { background: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px 14px; margin: 10px 0; display: flex; gap: 20px; flex-wrap: wrap; }
+        .summary span { font-size: 11px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+        th { background: #1e3a5f; color: white; padding: 6px 8px; text-align: left; font-size: 10px; }
+        td { padding: 5px 8px; border-bottom: 1px solid #e2e8f0; font-size: 10px; }
+        tr:nth-child(even) td { background: #f8fafc; }
+        .footer { margin-top: 20px; padding-top: 8px; border-top: 1px solid #e2e8f0; font-size: 9px; color: #94a3b8; }
+        .print-btn { position: fixed; top: 16px; right: 16px; padding: 8px 16px; background: #1e3a5f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 12px; }
+      </style>
+    </head><body>
+      <button class="print-btn no-print" onclick="window.print()">🖨 Print / Save PDF</button>
+      <h1>Shift Note Summary Report</h1>
+      <p class="meta"><strong>Month:</strong> ${monthLabel} &nbsp;|&nbsp; <strong>Total Notes:</strong> ${filtered.length} &nbsp;|&nbsp; <strong>Generated:</strong> ${new Date().toLocaleDateString("en-AU")}</p>
+      ${filtered.length === 0
+        ? `<p style="color:#94a3b8;font-style:italic;text-align:center;padding:40px;">No submitted shift notes found for ${monthLabel}.</p>`
+        : `
+      <div class="summary">
+        <span><strong>Staff Members:</strong> ${Object.keys(byStaff).length}</span>
+        <span><strong>Participants:</strong> ${Object.keys(byParticipant).length}</span>
+        <span><strong>High Engagement:</strong> ${engagementCounts.High}</span>
+        <span><strong>Medium Engagement:</strong> ${engagementCounts.Medium}</span>
+        <span><strong>Low Engagement:</strong> ${engagementCounts.Low}</span>
+      </div>
+      <h2>Notes by Staff</h2>
+      <table><thead><tr><th>Staff Member</th><th>Notes Submitted</th></tr></thead><tbody>
+        ${Object.entries(byStaff).sort((a, b) => b[1] - a[1]).map(([name, count]) => `<tr><td>${name}</td><td>${count}</td></tr>`).join("")}
+        <tr style="font-weight:900;background:#dbeafe;"><td>TOTAL</td><td>${filtered.length}</td></tr>
+      </tbody></table>
+      <h2>Notes by Participant</h2>
+      <table><thead><tr><th>Participant</th><th>Notes Submitted</th></tr></thead><tbody>
+        ${Object.entries(byParticipant).sort((a, b) => b[1] - a[1]).map(([name, count]) => `<tr><td>${name}</td><td>${count}</td></tr>`).join("")}
+      </tbody></table>
+      <h2>Detailed Shift Notes (${filtered.length})</h2>
+      ${noteCards}
+      `}
+      <div class="footer">SZ-Jie Support Services — Shift Note Summary Report generated ${new Date().toLocaleDateString("en-AU")}.</div>
+    </body></html>`;
+    openReport(html);
+    setGenerating(false);
+  };
+
+  if (loading) {
+    return <div className="flex items-center justify-center py-8"><Loader2 size={20} className="animate-spin text-muted-foreground" /></div>;
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+        <div>
+          <Label className="text-xs">Select Month</Label>
+          <input
+            type="month"
+            value={month}
+            onChange={e => setMonth(e.target.value)}
+            className="mt-1 flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+          />
+        </div>
+        <div className="sm:col-span-2 flex justify-end">
+          <Button onClick={generate} disabled={generating || filtered.length === 0} className="rounded-xl font-bold gap-2">
+            {generating ? <Loader2 size={15} className="animate-spin" /> : <Printer size={15} />}
+            Generate Summary PDF
+          </Button>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: "Notes Found", value: filtered.length },
+          { label: "Staff Members", value: Object.keys(byStaff).length },
+          { label: "Participants", value: Object.keys(byParticipant).length },
+          { label: "High Engagement", value: engagementCounts.High },
+        ].map(s => (
+          <div key={s.label} className="bg-card border border-border rounded-xl p-4 text-center">
+            <p className="text-xl font-black">{s.value}</p>
+            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mt-1">{s.label}</p>
+          </div>
+        ))}
+      </div>
+      {filtered.length === 0 && (
+        <p className="text-sm text-muted-foreground italic text-center py-6">
+          No submitted shift notes found for {format(new Date(year, parseInt(mon) - 1, 1), "MMMM yyyy")}.
+        </p>
+      )}
+      {filtered.length > 0 && (
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="bg-secondary px-4 py-2.5 text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+            {format(new Date(year, parseInt(mon) - 1, 1), "MMMM yyyy")} — {filtered.length} shift note{filtered.length !== 1 ? "s" : ""}
+          </div>
+          <div className="divide-y divide-border max-h-[400px] overflow-y-auto">
+            {filtered.map(n => (
+              <div key={n.id} className="px-4 py-2.5 flex items-center justify-between gap-2 text-sm">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="font-bold text-xs shrink-0">{n.shift_date}</span>
+                  <span className="text-muted-foreground text-xs truncate">{n.staff_name} → {n.participant_name}</span>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {n.program_type && <span className="text-[9px] font-bold bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded">{n.program_type}</span>}
+                  <span className="text-[9px] font-bold bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">{n.tasks_completed?.length || 0} tasks</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── NDIS LINE ITEM LOOKUP ────────────────────────────────────────────────────
 function NDISLookup() {
   const [query, setQuery] = useState("");
@@ -576,6 +755,15 @@ const REPORT_CATEGORIES = [
     reports: [
       { id: "roster-team", label: "Weekly Team Roster (Calendar)", desc: "Full team calendar view — Sun–Sat, print landscape A4" },
       { id: "roster-individual", label: "Individual Roster (Calendar)", desc: "Per-staff or per-participant, weekly calendar, any date range" },
+    ]
+  },
+  {
+    category: "Shift Reports",
+    icon: ClipboardList,
+    color: "text-violet-600",
+    bg: "bg-violet-50",
+    reports: [
+      { id: "shiftnote-summary", label: "Shift Note Summary Report", desc: "Bulk export all completed shift notes & checklists for a month into one PDF" },
     ]
   },
   {
@@ -697,6 +885,12 @@ export default function ReportsCentre() {
               <>
                 <h3 className="font-black text-lg mb-4 flex items-center gap-2"><Search size={18} className="text-primary" /> NDIS Line Item Lookup</h3>
                 <NDISLookup />
+              </>
+            )}
+            {selected === "shiftnote-summary" && (
+              <>
+                <h3 className="font-black text-lg mb-4 flex items-center gap-2"><ClipboardList size={18} className="text-violet-600" /> Shift Note Summary Report</h3>
+                <ShiftNoteSummaryReport />
               </>
             )}
           </div>
