@@ -7,7 +7,9 @@ import ShiftNoteForm from "@/components/shiftnotes/ShiftNoteForm";
 
 const DAY_COLORS = {
   Monday: "bg-blue-100 text-blue-700",
+  Tuesday: "bg-amber-100 text-amber-700",
   Wednesday: "bg-purple-100 text-purple-700",
+  Thursday: "bg-rose-100 text-rose-700",
   Friday: "bg-emerald-100 text-emerald-700",
 };
 

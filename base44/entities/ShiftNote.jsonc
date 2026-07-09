@@ -20,7 +20,9 @@
       "title": "Day",
       "enum": [
         "Monday",
+        "Tuesday",
         "Wednesday",
+        "Thursday",
         "Friday"
       ]
     },
@@ -30,6 +32,7 @@
       "enum": [
         "Life Skills Program",
         "Travel Training",
+        "Travel to/from Work",
         "Other"
       ],
       "default": "Life Skills Program"

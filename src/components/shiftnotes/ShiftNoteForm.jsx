@@ -10,6 +10,15 @@ const TRAVEL_TASKS = [
   "Return travel completed safely",
 ];
 
+const WORK_TRAVEL_TASKS = [
+  "Met participant at Rainbow St, Coogee",
+  "Travelled to Lord St, Botany",
+  "Arrived at workplace on time",
+  "Return travel to Coogee completed safely",
+  "Practiced road safety at crossings",
+  "Used Opal card / paid fare",
+];
+
 const LIFE_SKILLS_TASKS = [
   "Used a shopping list",
   "Located items independently",
@@ -27,7 +36,14 @@ const ENGAGEMENT_OPTS = ["High", "Medium", "Low"];
 const SUPPORT_OPTS = ["Independent", "Minimal Prompt", "Verbal Prompt", "Full Support"];
 const MOOD_OPTS = ["Calm", "Positive", "Anxious", "Distracted", "Other"];
 const WEATHER_OPTS = ["Fine", "Overcast", "Rainy", "Windy"];
-const DAYS = ["Monday", "Wednesday", "Friday"];
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+const ROUTES = {
+  "Life Skills Program": "Rainbow Street → Royal Randwick Shopping Centre",
+  "Travel Training": "Rainbow Street → Royal Randwick Shopping Centre",
+  "Travel to/from Work": "Rainbow Street, Coogee → Lord St, Botany (return)",
+  "Other": "",
+};
 
 function SectionTitle({ icon: Icon, children }) {
   return (
@@ -102,6 +118,12 @@ export default function ShiftNoteForm({ staffMembers, participants, defaultStaff
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
 
+  const setProgramType = (val) => {
+    set("program_type", val);
+    set("travel_route", ROUTES[val] ?? "");
+    set("tasks_completed", []);
+  };
+
   const updateDate = (date) => {
     const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     const dow = days[new Date(date + "T00:00:00").getDay()];
@@ -160,9 +182,10 @@ export default function ShiftNoteForm({ staffMembers, participants, defaultStaff
           </div>
           <div>
             <label className={labelCls}>Program Type</label>
-            <select className={inputCls} value={form.program_type} onChange={e => set("program_type", e.target.value)}>
+            <select className={inputCls} value={form.program_type} onChange={e => setProgramType(e.target.value)}>
               <option>Life Skills Program</option>
               <option>Travel Training</option>
+              <option>Travel to/from Work</option>
               <option>Other</option>
             </select>
           </div>
@@ -184,21 +207,25 @@ export default function ShiftNoteForm({ staffMembers, participants, defaultStaff
 
       {/* ── Tasks Checklist ── */}
       <div className="bg-card border border-border rounded-2xl p-5">
-        <SectionTitle icon={ClipboardCheck}>Travel Checklist</SectionTitle>
+        <SectionTitle icon={ClipboardCheck}>
+          {form.program_type === "Travel to/from Work" ? "Work Travel Checklist" : "Travel Checklist"}
+        </SectionTitle>
         <div className="grid sm:grid-cols-2 gap-2">
-          {TRAVEL_TASKS.map(task => (
+          {(form.program_type === "Travel to/from Work" ? WORK_TRAVEL_TASKS : TRAVEL_TASKS).map(task => (
             <CheckItem key={task} label={task} checked={form.tasks_completed.includes(task)} onToggle={() => toggleTask(task)} />
           ))}
         </div>
 
-        <div className="mt-5">
-          <SectionTitle icon={ClipboardCheck}>Life Skills — Shopping Centre Tasks</SectionTitle>
-          <div className="grid sm:grid-cols-2 gap-2">
-            {LIFE_SKILLS_TASKS.map(task => (
-              <CheckItem key={task} label={task} checked={form.tasks_completed.includes(task)} onToggle={() => toggleTask(task)} />
-            ))}
+        {form.program_type !== "Travel to/from Work" && (
+          <div className="mt-5">
+            <SectionTitle icon={ClipboardCheck}>Life Skills — Shopping Centre Tasks</SectionTitle>
+            <div className="grid sm:grid-cols-2 gap-2">
+              {LIFE_SKILLS_TASKS.map(task => (
+                <CheckItem key={task} label={task} checked={form.tasks_completed.includes(task)} onToggle={() => toggleTask(task)} />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* ── Assessment (radio buttons) ── */}
