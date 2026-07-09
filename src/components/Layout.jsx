@@ -3,7 +3,7 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, ShieldCheck, Brain, Pill, Heart, ShieldAlert,
   ClipboardCheck, UserCircle, AlertTriangle, ClipboardList, FileText, Flame,
-  Settings, Menu, ChevronRight, Receipt, Calendar, Clock, Target, FolderOpen,
+  Settings, Menu, ChevronRight, Receipt, Calendar, Clock, FolderOpen,
   MessageSquareWarning, CheckSquare, BarChart3, BookTemplate, Play, Zap,
   Navigation, DollarSign, Activity, Banknote, LogOut, Link2, BookOpen,
   Shield, Database, CheckCircle2,
@@ -25,8 +25,6 @@ const ADMIN_NAV_SECTIONS = [
     items: [
       { path: "/participants", label: "Participants", icon: Users },
       { path: "/onboarding", label: "Onboarding", icon: ClipboardCheck },
-      { path: "/goal-tracking", label: "Goal Tracking", icon: Target },
-      { path: "/progress-notes", label: "Progress Notes", icon: FileText },
       { path: "EXTERNAL:/participant-portal", label: "Participant Portal", icon: UserCircle },
     ],
   },
