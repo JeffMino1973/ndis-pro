@@ -58,14 +58,6 @@ export default function Gmail() {
         messageId: msg.id,
       });
       setSelectedMessage(res.data);
-      // Mark as read if unread
-      if (msg.unread) {
-        await base44.functions.invoke('gmailMessages', {
-          action: 'markRead',
-          messageId: msg.id,
-        });
-        setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, unread: false } : m));
-      }
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Failed to load message');
     } finally {
