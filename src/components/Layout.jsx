@@ -3,8 +3,8 @@ import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard, Users, ShieldCheck, Brain, Pill, Heart, ShieldAlert,
   ClipboardCheck, UserCircle, AlertTriangle, ClipboardList, FileText, Flame,
-  Settings, Menu, ChevronRight, Receipt, Calendar, Clock, FolderOpen,
-  MessageSquareWarning, CheckSquare, BarChart3, BookTemplate, Play, Zap,
+  Settings, Menu, ChevronRight, Receipt, Calendar, FolderOpen,
+  MessageSquareWarning, CheckSquare, BarChart3, BookTemplate, Zap,
   Navigation, DollarSign, Activity, Banknote, LogOut, Link2, BookOpen,
   Shield, Database, CheckCircle2,
 } from "lucide-react";
@@ -32,8 +32,6 @@ const ADMIN_NAV_SECTIONS = [
     title: "Shifts & Billing",
     items: [
       { path: "/rostering", label: "Rostering", icon: Calendar },
-      { path: "/shift-logger", label: "Shift Logger", icon: Play },
-      { path: "/timesheets", label: "Timesheets", icon: Clock },
       { path: "/roster-billing", label: "Invoices & Payslips", icon: DollarSign },
       { path: "/weekly-tasks", label: "Weekly Tasks", icon: CheckCircle2 },
       { path: "/quotes", label: "Quotes", icon: FileText },

@@ -4,7 +4,7 @@ import { format, parseISO } from "date-fns";
 import {
   Calendar, Banknote, ShieldCheck,
   CheckCircle, AlertTriangle, XCircle, Loader2, User, FileText, ExternalLink, Upload,
-  Clock, Play, ClipboardList, Pill, Brain, Heart, Activity, BarChart3, Shield, BookOpen, UserCircle
+  ClipboardList, Pill, Brain, Heart, Activity, BarChart3, Shield, BookOpen, UserCircle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WeeklyCalendar from "@/components/staffportal/WeeklyCalendar";
@@ -15,8 +15,6 @@ import TobyProfile from "@/pages/TobyProfile";
 
 // ─── All possible portal feature tabs ──────────────────────────────────────────
 export const ALL_PORTAL_FEATURES = [
-  { id: "timesheets",       label: "Timesheets & Travel",   icon: Clock,         path: "/dashboard/timesheets" },
-  { id: "shift_logger",     label: "Shift Logger",          icon: Play,          path: "/dashboard/shift-logger" },
   { id: "progress_notes",   label: "Progress Notes",        icon: FileText,      path: "/dashboard/progress-notes" },
   { id: "medications",      label: "Medication Dashboard",  icon: Pill,          path: "/dashboard/medications" },
   { id: "medication_hub",   label: "Medication Forms Hub",  icon: ClipboardList, path: "/dashboard/medication-hub" },

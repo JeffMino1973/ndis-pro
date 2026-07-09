@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { NDIS_ITEMS, NDIS_ITEMS_BY_CODE } from "@/utils/ndisItems";
 import { calcPayPeriodDeductions, TAX_STATUS_LABELS } from "@/utils/taxCalc";
+import FinanceNav from "@/components/FinanceNav";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -345,6 +346,7 @@ export default function FinancialReports() {
           <h2 className="text-3xl font-black tracking-tight">Financial Reports</h2>
           <p className="text-muted-foreground text-sm">BAS figures, tax summaries & accountant reports — calculated from NDIS catalogue rates</p>
         </div>
+        <FinanceNav />
         <div className="flex gap-2 flex-wrap">
           <Button variant="outline" onClick={load} className="gap-2 rounded-xl"><RefreshCw size={14} /> Refresh</Button>
           <Button variant="outline" onClick={() => printHTML(buildBASHtml(monthData, periodLabel))} className="gap-2 rounded-xl border-blue-300 text-blue-700 hover:bg-blue-50">

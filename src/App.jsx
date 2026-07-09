@@ -16,7 +16,6 @@ import ServiceAgreements from './pages/ServiceAgreements';
 import SettingsPage from './pages/SettingsPage';
 import Invoices from './pages/Invoices';
 import Rostering from './pages/Rostering';
-import Timesheets from './pages/Timesheets';
 import DocumentVault from './pages/DocumentVault';
 import Complaints from './pages/Complaints';
 import AuditChecklists from './pages/AuditChecklists';
@@ -26,7 +25,6 @@ import TobyProfile from './pages/TobyProfile';
 import OnboardingPublicForm from './pages/OnboardingPublicForm';
 import Quotes from './pages/Quotes';
 import ParticipantPortal from './pages/ParticipantPortal';
-import ShiftLogger from './pages/ShiftLogger';
 import RestrictivePractices from './pages/RestrictivePractices';
 import AIReports from './pages/AIReports';
 import TravelGuide from './pages/TravelGuide';
@@ -100,7 +98,6 @@ const AuthenticatedApp = () => {
       <Route path="/settings" element={<SettingsPage />} />
       <Route path="/invoices" element={<Invoices />} />
       <Route path="/rostering" element={<Rostering />} />
-      <Route path="/timesheets" element={<Timesheets />} />
       <Route path="/document-vault" element={<DocumentVault />} />
       <Route path="/complaints" element={<Complaints />} />
       <Route path="/audit-checklists" element={<AuditChecklists />} />
@@ -122,7 +119,6 @@ const AuthenticatedApp = () => {
       <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/quotes" element={<Quotes />} />
-      <Route path="/shift-logger" element={<ShiftLogger />} />
       <Route path="/restrictive-practices" element={<RestrictivePractices />} />
       <Route path="/ai-reports" element={<AIReports />} />
       <Route path="/travel-guide" element={<TravelGuide />} />

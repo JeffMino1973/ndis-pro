@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import FinanceNav from "@/components/FinanceNav";
 
 const INVOICE_EMAIL = "invoices@planhero.com.au";
 
@@ -725,6 +726,8 @@ export default function WeeklyTasks() {
           <Button variant="outline" size="sm" onClick={load} className="gap-1 rounded-xl"><RefreshCw size={14} /> Refresh</Button>
         </div>
       </div>
+
+      <FinanceNav />
 
       {/* Step Indicator */}
       <div className="flex gap-2 flex-wrap">

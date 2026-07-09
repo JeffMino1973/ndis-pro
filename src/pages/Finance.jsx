@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { NDIS_ITEMS } from "@/utils/ndisItems";
 import NDISItemSelect from "@/components/NDISItemSelect";
+import FinanceNav from "@/components/FinanceNav";
 
 const TABS = ["Invoice Tracker", "Tax Calculator", "Receipts", "Accountant Report", "BAS Report", "Payroll Reconciliation"];
 
@@ -1019,6 +1020,8 @@ export default function Finance() {
         <h2 className="text-3xl font-black tracking-tight">Finance Centre</h2>
         <p className="text-muted-foreground text-sm">Invoice tracking · Tax & super calculator · Receipts · Accountant report · BAS report</p>
       </div>
+
+      <FinanceNav />
 
       <div className="flex gap-1 bg-secondary rounded-xl p-1 w-fit flex-wrap">
         {TABS.map((t, i) => (

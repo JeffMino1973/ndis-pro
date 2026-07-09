@@ -64,6 +64,7 @@ import { FileText, DollarSign, ChevronLeft, ChevronRight, CheckCircle, AlertCirc
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import FinanceNav from "@/components/FinanceNav";
 
 function calcHours(start, end) {
   if (!start || !end) return 0;
@@ -596,15 +597,17 @@ export default function RosterBilling() {
         </Button>
       </div>
 
+      <FinanceNav />
+
       {/* Workflow Steps Banner */}
       <div className="bg-card border border-border rounded-2xl p-4">
         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">How the workflow operates</p>
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
           {[
             { num: "1", label: "Schedule in Rostering", desc: "Add shifts with hourly rate & item code", color: "bg-blue-100 text-blue-700" },
-            { num: "2", label: "Log in Shift Logger", desc: "Staff clock in/out and record notes", color: "bg-violet-100 text-violet-700" },
-            { num: "3", label: "Mark Shifts Complete", desc: "Use the Shifts tab below", color: "bg-amber-100 text-amber-700" },
-            { num: "4", label: "Print Invoice / Payslip", desc: "Auto-generated from completed shifts", color: "bg-emerald-100 text-emerald-700" },
+            { num: "2", label: "Mark Shifts Complete", desc: "Use the Shifts tab below", color: "bg-amber-100 text-amber-700" },
+            { num: "3", label: "Save Invoices & Payslips", desc: "Auto-generated from completed shifts", color: "bg-violet-100 text-violet-700" },
+            { num: "4", label: "Print or Email", desc: "Print to PDF or email to workers & plan managers", color: "bg-emerald-100 text-emerald-700" },
           ].map((step, i) => (
             <div key={i} className="flex items-center gap-2 flex-1 min-w-0">
               <div className={`w-7 h-7 rounded-full flex items-center justify-center font-black text-xs shrink-0 ${step.color}`}>{step.num}</div>
