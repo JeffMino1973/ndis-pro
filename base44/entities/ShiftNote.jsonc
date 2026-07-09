@@ -1,0 +1,121 @@
+{
+  "name": "ShiftNote",
+  "type": "object",
+  "properties": {
+    "staff_name": {
+      "type": "string",
+      "title": "Staff Name"
+    },
+    "participant_name": {
+      "type": "string",
+      "title": "Participant Name"
+    },
+    "shift_date": {
+      "type": "string",
+      "format": "date",
+      "title": "Shift Date"
+    },
+    "day_of_week": {
+      "type": "string",
+      "title": "Day",
+      "enum": [
+        "Monday",
+        "Wednesday",
+        "Friday"
+      ]
+    },
+    "program_type": {
+      "type": "string",
+      "title": "Program Type",
+      "enum": [
+        "Life Skills Program",
+        "Travel Training",
+        "Other"
+      ],
+      "default": "Life Skills Program"
+    },
+    "travel_route": {
+      "type": "string",
+      "title": "Travel Route",
+      "default": "Rainbow Street \u2192 Royal Randwick Shopping Centre"
+    },
+    "tasks_completed": {
+      "type": "array",
+      "title": "Tasks Completed",
+      "items": {
+        "type": "string"
+      }
+    },
+    "participant_engagement": {
+      "type": "string",
+      "title": "Participant Engagement",
+      "enum": [
+        "High",
+        "Medium",
+        "Low"
+      ]
+    },
+    "support_level": {
+      "type": "string",
+      "title": "Support Level",
+      "enum": [
+        "Independent",
+        "Minimal Prompt",
+        "Verbal Prompt",
+        "Full Support"
+      ]
+    },
+    "mood_behaviour": {
+      "type": "string",
+      "title": "Mood / Behaviour",
+      "enum": [
+        "Calm",
+        "Positive",
+        "Anxious",
+        "Distracted",
+        "Other"
+      ]
+    },
+    "weather": {
+      "type": "string",
+      "title": "Weather",
+      "enum": [
+        "Fine",
+        "Overcast",
+        "Rainy",
+        "Windy"
+      ]
+    },
+    "progress_notes": {
+      "type": "string",
+      "title": "Progress Notes"
+    },
+    "safety_observations": {
+      "type": "string",
+      "title": "Safety Observations"
+    },
+    "next_session_goals": {
+      "type": "string",
+      "title": "Goals for Next Session"
+    },
+    "staff_signature": {
+      "type": "string",
+      "title": "Staff Signature (Name)"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Draft",
+        "Submitted",
+        "Reviewed"
+      ],
+      "default": "Submitted"
+    }
+  },
+  "required": [
+    "staff_name",
+    "participant_name",
+    "shift_date"
+  ]
+}

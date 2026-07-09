@@ -54,6 +54,7 @@ import GoalSettingBuilder from './pages/GoalSettingBuilder';
 import RosterBilling from './pages/RosterBilling';
 import WeeklyTasks from './pages/WeeklyTasks';
 import FinancialReports from './pages/FinancialReports';
+import ShiftNotes from './pages/ShiftNotes';
 
 
 const AuthenticatedApp = () => {
@@ -116,6 +117,7 @@ const AuthenticatedApp = () => {
       <Route path="/roster-billing" element={<RosterBilling />} />
       <Route path="/weekly-tasks" element={<WeeklyTasks />} />
       <Route path="/financial-reports" element={<FinancialReports />} />
+      <Route path="/shift-notes" element={<ShiftNotes />} />
       <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/quotes" element={<Quotes />} />

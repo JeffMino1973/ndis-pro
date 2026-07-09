@@ -31,6 +31,7 @@ const ADMIN_NAV_SECTIONS = [
   {
     title: "Shifts & Billing",
     items: [
+      { path: "/shift-notes", label: "Shift Notes", icon: ClipboardList },
       { path: "/rostering", label: "Rostering", icon: Calendar },
       { path: "/roster-billing", label: "Invoices & Payslips", icon: DollarSign },
       { path: "/weekly-tasks", label: "Weekly Tasks", icon: CheckCircle2 },
