@@ -4,7 +4,8 @@ import {
   ShieldCheck, FileText, Receipt, ClipboardList, CheckCircle, PenLine,
   Loader2, User, Target, AlertTriangle, MessageSquareWarning, Navigation, Pencil,
   ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File, Circle, Menu, Pill,
-  ChevronDown, ChevronUp, BarChart3, BookOpen, Printer, Link as LinkIcon, ExternalLink, ImageIcon, LogOut
+  ChevronDown, ChevronUp, BarChart3, BookOpen, Printer, Link as LinkIcon, ExternalLink, ImageIcon, LogOut,
+  Archive, RotateCcw
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -175,6 +176,26 @@ export default function ParticipantPortal() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [raAssessments, setRaAssessments] = useState([]);
   const [siteLinks, setSiteLinks] = useState([]);
+  const [docFolder, setDocFolder] = useState("current");
+  const [archivedDocIds, setArchivedDocIds] = useState([]);
+
+  const archiveKey = participant ? `pp_archived_${participant.ndis_number}` : "";
+
+  const loadArchivedIds = () => {
+    if (!participant) return;
+    try {
+      const stored = JSON.parse(localStorage.getItem(`pp_archived_${participant.ndis_number}`) || "[]");
+      setArchivedDocIds(stored);
+    } catch { setArchivedDocIds([]); }
+  };
+
+  const toggleArchive = (docId) => {
+    const next = archivedDocIds.includes(docId)
+      ? archivedDocIds.filter(id => id !== docId)
+      : [...archivedDocIds, docId];
+    setArchivedDocIds(next);
+    if (participant) localStorage.setItem(`pp_archived_${participant.ndis_number}`, JSON.stringify(next));
+  };
 
   const handleLookup = async () => {
     setError("");
@@ -213,6 +234,10 @@ export default function ParticipantPortal() {
     setRaAssessments(dedup(risks));
     const linksData = await base44.entities.LinkItem.list("-created_date").catch(() => []);
     setSiteLinks(linksData || []);
+    try {
+      const stored = JSON.parse(localStorage.getItem(`pp_archived_${p.ndis_number}`) || "[]");
+      setArchivedDocIds(stored);
+    } catch { setArchivedDocIds([]); }
     setLoading(false);
   };
 
@@ -409,6 +434,68 @@ export default function ParticipantPortal() {
         {/* DOCUMENTS TAB */}
         {activeTab === "documents" && (
           <div className="space-y-6">
+            {/* Folder toggle */}
+            <div className="flex items-center gap-2 bg-white border border-slate-200 rounded-2xl p-2">
+              <button
+                onClick={() => setDocFolder("current")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                  docFolder === "current" ? "bg-primary text-white shadow" : "text-slate-500 hover:bg-slate-50"
+                }`}
+              >
+                <FileText size={15} /> Current
+                {(() => {
+                  const n = [...agreements, ...quotes, ...invoices, ...(participantDocuments || [])].filter(d => d.id && !archivedDocIds.includes(d.id)).length;
+                  return n > 0 ? <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full ${docFolder === "current" ? "bg-white/20" : "bg-slate-100"}`}>{n}</span> : null;
+                })()}
+              </button>
+              <button
+                onClick={() => setDocFolder("archived")}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                  docFolder === "archived" ? "bg-slate-700 text-white shadow" : "text-slate-500 hover:bg-slate-50"
+                }`}
+              >
+                <Archive size={15} /> Archived
+                {archivedDocIds.length > 0 && (
+                  <span className={`text-[10px] font-black px-1.5 py-0.5 rounded-full ${docFolder === "archived" ? "bg-white/20" : "bg-slate-100"}`}>{archivedDocIds.length}</span>
+                )}
+              </button>
+            </div>
+
+            {docFolder === "archived" ? (
+              <div className="bg-white border border-slate-200 rounded-2xl p-6">
+                <h3 className="font-black text-slate-900 text-lg mb-4 flex items-center gap-2"><Archive size={18} className="text-slate-500" /> Archived Documents</h3>
+                {(() => {
+                  const archived = [
+                    ...agreements.map(a => ({ id: a.id, type: "Service Agreement", title: "Service Agreement", date: a.start_date || "—", status: a.status, total: undefined })),
+                    ...quotes.map(q => ({ id: q.id, type: "Quote", title: `Quote ${q.quote_number}`, date: q.issue_date || "—", status: q.status, total: q.total })),
+                    ...invoices.map(i => ({ id: i.id, type: "Invoice", title: `Invoice ${i.invoice_number}`, date: i.issue_date || "—", status: i.status, total: i.total })),
+                    ...(participantDocuments || []).map(d => ({ id: d.id, type: "Document", title: d.document_name || "Document", date: d.upload_date || "—", status: null, total: undefined })),
+                  ].filter(d => archivedDocIds.includes(d.id));
+                  if (archived.length === 0) {
+                    return <p className="text-sm text-slate-500 italic text-center py-8">No documents archived. Use "File Away" on any document to move it here.</p>;
+                  }
+                  return (
+                    <div className="space-y-2">
+                      {archived.map(d => (
+                        <div key={d.id} className="flex items-center justify-between gap-3 bg-slate-50 border border-slate-200 rounded-xl p-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="w-9 h-9 bg-slate-200 text-slate-500 rounded-lg flex items-center justify-center shrink-0"><Archive size={16} /></div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-black text-slate-800 truncate">{d.title}</p>
+                              <p className="text-xs text-slate-500">{d.type} · {d.date}{d.total !== undefined ? ` · $${(d.total || 0).toLocaleString()}` : ""}{d.status ? ` · ${d.status}` : ""}</p>
+                            </div>
+                          </div>
+                          <button onClick={() => toggleArchive(d.id)} className="text-xs font-bold text-primary hover:underline shrink-0 flex items-center gap-1">
+                            <RotateCcw size={13} /> Restore
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  );
+                })()}
+              </div>
+            ) : (
+            <>
             <div className="bg-primary rounded-2xl p-6 text-white">
               <h2 className="text-xl font-black mb-1">Hello, {participant.name.split(" ")[0]}!</h2>
               <p className="text-primary-foreground/80 text-sm">
@@ -416,45 +503,60 @@ export default function ParticipantPortal() {
               </p>
             </div>
 
-            {agreements.length > 0 && (
+            {agreements.filter(a => !archivedDocIds.includes(a.id)).length > 0 && (
               <section>
                 <h3 className="font-black text-slate-800 flex items-center gap-2 mb-3"><FileText size={16} className="text-purple-600" /> Service Agreements</h3>
                 <div className="space-y-3">
-                  {agreements.map(a => (
-                    <DocCard key={a.id} icon={FileText} color="bg-purple-100 text-purple-700" title="Service Agreement"
-                      number={`${a.start_date || "—"} → ${a.end_date || "Ongoing"}`} date={a.start_date || ""}
-                      status={a.status} signed={!!a.signed_by} signedBy={a.signed_by} signedAt={a.signed_at}
-                      signable={true} onSign={() => setSigningDoc({ type: "agreement", id: a.id, label: `Service Agreement — ${a.participant_name}` })} />
+                  {agreements.filter(a => !archivedDocIds.includes(a.id)).map(a => (
+                    <div key={a.id} className="relative">
+                      <DocCard icon={FileText} color="bg-purple-100 text-purple-700" title="Service Agreement"
+                        number={`${a.start_date || "—"} → ${a.end_date || "Ongoing"}`} date={a.start_date || ""}
+                        status={a.status} signed={!!a.signed_by} signedBy={a.signed_by} signedAt={a.signed_at}
+                        signable={true} onSign={() => setSigningDoc({ type: "agreement", id: a.id, label: `Service Agreement — ${a.participant_name}` })} />
+                      <button onClick={() => toggleArchive(a.id)} className="absolute top-3 right-3 text-[10px] font-bold text-slate-400 hover:text-slate-700 bg-white/80 rounded-lg px-2 py-1 flex items-center gap-1 z-10">
+                        <Archive size={11} /> File Away
+                      </button>
+                    </div>
                   ))}
                 </div>
               </section>
             )}
 
-            {quotes.length > 0 && (
+            {quotes.filter(q => !archivedDocIds.includes(q.id)).length > 0 && (
               <section>
                 <h3 className="font-black text-slate-800 flex items-center gap-2 mb-3"><ClipboardList size={16} className="text-blue-600" /> Quotes</h3>
                 <div className="space-y-3">
-                  {quotes.map(q => (
-                    <DocCard key={q.id} icon={ClipboardList} color="bg-blue-100 text-blue-700" title={`Quote ${q.quote_number}`}
-                      number={q.quote_number} date={q.issue_date} total={q.total} status={q.status}
-                      signed={!!q.signed_by} signedBy={q.signed_by} signedAt={q.signed_at}
-                      signable={["Sent", "Draft"].includes(q.status)}
-                      onSign={() => setSigningDoc({ type: "quote", id: q.id, label: `Quote ${q.quote_number}` })} />
+                  {quotes.filter(q => !archivedDocIds.includes(q.id)).map(q => (
+                    <div key={q.id} className="relative">
+                      <DocCard icon={ClipboardList} color="bg-blue-100 text-blue-700" title={`Quote ${q.quote_number}`}
+                        number={q.quote_number} date={q.issue_date} total={q.total} status={q.status}
+                        signed={!!q.signed_by} signedBy={q.signed_by} signedAt={q.signed_at}
+                        signable={["Sent", "Draft"].includes(q.status)}
+                        onSign={() => setSigningDoc({ type: "quote", id: q.id, label: `Quote ${q.quote_number}` })} />
+                      <button onClick={() => toggleArchive(q.id)} className="absolute top-3 right-3 text-[10px] font-bold text-slate-400 hover:text-slate-700 bg-white/80 rounded-lg px-2 py-1 flex items-center gap-1 z-10">
+                        <Archive size={11} /> File Away
+                      </button>
+                    </div>
                   ))}
                 </div>
               </section>
             )}
 
-            {invoices.length > 0 && (
+            {invoices.filter(i => !archivedDocIds.includes(i.id)).length > 0 && (
               <section>
                 <h3 className="font-black text-slate-800 flex items-center gap-2 mb-3"><Receipt size={16} className="text-emerald-600" /> Invoices</h3>
                 <div className="space-y-3">
-                  {invoices.map(inv => (
-                    <DocCard key={inv.id} icon={Receipt} color="bg-emerald-100 text-emerald-700" title={`Invoice ${inv.invoice_number}`}
-                      number={inv.invoice_number} date={inv.issue_date} total={inv.total} status={inv.status}
-                      signed={!!inv.acknowledged_by} signedBy={inv.acknowledged_by} signedAt={inv.acknowledged_at}
-                      signable={["Sent", "Paid", "Overdue"].includes(inv.status)}
-                      onSign={() => setSigningDoc({ type: "invoice", id: inv.id, label: `Invoice ${inv.invoice_number}` })} />
+                  {invoices.filter(i => !archivedDocIds.includes(i.id)).map(inv => (
+                    <div key={inv.id} className="relative">
+                      <DocCard icon={Receipt} color="bg-emerald-100 text-emerald-700" title={`Invoice ${inv.invoice_number}`}
+                        number={inv.invoice_number} date={inv.issue_date} total={inv.total} status={inv.status}
+                        signed={!!inv.acknowledged_by} signedBy={inv.acknowledged_by} signedAt={inv.acknowledged_at}
+                        signable={["Sent", "Paid", "Overdue"].includes(inv.status)}
+                        onSign={() => setSigningDoc({ type: "invoice", id: inv.id, label: `Invoice ${inv.invoice_number}` })} />
+                      <button onClick={() => toggleArchive(inv.id)} className="absolute top-3 right-3 text-[10px] font-bold text-slate-400 hover:text-slate-700 bg-white/80 rounded-lg px-2 py-1 flex items-center gap-1 z-10">
+                        <Archive size={11} /> File Away
+                      </button>
+                    </div>
                   ))}
                 </div>
               </section>
@@ -500,9 +602,9 @@ export default function ParticipantPortal() {
                   </div>
                 )}
 
-                {participantDocuments && participantDocuments.length > 0 ? (
+                {participantDocuments && participantDocuments.filter(d => !archivedDocIds.includes(d.id)).length > 0 ? (
                   <div className="space-y-2">
-                    {participantDocuments.map(doc => (
+                    {participantDocuments.filter(d => !archivedDocIds.includes(d.id)).map(doc => (
                       <div key={doc.id} className="bg-slate-50 border border-slate-200 rounded-2xl p-4 hover:shadow-md transition-shadow">
                         <div className="flex items-start gap-3 mb-2">
                           <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center shrink-0"><File size={18} /></div>
@@ -510,6 +612,9 @@ export default function ParticipantPortal() {
                             <p className="text-sm font-black text-slate-900 truncate">{doc.document_name || "Document"}</p>
                             <p className="text-[11px] text-slate-500 mt-0.5">{doc.upload_date || "—"}</p>
                           </div>
+                          <button onClick={() => toggleArchive(doc.id)} className="text-[10px] font-bold text-slate-400 hover:text-slate-700 bg-white border border-slate-200 rounded-lg px-2 py-1 flex items-center gap-1 shrink-0">
+                            <Archive size={11} /> File Away
+                          </button>
                         </div>
                         <div className="flex items-center justify-between mt-3">
                           <span className="text-xs text-slate-600 font-semibold">{doc.file_size || "—"}</span>
@@ -552,12 +657,14 @@ export default function ParticipantPortal() {
               </section>
             )}
 
-            {agreements.length === 0 && quotes.length === 0 && invoices.length === 0 && supportPlans.length === 0 && (!participantDocuments || participantDocuments.length === 0) && (
+            {agreements.filter(a => !archivedDocIds.includes(a.id)).length === 0 && quotes.filter(q => !archivedDocIds.includes(q.id)).length === 0 && invoices.filter(i => !archivedDocIds.includes(i.id)).length === 0 && (!participantDocuments || participantDocuments.filter(d => !archivedDocIds.includes(d.id)).length === 0) && (
               <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
                 <CheckCircle size={40} className="text-emerald-400 mx-auto mb-3" />
-                <h3 className="font-black text-slate-800 mb-1">No Documents Yet</h3>
-                <p className="text-sm text-slate-500">Your provider hasn't sent any documents yet. You can upload your own documents above.</p>
+                <h3 className="font-black text-slate-800 mb-1">No Current Documents</h3>
+                <p className="text-sm text-slate-500">All your documents have been archived. Use the "Archived" folder above to restore them.</p>
               </div>
+            )}
+            </>
             )}
           </div>
         )}
