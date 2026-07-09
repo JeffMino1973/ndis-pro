@@ -97,6 +97,7 @@ export default function StaffPortal() {
   const [linkedParticipants, setLinkedParticipants] = useState([]);
   const [shifts, setShifts] = useState([]);
   const [payslips, setPayslips] = useState([]);
+  const [invoices, setInvoices] = useState([]);
   const [bizDocs, setBizDocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("roster");
@@ -109,14 +110,16 @@ export default function StaffPortal() {
       const me = await base44.auth.me();
       setUser(me);
 
-      const [allStaff, allShifts, allPayslips, allBizDocs, allParticipants] = await Promise.all([
+      const [allStaff, allShifts, allPayslips, allInvoices, allBizDocs, allParticipants] = await Promise.all([
         base44.entities.StaffMember.list(),
         base44.entities.Shift.list("-date", 500),
         base44.entities.PayslipRecord.list("-date_from", 200),
+        base44.entities.Invoice.list("-issue_date", 200),
         base44.entities.BusinessDocument.list("-created_date"),
         base44.entities.Participant.list(),
       ]);
       setBizDocs(allBizDocs);
+      setInvoices(allInvoices);
 
       const myName = me?.full_name || "";
       const myEmail = me?.email || "";
@@ -132,18 +135,78 @@ export default function StaffPortal() {
 
       const matchName = (matched?.name || myName || "").toLowerCase().trim();
       const ci = (a, b) => (a || "").toLowerCase().trim() === b;
-      if (matched) {
-        setShifts(allShifts.filter(s => ci(s.staff_name, matchName)));
-        setPayslips(allPayslips.filter(p => ci(p.staff_name, matchName)));
-      } else {
-        setShifts(allShifts.filter(s => ci(s.staff_name, matchName)));
-        setPayslips(allPayslips.filter(p => ci(p.staff_name, matchName)));
-      }
+      const myShifts = allShifts.filter(s => ci(s.staff_name, matchName));
+      setShifts(myShifts);
+      setPayslips(allPayslips.filter(p => ci(p.staff_name, matchName)));
+      // Invoices: show invoices for participants this staff member works with
+      const myParticipantNames = [...new Set(myShifts.map(s => (s.participant_name || "").toLowerCase().trim()).filter(Boolean))];
+      setInvoices(allInvoices.filter(inv => myParticipantNames.includes((inv.participant_name || "").toLowerCase().trim())));
 
       setLoading(false);
     }
     load();
   }, []);
+
+  // Real-time subscriptions: new payslips & invoices appear automatically
+  useEffect(() => {
+    const unsubPayslips = base44.entities.PayslipRecord.subscribe((event) => {
+      if (event.type === "create") {
+        const matchName = (staffRecord?.name || user?.full_name || "").toLowerCase().trim();
+        const ci = (a, b) => (a || "").toLowerCase().trim() === b;
+        if (ci(event.data?.staff_name, matchName)) {
+          setPayslips(prev => [event.data, ...prev.filter(p => p.id !== event.data.id)]);
+        }
+      }
+    });
+    const unsubInvoices = base44.entities.Invoice.subscribe((event) => {
+      if (event.type === "create" || event.type === "update") {
+        setInvoices(prev => {
+          const exists = prev.find(i => i.id === event.data.id);
+          if (exists) {
+            return prev.map(i => i.id === event.data.id ? event.data : i);
+          }
+          // Check if this invoice relates to a participant this staff member works with
+          const myParticipantNames = [...new Set(shifts.map(s => (s.participant_name || "").toLowerCase().trim()).filter(Boolean))];
+          if (myParticipantNames.includes((event.data?.participant_name || "").toLowerCase().trim())) {
+            return [event.data, ...prev];
+          }
+          return prev;
+        });
+      }
+    });
+    return () => { unsubPayslips(); unsubInvoices(); };
+  }, [staffRecord, user, shifts]);
+
+  const printInvoice = (inv) => {
+    const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+      <style>
+        @media print { @page { size: A4; margin: 15mm; } .no-print { display: none !important; } }
+        body { font-family: Arial, sans-serif; color: #1e293b; max-width: 700px; margin: 0 auto; padding: 28px; font-size: 12px; }
+        h1 { color: #1e3a5f; font-size: 20px; border-bottom: 3px solid #1e3a5f; padding-bottom: 6px; margin-bottom: 4px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 12px; }
+        th { background: #1e3a5f; color: white; padding: 6px 10px; text-align: left; font-size: 11px; }
+        td { padding: 6px 10px; border-bottom: 1px solid #e2e8f0; font-size: 11px; }
+        .total-row td { font-weight: 900; background: #dbeafe !important; }
+        .meta { color: #475569; font-size: 11px; margin-bottom: 10px; }
+        .print-btn { position: fixed; top: 16px; right: 16px; padding: 8px 16px; background: #1e3a5f; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; }
+      </style>
+    </head><body>
+      <button class="print-btn no-print" onclick="window.print()">🖨 Download / Print</button>
+      <h1>Invoice — ${inv.invoice_number || ""}</h1>
+      <p class="meta"><strong>${inv.participant_name || ""}</strong> &nbsp;|&nbsp; Issued: ${inv.issue_date || ""} &nbsp;|&nbsp; Due: ${inv.due_date || ""} &nbsp;|&nbsp; Status: ${inv.status || "Draft"}</p>
+      ${inv.participant_ndis_number ? `<p class="meta">NDIS: ${inv.participant_ndis_number}</p>` : ""}
+      <table><thead><tr><th>Date</th><th>Description</th><th>Code</th><th>Hrs</th><th>Rate</th><th>Amount</th></tr></thead>
+      <tbody>
+        ${(inv.line_items || []).map(l => `<tr><td>${l.date || ""}</td><td>${l.description || ""}</td><td>${l.support_item_code || ""}</td><td>${l.hours || ""}</td><td>$${(l.rate || 0).toFixed(2)}</td><td>$${(l.amount || 0).toFixed(2)}</td></tr>`).join("")}
+        <tr><td colspan="5">Subtotal</td><td>$${(inv.subtotal || 0).toFixed(2)}</td></tr>
+        ${inv.gst ? `<tr><td colspan="5">GST</td><td>$${(inv.gst || 0).toFixed(2)}</td></tr>` : ""}
+        <tr class="total-row"><td colspan="5">TOTAL</td><td>$${(inv.total || 0).toFixed(2)}</td></tr>
+      </tbody></table>
+      <p style="margin-top:20px;font-size:10px;color:#94a3b8;">SZ-Jie Support Services &nbsp;·&nbsp; ABN 86 959 042 971</p>
+    </body></html>`;
+    const w = window.open("", "_blank");
+    w.document.write(html); w.document.close(); w.focus(); setTimeout(() => w.print(), 500);
+  };
 
   const printPayslip = (p) => {
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"/>
@@ -213,6 +276,7 @@ export default function StaffPortal() {
   const coreTabs = [
     { id: "roster",     label: "My Roster",    icon: Calendar },
     { id: "payslips",   label: "My Payslips",  icon: Banknote },
+    { id: "invoices",   label: "My Invoices",  icon: FileText },
     { id: "compliance", label: "Compliance",   icon: ShieldCheck },
     { id: "documents",  label: "Business Docs", icon: FileText },
     { id: "policy",     label: "Policy Manual", icon: BookOpen },
@@ -333,6 +397,67 @@ export default function StaffPortal() {
                 { label: "Total Tax Paid", value: payslips.reduce((a, p) => a + (p.tax || 0), 0), color: "text-rose-600" },
                 { label: "Total Net", value: payslips.reduce((a, p) => a + (p.net_pay || 0), 0), color: "text-emerald-600" },
                 { label: "Total Super", value: payslips.reduce((a, p) => a + (p.super_amount || 0), 0), color: "text-blue-600" },
+              ].map(s => (
+                <div key={s.label} className="bg-card border border-border rounded-2xl p-4 text-center">
+                  <p className={`text-lg font-black ${s.color}`}>${s.value.toFixed(2)}</p>
+                  <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mt-1">{s.label}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── INVOICES TAB ───────────────────────────────────────────────────────── */}
+      {tab === "invoices" && (
+        <div className="space-y-4">
+          {invoices.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground italic text-sm bg-card border border-border rounded-2xl">No invoices found for your participants yet.</div>
+          ) : (
+            <div className="bg-card border border-border rounded-2xl overflow-hidden">
+              <table className="w-full text-sm">
+                <thead className="bg-secondary text-[10px] font-black text-muted-foreground uppercase tracking-widest">
+                  <tr>
+                    <th className="px-5 py-3 text-left">Invoice #</th>
+                    <th className="px-5 py-3 text-left">Participant</th>
+                    <th className="px-5 py-3 text-left">Issued</th>
+                    <th className="px-5 py-3 text-right">Total</th>
+                    <th className="px-5 py-3 text-center">Status</th>
+                    <th className="px-5 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {invoices.map(inv => (
+                    <tr key={inv.id} className="hover:bg-secondary/40">
+                      <td className="px-5 py-3 font-bold">{inv.invoice_number || "—"}</td>
+                      <td className="px-5 py-3 text-muted-foreground text-xs">{inv.participant_name || "—"}</td>
+                      <td className="px-5 py-3 text-muted-foreground text-xs">{inv.issue_date || "—"}</td>
+                      <td className="px-5 py-3 text-right font-bold">${(inv.total || 0).toFixed(2)}</td>
+                      <td className="px-5 py-3 text-center">
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                          inv.status === "Paid" ? "bg-emerald-100 text-emerald-700" :
+                          inv.status === "Sent" ? "bg-blue-100 text-blue-700" :
+                          inv.status === "Overdue" ? "bg-rose-100 text-rose-700" :
+                          "bg-slate-100 text-slate-600"
+                        }`}>{inv.status}</span>
+                      </td>
+                      <td className="px-5 py-3 text-right">
+                        <Button size="sm" variant="outline" onClick={() => printInvoice(inv)} className="rounded-xl gap-1 text-xs font-bold">
+                          <FileText size={12} /> View
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          {invoices.length > 0 && (
+            <div className="grid grid-cols-3 gap-3">
+              {[
+                { label: "Total Invoiced", value: invoices.reduce((a, i) => a + (i.total || 0), 0), color: "text-foreground" },
+                { label: "Total Paid", value: invoices.filter(i => i.status === "Paid").reduce((a, i) => a + (i.total || 0), 0), color: "text-emerald-600" },
+                { label: "Outstanding", value: invoices.filter(i => i.status !== "Paid").reduce((a, i) => a + (i.total || 0), 0), color: "text-amber-600" },
               ].map(s => (
                 <div key={s.label} className="bg-card border border-border rounded-2xl p-4 text-center">
                   <p className={`text-lg font-black ${s.color}`}>${s.value.toFixed(2)}</p>
