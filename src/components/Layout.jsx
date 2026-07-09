@@ -6,7 +6,7 @@ import {
   Settings, Menu, ChevronRight, Receipt, Calendar, FolderOpen,
   MessageSquareWarning, CheckSquare, BarChart3, BookTemplate, Zap,
   Navigation, DollarSign, Activity, Banknote, LogOut, Link2, BookOpen,
-  Shield, Database, CheckCircle2,
+  Shield, Database, CheckCircle2, Cloud,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -71,6 +71,7 @@ const ADMIN_NAV_SECTIONS = [
       { path: "/templates", label: "Templates", icon: BookTemplate },
       { path: "/travel-guide", label: "Travel Guide", icon: Navigation },
       { path: "/document-vault", label: "Document Vault", icon: FolderOpen },
+      { path: "/google-drive", label: "Google Drive", icon: Cloud },
       { path: "/links", label: "Quick Links", icon: Link2 },
       { path: "/staff-portal", label: "Staff Portal", icon: UserCircle },
     ],

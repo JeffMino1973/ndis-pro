@@ -55,6 +55,7 @@ import RosterBilling from './pages/RosterBilling';
 import WeeklyTasks from './pages/WeeklyTasks';
 import FinancialReports from './pages/FinancialReports';
 import ShiftNotes from './pages/ShiftNotes';
+import GoogleDrive from './pages/GoogleDrive';
 
 
 const AuthenticatedApp = () => {
@@ -118,6 +119,7 @@ const AuthenticatedApp = () => {
       <Route path="/weekly-tasks" element={<WeeklyTasks />} />
       <Route path="/financial-reports" element={<FinancialReports />} />
       <Route path="/shift-notes" element={<ShiftNotes />} />
+      <Route path="/google-drive" element={<GoogleDrive />} />
       <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/quotes" element={<Quotes />} />
