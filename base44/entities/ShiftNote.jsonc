@@ -23,7 +23,9 @@
         "Tuesday",
         "Wednesday",
         "Thursday",
-        "Friday"
+        "Friday",
+        "Saturday",
+        "Sunday"
       ]
     },
     "program_type": {
@@ -33,6 +35,9 @@
         "Life Skills Program",
         "Travel Training",
         "Travel to/from Work",
+        "Community Program",
+        "Domestic Skills",
+        "Weekly Shopping",
         "Other"
       ],
       "default": "Life Skills Program"

@@ -19,6 +19,50 @@ const WORK_TRAVEL_TASKS = [
   "Used Opal card / paid fare",
 ];
 
+const COMMUNITY_TASKS = [
+  "Met participant at Rainbow St, Coogee",
+  "Travelled by public transport to Bondi Junction",
+  "Practiced road safety at crossings",
+  "Used Opal card / tapped on and off",
+  "Navigated Westfield Bondi Junction",
+  "Completed community program activities",
+  "Interacted with community members",
+  "Practiced social skills in public setting",
+  "Maintained personal safety awareness",
+  "Return travel to Coogee completed safely",
+];
+
+const DOMESTIC_TASKS = [
+  "Arrived at participant's home",
+  "Discided cleaning plan with participant",
+  "Cleaned kitchen / benches / sink",
+  "Cleaned bathroom / toilet",
+  "Vacuumed / swept floors",
+  "Mopped floors",
+  "Dusted surfaces",
+  "Cleaned windows",
+  "Managed rubbish / recycling",
+  "Participant assisted with tasks",
+  "Taught / reinforced domestic skills",
+  "Left home clean and tidy",
+];
+
+const SHOPPING_TASKS = [
+  "Met participant at Rainbow St, Coogee",
+  "Travelled to Royal Randwick Shopping Centre",
+  "Practiced road safety at crossings",
+  "Used Opal card / paid fare",
+  "Reviewed shopping list with participant",
+  "Located items independently",
+  "Compared prices",
+  "Selected fresh produce",
+  "Interacted with retail staff",
+  "Completed purchase at checkout",
+  "Managed payment (cash/card)",
+  "Practiced budgeting skills",
+  "Return travel with groceries completed safely",
+];
+
 const LIFE_SKILLS_TASKS = [
   "Used a shopping list",
   "Located items independently",
@@ -36,13 +80,23 @@ const ENGAGEMENT_OPTS = ["High", "Medium", "Low"];
 const SUPPORT_OPTS = ["Independent", "Minimal Prompt", "Verbal Prompt", "Full Support"];
 const MOOD_OPTS = ["Calm", "Positive", "Anxious", "Distracted", "Other"];
 const WEATHER_OPTS = ["Fine", "Overcast", "Rainy", "Windy"];
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 const ROUTES = {
   "Life Skills Program": "Rainbow Street → Royal Randwick Shopping Centre",
   "Travel Training": "Rainbow Street → Royal Randwick Shopping Centre",
   "Travel to/from Work": "Rainbow Street, Coogee → Lord St, Botany (return)",
+  "Community Program": "Rainbow Street, Coogee → Bondi Junction (return)",
+  "Domestic Skills": "Participant's home — Domestic Skills",
+  "Weekly Shopping": "Rainbow Street, Coogee → Royal Randwick Shopping Centre",
   "Other": "",
+};
+
+const CHECKLIST_BY_PROGRAM = {
+  "Travel to/from Work": WORK_TRAVEL_TASKS,
+  "Community Program": COMMUNITY_TASKS,
+  "Domestic Skills": DOMESTIC_TASKS,
+  "Weekly Shopping": SHOPPING_TASKS,
 };
 
 function SectionTitle({ icon: Icon, children }) {
@@ -186,6 +240,9 @@ export default function ShiftNoteForm({ staffMembers, participants, defaultStaff
               <option>Life Skills Program</option>
               <option>Travel Training</option>
               <option>Travel to/from Work</option>
+              <option>Community Program</option>
+              <option>Domestic Skills</option>
+              <option>Weekly Shopping</option>
               <option>Other</option>
             </select>
           </div>
@@ -208,15 +265,26 @@ export default function ShiftNoteForm({ staffMembers, participants, defaultStaff
       {/* ── Tasks Checklist ── */}
       <div className="bg-card border border-border rounded-2xl p-5">
         <SectionTitle icon={ClipboardCheck}>
-          {form.program_type === "Travel to/from Work" ? "Work Travel Checklist" : "Travel Checklist"}
+          {form.program_type === "Domestic Skills"
+            ? "Domestic Skills Checklist"
+            : form.program_type === "Community Program"
+              ? "Community Program Checklist"
+              : form.program_type === "Weekly Shopping"
+                ? "Weekly Shopping Checklist"
+                : form.program_type === "Travel to/from Work"
+                  ? "Work Travel Checklist"
+                  : "Travel Checklist"}
         </SectionTitle>
         <div className="grid sm:grid-cols-2 gap-2">
-          {(form.program_type === "Travel to/from Work" ? WORK_TRAVEL_TASKS : TRAVEL_TASKS).map(task => (
+          {(CHECKLIST_BY_PROGRAM[form.program_type] || TRAVEL_TASKS).map(task => (
             <CheckItem key={task} label={task} checked={form.tasks_completed.includes(task)} onToggle={() => toggleTask(task)} />
           ))}
         </div>
 
-        {form.program_type !== "Travel to/from Work" && (
+        {form.program_type !== "Travel to/from Work" &&
+         form.program_type !== "Community Program" &&
+         form.program_type !== "Domestic Skills" &&
+         form.program_type !== "Weekly Shopping" && (
           <div className="mt-5">
             <SectionTitle icon={ClipboardCheck}>Life Skills — Shopping Centre Tasks</SectionTitle>
             <div className="grid sm:grid-cols-2 gap-2">

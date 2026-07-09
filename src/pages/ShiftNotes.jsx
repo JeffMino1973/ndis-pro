@@ -11,6 +11,8 @@ const DAY_COLORS = {
   Wednesday: "bg-purple-100 text-purple-700",
   Thursday: "bg-rose-100 text-rose-700",
   Friday: "bg-emerald-100 text-emerald-700",
+  Saturday: "bg-cyan-100 text-cyan-700",
+  Sunday: "bg-orange-100 text-orange-700",
 };
 
 export default function ShiftNotes() {
@@ -62,7 +64,7 @@ export default function ShiftNotes() {
           </div>
           <div>
             <h2 className="text-2xl font-black tracking-tight">Shift Notes & Checklists</h2>
-            <p className="text-sm text-muted-foreground">Life Skills Program · Rainbow Street → Royal Randwick</p>
+            <p className="text-sm text-muted-foreground">Life Skills · Community Programs · Domestic Skills · Weekly Shopping</p>
           </div>
         </div>
         {!showForm && (
