@@ -51,7 +51,7 @@ function EditableText({ value, onChange, editing, multiline, className }) {
   return <Input value={value} onChange={e => onChange(e.target.value)} className={`h-8 text-sm ${className}`} />;
 }
 
-export default function TobyProfile() {
+export default function TobyProfile({ embedded = false }) {
    const [data, setData] = useState(DEFAULT_DATA);
    const [editing, setEditing] = useState(false);
    const [showEmail, setShowEmail] = useState(false);
@@ -59,6 +59,7 @@ export default function TobyProfile() {
    const [sending, setSending] = useState(false);
    const [sent, setSent] = useState(false);
    const [saving, setSaving] = useState(false);
+   const [photoError, setPhotoError] = useState(false);
 
    useEffect(() => {
      loadData();
@@ -149,8 +150,9 @@ export default function TobyProfile() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
+    <div className={embedded ? "" : "min-h-screen bg-slate-50 text-slate-800"}>
       {/* Action buttons */}
+      {!embedded && (
       <div className="no-print fixed bottom-8 right-8 z-50 flex flex-col items-end gap-2">
         {editing && <p className="text-xs bg-amber-100 text-amber-700 font-bold px-3 py-1 rounded shadow">Editing mode on</p>}
         <Button onClick={() => editing ? saveData() : setEditing(true)} disabled={saving} className={`rounded-full shadow-xl gap-2 ${editing ? "bg-emerald-600 hover:bg-emerald-700" : "bg-amber-500 hover:bg-amber-600"}`}>
@@ -163,6 +165,7 @@ export default function TobyProfile() {
           <Printer size={16} /> Print / Save PDF
         </Button>
       </div>
+      )}
 
       {/* Email Dialog */}
       <Dialog open={showEmail} onOpenChange={setShowEmail}>
@@ -193,8 +196,12 @@ export default function TobyProfile() {
         {/* Profile Card */}
         <div className="bg-white/95 border border-slate-200 rounded-2xl p-6 sm:p-10 shadow-sm">
           <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
-            <div className="w-44 h-44 rounded-full border-4 border-white shadow-lg overflow-hidden shrink-0 -mt-24 bg-white">
-              <img src={PHOTO} alt="Toby" className="w-full h-full object-cover" />
+            <div className="w-44 h-44 rounded-full border-4 border-white shadow-lg overflow-hidden shrink-0 -mt-24 bg-gradient-to-br from-sky-400 to-blue-600 flex items-center justify-center">
+              {photoError ? (
+                <span className="text-5xl font-black text-white">T</span>
+              ) : (
+                <img src={PHOTO} alt="Toby" className="w-full h-full object-cover" onError={() => setPhotoError(true)} />
+              )}
             </div>
             <div className="text-center md:text-left flex-grow pt-2">
               <div className="flex flex-col md:flex-row items-center md:items-center gap-3 mb-1">

@@ -42,40 +42,46 @@ function ShiftCard({ shift, pendingParticipants, shiftNote, onOpenNote }) {
   const progBadge = PROGRAM_BADGE[shift.program_type] || "bg-slate-100 text-slate-600";
 
   return (
-    <div className={`rounded-xl border p-3 bg-card transition-shadow hover:shadow-sm ${isPending ? "border-amber-200" : "border-border"}`}>
-      <div className="flex items-start justify-between gap-2 mb-1.5">
-        <div className="flex items-center gap-2">
+    <div className={`rounded-xl border p-2.5 bg-card transition-shadow hover:shadow-sm overflow-hidden ${isPending ? "border-amber-200" : "border-border"}`}>
+      <div className="flex items-start justify-between gap-1.5 mb-1.5 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
           <span className={`w-2.5 h-2.5 rounded-full shrink-0 mt-0.5 ${style.dot}`} />
-          <span className="font-black text-sm leading-tight">{shift.participant_name}</span>
+          <span className="font-black text-sm leading-tight truncate">{shift.participant_name}</span>
         </div>
-        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full shrink-0 ${style.badge}`}>{shift.status}</span>
+        <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full shrink-0 ${style.badge}`}>{shift.status}</span>
       </div>
 
       {shift.program_type && (
         <div className="mb-1.5">
-          <span className={`text-[9px] font-black px-2 py-0.5 rounded-full ${progBadge}`}>{shift.program_type}</span>
+          <span className={`text-[8px] font-black px-1.5 py-0.5 rounded-full inline-block truncate max-w-full ${progBadge}`}>{shift.program_type}</span>
         </div>
       )}
 
-      <div className="ml-4 space-y-1">
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Clock size={11} />
-          <span>{shift.start_time} – {shift.end_time}</span>
-          {shift.support_type && <span className="text-foreground/60">· {shift.support_type}</span>}
+      <div className="space-y-1 min-w-0">
+        <div className="flex items-center gap-1 text-[10px] text-muted-foreground min-w-0">
+          <Clock size={10} className="shrink-0" />
+          <span className="shrink-0">{shift.start_time}–{shift.end_time}</span>
+          {shift.support_type && <span className="text-foreground/60 truncate">· {shift.support_type}</span>}
         </div>
+        {shift.location && (
+          <div className="flex items-center gap-1 text-[10px] text-muted-foreground min-w-0">
+            <MapPin size={10} className="shrink-0" />
+            <span className="truncate">{shift.location}</span>
+          </div>
+        )}
         {shift.notes && (
-          <div className="flex items-start gap-1.5 text-xs text-muted-foreground mt-1">
-            <FileText size={11} className="shrink-0 mt-0.5" />
+          <div className="flex items-start gap-1 text-[10px] text-muted-foreground mt-0.5 min-w-0">
+            <FileText size={10} className="shrink-0 mt-0.5" />
             <span className="line-clamp-2 italic">{shift.notes}</span>
           </div>
         )}
         {shiftNote && (
           <button
             onClick={() => onOpenNote?.(shiftNote)}
-            className="flex items-center gap-1.5 text-[10px] font-black text-primary bg-primary/5 border border-primary/20 rounded-lg px-2 py-1 mt-1 hover:bg-primary/10 transition w-full"
+            className="flex items-center gap-1 text-[9px] font-black text-primary bg-primary/5 border border-primary/20 rounded-lg px-1.5 py-1 mt-1 hover:bg-primary/10 transition w-full min-w-0 overflow-hidden"
           >
-            <ClipboardList size={11} />
-            Shift Note — {shiftNote.tasks_completed?.length || 0} tasks · {shiftNote.status}
+            <ClipboardList size={10} className="shrink-0" />
+            <span className="truncate">Note · {shiftNote.tasks_completed?.length || 0} tasks · {shiftNote.status}</span>
           </button>
         )}
       </div>
