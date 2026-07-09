@@ -117,7 +117,7 @@ export default function Rostering() {
   const [showBulkDialog, setShowBulkDialog] = useState(false);
   const [bulkUpdating, setBulkUpdating] = useState(false);
   const [bulkResult, setBulkResult] = useState(null);
-  const [form, setForm] = useState({ participant_name: "", staff_name: "", date: "", start_time: "09:00", end_time: "11:00", support_type: "", support_item_code: "", hourly_rate: "", status: "Scheduled", notes: "" });
+  const [form, setForm] = useState({ participant_name: "", staff_name: "", date: "", start_time: "09:00", end_time: "11:00", support_type: "", support_item_code: "", hourly_rate: "", program_type: "Life Skills Program", status: "Scheduled", notes: "" });
 
   const load = async () => {
     const [s, p, st] = await Promise.all([
@@ -134,10 +134,11 @@ export default function Rostering() {
 
   const weekDays = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
 
-  const EMPTY_FORM = { participant_name: "", staff_name: "", date: "", start_time: "09:00", end_time: "11:00", support_type: "", support_item_code: "", hourly_rate: "", status: "Scheduled", notes: "" };
+  const PROGRAM_TYPES = ["Life Skills Program", "Travel Training", "Travel to/from Work", "Community Program", "Domestic Skills", "Weekly Shopping", "Other"];
+  const EMPTY_FORM = { participant_name: "", staff_name: "", date: "", start_time: "09:00", end_time: "11:00", support_type: "", support_item_code: "", hourly_rate: "", program_type: "Life Skills Program", status: "Scheduled", notes: "" };
 
   const openAdd = () => { setEditingId(null); setForm(EMPTY_FORM); setShowForm(true); };
-  const openEdit = (s) => { setEditingId(s.id); setForm({ participant_name: s.participant_name, staff_name: s.staff_name, date: s.date, start_time: s.start_time, end_time: s.end_time, support_type: s.support_type || "", support_item_code: s.support_item_code || "", hourly_rate: s.hourly_rate || "", status: s.status, notes: s.notes || "" }); setShowForm(true); };
+  const openEdit = (s) => { setEditingId(s.id); setForm({ participant_name: s.participant_name, staff_name: s.staff_name, date: s.date, start_time: s.start_time, end_time: s.end_time, support_type: s.support_type || "", support_item_code: s.support_item_code || "", hourly_rate: s.hourly_rate || "", program_type: s.program_type || "Life Skills Program", status: s.status, notes: s.notes || "" }); setShowForm(true); };
 
   const save = async () => {
     if (editingId) {
@@ -170,7 +171,7 @@ export default function Rostering() {
   const executeCopy = async () => {
     if (!copySource) return;
     setCopying(true);
-    const base = { participant_name: copySource.participant_name, staff_name: copySource.staff_name, start_time: copySource.start_time, end_time: copySource.end_time, support_type: copySource.support_type || "", status: "Scheduled", notes: copySource.notes || "" };
+    const base = { participant_name: copySource.participant_name, staff_name: copySource.staff_name, start_time: copySource.start_time, end_time: copySource.end_time, support_type: copySource.support_type || "", program_type: copySource.program_type || "Life Skills Program", status: "Scheduled", notes: copySource.notes || "" };
     if (copyMode === "date") {
       await base44.entities.Shift.create({ ...base, date: copyDate });
     } else if (copyMode === "nextweek") {
@@ -314,6 +315,7 @@ export default function Rostering() {
                   <div className="space-y-1.5">
                     {dayShifts.map((s) => (
                       <div key={s.id} className={`text-[10px] font-bold px-2 py-1.5 rounded-lg group relative ${STATUS_COLORS[s.status] || "bg-slate-100 text-slate-600"}`}>
+                        {s.program_type && <p className="text-[8px] font-black opacity-90 truncate mb-0.5">{s.program_type}</p>}
                         <p className="truncate">{s.staff_name}</p>
                         <p className="truncate opacity-75">{s.participant_name}</p>
                         <p>{s.start_time}–{s.end_time}</p>
@@ -452,6 +454,13 @@ export default function Rostering() {
               <div>
                 <Label>Date</Label>
                 <Input type="date" value={form.date} onChange={e => update("date", e.target.value)} />
+              </div>
+              <div>
+                <Label>Program Type</Label>
+                <Select value={form.program_type} onValueChange={(v) => update("program_type", v)}>
+                  <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                  <SelectContent>{PROGRAM_TYPES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
+                </Select>
               </div>
               <div>
                 <Label>Support Type</Label>

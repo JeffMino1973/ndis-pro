@@ -50,6 +50,20 @@
       "title": "Amount ($)",
       "default": 0
     },
+    "program_type": {
+      "type": "string",
+      "title": "Program Type",
+      "enum": [
+        "Life Skills Program",
+        "Travel Training",
+        "Travel to/from Work",
+        "Community Program",
+        "Domestic Skills",
+        "Weekly Shopping",
+        "Other"
+      ],
+      "default": "Life Skills Program"
+    },
     "status": {
       "type": "string",
       "title": "Status",
