@@ -6,6 +6,7 @@ import {
   CheckCircle, AlertTriangle, XCircle, Loader2, User, FileText, ExternalLink, Upload,
   ClipboardList, Pill, Brain, Heart, Activity, BarChart3, Shield, BookOpen, UserCircle
 } from "lucide-react";
+import PolicyManualViewer from "@/components/PolicyManualViewer";
 import { Button } from "@/components/ui/button";
 import WeeklyCalendar from "@/components/staffportal/WeeklyCalendar";
 import StaffMyProfile from "@/components/staffportal/StaffMyProfile";
@@ -214,6 +215,7 @@ export default function StaffPortal() {
     { id: "payslips",   label: "My Payslips",  icon: Banknote },
     { id: "compliance", label: "Compliance",   icon: ShieldCheck },
     { id: "documents",  label: "Business Docs", icon: FileText },
+    { id: "policy",     label: "Policy Manual", icon: BookOpen },
   ];
 
   const allTabs = [
@@ -497,6 +499,9 @@ export default function StaffPortal() {
           )}
         </div>
       )}
+
+      {/* ── POLICY MANUAL TAB ─────────────────────────────────────────────────── */}
+      {tab === "policy" && <PolicyManualViewer compact />}
 
       {/* ── FEATURE TABS — linked pages ────────────────────────────────────────── */}
       {featureTabs.map(ft => tab === ft.id && (

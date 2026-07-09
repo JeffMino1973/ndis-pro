@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import PolicyManualViewer from "@/components/PolicyManualViewer";
 
 const IP_PHASE_COLORS = ["bg-blue-600", "bg-amber-500", "bg-emerald-500", "bg-purple-600"];
 
@@ -130,6 +131,7 @@ const TABS = [
   { id: "travel", label: "Travel Guides", icon: Navigation },
   { id: "reports", label: "Session Notes", icon: Navigation },
   { id: "complaint", label: "Lodge Complaint", icon: MessageSquareWarning },
+  { id: "policies", label: "Policy Manual", icon: BookOpen },
 ];
 
 export default function ParticipantPortal() {
@@ -1292,6 +1294,17 @@ export default function ParticipantPortal() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* POLICY MANUAL TAB */}
+        {activeTab === "policies" && (
+          <div className="space-y-4">
+            <div className="bg-primary rounded-2xl p-6 text-white">
+              <h2 className="text-xl font-black mb-1 flex items-center gap-2"><BookOpen size={20} /> Policies & Procedures</h2>
+              <p className="text-primary-foreground/80 text-sm">Our complete policy manual — 102 policies across 6 categories. Search, filter, or print any policy.</p>
+            </div>
+            <PolicyManualViewer compact />
           </div>
         )}
 
