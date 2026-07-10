@@ -17,6 +17,7 @@ const POLICY_BODY_CSS = `
 .pm-body a { color: #0b5cab; text-decoration: underline; }
 .pm-body img { max-width: 100%; border-radius: 6px; margin: 8px 0; }
 .pm-body hr { border: 0; border-top: 1px solid #e5e7eb; margin: 16px 0; }
+.pm-body h3[id], .pm-body h4[id] { scroll-margin-top: 16px; }
 `;
 
 export default function PolicyManualViewer({ compact = false }) {
@@ -71,6 +72,14 @@ export default function PolicyManualViewer({ compact = false }) {
     if (el) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
       setActivePolicyId(id);
+      setSidebarOpen(false);
+    }
+  }, []);
+
+  const scrollToSection = useCallback((sectionId) => {
+    const el = document.getElementById(sectionId);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
       setSidebarOpen(false);
     }
   }, []);
@@ -202,18 +211,33 @@ export default function PolicyManualViewer({ compact = false }) {
                   </p>
                   <div className="space-y-0.5">
                     {items.map((p) => (
-                      <button
-                        key={p.id}
-                        onClick={() => scrollToPolicy(p.id)}
-                        className={`w-full text-left px-2 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-start gap-1.5 ${
-                          activePolicyId === p.id
-                            ? "bg-primary/10 text-primary"
-                            : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                        }`}
-                      >
-                        {activePolicyId === p.id && <ChevronRight size={11} className="mt-0.5 shrink-0" />}
-                        <span className="line-clamp-2">{p.title}</span>
-                      </button>
+                      <div key={p.id}>
+                        <button
+                          onClick={() => scrollToPolicy(p.id)}
+                          className={`w-full text-left px-2 py-1.5 rounded-lg text-xs font-medium transition-colors flex items-start gap-1.5 ${
+                            activePolicyId === p.id
+                              ? "bg-primary/10 text-primary"
+                              : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                          }`}
+                        >
+                          {activePolicyId === p.id && <ChevronRight size={11} className="mt-0.5 shrink-0" />}
+                          <span className="line-clamp-2">{p.title}</span>
+                        </button>
+                        {activePolicyId === p.id && p.headings?.length > 0 && (
+                          <div className="ml-3 mb-1 border-l border-border pl-2 space-y-0">
+                            {p.headings.map((h) => (
+                              <button
+                                key={h.id}
+                                onClick={() => scrollToSection(h.id)}
+                                className="w-full text-left px-1.5 py-1 rounded text-[11px] text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors leading-tight"
+                                style={{ paddingLeft: h.level === 3 ? "6px" : "12px" }}
+                              >
+                                {h.text}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
                 </div>
