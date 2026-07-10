@@ -29,13 +29,27 @@ Deno.serve(async (req) => {
       return Response.json({ drives: drivesData.drives || [], nextPageToken: drivesData.nextPageToken || null });
     }
 
-    let q = 'trashed = false';
-    if (folderId && query) {
-      q = `'${folderId}' in parents and trashed = false and name contains '${query.replace(/'/g, "\\'")}'`;
+    const escapedQuery = query ? query.replace(/'/g, "\\'") : null;
+    let q;
+
+    if (folderId && escapedQuery) {
+      // Search within a specific folder
+      q = `'${folderId}' in parents and trashed = false and name contains '${escapedQuery}'`;
     } else if (folderId) {
+      // Browse a specific folder
       q = `'${folderId}' in parents and trashed = false`;
-    } else if (query) {
-      q = `trashed = false and name contains '${query.replace(/'/g, "\\'")}'`;
+    } else if (sharedDriveId && escapedQuery) {
+      // Search across an entire shared drive
+      q = `trashed = false and name contains '${escapedQuery}'`;
+    } else if (sharedDriveId) {
+      // Browse the root of a shared drive
+      q = `'${sharedDriveId}' in parents and trashed = false`;
+    } else if (escapedQuery) {
+      // Search across all of My Drive
+      q = `trashed = false and name contains '${escapedQuery}'`;
+    } else {
+      // Browse the root of My Drive
+      q = `'root' in parents and trashed = false`;
     }
 
     const params = new URLSearchParams({
