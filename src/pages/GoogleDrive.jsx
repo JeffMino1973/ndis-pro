@@ -25,7 +25,15 @@ export default function GoogleDrive() {
         query: query,
         shared_drive_id: sharedDriveId || null,
       });
-      setFiles(res.data.files || []);
+      const raw = res.data.files || [];
+      // Ensure folders first, then files — both alphabetical (matches Google Drive default)
+      raw.sort((a, b) => {
+        const aFolder = a.mimeType === 'application/vnd.google-apps.folder';
+        const bFolder = b.mimeType === 'application/vnd.google-apps.folder';
+        if (aFolder !== bFolder) return aFolder ? -1 : 1;
+        return (a.name || '').localeCompare(b.name || '', undefined, { sensitivity: 'base' });
+      });
+      setFiles(raw);
     } catch (err) {
       setError(err.response?.data?.error || err.message || 'Failed to load files');
     } finally {

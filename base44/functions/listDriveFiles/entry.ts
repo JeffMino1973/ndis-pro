@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
       q,
       pageSize: '50',
       fields: 'nextPageToken,files(id,name,mimeType,modifiedTime,size,iconLink,thumbnailLink,webViewLink,parents)',
-      orderBy: 'modifiedTime desc',
+      orderBy: 'folder, name',
     });
     if (pageToken) params.set('pageToken', pageToken);
 
