@@ -39,6 +39,18 @@ const SZJIE_POLICIES = [
   { id: 'szjie-035', category: 'Workforce & Employment', title: 'Personal Belongings in the Workplace', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/c42b004f4_Personalbelongingsintheworkplace.pdf' },
   { id: 'szjie-036', category: 'Compliance & Governance', title: 'Staff Records', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/1306cd85c_Staffrecords.pdf' },
   { id: 'szjie-037', category: 'Compliance & Governance', title: 'Procedures for Dealing with Public Interest Disclosures', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/86b52ab32_ProceduresfordealingwithPublicInterestDisclosures.docx' },
+  { id: 'szjie-038', category: 'Workforce & Employment', title: 'Communication Style Guide', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/342619f8e_Communicationstyleguide.pdf' },
+  { id: 'szjie-039', category: 'Compliance & Governance', title: 'Conflict of Interest', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/785a1bb40_Conflictofinterest.pdf' },
+  { id: 'szjie-040', category: 'Client Rights & Support', title: 'Continuity of Supports', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/66a90d612_Continuityofsupports.pdf' },
+  { id: 'szjie-041', category: 'Client Rights & Support', title: 'Decision Making and Consent', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/cd294b510_Decisionmakingandconsent.pdf' },
+  { id: 'szjie-042', category: 'Workforce & Employment', title: 'Demeanour Guide for All Employees in Frontline Positions', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/aa8607adf_Demeanourguideforallemployeesinfrontlinepositions.pdf' },
+  { id: 'szjie-043', category: 'Workforce & Employment', title: 'Employee Personal Phone Use and Rest Breaks', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/dd68e6aa0_Employeepersonalphoneuseandrestbreaks.pdf' },
+  { id: 'szjie-044', category: 'Compliance & Governance', title: 'Guide to Safe Use of Social Media', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/f69715f1d_Guidetosafeuseofsocialmedia.pdf' },
+  { id: 'szjie-045', category: 'Workforce & Employment', title: 'How to Work in a Team', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/f2b55f927_Howtoworkinateam.pdf' },
+  { id: 'szjie-046', category: 'Workforce & Employment', title: 'Leave Process', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/50bf9ff7c_Leaveprocess.pdf' },
+  { id: 'szjie-047', category: 'Workforce & Employment', title: 'Managing Staff Depletion Through Illness', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/8f2103e59_ManagingstaffdepletionthroughIllness.pdf' },
+  { id: 'szjie-048', category: 'Workforce & Employment', title: 'Sexual Harassment', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/db93bfa2f_Sexualharassment.pdf' },
+  { id: 'szjie-049', category: 'Safety, Risk & Incidents', title: 'Smoking and Vaping', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/e7a0fbf3e_Smokingandvaping.pdf' },
 ];
 
 Deno.serve(async (req) => {
