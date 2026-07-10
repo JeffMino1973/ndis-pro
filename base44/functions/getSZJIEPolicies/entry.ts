@@ -73,6 +73,16 @@ const SZJIE_POLICIES = [
   { id: 'szjie-069', category: 'Client Rights & Support', title: 'Abuse, Neglect and Exploitation', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/5e430bbc1_Abuseneglectandexploitation.pdf' },
   { id: 'szjie-070', category: 'Client Rights & Support', title: 'Child Safe', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/0327df6a8_Childsafe.pdf' },
   { id: 'szjie-071', category: 'Client Rights & Support', title: 'Client Rights', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/52076315f_Clientrights.pdf' },
+  { id: 'szjie-072', category: 'Compliance & Governance', title: 'Continuous Improvement', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/b0f848d9d_Continuousimprovement.pdf' },
+  { id: 'szjie-073', category: 'Workforce & Employment', title: "Driver's Licence", url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/de8023a97_Driverslicence.pdf' },
+  { id: 'szjie-074', category: 'Safety, Risk & Incidents', title: 'Drugs and Alcohol Policy and Procedures', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/1589b8f39_Drugsandalcohol.pdf' },
+  { id: 'szjie-075', category: 'Client Rights & Support', title: 'Entry and Exit', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/88df4b18c_Entryandexit.pdf' },
+  { id: 'szjie-076', category: 'Workforce & Employment', title: 'Failure to Attend Training Appointments', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/aaf56c03e_Failuretoattendtrainingappointments.pdf' },
+  { id: 'szjie-077', category: 'Workforce & Employment', title: 'How to Stay Out of Trouble in the Workplace', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/e7caa5646_Howtostayoutoftroubleintheworkplace.pdf' },
+  { id: 'szjie-078', category: 'Safety, Risk & Incidents', title: 'Waste Management', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/7c86c30e6_Wastemanagement.pdf' },
+  { id: 'szjie-079', category: 'Workforce & Employment', title: 'Bullying, Harassment and Discrimination', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/945d1bc40_Bullyingharassmentanddiscrimination.pdf' },
+  { id: 'szjie-080', category: 'Client Rights & Support', title: 'Complaint Management', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/8334dd3f9_Complaintmanagement.pdf' },
+  { id: 'szjie-081', category: 'Workforce & Employment', title: 'Conflicts of Responsibility', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/84f0893fd_Conflictsofresponsibility.pdf' },
 ];
 
 Deno.serve(async (req) => {
