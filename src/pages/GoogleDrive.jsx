@@ -140,17 +140,27 @@ export default function GoogleDrive() {
         <Button type="submit" variant="outline">Search</Button>
       </form>
 
-      {activeSharedDrive && driveMode === 'shared' && !activeQuery && (
+      {!activeQuery && (breadcrumb.length > 0 || activeSharedDrive) && (
         <div className="flex items-center gap-1 text-sm flex-wrap">
-          <button onClick={() => { setActiveSharedDrive(null); setBreadcrumb([]); fetchSharedDrives(); }} className="text-primary hover:underline">Shared Drives</button>
-          <ChevronLeft className="h-3 w-3 rotate-180" />
-          <span className="font-medium">{activeSharedDrive.name}</span>
-        </div>
-      )}
-
-      {breadcrumb.length > 0 && !activeQuery && (
-        <div className="flex items-center gap-1 text-sm flex-wrap">
-          <button onClick={() => navigateTo(-1)} className="text-primary hover:underline">My Drive</button>
+          {driveMode === 'shared' ? (
+            <>
+              <button onClick={() => { setActiveSharedDrive(null); setBreadcrumb([]); fetchSharedDrives(); }} className="text-primary hover:underline">Shared Drives</button>
+              <ChevronLeft className="h-3 w-3 rotate-180" />
+              <button
+                onClick={() => { setBreadcrumb([]); fetchFiles(null, null, activeSharedDrive?.id); }}
+                className={breadcrumb.length === 0 ? 'font-medium' : 'text-primary hover:underline'}
+              >
+                {activeSharedDrive?.name}
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => navigateTo(-1)}
+              className={breadcrumb.length === 0 ? 'font-medium' : 'text-primary hover:underline'}
+            >
+              My Drive
+            </button>
+          )}
           {breadcrumb.map((crumb, i) => (
             <span key={crumb.id} className="flex items-center gap-1">
               <ChevronLeft className="h-3 w-3 rotate-180" />

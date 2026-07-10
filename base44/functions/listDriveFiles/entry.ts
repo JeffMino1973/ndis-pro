@@ -29,11 +29,13 @@ Deno.serve(async (req) => {
       return Response.json({ drives: drivesData.drives || [], nextPageToken: drivesData.nextPageToken || null });
     }
 
-    let q = query || '';
-    if (folderId) {
+    let q = 'trashed = false';
+    if (folderId && query) {
+      q = `'${folderId}' in parents and trashed = false and name contains '${query.replace(/'/g, "\\'")}'`;
+    } else if (folderId) {
       q = `'${folderId}' in parents and trashed = false`;
-    } else if (!query) {
-      q = 'trashed = false';
+    } else if (query) {
+      q = `trashed = false and name contains '${query.replace(/'/g, "\\'")}'`;
     }
 
     const params = new URLSearchParams({
