@@ -5,13 +5,16 @@ import { Loader2, BookOpen } from "lucide-react";
 export default function SZJIEPolicyViewer({ compact = false }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [libraryUrl, setLibraryUrl] = useState(null);
+  const [blobUrl, setBlobUrl] = useState(null);
 
   useEffect(() => {
+    let url = null;
     async function loadLibrary() {
       try {
         const res = await base44.functions.invoke("extractPolicyZip", {});
-        setLibraryUrl(res.data.url);
+        const blob = new Blob([res.data.html], { type: "text/html" });
+        url = URL.createObjectURL(blob);
+        setBlobUrl(url);
       } catch (err) {
         setError(err.response?.data?.error || err.message || "Failed to load policy library");
       } finally {
@@ -19,6 +22,7 @@ export default function SZJIEPolicyViewer({ compact = false }) {
       }
     }
     loadLibrary();
+    return () => { if (url) URL.revokeObjectURL(url); };
   }, []);
 
   if (loading) {
@@ -55,7 +59,7 @@ export default function SZJIEPolicyViewer({ compact = false }) {
       )}
       <div className="rounded-xl overflow-hidden border border-border bg-white" style={{ height }}>
         <iframe
-          src={libraryUrl}
+          src={blobUrl}
           className="w-full h-full"
           title="SZ-JIE Support Services Policy Library"
           style={{ border: "none" }}
