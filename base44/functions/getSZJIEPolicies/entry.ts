@@ -101,6 +101,21 @@ const SZJIE_POLICIES = [
   { id: 'szjie-097', category: 'Workforce & Employment', title: 'Staff Meals in Shared Homes', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/71298bccf_Staffmealsinsharedhomes.pdf' },
   { id: 'szjie-098', category: 'Workforce & Employment', title: 'Supporting Return to Work Plans', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/786bcb4a9_Supportingreturntoworkplans.pdf' },
   { id: 'szjie-099', category: 'Compliance & Governance', title: 'The Use of Videos and Photos', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/3eae7f9e6_Theuseofvidoesandphotos.pdf' },
+  { id: 'szjie-100', category: 'Compliance & Governance', title: 'Business Insurance', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/0f81549f8_Businessinsurance.pdf' },
+  { id: 'szjie-101', category: 'Safety, Risk & Incidents', title: 'Disaster/Emergency Management Plan', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/13d5a2e53_Disaster-EmergencyManagementPlan.pdf' },
+  { id: 'szjie-102', category: 'Workforce & Employment', title: 'Equal Employment Opportunity', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/ebb64746a_Equalemploymentopportunity.pdf' },
+  { id: 'szjie-103', category: 'Compliance & Governance', title: 'Maintenance – Records and Audit', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/804232732_Maintenance-recordsaudit.pdf' },
+  { id: 'szjie-104', category: 'Compliance & Governance', title: 'NDIA Gifts and Benefits Policy and Register', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/d10163283_NDIAgiftsandbenefitspolicyandregister.pdf' },
+  { id: 'szjie-105', category: 'Client Rights & Support', title: 'Participant Safeguarding Policy', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/c9c190dec_Participantsafeguardingpolicy.pdf' },
+  { id: 'szjie-106', category: 'Client Rights & Support', title: 'Person-Centred Practice', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/186f084d7_Person-centredpractice.pdf' },
+  { id: 'szjie-107', category: 'Client Rights & Support', title: 'Preventing and Responding to Abuse', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/c329244b3_Preventingandrespondingtoabuse.pdf' },
+  { id: 'szjie-108', category: 'Compliance & Governance', title: 'Procedures for Dealing with Public Interest Disclosures', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/0ea2bde2c_ProceduresfordealingwithPublicInterestDisclosures.docx' },
+  { id: 'szjie-109', category: 'Safety, Risk & Incidents', title: 'Risk Management', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/4e0288178_Riskmanagement.pdf' },
+  { id: 'szjie-110', category: 'Client Rights & Support', title: 'Self-Management Policy', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/8f23ac32f_Selfmanagementpolicy.pdf' },
+  { id: 'szjie-111', category: 'Client Rights & Support', title: 'Supported Decision Making Policy', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/f4162b92c_Supporteddecisionmakingpolicy.pdf' },
+  { id: 'szjie-112', category: 'Workforce & Employment', title: 'Workplace Behaviour', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/64eff0137_Workplacebehaviour.pdf' },
+  { id: 'szjie-113', category: 'Safety, Risk & Incidents', title: 'Workplace Health and Safety Booklet', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/facd14756_Workplacehealthandsafetybooklet.pdf' },
+  { id: 'szjie-114', category: 'Compliance & Governance', title: 'Client Documentation', url: 'https://media.base44.com/files/public/69d54775d9a169daad84a133/08b68789c_Clientdocumentation.pdf' },
 ];
 
 Deno.serve(async (req) => {
