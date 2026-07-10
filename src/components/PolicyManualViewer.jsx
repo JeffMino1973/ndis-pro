@@ -1,25 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { BookOpen, ExternalLink, Loader2 } from "lucide-react";
 
 const POLICY_URL = "https://media.base44.com/files/public/69d54775d9a169daad84a133/896d1b30e_SZ-JIE_Support_Services_Policies_and_Procedures.html";
 
 export default function PolicyManualViewer({ compact = false }) {
-  const [htmlContent, setHtmlContent] = useState("");
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    fetch(POLICY_URL)
-      .then(res => res.text())
-      .then(html => {
-        setHtmlContent(html);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError(true);
-        setLoading(false);
-      });
-  }, []);
 
   const height = compact ? "70vh" : "80vh";
 
@@ -42,25 +27,19 @@ export default function PolicyManualViewer({ compact = false }) {
         </div>
       )}
 
-      <div className={`bg-card border border-border rounded-2xl overflow-hidden ${compact ? "" : "shadow-sm"}`}>
-        {loading ? (
-          <div className="flex items-center justify-center" style={{ height }}>
+      <div className={`bg-card border border-border rounded-2xl overflow-hidden relative ${compact ? "" : "shadow-sm"}`}>
+        {loading && (
+          <div className="absolute inset-0 flex items-center justify-center" style={{ height }}>
             <Loader2 size={24} className="animate-spin text-muted-foreground" />
           </div>
-        ) : error ? (
-          <div className="flex items-center justify-center flex-col gap-3" style={{ height }}>
-            <BookOpen size={32} className="text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">Unable to load policy manual inline.</p>
-            <a href={POLICY_URL} target="_blank" rel="noopener noreferrer" className="text-primary text-sm font-bold underline">Open manual directly</a>
-          </div>
-        ) : (
-          <iframe
-            srcDoc={htmlContent}
-            title="SZ-JIE Support Services Policies and Procedures"
-            className="w-full"
-            style={{ height, border: "none" }}
-          />
         )}
+        <iframe
+          src={POLICY_URL}
+          title="SZ-JIE Support Services Policies and Procedures"
+          className="w-full"
+          style={{ height, border: "none" }}
+          onLoad={() => setLoading(false)}
+        />
       </div>
 
       <p className="text-[10px] text-muted-foreground text-center mt-2">
