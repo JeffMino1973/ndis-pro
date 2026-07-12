@@ -256,8 +256,33 @@ export default function ShiftNoteForm({ staffMembers, participants, defaultStaff
         </div>
         <div className="mt-3">
           <label className={labelCls}>Travel Route</label>
-          <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2 text-sm font-semibold text-primary">
-            <MapPin size={14} /> {form.travel_route}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-primary/5 border border-primary/20 rounded-lg px-3 py-2 text-sm font-semibold text-primary flex-1">
+              <MapPin size={14} className="shrink-0" />
+              <input
+                type="text"
+                value={form.travel_route}
+                onChange={e => set("travel_route", e.target.value)}
+                placeholder="Enter travel route for this shift…"
+                className="bg-transparent border-none outline-none flex-1 text-primary font-semibold placeholder:text-primary/40"
+              />
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-1.5 mt-1.5">
+            {Object.values(ROUTES).filter(Boolean).map(route => (
+              <button
+                key={route}
+                type="button"
+                onClick={() => set("travel_route", route)}
+                className={`text-[10px] font-bold px-2 py-1 rounded-lg border transition-all ${
+                  form.travel_route === route
+                    ? "bg-primary/10 border-primary/30 text-primary"
+                    : "bg-card border-border text-muted-foreground hover:border-primary/20"
+                }`}
+              >
+                {route}
+              </button>
+            ))}
           </div>
         </div>
       </div>
