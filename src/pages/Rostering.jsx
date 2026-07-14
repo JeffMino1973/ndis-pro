@@ -171,7 +171,7 @@ export default function Rostering() {
   const executeCopy = async () => {
     if (!copySource) return;
     setCopying(true);
-    const base = { participant_name: copySource.participant_name, staff_name: copySource.staff_name, start_time: copySource.start_time, end_time: copySource.end_time, support_type: copySource.support_type || "", program_type: copySource.program_type || "Life Skills Program", status: "Scheduled", notes: copySource.notes || "" };
+    const base = { participant_name: copySource.participant_name, staff_name: copySource.staff_name, start_time: copySource.start_time, end_time: copySource.end_time, support_type: copySource.support_type || "", support_item_code: copySource.support_item_code || "", hourly_rate: copySource.hourly_rate || 0, hours: copySource.hours || 0, amount: copySource.amount || 0, program_type: copySource.program_type || "Life Skills Program", status: "Scheduled", notes: copySource.notes || "" };
     if (copyMode === "date") {
       await base44.entities.Shift.create({ ...base, date: copyDate });
     } else if (copyMode === "nextweek") {
