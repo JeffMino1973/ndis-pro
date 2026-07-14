@@ -306,7 +306,7 @@ export default function Rostering() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-7 gap-3">
             {weekDays.map((day) => {
-              const dayShifts = filteredShifts.filter(s => { try { return isSameDay(parseISO(s.date), day); } catch { return false; } });
+              const dayShifts = filteredShifts.filter(s => { try { return isSameDay(parseISO(s.date), day); } catch { return false; } }).sort((a, b) => (a.start_time || "").localeCompare(b.start_time || ""));
               const isToday = isSameDay(day, new Date());
               return (
                 <div key={day.toISOString()} className={`bg-card border rounded-2xl p-3 min-h-[160px] ${isToday ? "border-primary" : "border-border"}`}>
@@ -350,7 +350,7 @@ export default function Rostering() {
             {/* Calendar grid */}
             <div className="grid grid-cols-7">
               {calDays.map((day, i) => {
-                const dayShifts = filteredShifts.filter(s => { try { return isSameDay(parseISO(s.date), day); } catch { return false; } });
+                const dayShifts = filteredShifts.filter(s => { try { return isSameDay(parseISO(s.date), day); } catch { return false; } }).sort((a, b) => (a.start_time || "").localeCompare(b.start_time || ""));
                 const isToday = isSameDay(day, new Date());
                 const isCurrentMonth = day.getMonth() === calendarMonth.getMonth();
                 return (
