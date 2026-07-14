@@ -92,7 +92,7 @@ export default function NDISItemSelect({ value, onSelect, placeholder = "Search 
                   <span className="font-mono text-slate-500">{n.code}</span>
                   <span className="mx-1 text-slate-400">—</span>
                   <span className="text-slate-800">{n.name}</span>
-                  <span className="ml-2 text-slate-400">(${n.rate?.toFixed(2)}/hr)</span>
+                  <span className="ml-2 text-slate-400">(${n.rate?.toFixed(2)}/{n.unit === "Annual Block" ? "yr" : n.unit === "Month" ? "mo" : n.unit === "Day" ? "day" : "hr"})</span>
                 </div>
               ))
             )}
