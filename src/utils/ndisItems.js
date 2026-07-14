@@ -10,7 +10,9 @@ export const NDIS_ITEMS = [
   { code: "01_060_0115_1_1", name: "Short Term Respite (STA) - 1:2 Ratio - Sunday", category: "Core Supports: Assistance with Daily Life", unit: "Day", rate: 1962.23, effective_from: "2026-07-01" },
 
   // Core Supports: Assistance with Social, Economic and Community Participation
+  { code: "04_102_0125_6_1", name: "Access Community Social and Rec Activ - Standard - Public Holiday", category: "Core Supports: Community Participation", unit: "Hour", rate: 163.46, effective_from: "2026-07-01" },
   { code: "04_111_0136_6_1", name: "Group Activities in the Community - Standard - Weekday Daytime", category: "Core Supports: Community Participation", unit: "Hour", rate: 73.57, effective_from: "2026-07-01" },
+  { code: "04_103_0125_6_1", name: "Access Community Social and Rec Activ - Standard - Weekday Daytime", category: "Core Supports: Community Participation", unit: "Hour", rate: 73.58, effective_from: "2026-07-01" },
   { code: "04_104_0125_6_1", name: "Access Community Social and Rec Activ - Standard - Saturday", category: "Core Supports: Community Participation", unit: "Hour", rate: 103.52, effective_from: "2026-07-01" },
   { code: "04_105_0125_6_1", name: "Access Community Social and Rec Activ - Standard - Sunday", category: "Core Supports: Community Participation", unit: "Hour", rate: 133.48, effective_from: "2026-07-01" },
   { code: "04_599_0136_6_1", name: "Centre Capital Cost", category: "Core Supports: Community Participation", unit: "Hour", rate: 2.59, effective_from: "2026-07-01" },
