@@ -34,6 +34,21 @@ export default function StaffComplianceReview() {
       reviewed_by: me?.email || me?.full_name || "Admin",
       notes: reviewNotes[doc.id] || doc.notes || "",
     });
+
+    // Sync the corresponding StaffMember field when a doc is verified
+    if (status === "Verified") {
+      const staff = staffList.find(s => s.id === doc.staff_id || s.name === doc.staff_name);
+      if (staff) {
+        const updates = {};
+        if (doc.category === "WWCC" && doc.expiry_date) updates.wwcc_expiry = doc.expiry_date;
+        if (doc.category === "First Aid" && doc.expiry_date) updates.first_aid_expiry = doc.expiry_date;
+        if (doc.category === "Police Check") updates.police_check = "Cleared";
+        if (Object.keys(updates).length > 0) {
+          await base44.entities.StaffMember.update(staff.id, updates);
+        }
+      }
+    }
+
     setDocs(prev => prev.map(d => d.id === doc.id ? { ...d, status, reviewed_by: me?.email || "Admin", notes: reviewNotes[doc.id] || d.notes } : d));
     setSaving(null);
   };
