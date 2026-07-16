@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, User, CheckCircle, AlertCircle, Clock, Pencil, Trash2, Camera, Loader2, Upload, Download, FileText, Phone, Mail, MapPin, ArrowLeft, Eye, EyeOff, Settings } from "lucide-react";
+import { Plus, User, CheckCircle, AlertCircle, Clock, Pencil, Trash2, Camera, Loader2, Upload, Download, FileText, Phone, Mail, MapPin, ArrowLeft, Eye, EyeOff, Settings, ShieldCheck } from "lucide-react";
 import StaffPortalAdmin from "@/components/staffportal/StaffPortalAdmin";
+import StaffComplianceReview from "@/components/staffportal/StaffComplianceReview";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,7 +33,8 @@ export default function Staff() {
   const [staff, setStaff] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [mainTab, setMainTab] = useState("staff"); // staff | portal_access
+  const [mainTab, setMainTab] = useState("staff"); // staff | portal_access | compliance
+  const [pendingCount, setPendingCount] = useState(0);
   const [editingId, setEditingId] = useState(null);
   const [selected, setSelected] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
@@ -40,8 +42,12 @@ export default function Staff() {
   const formPhotoRef = useRef();
 
   const load = async () => {
-    const data = await base44.entities.StaffMember.list();
+    const [data, docs] = await Promise.all([
+      base44.entities.StaffMember.list(),
+      base44.entities.StaffComplianceDoc.list("-created_date"),
+    ]);
     setStaff(data);
+    setPendingCount(docs.filter(d => d.status === "Pending").length);
     setLoading(false);
   };
 
@@ -110,6 +116,10 @@ export default function Staff() {
         <div className="flex gap-2">
           <div className="flex gap-1 bg-secondary p-1 rounded-xl">
             <button onClick={() => setMainTab("staff")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${mainTab === "staff" ? "bg-card shadow text-foreground" : "text-muted-foreground"}`}>Staff</button>
+            <button onClick={() => setMainTab("compliance")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${mainTab === "compliance" ? "bg-card shadow text-foreground" : "text-muted-foreground"}`}>
+              <ShieldCheck size={11} /> Compliance Review
+              {pendingCount > 0 && <span className="bg-amber-500 text-white text-[9px] font-black rounded-full px-1.5 py-0.5 leading-none">{pendingCount}</span>}
+            </button>
             <button onClick={() => setMainTab("portal_access")} className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${mainTab === "portal_access" ? "bg-card shadow text-foreground" : "text-muted-foreground"}`}><Settings size={11} /> Portal Access</button>
           </div>
           {mainTab === "staff" && <Button onClick={openAdd} className="rounded-xl font-bold gap-2"><Plus size={18} /> Add Staff</Button>}
@@ -117,6 +127,8 @@ export default function Staff() {
       </div>
 
       {mainTab === "portal_access" && <StaffPortalAdmin />}
+
+      {mainTab === "compliance" && <StaffComplianceReview />}
 
       {mainTab === "staff" && (loading ? (
         <div className="flex items-center justify-center h-40"><div className="w-8 h-8 border-4 border-primary/20 border-t-primary rounded-full animate-spin" /></div>
