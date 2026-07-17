@@ -5,7 +5,7 @@ import {
   Loader2, User, Target, AlertTriangle, MessageSquareWarning, Navigation, Pencil,
   ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File, Circle, Menu, Pill,
   ChevronDown, ChevronUp, BarChart3, BookOpen, Printer, Link as LinkIcon, ExternalLink, ImageIcon, LogOut,
-  Archive, RotateCcw
+  Archive, RotateCcw, GraduationCap
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import PolicyManualViewer from "@/components/PolicyManualViewer";
 import SpendingTracker from "@/components/participantportal/SpendingTracker";
+import ParticipantLearningHub from "@/components/participantportal/ParticipantLearningHub";
 
 const IP_PHASE_COLORS = ["bg-blue-600", "bg-amber-500", "bg-emerald-500", "bg-purple-600"];
 
@@ -135,6 +136,7 @@ const TABS = [
   { id: "reports", label: "Session Notes", icon: Navigation },
   { id: "complaint", label: "Lodge Complaint", icon: MessageSquareWarning },
   { id: "policies", label: "Policy Manual", icon: BookOpen },
+  { id: "learning", label: "My Learning", icon: GraduationCap },
 ];
 
 export default function ParticipantPortal() {
@@ -1434,6 +1436,11 @@ export default function ParticipantPortal() {
             </div>
             <PolicyManualViewer compact />
           </div>
+        )}
+
+        {/* MY LEARNING TAB */}
+        {activeTab === "learning" && (
+          <ParticipantLearningHub participant={participant} />
         )}
 
         {/* COMPLAINT TAB */}
