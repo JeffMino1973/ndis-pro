@@ -60,6 +60,10 @@
       "type": "string",
       "title": "Completed At"
     },
+    "certificate_url": {
+      "type": "string",
+      "title": "Certificate PDF URL"
+    },
     "notes": {
       "type": "string",
       "title": "Notes"

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { BookOpen, CheckCircle, Clock, PlayCircle, Award, Loader2, X, Minus, Plus } from "lucide-react";
+import { BookOpen, CheckCircle, Clock, PlayCircle, Award, Loader2, X, Minus, Plus, ExternalLink } from "lucide-react";
 import { prepareActivityHtml } from "@/utils/prepareActivityHtml";
+import { generateCertificatePDF } from "@/utils/generateCertificate";
 import { Progress } from "@/components/ui/progress";
 
 export default function StaffLearningHub({ user, staffRecord }) {
@@ -9,6 +10,7 @@ export default function StaffLearningHub({ user, staffRecord }) {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeCourse, setActiveCourse] = useState(null);
+  const [generatingCertId, setGeneratingCertId] = useState(null);
 
   const load = async () => {
     if (!user) return;
@@ -32,6 +34,29 @@ export default function StaffLearningHub({ user, staffRecord }) {
 
   useEffect(() => { load(); }, [user, staffRecord]);
 
+  const generateAndSaveCertificate = async (enrollment) => {
+    if (enrollment.certificate_url) return enrollment.certificate_url;
+    setGeneratingCertId(enrollment.id);
+    try {
+      const course = courseById(enrollment.course_id);
+      const pdfBlob = generateCertificatePDF({
+        staffName: enrollment.student_name || user?.full_name || "Staff Member",
+        courseTitle: course?.title || "Training Module",
+        category: course?.category,
+        completedAt: enrollment.completed_at,
+      });
+      const file = new File([pdfBlob], `certificate-${(course?.title || "course").replace(/[^a-zA-Z0-9]/g, "-")}.pdf`, { type: "application/pdf" });
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      await base44.entities.LMSEnrollment.update(enrollment.id, { certificate_url: file_url });
+      setEnrollments(prev => prev.map(e => e.id === enrollment.id ? { ...e, certificate_url: file_url } : e));
+      return file_url;
+    } catch (err) {
+      console.error("Certificate generation failed:", err);
+    } finally {
+      setGeneratingCertId(null);
+    }
+  };
+
   const updateStatus = async (enrollId, status) => {
     const patch = { status };
     if (status === "Completed") {
@@ -39,7 +64,11 @@ export default function StaffLearningHub({ user, staffRecord }) {
       patch.progress_percent = 100;
     }
     await base44.entities.LMSEnrollment.update(enrollId, patch);
+    const updated = { ...(enrollments.find(e => e.id === enrollId) || {}), ...patch };
     setEnrollments(prev => prev.map(e => e.id === enrollId ? { ...e, ...patch } : e));
+    if (status === "Completed") {
+      generateAndSaveCertificate(updated);
+    }
   };
 
   const updateProgress = async (enrollId, currentPct, delta) => {
@@ -52,7 +81,11 @@ export default function StaffLearningHub({ user, staffRecord }) {
       patch.status = "In Progress";
     }
     await base44.entities.LMSEnrollment.update(enrollId, patch);
+    const updated = { ...(enrollments.find(e => e.id === enrollId) || {}), ...patch };
     setEnrollments(prev => prev.map(e => e.id === enrollId ? { ...e, ...patch } : e));
+    if (newPct === 100) {
+      generateAndSaveCertificate(updated);
+    }
   };
 
   const myCourseIds = new Set(enrollments.map(e => e.course_id));
@@ -177,6 +210,23 @@ export default function StaffLearningHub({ user, staffRecord }) {
                 </div>
                 {e.status === "Completed" && e.completed_at && (
                   <p className="text-[10px] text-emerald-600 font-bold">✓ Completed {new Date(e.completed_at).toLocaleDateString("en-AU")}</p>
+                )}
+                {e.status === "Completed" && (
+                  <div className="flex items-center gap-2">
+                    {e.certificate_url ? (
+                      <a href={e.certificate_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-xs font-bold text-primary bg-primary/5 hover:bg-primary/10 rounded-xl px-3 py-2 transition">
+                        <Award size={14} /> View Certificate <ExternalLink size={10} />
+                      </a>
+                    ) : generatingCertId === e.id ? (
+                      <span className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground bg-secondary rounded-xl px-3 py-2">
+                        <Loader2 size={14} className="animate-spin" /> Generating Certificate...
+                      </span>
+                    ) : (
+                      <button onClick={() => generateAndSaveCertificate(e)} className="flex items-center gap-1.5 text-xs font-bold text-primary bg-primary/5 hover:bg-primary/10 rounded-xl px-3 py-2 transition">
+                        <Award size={14} /> Generate Certificate
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             );
