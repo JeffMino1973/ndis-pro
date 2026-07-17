@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { Plus, Printer, Trash2, FileText, Pencil } from "lucide-react";
+import { Plus, Printer, Trash2, FileText, Pencil, Mail } from "lucide-react";
 import { NDIS_ITEMS } from "@/utils/ndisItems";
 import NDISItemSelect from "@/components/NDISItemSelect";
+import EmailMergeDialog, { buildInvoiceMergeData } from "@/components/EmailMergeDialog";
+import { generateInvoiceHTML } from "@/utils/generateDocumentHTML";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -319,6 +321,8 @@ export default function Invoices() {
 }
 
 function InvoicePrint({ invoice, config, onBack }) {
+  const [showEmail, setShowEmail] = useState(false);
+
   // Format date as DD/MM/YY
   const fmtDate = (d) => {
     if (!d) return "";
@@ -326,6 +330,9 @@ function InvoicePrint({ invoice, config, onBack }) {
     if (parts.length !== 3) return d;
     return `${parts[2]}/${parts[1]}/${parts[0].slice(2)}`;
   };
+
+  const mergeData = buildInvoiceMergeData(invoice, config);
+  const attachmentHtml = generateInvoiceHTML(invoice, config);
 
   return (
     <div className="space-y-4">
@@ -340,9 +347,14 @@ function InvoicePrint({ invoice, config, onBack }) {
       `}</style>
       <div className="flex justify-between items-center no-print">
         <button onClick={onBack} className="text-primary font-bold text-sm hover:underline">← Back to Invoices</button>
-        <Button variant="outline" onClick={() => window.print()} className="rounded-xl gap-2">
-          <Printer size={16} /> Print / PDF
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => setShowEmail(true)} className="rounded-xl gap-2">
+            <Mail size={16} /> Email Invoice
+          </Button>
+          <Button variant="outline" onClick={() => window.print()} className="rounded-xl gap-2">
+            <Printer size={16} /> Print / PDF
+          </Button>
+        </div>
       </div>
 
       <div id="inv-print" className="bg-white p-10 max-w-3xl mx-auto text-sm text-slate-800" style={{ fontFamily: 'Arial, sans-serif' }}>
@@ -441,6 +453,17 @@ function InvoicePrint({ invoice, config, onBack }) {
           </div>
         )}
       </div>
+
+      <EmailMergeDialog
+        open={showEmail}
+        onClose={() => setShowEmail(false)}
+        type="invoice"
+        mergeData={mergeData}
+        defaultRecipient={invoice.plan_manager_email || ""}
+        defaultSubject={`NDIS Invoice Claim — ${invoice.invoice_number}`}
+        attachmentHtml={attachmentHtml}
+        attachmentFilename={`Invoice_${invoice.invoice_number}.html`}
+      />
     </div>
   );
 }

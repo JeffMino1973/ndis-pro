@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Printer, Plus, Trash2, Loader2, FileText, Pencil, ChevronLeft, Banknote, Search, Info } from "lucide-react";
+import { Printer, Plus, Trash2, Loader2, FileText, Pencil, ChevronLeft, Banknote, Search, Info, Mail } from "lucide-react";
 import { format } from "date-fns";
 import PayslipPreview, { getEmployer } from "@/components/payslips/PayslipPreview";
 import { calcPayPeriodDeductions, TAX_STATUS_LABELS } from "@/utils/taxCalc";
+import EmailMergeDialog, { buildPayslipMergeData } from "@/components/EmailMergeDialog";
+import { generatePayslipHTML } from "@/utils/generateDocumentHTML";
 
 const PRINT_STYLES = `
 @media print {
@@ -59,6 +61,7 @@ export default function Payslips() {
   const [view, setView] = useState("list");
   const [activeRecord, setActiveRecord] = useState(null); // record being viewed/edited
   const [search, setSearch] = useState("");
+  const [showEmail, setShowEmail] = useState(false);
 
   // Form state (for new or edit)
   const [staffName, setStaffName] = useState("");
@@ -185,6 +188,8 @@ export default function Payslips() {
   // ── VIEW: payslip preview (print mode) ──────────────────────────────────
   if (view === "view" && activeRecord) {
     const foundStaff = staff.find(s => s.name === activeRecord.staff_name);
+    const payslipMergeData = buildPayslipMergeData(activeRecord);
+    const payslipAttachmentHtml = generatePayslipHTML(activeRecord, foundStaff);
     return (
       <>
         <style>{PRINT_STYLES}</style>
@@ -199,6 +204,9 @@ export default function Payslips() {
                   <Banknote size={14} /> Banking Report
                 </Button>
               )}
+              <Button variant="outline" onClick={() => setShowEmail(true)} className="gap-2">
+                <Mail size={14} /> Email Payslip
+              </Button>
               <Button variant="outline" onClick={() => { loadIntoForm(activeRecord); setView("new"); }} className="gap-2">
                 <Pencil size={14} /> Edit
               </Button>
@@ -215,6 +223,16 @@ export default function Payslips() {
           <div className="bg-white border border-border rounded-2xl overflow-hidden shadow-sm">
             <PayslipPreview record={activeRecord} staffMember={foundStaff} />
           </div>
+          <EmailMergeDialog
+            open={showEmail}
+            onClose={() => setShowEmail(false)}
+            type="payslip"
+            mergeData={payslipMergeData}
+            defaultRecipient={activeRecord.staff_email || ""}
+            defaultSubject={`Payslip Advice — ${activeRecord.date_from} to ${activeRecord.date_to}`}
+            attachmentHtml={payslipAttachmentHtml}
+            attachmentFilename={`Payslip_${activeRecord.payslip_number}.html`}
+          />
         </div>
       </>
     );

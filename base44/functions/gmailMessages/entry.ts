@@ -107,22 +107,58 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'send') {
-      const { to, subject, body, cc, bcc } = body;
+      const { to, subject, body, cc, bcc, attachments } = body;
       if (!to || !subject || !body) return Response.json({ error: 'to, subject, and body are required' }, { status: 400 });
 
-      // Build RFC 2822 message
+      // Build RFC 2822 message — multipart/mixed if attachments, otherwise simple HTML
+      const hasAttachments = Array.isArray(attachments) && attachments.length > 0;
       const lines = [];
       lines.push(`To: ${to}`);
       if (cc) lines.push(`Cc: ${cc}`);
       if (bcc) lines.push(`Bcc: ${bcc}`);
       lines.push(`Subject: ${subject}`);
-      lines.push('Content-Type: text/html; charset=UTF-8');
-      lines.push('MIME-Version: 1.0');
-      lines.push('');
-      lines.push(body);
+
+      if (hasAttachments) {
+        const boundary = 'szjie_boundary_' + Math.random().toString(36).substring(2);
+        lines.push(`Content-Type: multipart/mixed; boundary="${boundary}"`);
+        lines.push('MIME-Version: 1.0');
+        lines.push('');
+        // HTML body part
+        lines.push('--' + boundary);
+        lines.push('Content-Type: text/html; charset=UTF-8');
+        lines.push('Content-Transfer-Encoding: 8bit');
+        lines.push('');
+        lines.push(body);
+        lines.push('');
+        // Attachment parts
+        for (const att of attachments) {
+          lines.push('--' + boundary);
+          lines.push(`Content-Type: ${att.mimeType || 'application/octet-stream'}; name="${att.filename}"`);
+          lines.push(`Content-Disposition: attachment; filename="${att.filename}"`);
+          lines.push('Content-Transfer-Encoding: base64');
+          lines.push('');
+          // Wrap base64 at 76 chars per line (RFC 2045)
+          const raw64 = att.content.replace(/\s/g, '');
+          for (let i = 0; i < raw64.length; i += 76) {
+            lines.push(raw64.substring(i, i + 76));
+          }
+          lines.push('');
+        }
+        lines.push('--' + boundary + '--');
+      } else {
+        lines.push('Content-Type: text/html; charset=UTF-8');
+        lines.push('MIME-Version: 1.0');
+        lines.push('');
+        lines.push(body);
+      }
+
       const rawMessage = lines.join('\r\n');
 
-      const encoded = btoa(unescape(encodeURIComponent(rawMessage))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      // UTF-8 safe base64url encoding
+      const messageBytes = new TextEncoder().encode(rawMessage);
+      let binaryStr = '';
+      for (let i = 0; i < messageBytes.length; i++) binaryStr += String.fromCharCode(messageBytes[i]);
+      const encoded = btoa(binaryStr).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 
       const sendRes = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
         method: 'POST',
