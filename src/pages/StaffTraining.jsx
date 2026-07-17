@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, Image, Search, ExternalLink, X, ChevronLeft, ChevronRight, Video, Mic, Award, Users, ShieldCheck, Banknote, AlertTriangle, Brain, Activity, Heart, FileText } from "lucide-react";
+import { BookOpen, Image, Search, ExternalLink, X, ChevronLeft, ChevronRight, Video, Mic, Award, Users, ShieldCheck, Banknote, AlertTriangle, Brain, Activity, Heart, FileText, Phone, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TrainingMedia from "@/components/staffportal/TrainingMedia";
 
@@ -384,15 +384,45 @@ export default function StaffTraining() {
               </Button>
             </div>
           </div>
-          <div className="bg-card border border-border rounded-2xl overflow-hidden">
-            <div className="bg-secondary px-4 py-2.5 border-b border-border flex items-center gap-2">
-              <BookOpen size={14} className="text-primary" />
-              <p className="text-sm font-bold truncate">{viewingDoc.title}</p>
+          <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "#dce6ef" }}>
+            {/* SZ-JIE Branded A4 Document Header */}
+            <div className="w-full pb-1.5 mb-2.5" style={{ borderBottom: "2px solid #e5e7eb" }}>
+              <div className="flex justify-between items-start gap-4 w-full flex-wrap sm:flex-nowrap">
+                <img
+                  src="https://media.base44.com/images/public/69d54775d9a169daad84a133/50cfec215_ChatGPTImageMay31202609_02_19AM.png"
+                  alt="SZ-JIE Support Services"
+                  className="h-auto block object-contain"
+                  style={{ width: "180px", maxWidth: "220px" }}
+                />
+                <div className="text-right flex flex-col gap-2 items-end" style={{ fontSize: "11px", lineHeight: 1.3, color: "#64748b" }}>
+                  <div className="flex items-center gap-2">
+                    <Phone size={14} className="text-slate-500" />
+                    <a href="tel:0401343876" className="text-slate-600 font-semibold hover:underline">0401 343 876</a>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Mail size={14} className="text-slate-500" />
+                    <a href="mailto:jeff@szjiesupportservices.com" className="text-slate-600 font-semibold hover:underline">jeff@szjiesupportservices.com</a>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <MapPin size={14} className="text-slate-500" />
+                    <span className="text-slate-600">309/12 Broome St, Waterloo NSW 2017</span>
+                  </div>
+                  <div style={{ fontSize: "10px" }}>
+                    <strong className="text-slate-700">ABN:</strong> <span className="text-slate-500">86 959 042 971</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Document title bar */}
+            <div className="px-4 py-2.5 flex items-center gap-2" style={{ background: "#f6f9fc", borderBottom: "1px solid #dce6ef" }}>
+              <BookOpen size={14} style={{ color: "#1565a8" }} />
+              <p className="text-sm font-bold truncate" style={{ color: "#103f73" }}>{viewingDoc.title}</p>
               <span className="text-[10px] font-black px-2 py-0.5 rounded-full ml-auto shrink-0"
                 style={{ background: (CATEGORY_STYLES[viewingDoc.category] || {}).hexLight || "#f1f5f9", color: (CATEGORY_STYLES[viewingDoc.category] || {}).hex || "#64748b" }}>
                 {viewingDoc.category}
               </span>
             </div>
+            {/* Document iframe */}
             <iframe
               src={viewingDoc.url}
               title={viewingDoc.title}
