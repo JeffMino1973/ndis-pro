@@ -32,7 +32,7 @@ const TEMPLATES = [
   { id: "logos", label: "Brand Logos & Assets", category: "Brand", description: "All SZ-JIE logo variants — coloured, white, transparent, portrait and landscape", icon: ImageIcon, color: "bg-pink-50 text-pink-700 border-pink-200", isLogos: true },
 ];
 
-const CATEGORIES = ["All", "Email", "Document", "Clinical", "Brand"];
+const CATEGORIES = ["All", "Document", "Brand"];
 
 function fieldLabel(key) {
   return key.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
@@ -60,7 +60,7 @@ const LONG_FIELDS = new Set(["custom_message", "body", "message", "notes", "desc
 
 function TemplatePicker({ onSelect }) {
   const [cat, setCat] = useState("All");
-  const visible = cat === "All" ? TEMPLATES : TEMPLATES.filter(t => t.category === cat);
+  const visible = (cat === "All" ? TEMPLATES : TEMPLATES.filter(t => t.category === cat)).filter(t => t.category === "Document" || t.category === "Brand");
 
   return (
     <div className="space-y-6">
