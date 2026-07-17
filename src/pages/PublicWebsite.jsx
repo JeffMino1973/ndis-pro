@@ -55,18 +55,22 @@ export default function PublicWebsite() {
   return (
     <div className="min-h-screen bg-white font-inter text-slate-900">
 
-      {/* Navigation */}
-      <nav className="bg-white border-b border-slate-100 sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/50cfec215_ChatGPTImageMay31202609_02_19AM.png" alt="SZ-JIE Logo" className="h-14" />
-          <div className="flex items-center gap-6">
-            <a href="mailto:jeff@szjiesupportservices.com" className="hidden sm:block text-sm font-semibold text-slate-700 hover:text-[#0F172A] transition">
+      {/* SZ-JIE Global Header */}
+      <nav className="sticky top-0 z-50" style={{ background: "linear-gradient(115deg,#102a56,#1764ad 62%,#7139a6)", boxShadow: "0 5px 18px rgba(15,42,86,.2)" }}>
+        <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center gap-4 flex-wrap">
+          <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/50cfec215_ChatGPTImageMay31202609_02_19AM.png" alt="SZ-JIE Logo" className="h-14 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <h1 className="text-lg font-black text-white leading-tight">SZ-JIE Support Services</h1>
+            <p className="text-xs text-blue-100">Empowering Independence Across NSW</p>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <a href="mailto:jeff@szjiesupportservices.com" className="text-white text-xs font-bold px-3 py-2 rounded-lg border border-white/40 hover:bg-white/20 transition" style={{ background: "rgba(255,255,255,.08)" }}>
               Contact Us
             </a>
-            <a href="/participant-portal" className="hidden sm:block text-sm font-semibold text-slate-700 hover:text-[#0F172A] transition">
+            <a href="/participant-portal" className="text-white text-xs font-bold px-3 py-2 rounded-lg border border-white/40 hover:bg-white/20 transition" style={{ background: "rgba(255,255,255,.08)" }}>
               Participant Portal
             </a>
-            <a href="/dashboard/" className="text-sm font-bold px-5 py-2.5 rounded-lg bg-[#0F172A] text-white hover:bg-slate-800 transition">
+            <a href="/dashboard/" className="text-white text-xs font-bold px-4 py-2 rounded-lg bg-white/20 border border-white/40 hover:bg-white/30 transition">
               Staff Login
             </a>
           </div>
@@ -74,7 +78,7 @@ export default function PublicWebsite() {
       </nav>
 
       {/* Hero */}
-      <section className="bg-[#0F172A] overflow-hidden" style={{ minHeight: 360 }}>
+      <section className="bg-[#102a56] overflow-hidden" style={{ minHeight: 360 }}>
         <div className="max-w-6xl mx-auto px-6 flex items-stretch" style={{ minHeight: 360 }}>
           <div className="flex flex-col justify-center py-16 pr-12 flex-1 z-10">
             <span className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">NSW Registered NDIS Provider · ABN 86 959 042 971</span>
@@ -85,7 +89,7 @@ export default function PublicWebsite() {
               Through expertise, innovation, and personalised support — SZ-JIE Support Services helps individuals build independence, confidence, life skills, and meaningful community participation.
             </p>
             <div className="flex gap-3 mt-4">
-              <a href="tel:0401343876" className="flex items-center gap-2 bg-white text-[#0F172A] hover:bg-slate-100 font-bold text-sm px-5 py-2.5 rounded-lg transition">
+              <a href="tel:0401343876" className="flex items-center gap-2 bg-white text-[#102a56] hover:bg-slate-100 font-bold text-sm px-5 py-2.5 rounded-lg transition">
                 <Phone size={15} /> 0401 343 876
               </a>
               <a href="mailto:jeff@szjiesupportservices.com" className="flex items-center gap-2 bg-transparent border border-slate-500 text-white hover:border-white font-bold text-sm px-5 py-2.5 rounded-lg transition">
@@ -110,7 +114,7 @@ export default function PublicWebsite() {
           <div className="grid md:grid-cols-2 gap-16 items-start">
             <div>
               <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">About Us</p>
-              <h2 className="text-3xl font-black text-[#0F172A] mb-5">Who We Are</h2>
+              <h2 className="text-3xl font-black text-[#102a56] mb-5">Who We Are</h2>
               <p className="text-slate-600 text-sm leading-relaxed mb-4">
                 SZ-JIE Support Services is a specialist disability support and capacity-building organisation dedicated to helping individuals build independence, confidence, life skills, and meaningful community participation.
               </p>
@@ -129,7 +133,7 @@ export default function PublicWebsite() {
                     <div key={i} className="flex items-start gap-3 bg-slate-50 rounded-xl p-4 border border-slate-100">
                       <Icon size={18} className="text-slate-600 mt-0.5 shrink-0" />
                       <div>
-                        <p className="text-xs font-black text-[#0F172A]">{item.label}</p>
+                        <p className="text-xs font-black text-[#102a56]">{item.label}</p>
                         <p className="text-[10px] text-slate-500">{item.sub}</p>
                       </div>
                     </div>
@@ -138,7 +142,7 @@ export default function PublicWebsite() {
               </div>
             </div>
             <div className="space-y-4">
-              <div className="bg-[#0F172A] rounded-2xl p-7 text-white">
+              <div className="bg-[#102a56] rounded-2xl p-7 text-white">
                 <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Government & Cross-Sector Experience</p>
                 <p className="text-sm text-slate-300 mb-4 leading-relaxed">Through decades of experience, we collaborate effectively with:</p>
                 <div className="grid grid-cols-2 gap-y-2 gap-x-4">
@@ -154,7 +158,7 @@ export default function PublicWebsite() {
                 <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Our Values</p>
                 <div className="flex flex-wrap gap-2">
                   {["Empowerment", "Capacity Building", "Integrity", "Inclusion", "Dignity", "Evidence-Based Support"].map((v, i) => (
-                    <span key={i} className="text-xs font-bold bg-[#0F172A] text-white px-3 py-1.5 rounded-full">{v}</span>
+                    <span key={i} className="text-xs font-bold bg-[#102a56] text-white px-3 py-1.5 rounded-full">{v}</span>
                   ))}
                 </div>
               </div>
@@ -168,7 +172,7 @@ export default function PublicWebsite() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
             <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">What We Do</p>
-            <h2 className="text-3xl font-black text-[#0F172A] mb-4">Core Services</h2>
+            <h2 className="text-3xl font-black text-[#102a56] mb-4">Core Services</h2>
             <p className="text-slate-500 text-sm max-w-lg mx-auto leading-relaxed">All supports are grounded in evidence-based practice and informed by current research, professional expertise, and collaborative planning.</p>
           </div>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -183,10 +187,10 @@ export default function PublicWebsite() {
               const Icon = s.icon;
               return (
                 <div key={i} className="bg-white rounded-2xl p-6 border border-slate-200 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
-                  <div className="w-10 h-10 rounded-xl bg-[#0F172A] flex items-center justify-center mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-[#102a56] flex items-center justify-center mb-4">
                     <Icon size={18} className="text-white" />
                   </div>
-                  <h3 className="font-black text-[#0F172A] text-sm mb-2">{s.title}</h3>
+                  <h3 className="font-black text-[#102a56] text-sm mb-2">{s.title}</h3>
                   <p className="text-slate-500 text-xs leading-relaxed">{s.desc}</p>
                 </div>
               );
@@ -201,7 +205,7 @@ export default function PublicWebsite() {
           <div className="grid md:grid-cols-2 gap-16 items-center">
             <div>
               <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Specialist Service</p>
-              <h2 className="text-3xl font-black text-[#0F172A] mb-5">Specialised Travel Training</h2>
+              <h2 className="text-3xl font-black text-[#102a56] mb-5">Specialised Travel Training</h2>
               <p className="text-slate-600 text-sm leading-relaxed mb-4">
                 Travel training is one of our specialist areas of practice. Our approach goes beyond teaching a person how to follow a route — we examine the <strong>psychology behind travel</strong>, independence, confidence, decision-making, and community navigation.
               </p>
@@ -239,7 +243,7 @@ export default function PublicWebsite() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
             <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Leadership</p>
-            <h2 className="text-3xl font-black text-[#0F172A] mb-3">Meet Our Team</h2>
+            <h2 className="text-3xl font-black text-[#102a56] mb-3">Meet Our Team</h2>
             <p className="text-slate-500 text-sm max-w-xl mx-auto leading-relaxed">
               SZ-JIE Support Services is co-led by Toby Wang and Jeffrey Minton, whose combined experience provides a unique blend of disability support, education, capacity building, and innovation.
             </p>
@@ -248,7 +252,7 @@ export default function PublicWebsite() {
 
             {/* Toby */}
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-              <div className="bg-[#0F172A] p-8 flex flex-col items-center text-center">
+              <div className="bg-[#102a56] p-8 flex flex-col items-center text-center">
                 <img
                   src="https://media.base44.com/images/public/69d54775d9a169daad84a133/9c2ede7a8_Picture1.png"
                   alt="Toby Wang"
@@ -271,7 +275,7 @@ export default function PublicWebsite() {
                   ))}
                 </div>
                 <div className="flex gap-2">
-                  <a href="/dashboard/toby" className="flex-1 text-center bg-[#0F172A] hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                  <a href="/dashboard/toby" className="flex-1 text-center bg-[#102a56] hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs transition">
                     View Full Profile
                   </a>
                   <a href="mailto:toby@szjiesupportservices.com" className="flex-1 text-center border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">
@@ -283,7 +287,7 @@ export default function PublicWebsite() {
 
             {/* Jeffrey */}
             <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
-              <div className="bg-[#0F172A] p-8 flex flex-col items-center text-center">
+              <div className="bg-[#102a56] p-8 flex flex-col items-center text-center">
                 <img
                   src="https://media.base44.com/images/public/69d54775d9a169daad84a133/b8ef90a14_Jeff.jpg"
                   alt="Jeffrey Minton"
@@ -306,7 +310,7 @@ export default function PublicWebsite() {
                   ))}
                 </div>
                 <div className="flex gap-2">
-                  <a href="/dashboard/jeffrey" className="flex-1 text-center bg-[#0F172A] hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs transition">
+                  <a href="/dashboard/jeffrey" className="flex-1 text-center bg-[#102a56] hover:bg-slate-800 text-white font-bold py-2.5 rounded-xl text-xs transition">
                     View Full Profile
                   </a>
                   <a href="mailto:jeff@szjiesupportservices.com" className="flex-1 text-center border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition">
@@ -324,7 +328,7 @@ export default function PublicWebsite() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
             <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Innovation</p>
-            <h2 className="text-3xl font-black text-[#0F172A] mb-4">Technology Designed Around People</h2>
+            <h2 className="text-3xl font-black text-[#102a56] mb-4">Technology Designed Around People</h2>
             <p className="text-slate-500 text-sm max-w-2xl mx-auto leading-relaxed">
               SZ-JIE Support Services is also an innovative developer of custom digital solutions. Rather than adapting people to generic software, we design technology around the individual — creating highly personalised platforms that support real people achieving real goals.
             </p>
@@ -337,7 +341,7 @@ export default function PublicWebsite() {
                   <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full ${app.tagColor}`}>{app.tag}</span>
                   <Laptop size={16} className="text-slate-400 mt-0.5" />
                 </div>
-                <h3 className="font-black text-[#0F172A] text-sm mb-2">{app.title}</h3>
+                <h3 className="font-black text-[#102a56] text-sm mb-2">{app.title}</h3>
                 <p className="text-slate-600 text-xs leading-relaxed">{app.desc}</p>
               </div>
             ))}
@@ -346,7 +350,7 @@ export default function PublicWebsite() {
           <div className="text-center">
             <a
               href="/innovation"
-              className="inline-flex items-center gap-2 bg-[#0F172A] text-white hover:bg-slate-800 font-bold text-sm px-7 py-3 rounded-xl transition"
+              className="inline-flex items-center gap-2 bg-[#102a56] text-white hover:bg-slate-800 font-bold text-sm px-7 py-3 rounded-xl transition"
             >
               Explore All Our Solutions <ExternalLink size={14} />
             </a>
@@ -359,12 +363,12 @@ export default function PublicWebsite() {
         <div className="max-w-4xl mx-auto px-6">
           <div className="text-center mb-10">
             <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Staff</p>
-            <h2 className="text-3xl font-black text-[#0F172A] mb-3">Staff Portal</h2>
+            <h2 className="text-3xl font-black text-[#102a56] mb-3">Staff Portal</h2>
             <p className="text-slate-500 text-sm max-w-2xl mx-auto">Your secure hub for managing rosters, compliance, payroll, and participant support — everything you need at your fingertips.</p>
           </div>
           <div className="grid md:grid-cols-2 gap-8 mb-10">
             <div className="bg-white rounded-2xl border border-slate-200 p-7">
-              <h3 className="font-black text-[#0F172A] text-lg mb-4">What's Available in Your Portal</h3>
+              <h3 className="font-black text-[#102a56] text-lg mb-4">What's Available in Your Portal</h3>
               <div className="space-y-3">
                 {[
                   { label: "My Profile", desc: "View your credentials, certifications, bio, and share your professional profile." },
@@ -376,9 +380,9 @@ export default function PublicWebsite() {
                   { label: "Documents", desc: "Download policies, training materials, and manage secure internal documents." },
                 ].map((item, i) => (
                   <div key={i} className="flex gap-3">
-                    <div className="w-5 h-5 rounded-full bg-[#0F172A] text-white flex items-center justify-center shrink-0 text-[10px] font-black">{i + 1}</div>
+                    <div className="w-5 h-5 rounded-full bg-[#102a56] text-white flex items-center justify-center shrink-0 text-[10px] font-black">{i + 1}</div>
                     <div className="flex-1">
-                      <p className="text-sm font-bold text-[#0F172A]">{item.label}</p>
+                      <p className="text-sm font-bold text-[#102a56]">{item.label}</p>
                       <p className="text-xs text-slate-500">{item.desc}</p>
                     </div>
                   </div>
@@ -386,7 +390,7 @@ export default function PublicWebsite() {
               </div>
             </div>
             <div className="bg-white rounded-2xl border border-slate-200 p-7">
-              <h3 className="font-black text-[#0F172A] text-lg mb-4">How to Login</h3>
+              <h3 className="font-black text-[#102a56] text-lg mb-4">How to Login</h3>
               <div className="space-y-4">
                 {[
                   { step: "1", title: "Navigate to Staff Login", desc: 'Click the "Staff Login" button in the top navigation bar.' },
@@ -406,7 +410,7 @@ export default function PublicWebsite() {
               </div>
             </div>
           </div>
-          <div className="bg-gradient-to-r from-[#0F172A] to-slate-800 rounded-2xl p-8 text-white">
+          <div className="bg-gradient-to-r from-[#102a56] to-slate-800 rounded-2xl p-8 text-white">
             <h3 className="font-black text-lg mb-6">Portal Features at a Glance</h3>
             <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
               {[
@@ -430,23 +434,23 @@ export default function PublicWebsite() {
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-12">
             <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Contact</p>
-            <h2 className="text-3xl font-black text-[#0F172A] mb-3">Get in Touch</h2>
+            <h2 className="text-3xl font-black text-[#102a56] mb-3">Get in Touch</h2>
             <p className="text-slate-500 text-sm max-w-md mx-auto">We'd love to hear from you. Reach out to discuss how we can support you or your loved one.</p>
           </div>
           <div className="grid md:grid-cols-3 divide-x divide-slate-200 border border-slate-200 rounded-2xl overflow-hidden max-w-3xl mx-auto">
             <a href="tel:0401343876" className="flex flex-col items-center text-center p-10 hover:bg-slate-50 transition">
               <Phone size={28} className="text-slate-700 mb-4" strokeWidth={1.5} />
-              <h3 className="font-black text-[#0F172A] mb-1">Phone</h3>
+              <h3 className="font-black text-[#102a56] mb-1">Phone</h3>
               <p className="text-slate-500 text-sm">0401 343 876</p>
             </a>
             <a href="mailto:jeff@szjiesupportservices.com" className="flex flex-col items-center text-center p-10 hover:bg-slate-50 transition">
               <Mail size={28} className="text-slate-700 mb-4" strokeWidth={1.5} />
-              <h3 className="font-black text-[#0F172A] mb-1">Email</h3>
+              <h3 className="font-black text-[#102a56] mb-1">Email</h3>
               <p className="text-slate-500 text-sm break-all">jeff@szjiesupportservices.com</p>
             </a>
             <div className="flex flex-col items-center text-center p-10">
               <MapPin size={28} className="text-slate-700 mb-4" strokeWidth={1.5} />
-              <h3 className="font-black text-[#0F172A] mb-1">Location</h3>
+              <h3 className="font-black text-[#102a56] mb-1">Location</h3>
               <p className="text-slate-500 text-sm">309/12 Broome St, Waterloo NSW 2017</p>
             </div>
           </div>
@@ -454,7 +458,7 @@ export default function PublicWebsite() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#0F172A] text-slate-300 py-12">
+      <footer className="bg-[#102a56] text-slate-300 py-12">
         <div className="max-w-6xl mx-auto px-6">
           <div className="grid md:grid-cols-3 gap-10 mb-8">
             <div>
