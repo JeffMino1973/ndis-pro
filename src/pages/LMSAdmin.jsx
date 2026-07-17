@@ -2,7 +2,9 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Plus, BookOpen, Users, Trash2, Edit2, CheckCircle, Clock, X, ExternalLink } from "lucide-react";
+import { Plus, BookOpen, Users, Trash2, Edit2, CheckCircle, Clock, X, ExternalLink, ClipboardList } from "lucide-react";
+import { LESSON_PLANS } from "@/components/lms/LessonPlanViewer";
+import LessonPlanViewer from "@/components/lms/LessonPlanViewer";
 
 const CATEGORIES = ["Everyday Life & Community Skills", "Maths & Literacy", "Employment & Vocational", "Health & Wellbeing", "Travel & Transport", "Other"];
 
@@ -54,6 +56,7 @@ export default function LMSAdmin() {
   const [courseForm, setCourseForm] = useState({ title: "", description: "", category: CATEGORIES[0], activity_url: "", is_active: true });
   const [enrollForm, setEnrollForm] = useState({ student_name: "", student_email: "", participant_id: "", course_id: "" });
   const [search, setSearch] = useState("");
+  const [activePlan, setActivePlan] = useState(null);
 
   const load = async () => {
     setLoading(true);
@@ -119,6 +122,7 @@ export default function LMSAdmin() {
 
   return (
     <div className="space-y-6 max-w-5xl">
+      {activePlan && <LessonPlanViewer plan={activePlan} onClose={() => setActivePlan(null)} />}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
@@ -137,10 +141,10 @@ export default function LMSAdmin() {
 
       {/* Tabs */}
       <div className="flex gap-2 border-b border-border">
-        {["courses", "enrollments", "import"].map(t => (
+        {["courses", "enrollments", "import", "lessons"].map(t => (
           <button key={t} onClick={() => setTab(t)}
-            className={`px-4 py-2.5 text-sm font-bold border-b-2 transition -mb-px capitalize ${tab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
-            {t === "courses" ? `Courses (${courses.length})` : t === "enrollments" ? `Enrollments (${enrollments.length})` : "Import Activities"}
+            className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-bold border-b-2 transition -mb-px capitalize ${tab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+            {t === "courses" ? `Courses (${courses.length})` : t === "enrollments" ? `Enrollments (${enrollments.length})` : t === "import" ? "Import Activities" : "Lesson Plans (Staff)"}
           </button>
         ))}
       </div>
@@ -268,6 +272,33 @@ export default function LMSAdmin() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* LESSON PLANS TAB (staff only) */}
+      {tab === "lessons" && (
+        <div className="space-y-3">
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 text-sm text-blue-800 flex items-start gap-2">
+            <ClipboardList size={16} className="shrink-0 mt-0.5" />
+            <div>
+              <p className="font-black mb-0.5">Staff-Only Resource Library</p>
+              <p className="text-xs">These detailed lesson plans and teaching programs are for staff use only. They are not visible in the student portal.</p>
+            </div>
+          </div>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {LESSON_PLANS.map((plan, i) => (
+              <button key={i} onClick={() => setActivePlan(plan)}
+                className="bg-card border border-border rounded-xl px-4 py-3 text-left hover:shadow-md hover:border-primary/30 transition-all group flex items-center justify-between gap-3">
+                <div className="min-w-0 flex-1">
+                  <p className="font-bold text-sm truncate">{plan.title}</p>
+                  <p className="text-xs text-muted-foreground">{plan.category}</p>
+                </div>
+                <div className="flex items-center gap-1 text-primary font-black text-xs shrink-0 group-hover:gap-2 transition-all">
+                  <BookOpen size={14} /> View
+                </div>
+              </button>
+            ))}
           </div>
         </div>
       )}
