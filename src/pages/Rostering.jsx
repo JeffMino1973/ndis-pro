@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay, parseISO, startOfMonth, endOfMonth, addMonths, subMonths, eachDayOfInterval } from "date-fns";
 import { NDIS_ITEMS } from "@/utils/ndisItems";
+import ShiftNoteReminder from "@/components/rostering/ShiftNoteReminder";
 
 const STATUS_COLORS = {
   Scheduled: "bg-blue-100 text-blue-700",
@@ -285,6 +286,8 @@ export default function Rostering() {
           </Button>
         )}
       </div>
+
+      <ShiftNoteReminder shifts={filteredShifts} weekStart={weekStart} />
 
       <Tabs defaultValue="week">
         <TabsList className="rounded-xl">
