@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, Image, Search, ExternalLink, X, ChevronLeft, ChevronRight, Video, Mic } from "lucide-react";
+import { BookOpen, Image, Search, ExternalLink, X, ChevronLeft, ChevronRight, Video, Mic, Award, Users, ShieldCheck, Banknote, AlertTriangle, Brain, Activity, Heart, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TrainingMedia from "@/components/staffportal/TrainingMedia";
 
@@ -179,17 +179,30 @@ const FLYERS = [
 const DOC_CATEGORIES = ["All", ...Array.from(new Set(DOCUMENTS.map(d => d.category)))];
 const FLYER_CATEGORIES = ["All", ...Array.from(new Set(FLYERS.map(f => f.category)))];
 
-const categoryColors = {
-  "Induction & Onboarding": "bg-blue-100 text-blue-700",
-  "Compliance & Safety": "bg-rose-100 text-rose-700",
-  "HR & Payroll": "bg-emerald-100 text-emerald-700",
-  "NDIS & Community": "bg-purple-100 text-purple-700",
-  "Work Health & Safety": "bg-amber-100 text-amber-700",
-  "Service Quality": "bg-cyan-100 text-cyan-700",
-  "Autism Awareness": "bg-indigo-100 text-indigo-700",
-  "Behaviour & Regulation": "bg-orange-100 text-orange-700",
-  "Neurodivergence": "bg-violet-100 text-violet-700",
-  "Support Strategies": "bg-teal-100 text-teal-700",
+const CATEGORY_STYLES = {
+  "Service Quality": { accent: "bg-emerald-500", icon: "bg-emerald-100 text-emerald-600", pill: "bg-emerald-500 text-white", badge: "bg-emerald-100 text-emerald-700" },
+  "NDIS & Community": { accent: "bg-purple-500", icon: "bg-purple-100 text-purple-600", pill: "bg-purple-500 text-white", badge: "bg-purple-100 text-purple-700" },
+  "Induction & Onboarding": { accent: "bg-blue-500", icon: "bg-blue-100 text-blue-600", pill: "bg-blue-500 text-white", badge: "bg-blue-100 text-blue-700" },
+  "Compliance & Safety": { accent: "bg-rose-500", icon: "bg-rose-100 text-rose-600", pill: "bg-rose-500 text-white", badge: "bg-rose-100 text-rose-700" },
+  "HR & Payroll": { accent: "bg-pink-500", icon: "bg-pink-100 text-pink-600", pill: "bg-pink-500 text-white", badge: "bg-pink-100 text-pink-700" },
+  "Work Health & Safety": { accent: "bg-amber-500", icon: "bg-amber-100 text-amber-600", pill: "bg-amber-500 text-white", badge: "bg-amber-100 text-amber-700" },
+  "Autism Awareness": { accent: "bg-indigo-500", icon: "bg-indigo-100 text-indigo-600", pill: "bg-indigo-500 text-white", badge: "bg-indigo-100 text-indigo-700" },
+  "Behaviour & Regulation": { accent: "bg-orange-500", icon: "bg-orange-100 text-orange-600", pill: "bg-orange-500 text-white", badge: "bg-orange-100 text-orange-700" },
+  "Neurodivergence": { accent: "bg-violet-500", icon: "bg-violet-100 text-violet-600", pill: "bg-violet-500 text-white", badge: "bg-violet-100 text-violet-700" },
+  "Support Strategies": { accent: "bg-teal-500", icon: "bg-teal-100 text-teal-600", pill: "bg-teal-500 text-white", badge: "bg-teal-100 text-teal-700" },
+};
+
+const CATEGORY_ICONS = {
+  "Service Quality": Award,
+  "NDIS & Community": Users,
+  "Induction & Onboarding": BookOpen,
+  "Compliance & Safety": ShieldCheck,
+  "HR & Payroll": Banknote,
+  "Work Health & Safety": AlertTriangle,
+  "Autism Awareness": Brain,
+  "Behaviour & Regulation": Activity,
+  "Neurodivergence": Brain,
+  "Support Strategies": Heart,
 };
 
 export default function StaffTraining() {
@@ -213,15 +226,38 @@ export default function StaffTraining() {
   const lightboxFlyers = lightboxIndex !== null ? filteredFlyers : [];
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
-          <BookOpen size={22} className="text-primary" />
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shrink-0">
+            <BookOpen size={26} className="text-primary-foreground" />
+          </div>
+          <div>
+            <h2 className="text-3xl font-black tracking-tight">Staff Training</h2>
+            <p className="text-muted-foreground text-sm">Training documents, induction resources & educational flyers</p>
+          </div>
         </div>
-        <div>
-          <h2 className="text-3xl font-black tracking-tight">Staff Training</h2>
-          <p className="text-muted-foreground text-sm">Training documents, induction resources & educational flyers</p>
+        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-4 py-2">
+          <div className="w-2 h-2 bg-emerald-500 rounded-full" />
+          <span className="text-xs font-black text-emerald-700">NSW Registered Provider</span>
+          <span className="text-xs font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Compliant</span>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4 hover:shadow-md transition">
+          <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center shrink-0"><FileText size={22} className="text-blue-600" /></div>
+          <div><p className="text-2xl font-black">{DOCUMENTS.length}</p><p className="text-xs text-muted-foreground font-bold">Total Documents</p></div>
+        </div>
+        <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4 hover:shadow-md transition">
+          <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0"><Image size={22} className="text-emerald-600" /></div>
+          <div><p className="text-2xl font-black">{FLYERS.length}</p><p className="text-xs text-muted-foreground font-bold">Flyer Library</p></div>
+        </div>
+        <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4 hover:shadow-md transition">
+          <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center shrink-0"><Video size={22} className="text-amber-600" /></div>
+          <div><p className="text-2xl font-black">9</p><p className="text-xs text-muted-foreground font-bold">Videos & Podcasts</p></div>
         </div>
       </div>
 
@@ -255,44 +291,51 @@ export default function StaffTraining() {
       {/* ── DOCUMENTS TAB ──────────────────────────────────────────────────────── */}
       {tab === "documents" && !viewingDoc && (
         <div className="space-y-4">
-          {/* Category filter */}
+          {/* Category filter pills */}
           <div className="flex flex-wrap gap-2">
-            {DOC_CATEGORIES.map(cat => (
-              <button key={cat} onClick={() => setDocCategory(cat)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${docCategory === cat ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground hover:text-foreground"}`}>
-                {cat}
-              </button>
-            ))}
+            {DOC_CATEGORIES.map(cat => {
+              const style = CATEGORY_STYLES[cat];
+              const active = docCategory === cat;
+              return (
+                <button key={cat} onClick={() => setDocCategory(cat)}
+                  className={`px-4 py-2 rounded-full text-xs font-black transition-all ${active
+                    ? (style ? style.pill : "bg-primary text-primary-foreground") + " border-transparent"
+                    : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}>
+                  {cat}
+                </button>
+              );
+            })}
           </div>
 
-          <div className="grid gap-2">
-            {filteredDocs.map((doc, i) => (
-              <div key={i} className="bg-card border border-border rounded-2xl p-4 flex items-center justify-between gap-4 hover:border-primary/30 transition-all">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <BookOpen size={16} className="text-primary" />
+          {/* Card grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            {filteredDocs.map((doc, i) => {
+              const style = CATEGORY_STYLES[doc.category] || {};
+              const Icon = CATEGORY_ICONS[doc.category] || BookOpen;
+              return (
+                <div key={i} className="bg-card border border-border rounded-2xl overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all group flex flex-col">
+                  <div className={`h-1.5 ${style.accent || "bg-slate-400"}`} />
+                  <div className="p-4 pb-2">
+                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${style.icon || "bg-slate-100 text-slate-500"}`}>
+                      <Icon size={20} />
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-sm truncate">{doc.title}</p>
-                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${categoryColors[doc.category] || "bg-slate-100 text-slate-600"}`}>
+                  <div className="px-4 flex-1">
+                    <p className="font-bold text-sm leading-snug min-h-[2.5rem]">{doc.title}</p>
+                  </div>
+                  <div className="p-4 pt-3 flex items-center justify-between gap-2">
+                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${style.badge || "bg-slate-100 text-slate-600"}`}>
                       {doc.category}
                     </span>
+                    <Button size="sm" onClick={() => setViewingDoc(doc)} className="rounded-xl font-bold text-xs gap-1">
+                      Open <ExternalLink size={12} />
+                    </Button>
                   </div>
                 </div>
-                <div className="flex gap-2 shrink-0">
-                  <Button size="sm" onClick={() => setViewingDoc(doc)} className="rounded-xl font-bold text-xs gap-1">
-                    Open
-                  </Button>
-                  <a href={doc.url} target="_blank" rel="noopener noreferrer">
-                    <Button size="sm" variant="outline" className="rounded-xl font-bold text-xs gap-1 h-9 w-9 p-0">
-                      <ExternalLink size={13} />
-                    </Button>
-                  </a>
-                </div>
-              </div>
-            ))}
+              );
+            })}
             {filteredDocs.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground italic text-sm bg-card border border-border rounded-2xl">
+              <div className="col-span-full text-center py-12 text-muted-foreground italic text-sm bg-card border border-border rounded-2xl">
                 No documents match your search.
               </div>
             )}
@@ -323,7 +366,7 @@ export default function StaffTraining() {
             <div className="bg-secondary px-4 py-2.5 border-b border-border flex items-center gap-2">
               <BookOpen size={14} className="text-primary" />
               <p className="text-sm font-bold truncate">{viewingDoc.title}</p>
-              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ml-auto shrink-0 ${categoryColors[viewingDoc.category] || "bg-slate-100 text-slate-600"}`}>
+              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ml-auto shrink-0 ${(CATEGORY_STYLES[viewingDoc.category] || {}).badge || "bg-slate-100 text-slate-600"}`}>
                 {viewingDoc.category}
               </span>
             </div>
@@ -342,12 +385,18 @@ export default function StaffTraining() {
         <div className="space-y-4">
           {/* Category filter */}
           <div className="flex flex-wrap gap-2">
-            {FLYER_CATEGORIES.map(cat => (
-              <button key={cat} onClick={() => setFlyerCategory(cat)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all ${flyerCategory === cat ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border text-muted-foreground hover:text-foreground"}`}>
-                {cat}
-              </button>
-            ))}
+            {FLYER_CATEGORIES.map(cat => {
+              const style = CATEGORY_STYLES[cat];
+              const active = flyerCategory === cat;
+              return (
+                <button key={cat} onClick={() => setFlyerCategory(cat)}
+                  className={`px-4 py-2 rounded-full text-xs font-black transition-all ${active
+                    ? (style ? style.pill : "bg-primary text-primary-foreground") + " border-transparent"
+                    : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}>
+                  {cat}
+                </button>
+              );
+            })}
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -359,7 +408,7 @@ export default function StaffTraining() {
                 </div>
                 <div className="p-2.5">
                   <p className="text-xs font-bold leading-tight line-clamp-2">{flyer.title}</p>
-                  <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full mt-1 inline-block ${categoryColors[flyer.category] || "bg-slate-100 text-slate-600"}`}>
+                  <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full mt-1 inline-block ${(CATEGORY_STYLES[flyer.category] || {}).badge || "bg-slate-100 text-slate-600"}`}>
                     {flyer.category}
                   </span>
                 </div>
