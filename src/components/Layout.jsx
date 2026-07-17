@@ -6,7 +6,7 @@ import {
   Settings, Menu, ChevronRight, Receipt, Calendar, FolderOpen,
   MessageSquareWarning, CheckSquare, BarChart3, BookTemplate, Zap,
   Navigation, DollarSign, Activity, Banknote, LogOut, Link2, BookOpen,
-  Shield, Database, CheckCircle2, Cloud, Mail,
+  Shield, Database, CheckCircle2, Cloud, Mail, ChevronDown,
 } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -107,6 +107,7 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [hiddenPaths, setHiddenPaths] = useState(null); // null = loading
+  const [expandedSections, setExpandedSections] = useState({});
 
   useEffect(() => {
     async function loadPerms() {
@@ -138,6 +139,23 @@ export default function Layout() {
   const isStaff = currentUser?.role === "user";
   const navSections = isStaff ? STAFF_NAV_SECTIONS : ADMIN_NAV_SECTIONS;
 
+  // Auto-expand the section containing the current route
+  useEffect(() => {
+    const activeSection = navSections.find(section =>
+      section.items.some(item => {
+        if (item.path.startsWith("EXTERNAL:")) return false;
+        return location.pathname === `/dashboard${item.path}`;
+      })
+    );
+    if (activeSection) {
+      setExpandedSections(prev => ({ ...prev, [activeSection.title]: true }));
+    }
+  }, [location.pathname, navSections]);
+
+  const toggleSection = (title) => {
+    setExpandedSections(prev => ({ ...prev, [title]: !prev[title] }));
+  };
+
   return (
     <div className="min-h-screen flex bg-background">
       {sidebarOpen && (
@@ -161,47 +179,64 @@ export default function Layout() {
           </div>
         )}
 
-        <nav className="flex-1 px-4 pb-4 overflow-y-auto space-y-6">
+        <nav className="flex-1 px-4 pb-4 overflow-y-auto space-y-1.5">
           {navSections.map((section) => {
             const visibleItems = isStaff
               ? section.items
               : section.items.filter(item => !(hiddenPaths ?? []).includes(item.path));
             if (visibleItems.length === 0) return null;
+            const isExpanded = expandedSections[section.title];
+            const hasActive = visibleItems.some(item =>
+              !item.path.startsWith("EXTERNAL:") && location.pathname === `/dashboard${item.path}`
+            );
             return (
               <div key={section.title}>
-                <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest px-3 mb-2">
-                  {section.title}
-                </p>
-                <div className="space-y-0.5">
-                  {visibleItems.map((item) => {
-                    const isActive = location.pathname === `/dashboard${item.path}`;
-                    const Icon = item.icon;
-                    const isExternal = item.path.startsWith("EXTERNAL:");
-                    const href = isExternal ? item.path.replace("EXTERNAL:", "") : `/dashboard${item.path}`;
-                    const linkClass = `w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all ${
-                      isActive
-                        ? "bg-primary text-primary-foreground shadow-md"
-                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                    }`;
-                    return isExternal ? (
-                      <a key={item.path} href={href} target="_blank" rel="noopener noreferrer" className={linkClass}>
-                        <Icon size={18} />
-                        <span>{item.label}</span>
-                      </a>
-                    ) : (
-                      <Link
-                        key={item.path}
-                        to={href}
-                        onClick={() => setSidebarOpen(false)}
-                        className={linkClass}
-                      >
-                        <Icon size={18} />
-                        <span>{item.label}</span>
-                        {isActive && <ChevronRight size={14} className="ml-auto" />}
-                      </Link>
-                    );
-                  })}
-                </div>
+                <button
+                  onClick={() => toggleSection(section.title)}
+                  className={`w-full flex items-center justify-between gap-2 px-3 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+                    hasActive
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                  }`}
+                >
+                  <span>{section.title}</span>
+                  <ChevronDown
+                    size={14}
+                    className={`shrink-0 transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`}
+                  />
+                </button>
+                {isExpanded && (
+                  <div className="space-y-0.5 mt-1">
+                    {visibleItems.map((item) => {
+                      const isActive = location.pathname === `/dashboard${item.path}`;
+                      const Icon = item.icon;
+                      const isExternal = item.path.startsWith("EXTERNAL:");
+                      const href = isExternal ? item.path.replace("EXTERNAL:", "") : `/dashboard${item.path}`;
+                      const linkClass = `w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-semibold transition-all ${
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-md"
+                          : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      }`;
+                      return isExternal ? (
+                        <a key={item.path} href={href} target="_blank" rel="noopener noreferrer" className={linkClass}>
+                          <Icon size={18} />
+                          <span>{item.label}</span>
+                        </a>
+                      ) : (
+                        <Link
+                          key={item.path}
+                          to={href}
+                          onClick={() => setSidebarOpen(false)}
+                          className={linkClass}
+                        >
+                          <Icon size={18} />
+                          <span>{item.label}</span>
+                          {isActive && <ChevronRight size={14} className="ml-auto" />}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           })}
