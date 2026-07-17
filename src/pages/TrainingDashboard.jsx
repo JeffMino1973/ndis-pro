@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList,
 } from "recharts";
+import TeamHeatmap from "@/components/training/TeamHeatmap";
 
 const CHART_HEIGHT = 420;
 
@@ -31,12 +32,19 @@ function StatCard({ icon: Icon, label, value, sub, accent }) {
 
 export default function TrainingDashboard() {
   const [enrollments, setEnrollments] = useState([]);
+  const [staffMembers, setStaffMembers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    base44.entities.LMSEnrollment.filter({ target_type: "staff" }, "-created_date", 500)
-      .then(setEnrollments)
-      .catch(() => setEnrollments([]))
+    Promise.all([
+      base44.entities.LMSEnrollment.filter({ target_type: "staff" }, "-created_date", 500),
+      base44.entities.StaffMember.list(),
+    ])
+      .then(([enr, staff]) => {
+        setEnrollments(enr || []);
+        setStaffMembers(staff || []);
+      })
+      .catch(() => { setEnrollments([]); setStaffMembers([]); })
       .finally(() => setLoading(false));
   }, []);
 
@@ -156,6 +164,9 @@ export default function TrainingDashboard() {
           <span className="flex items-center gap-1.5"><span className="w-3 h-3 rounded-full bg-green-500" />75%+</span>
         </div>
       </div>
+
+      {/* Team Heat-Map */}
+      <TeamHeatmap enrollments={enrollments} staffMembers={staffMembers} />
     </div>
   );
 }
