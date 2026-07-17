@@ -173,6 +173,7 @@ export default function ParticipantPortal() {
   const [uploading, setUploading] = useState(false);
   const [editingDoc, setEditingDoc] = useState(null);
 
+  const [showArchivedPbsps, setShowArchivedPbsps] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [raAssessments, setRaAssessments] = useState([]);
   const [siteLinks, setSiteLinks] = useState([]);
@@ -986,12 +987,22 @@ export default function ParticipantPortal() {
             <div className="bg-white border border-slate-200 rounded-2xl p-6">
               <PBSReferenceDocs />
             </div>
-            {pbsps.length === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
-                <MessageSquareWarning size={36} className="text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-500 text-sm">No behaviour support plan on file.</p>
-              </div>
-            ) : pbsps.map(plan => (
+            {pbsps.length > 0 && (
+              <div className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden">
+                <button
+                  onClick={() => setShowArchivedPbsps(s => !s)}
+                  className="w-full flex items-center justify-between px-5 py-3 text-left"
+                >
+                  <span className="flex items-center gap-2 font-bold text-slate-600 text-sm">
+                    <Archive size={15} className="text-slate-400" />
+                    Archived Behaviour Support Plans
+                    <span className="text-[10px] font-black text-slate-400 bg-slate-200 px-2 py-0.5 rounded-full">{pbsps.length}</span>
+                  </span>
+                  {showArchivedPbsps ? <ChevronUp size={15} className="text-slate-400" /> : <ChevronDown size={15} className="text-slate-400" />}
+                </button>
+                {showArchivedPbsps && (
+                  <div className="px-4 pb-4 space-y-3">
+            {pbsps.map(plan => (
               <div key={plan.id} className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
                 <div className="bg-slate-800 text-white px-6 py-8">
                   <h1 className="text-2xl font-black mb-1">Positive Behaviour Support Plan</h1>
@@ -1036,6 +1047,10 @@ export default function ParticipantPortal() {
                 </div>
               </div>
             ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 

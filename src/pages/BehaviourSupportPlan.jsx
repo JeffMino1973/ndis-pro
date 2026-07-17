@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Brain, TrafficCone, Utensils, ShieldHalf, BandageIcon, Smartphone, UserCheck, Plus, Trash2, TriangleAlert, FileText } from "lucide-react";
+import { Brain, TrafficCone, Utensils, ShieldHalf, BandageIcon, Smartphone, UserCheck, Plus, Trash2, TriangleAlert, FileText, Archive, ChevronDown, ChevronUp } from "lucide-react";
 import PBSReferenceDocs from "@/components/behaviour/PBSReferenceDocs";
 
 const DEFAULT_ENTRIES = [
@@ -62,6 +62,7 @@ export default function BehaviourSupportPlan() {
     } catch { return DEFAULT_ENTRIES; }
   });
   const [toast, setToast] = useState(null);
+  const [showArchived, setShowArchived] = useState(false);
   const [newEntry, setNewEntry] = useState({
     time: "",
     antecedent: ANTECEDENT_OPTIONS[0],
@@ -134,6 +135,22 @@ export default function BehaviourSupportPlan() {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 sm:p-8">
           <PBSReferenceDocs />
         </div>
+
+        {/* ---- Archived Older Plans ---- */}
+        <div className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden">
+          <button
+            onClick={() => setShowArchived(s => !s)}
+            className="w-full flex items-center justify-between px-6 py-4 text-left"
+          >
+            <span className="flex items-center gap-2 font-bold text-slate-600 text-sm">
+              <Archive size={16} className="text-slate-400" />
+              Archived Behaviour Support Documents
+              <span className="text-[10px] font-black text-slate-400 bg-slate-200 px-2 py-0.5 rounded-full">Older</span>
+            </span>
+            {showArchived ? <ChevronUp size={16} className="text-slate-400" /> : <ChevronDown size={16} className="text-slate-400" />}
+          </button>
+          {showArchived && (
+            <div className="px-4 pb-4 space-y-8">
 
         {/* ---- PAGE 1 ---- */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 sm:p-10">
@@ -340,6 +357,12 @@ export default function BehaviourSupportPlan() {
             </div>
           </div>
         </div>
+
+            </div>
+          )}
+        </div>
+        {/* ---- End Archived ---- */}
+
       </div>
     </div>
   );
