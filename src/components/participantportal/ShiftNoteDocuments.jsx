@@ -29,19 +29,19 @@ const SHIFT_NOTE_DOCS = [
   {
     day: "Saturday",
     label: "Saturday Outbound Shift Notes",
-    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/7fe95d7ad_Saturday_Outbound_Shift_Notes.html",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/874e48895_Saturday_Outbound_Shift_Notes.html",
     description: "Outbound journey shift notes",
   },
   {
     day: "Saturday",
     label: "Saturday Return Shift Notes",
-    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/e1e1fa2c8_Saturday_Return_Shift_Notes.html",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/aa4d1cf08_Saturday_Return_Shift_Notes.html",
     description: "Return journey shift notes",
   },
   {
     day: "Saturday",
     label: "Saturday Domestic Skills Notes & Checklist",
-    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/32e1c10fe_Saturday_Domestic_Skills_Shift_Notes_Checklist.html",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/23feabeb3_Saturday_Domestic_Skills_Shift_Notes_Checklist.html",
     description: "Domestic skills shift notes and checklists",
   },
   {
@@ -55,6 +55,12 @@ const SHIFT_NOTE_DOCS = [
     label: "Sunday Return Shift Notes",
     url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/9fa3e13f6_Sunday_Return_Shift_Notes.html",
     description: "Return journey shift notes",
+  },
+  {
+    day: "Sunday",
+    label: "Sunday Coles Weekly Shopping Checklist",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/2de671eeb_Sunday_Coles_Weekly_Shopping_Checklist.html",
+    description: "Weekly shopping checklist for Coles",
   },
 ];
 
