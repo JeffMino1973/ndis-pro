@@ -451,6 +451,17 @@ export default function StaffTraining() {
       {/* ── VIDEOS & PODCASTS TAB ─────────────────────────────────────────────────── */}
       {tab === "media" && <TrainingMedia search={search} />}
 
+      {/* ── SOURCE NOTE ──────────────────────────────────────────────────────────── */}
+      <div className="mt-2 p-4" style={{ background: "#f6f9fc", borderLeft: "4px solid #1565a8", color: "#566a7c", fontSize: "12px", lineHeight: 1.55 }}>
+        Training resources are curated from NDIS Quality and Safeguards Commission materials, Sue Larkey educational content,
+        and internal SZ-JIE policy documents. All content is reviewed quarterly for compliance and accuracy.
+      </div>
+
+      {/* ── FOOTER ──────────────────────────────────────────────────────────────── */}
+      <div className="pt-3.5 border-t text-center" style={{ borderColor: "#dce6ef", color: "#738292", fontSize: "11px" }}>
+        SZ-JIE Support Services · NSW Registered NDIS Provider · ABN 2638 · Staff Development Portal
+      </div>
+
       {/* ── LIGHTBOX ─────────────────────────────────────────────────────────────── */}
       {lightboxIndex !== null && (
         <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setLightboxIndex(null)}>
