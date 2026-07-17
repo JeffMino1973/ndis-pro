@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Plus, ClipboardList, Loader2, ChevronDown, ChevronUp, MapPin, Check } from "lucide-react";
-import ShiftNoteForm from "@/components/shiftnotes/ShiftNoteForm";
+import { Plus, ClipboardList, Loader2, ChevronDown, ChevronUp, MapPin, Check, ExternalLink } from "lucide-react";
+import ShiftNoteTemplatePicker from "@/components/shiftnotes/ShiftNoteTemplatePicker";
+import { getDayOfWeek } from "@/utils/shiftNoteTemplates";
 
 const DAY_COLORS = {
   Monday: "bg-blue-100 text-blue-700",
@@ -19,33 +20,71 @@ export default function ShiftNotes() {
   const [notes, setNotes] = useState([]);
   const [staffMembers, setStaffMembers] = useState([]);
   const [participants, setParticipants] = useState([]);
+  const [allShifts, setAllShifts] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+  const [creating, setCreating] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     async function load() {
-      const [me, allNotes, allStaff, allParticipants] = await Promise.all([
+      const [me, allNotes, allStaff, allParticipants, shifts] = await Promise.all([
         base44.auth.me(),
         base44.entities.ShiftNote.list("-shift_date"),
         base44.entities.StaffMember.list(),
         base44.entities.Participant.list(),
+        base44.entities.Shift.list("-date", 500),
       ]);
       setUser(me);
       setNotes(allNotes);
       setStaffMembers(allStaff);
       setParticipants(allParticipants);
+      setAllShifts(shifts);
       setLoading(false);
     }
     load();
   }, []);
 
-  const handleSubmit = async (formData) => {
-    await base44.entities.ShiftNote.create({ ...formData, status: "Submitted" });
+  const refreshNotes = async () => {
     const updated = await base44.entities.ShiftNote.list("-shift_date");
     setNotes(updated);
-    setShowForm(false);
+  };
+
+  // Match a shift note template selection to a rostered shift by staff/participant/date
+  const matchShift = () => {
+    const myName = (user?.full_name || "").toLowerCase().trim();
+    if (!myName) return null;
+    const today = new Date().toISOString().split("T")[0];
+    const ci = (a, b) => (a || "").toLowerCase().trim() === b;
+    // Prefer today's shift, then most recent upcoming/past shift
+    const myShifts = allShifts.filter(s => ci(s.staff_name, myName));
+    const todays = myShifts.find(s => s.date === today);
+    if (todays) return todays;
+    const sorted = [...myShifts].sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+    return sorted[0] || null;
+  };
+
+  const handleTemplateSelect = async (tpl) => {
+    setCreating(true);
+    const shift = matchShift();
+    const dow = getDayOfWeek(shift?.date);
+    await base44.entities.ShiftNote.create({
+      staff_name: user?.full_name || shift?.staff_name || "",
+      participant_name: shift?.participant_name || "",
+      shift_date: shift?.date || new Date().toISOString().split("T")[0],
+      shift_id: shift?.id || "",
+      day_of_week: dow || "",
+      program_type: shift?.program_type || tpl.program_types[0] || "Other",
+      template_id: tpl.id,
+      template_label: tpl.label,
+      template_url: tpl.url,
+      status: "Submitted",
+    });
+    await refreshNotes();
+    setCreating(false);
+    setShowPicker(false);
+    window.open(tpl.url, "_blank");
   };
 
   if (loading) return (
@@ -67,26 +106,26 @@ export default function ShiftNotes() {
             <p className="text-sm text-muted-foreground">Life Skills · Community Programs · Domestic Skills · Weekly Shopping</p>
           </div>
         </div>
-        {!showForm && (
-          <Button onClick={() => setShowForm(true)} className="rounded-xl font-bold gap-2">
+        {!showPicker && (
+          <Button onClick={() => setShowPicker(true)} className="rounded-xl font-bold gap-2">
             <Plus size={16} /> New Shift Note
           </Button>
         )}
       </div>
 
-      {/* Form */}
-      {showForm && (
-        <ShiftNoteForm
-          staffMembers={staffMembers}
-          participants={participants}
+      {/* Template Picker */}
+      {showPicker && (
+        <ShiftNoteTemplatePicker
           defaultStaffName={user?.full_name}
-          onSubmit={handleSubmit}
-          onCancel={() => setShowForm(false)}
+          matchedShift={matchShift()}
+          onSelect={handleTemplateSelect}
+          onCancel={() => setShowPicker(false)}
+          creating={creating}
         />
       )}
 
       {/* List */}
-      {!showForm && (
+      {!showPicker && (
         <div className="space-y-3">
           {notes.length === 0 ? (
             <div className="text-center py-16 text-muted-foreground bg-card border border-border rounded-2xl">
@@ -122,6 +161,18 @@ export default function ShiftNotes() {
 
                   {expanded && (
                     <div className="border-t border-border p-4 space-y-4 bg-secondary/20">
+                      {/* Template link */}
+                      {note.template_url && (
+                        <a
+                          href={note.template_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-2 text-xs font-bold text-primary bg-primary/10 border border-primary/20 rounded-lg px-3 py-2 hover:bg-primary/15 transition"
+                        >
+                          <ExternalLink size={13} /> {note.template_label || "Open Shift Note Workbook"}
+                        </a>
+                      )}
+
                       {/* Route */}
                       <div className="flex items-center gap-2 text-xs font-semibold text-primary bg-primary/5 rounded-lg px-3 py-2">
                         <MapPin size={13} /> {note.travel_route || "—"}

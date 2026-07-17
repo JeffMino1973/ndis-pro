@@ -15,6 +15,10 @@
       "format": "date",
       "title": "Shift Date"
     },
+    "shift_id": {
+      "type": "string",
+      "title": "Linked Shift ID"
+    },
     "day_of_week": {
       "type": "string",
       "title": "Day",
@@ -41,6 +45,18 @@
         "Other"
       ],
       "default": "Life Skills Program"
+    },
+    "template_id": {
+      "type": "string",
+      "title": "Shift Note Template ID"
+    },
+    "template_label": {
+      "type": "string",
+      "title": "Shift Note Template Label"
+    },
+    "template_url": {
+      "type": "string",
+      "title": "Shift Note Template URL"
     },
     "travel_route": {
       "type": "string",

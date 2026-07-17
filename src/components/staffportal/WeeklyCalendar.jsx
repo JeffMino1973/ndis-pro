@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { format, addDays, isSameDay, parseISO, isToday } from "date-fns";
-import { ChevronLeft, ChevronRight, Clock, MapPin, FileText, AlertCircle, CheckCircle2, ClipboardList, X, DollarSign, User, Calendar } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, MapPin, FileText, AlertCircle, CheckCircle2, ClipboardList, X, DollarSign, User, Calendar, ExternalLink } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
-import ShiftNoteForm from "@/components/shiftnotes/ShiftNoteForm";
+import ShiftNoteTemplatePicker from "@/components/shiftnotes/ShiftNoteTemplatePicker";
+import { getTemplateForShift } from "@/utils/shiftNoteTemplates";
 
 const STATUS_STYLE = {
   Scheduled:  { dot: "bg-blue-400",    badge: "bg-blue-100 text-blue-700" },
@@ -136,7 +137,7 @@ function DayColumn({ day, shifts, pendingParticipants, shiftNotes, onShiftClick 
 
 // ── Shift Detail Modal ──
 function ShiftDetailModal({ shift, shiftNote, staffMembers, participants, onClose, onNoteSubmitted }) {
-  const [mode, setMode] = useState("detail"); // "detail" | "note" | "viewNote"
+  const [mode, setMode] = useState("detail"); // "detail" | "note"
   const [saving, setSaving] = useState(false);
 
   if (!shift) return null;
@@ -145,20 +146,24 @@ function ShiftDetailModal({ shift, shiftNote, staffMembers, participants, onClos
   const progBadge = PROGRAM_BADGE[shift.program_type] || "bg-slate-100 text-slate-600";
   const dow = getDayOfWeek(shift.date);
 
-  const handleNoteSubmit = async (formData) => {
+  const handleTemplateSelect = async (tpl) => {
     setSaving(true);
-    await base44.entities.ShiftNote.create({ ...formData, status: "Submitted" });
+    await base44.entities.ShiftNote.create({
+      staff_name: shift.staff_name,
+      participant_name: shift.participant_name,
+      shift_date: shift.date,
+      shift_id: shift.id,
+      day_of_week: dow,
+      program_type: shift.program_type || tpl.program_types[0] || "Other",
+      template_id: tpl.id,
+      template_label: tpl.label,
+      template_url: tpl.url,
+      status: "Submitted",
+    });
     setSaving(false);
     onNoteSubmitted();
     setMode("detail");
-  };
-
-  const prefill = {
-    staff_name: shift.staff_name,
-    participant_name: shift.participant_name,
-    shift_date: shift.date,
-    day_of_week: dow,
-    program_type: shift.program_type || "Life Skills Program",
+    window.open(tpl.url, "_blank");
   };
 
   return (
@@ -177,21 +182,14 @@ function ShiftDetailModal({ shift, shiftNote, staffMembers, participants, onClos
 
         <div className="p-5 space-y-4">
           {mode === "note" ? (
-            /* ── Complete Shift Note Form ── */
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <ClipboardList size={18} className="text-primary" />
-                <h4 className="font-black text-sm">Complete Shift Note</h4>
-              </div>
-              <ShiftNoteForm
-                staffMembers={staffMembers}
-                participants={participants}
-                defaultStaffName={shift.staff_name}
-                prefill={prefill}
-                onSubmit={handleNoteSubmit}
-                onCancel={() => setMode("detail")}
-              />
-            </div>
+            /* ── Select Shift Note Template ── */
+            <ShiftNoteTemplatePicker
+              defaultStaffName={shift.staff_name}
+              matchedShift={shift}
+              onSelect={handleTemplateSelect}
+              onCancel={() => setMode("detail")}
+              creating={saving}
+            />
           ) : (
             <>
               {/* ── Shift Info ── */}
@@ -290,6 +288,16 @@ function ShiftDetailModal({ shift, shiftNote, staffMembers, participants, onClos
 function ShiftNoteContent({ note }) {
   return (
     <div className="space-y-3 text-sm">
+      {note.template_url && (
+        <a
+          href={note.template_url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 text-xs font-bold text-primary bg-primary/10 border border-primary/20 rounded-lg px-3 py-2 hover:bg-primary/15 transition"
+        >
+          <ExternalLink size={13} /> {note.template_label || "Open Shift Note Workbook"}
+        </a>
+      )}
       {note.travel_route && (
         <div className="flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/5 rounded-lg px-3 py-2">
           <MapPin size={13} /> {note.travel_route}
@@ -430,17 +438,37 @@ export default function WeeklyCalendar({ shifts }) {
       {/* Pending tasks callout */}
       {pendingCount > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-          <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-2 mb-3">
             <AlertCircle size={16} className="text-amber-500 shrink-0" />
             <h4 className="font-black text-sm text-amber-800">Pending Tasks This Week</h4>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {[...new Set(pending.map(s => s.participant_name))].map(name => {
-              const participantPending = pending.filter(s => s.participant_name === name);
+          <div className="space-y-2">
+            {pending.map(s => {
+              const hasNote = !!matchShiftNote(s, shiftNotes);
+              const tpl = getTemplateForShift(s);
               return (
-                <div key={name} className="bg-white border border-amber-200 rounded-lg px-3 py-1.5 text-xs">
-                  <span className="font-black text-amber-800">{name}</span>
-                  <span className="text-amber-600 ml-1">— {participantPending.length} shift{participantPending.length !== 1 ? "s" : ""} to log</span>
+                <div key={s.id} className="bg-white border border-amber-200 rounded-xl px-3 py-2 flex items-center justify-between gap-2 flex-wrap">
+                  <div className="text-xs min-w-0">
+                    <span className="font-black text-amber-800">{s.participant_name}</span>
+                    <span className="text-amber-600 ml-1">— {s.date} ({getDayOfWeek(s.date)})</span>
+                    {s.program_type && <span className="text-amber-500 ml-1">· {s.program_type}</span>}
+                  </div>
+                  {hasNote ? (
+                    <span className="flex items-center gap-1 text-[10px] font-black text-primary bg-primary/5 border border-primary/20 rounded-lg px-2 py-1">
+                      <CheckCircle2 size={11} /> Note completed
+                    </span>
+                  ) : tpl ? (
+                    <a
+                      href={tpl.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-1.5 text-[10px] font-black text-white bg-primary hover:bg-primary/90 rounded-lg px-2.5 py-1 transition shrink-0"
+                    >
+                      <ExternalLink size={11} /> {tpl.label}
+                    </a>
+                  ) : (
+                    <span className="text-[10px] font-black text-amber-600 bg-amber-100 rounded-lg px-2 py-1">No template</span>
+                  )}
                 </div>
               );
             })}
