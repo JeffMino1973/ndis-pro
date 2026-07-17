@@ -37,7 +37,9 @@ const PROGRAM_SECTIONS = [
     icon: Home,
     color: "text-purple-600 bg-purple-50 border-purple-200",
     description: "Daily living and domestic skills program documents",
-    docs: [],
+    docs: [
+      { label: "Saturday Domestic Skills Shift Notes", description: "Weekly shift notes workbook for Saturday domestic skills sessions", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/eae5f78cc_SaturdayDomesticSkillsShiftNotes.html" },
+    ],
   },
 ];
 
