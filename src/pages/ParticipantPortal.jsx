@@ -17,6 +17,7 @@ import SpendingTracker from "@/components/participantportal/SpendingTracker";
 import ParticipantLearningHub from "@/components/participantportal/ParticipantLearningHub";
 import ShiftNoteDocuments from "@/components/participantportal/ShiftNoteDocuments";
 import Programs from "@/components/participantportal/Programs";
+import PBSReferenceDocs from "@/components/behaviour/PBSReferenceDocs";
 
 const IP_PHASE_COLORS = ["bg-blue-600", "bg-amber-500", "bg-emerald-500", "bg-purple-600"];
 
@@ -982,6 +983,9 @@ export default function ParticipantPortal() {
         {/* PBSP TAB */}
         {activeTab === "pbsp" && (
           <div className="space-y-4">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6">
+              <PBSReferenceDocs />
+            </div>
             {pbsps.length === 0 ? (
               <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
                 <MessageSquareWarning size={36} className="text-slate-300 mx-auto mb-3" />

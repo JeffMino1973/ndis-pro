@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Brain, TrafficCone, Utensils, ShieldHalf, BandageIcon, Smartphone, UserCheck, Plus, Trash2, TriangleAlert, FileText } from "lucide-react";
+import PBSReferenceDocs from "@/components/behaviour/PBSReferenceDocs";
 
 const DEFAULT_ENTRIES = [
   {
@@ -128,6 +129,11 @@ export default function BehaviourSupportPlan() {
       </div>
 
       <div className="max-w-5xl mx-auto px-4 mt-8 space-y-8">
+
+        {/* ---- PBS Reference Documents ---- */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 sm:p-8">
+          <PBSReferenceDocs />
+        </div>
 
         {/* ---- PAGE 1 ---- */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-xl p-6 sm:p-10">
