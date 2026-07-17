@@ -163,7 +163,7 @@ export default function StudentPortal() {
         <div className="bg-gradient-to-r from-[#0b2f55] to-[#1565c0] text-white px-6 py-5">
           <div className="max-w-4xl mx-auto flex items-center justify-between flex-wrap gap-3">
             <div className="flex items-center gap-4">
-              <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/47f1ece76_szjie-logo-transparent.png" alt="SZ-JIE" className="h-12 w-12 object-contain" />
+              <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/539befd5f_White_transparent.png" alt="SZ-JIE Support Services" className="h-12 object-contain" />
               <div>
                 <h1 className="font-black text-xl">My Learning Hub</h1>
                 <p className="text-white/80 text-sm">Welcome, {user.full_name}!</p>
