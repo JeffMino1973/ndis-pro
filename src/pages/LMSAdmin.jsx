@@ -54,20 +54,23 @@ export default function LMSAdmin() {
   const [showEnrollForm, setShowEnrollForm] = useState(false);
   const [editCourse, setEditCourse] = useState(null);
   const [courseForm, setCourseForm] = useState({ title: "", description: "", category: CATEGORIES[0], activity_url: "", is_active: true });
-  const [enrollForm, setEnrollForm] = useState({ student_name: "", student_email: "", participant_id: "", course_id: "" });
+  const [staffMembers, setStaffMembers] = useState([]);
+  const [enrollForm, setEnrollForm] = useState({ target_type: "student", student_name: "", student_email: "", participant_id: "", staff_id: "", course_id: "" });
   const [search, setSearch] = useState("");
   const [activePlan, setActivePlan] = useState(null);
 
   const load = async () => {
     setLoading(true);
-    const [c, e, p] = await Promise.all([
+    const [c, e, p, s] = await Promise.all([
       base44.entities.LMSCourse.list("-created_date", 100),
       base44.entities.LMSEnrollment.list("-created_date", 200),
       base44.entities.Participant.list("-created_date", 100).catch(() => []),
+      base44.entities.StaffMember.list("-created_date", 200).catch(() => []),
     ]);
     setCourses(c);
     setEnrollments(e);
     setParticipants(p);
+    setStaffMembers(s);
     setLoading(false);
   };
 
@@ -93,9 +96,9 @@ export default function LMSAdmin() {
 
   const saveEnrollment = async () => {
     const course = courses.find(c => c.id === enrollForm.course_id);
-    await base44.entities.LMSEnrollment.create({ ...enrollForm, course_title: course?.title || "" });
+ await base44.entities.LMSEnrollment.create({ ...enrollForm, course_title: course?.title || "" });
     setShowEnrollForm(false);
-    setEnrollForm({ student_name: "", student_email: "", participant_id: "", course_id: "" });
+    setEnrollForm({ target_type: "student", student_name: "", student_email: "", participant_id: "", staff_id: "", course_id: "" });
     load();
   };
 
@@ -116,7 +119,7 @@ export default function LMSAdmin() {
 
   const filteredEnrollments = enrollments.filter(e =>
     !search || e.student_name?.toLowerCase().includes(search.toLowerCase()) || e.course_title?.toLowerCase().includes(search.toLowerCase())
-  );
+  ).sort((a, b) => (b.target_type === "staff" ? 1 : 0) - (a.target_type === "staff" ? 1 : 0));
 
   if (loading) return <div className="flex items-center justify-center py-20"><div className="w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin" /></div>;
 
@@ -142,10 +145,10 @@ export default function LMSAdmin() {
       {/* Tabs */}
       <div className="flex gap-2 border-b border-border">
         {["courses", "enrollments", "import", "lessons"].map(t => (
-          <button key={t} onClick={() => setTab(t)}
-            className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-bold border-b-2 transition -mb-px capitalize ${tab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
-            {t === "courses" ? `Courses (${courses.length})` : t === "enrollments" ? `Enrollments (${enrollments.length})` : t === "import" ? "Import Activities" : "Lesson Plans (Staff)"}
-          </button>
+        <button key={t} onClick={() => setTab(t)}
+          className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-bold border-b-2 transition -mb-px capitalize ${tab === t ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}>
+          {t === "courses" ? `Courses (${courses.length})` : t === "enrollments" ? `Assignments (${enrollments.length})` : t === "import" ? "Import Activities" : "Lesson Plans (Staff)"}
+        </button>
         ))}
       </div>
 
@@ -202,35 +205,61 @@ export default function LMSAdmin() {
           {showEnrollForm && (
             <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-black text-sm">Assign Course to Student</h3>
+                <h3 className="font-black text-sm">Assign Course</h3>
                 <button onClick={() => setShowEnrollForm(false)}><X size={16} className="text-muted-foreground" /></button>
               </div>
-              <select className="w-full border border-input rounded-md px-3 py-2 text-sm bg-transparent" value={enrollForm.participant_id}
-                onChange={e => {
-                  const p = participants.find(x => x.id === e.target.value);
-                  setEnrollForm(f => ({ ...f, participant_id: e.target.value, student_name: p?.name || f.student_name, student_email: p?.email || f.student_email }));
-                }}>
-                <option value="">-- Select Participant (optional) --</option>
-                {participants.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-              <Input placeholder="Student Name *" value={enrollForm.student_name} onChange={e => setEnrollForm(f => ({ ...f, student_name: e.target.value }))} />
-              <Input placeholder="Student Email" value={enrollForm.student_email} onChange={e => setEnrollForm(f => ({ ...f, student_email: e.target.value }))} />
+              <div className="flex gap-2">
+                <button onClick={() => setEnrollForm(f => ({ ...f, target_type: "student" }))}
+                  className={`flex-1 px-3 py-2 rounded-xl text-xs font-black transition ${enrollForm.target_type === "student" ? "bg-primary text-white" : "bg-secondary text-muted-foreground"}`}>
+                  Assign to Student
+                </button>
+                <button onClick={() => setEnrollForm(f => ({ ...f, target_type: "staff" }))}
+                  className={`flex-1 px-3 py-2 rounded-xl text-xs font-black transition ${enrollForm.target_type === "staff" ? "bg-primary text-white" : "bg-secondary text-muted-foreground"}`}>
+                  Assign to Staff
+                </button>
+              </div>
+              {enrollForm.target_type === "staff" ? (
+                <select className="w-full border border-input rounded-md px-3 py-2 text-sm bg-transparent" value={enrollForm.staff_id}
+                  onChange={e => {
+                    const s = staffMembers.find(x => x.id === e.target.value);
+                    setEnrollForm(f => ({ ...f, staff_id: e.target.value, student_name: s?.name || f.student_name, student_email: s?.email || f.student_email }));
+                  }}>
+                  <option value="">-- Select Staff Member * --</option>
+                  {staffMembers.map(s => <option key={s.id} value={s.id}>{s.name} {s.role ? `· ${s.role}` : ""}</option>)}
+                </select>
+              ) : (
+                <select className="w-full border border-input rounded-md px-3 py-2 text-sm bg-transparent" value={enrollForm.participant_id}
+                  onChange={e => {
+                    const p = participants.find(x => x.id === e.target.value);
+                    setEnrollForm(f => ({ ...f, participant_id: e.target.value, student_name: p?.name || f.student_name, student_email: p?.email || f.student_email }));
+                  }}>
+                  <option value="">-- Select Participant (optional) --</option>
+                  {participants.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                </select>
+              )}
+              <Input placeholder={`${enrollForm.target_type === "staff" ? "Staff" : "Student"} Name *`} value={enrollForm.student_name} onChange={e => setEnrollForm(f => ({ ...f, student_name: e.target.value }))} />
+              <Input placeholder={`${enrollForm.target_type === "staff" ? "Staff" : "Student"} Email`} value={enrollForm.student_email} onChange={e => setEnrollForm(f => ({ ...f, student_email: e.target.value }))} />
               <select className="w-full border border-input rounded-md px-3 py-2 text-sm bg-transparent" value={enrollForm.course_id} onChange={e => setEnrollForm(f => ({ ...f, course_id: e.target.value }))}>
-                <option value="">-- Select Course *--</option>
+                <option value="">-- Select Course *</option>
                 {courses.filter(c => c.is_active !== false).map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
               </select>
               <div className="flex gap-2 justify-end">
                 <Button variant="outline" onClick={() => setShowEnrollForm(false)} className="rounded-xl">Cancel</Button>
-                <Button onClick={saveEnrollment} disabled={!enrollForm.student_name || !enrollForm.course_id} className="rounded-xl">Assign</Button>
+                <Button onClick={saveEnrollment} disabled={!enrollForm.student_name || !enrollForm.course_id || (enrollForm.target_type === "staff" && !enrollForm.staff_id)} className="rounded-xl">Assign</Button>
               </div>
             </div>
           )}
-          <Input placeholder="Search student or course..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-sm" />
+          <Input placeholder="Search name or course..." value={search} onChange={e => setSearch(e.target.value)} className="max-w-sm" />
           <div className="space-y-2">
             {filteredEnrollments.map(e => (
               <div key={e.id} className="bg-card border border-border rounded-xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
                 <div className="min-w-0">
-                  <p className="font-black text-sm truncate">{e.student_name}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-black text-sm truncate">{e.student_name}</p>
+                    <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${e.target_type === "staff" ? "bg-violet-100 text-violet-700" : "bg-blue-100 text-blue-700"}`}>
+                      {e.target_type === "staff" ? "STAFF" : "STUDENT"}
+                    </span>
+                  </div>
                   <p className="text-xs text-muted-foreground">{e.course_title}</p>
                   {e.student_email && <p className="text-xs text-muted-foreground">{e.student_email}</p>}
                 </div>

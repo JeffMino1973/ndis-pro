@@ -2,17 +2,30 @@
   "name": "LMSEnrollment",
   "type": "object",
   "properties": {
+    "target_type": {
+      "type": "string",
+      "title": "Assignment Target",
+      "enum": [
+        "student",
+        "staff"
+      ],
+      "default": "student"
+    },
     "student_name": {
       "type": "string",
-      "title": "Student Name"
+      "title": "Student / Staff Name"
     },
     "student_email": {
       "type": "string",
-      "title": "Student Email"
+      "title": "Student / Staff Email"
     },
     "participant_id": {
       "type": "string",
       "title": "Participant ID"
+    },
+    "staff_id": {
+      "type": "string",
+      "title": "Staff Member ID"
     },
     "course_id": {
       "type": "string",

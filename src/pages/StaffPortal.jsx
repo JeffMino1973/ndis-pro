@@ -14,6 +14,7 @@ import StaffMyProfile from "@/components/staffportal/StaffMyProfile";
 import StaffComplianceDocs from "@/components/staffportal/StaffComplianceDocs";
 import JeffreyProfile from "@/pages/JeffreyProfile";
 import TobyProfile from "@/pages/TobyProfile";
+import StaffLearningHub from "@/components/staffportal/StaffLearningHub";
 
 // ─── All possible portal feature tabs ──────────────────────────────────────────
 export const ALL_PORTAL_FEATURES = [
@@ -228,6 +229,7 @@ export default function StaffPortal() {
     { id: "documents",  label: "Business Docs", icon: FileText },
     { id: "policy",     label: "Policy Manual", icon: BookOpen },
     { id: "training",   label: "Staff Training", icon: GraduationCap },
+    { id: "learning",   label: "My Learning", icon: GraduationCap },
   ];
 
   const allTabs = [
@@ -517,6 +519,9 @@ export default function StaffPortal() {
 
       {/* ── STAFF TRAINING TAB ─────────────────────────────────────────────────── */}
       {tab === "training" && <StaffTraining embedded />}
+
+      {/* ── MY LEARNING TAB (LMS assigned courses) ─────────────────────────────── */}
+      {tab === "learning" && <StaffLearningHub user={user} staffRecord={staffRecord} />}
 
       {/* ── FEATURE TABS — linked pages ────────────────────────────────────────── */}
       {featureTabs.map(ft => tab === ft.id && (
