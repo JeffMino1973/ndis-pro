@@ -180,16 +180,16 @@ const DOC_CATEGORIES = ["All", ...Array.from(new Set(DOCUMENTS.map(d => d.catego
 const FLYER_CATEGORIES = ["All", ...Array.from(new Set(FLYERS.map(f => f.category)))];
 
 const CATEGORY_STYLES = {
-  "Service Quality": { accent: "bg-emerald-500", icon: "bg-emerald-100 text-emerald-600", pill: "bg-emerald-500 text-white", badge: "bg-emerald-100 text-emerald-700" },
-  "NDIS & Community": { accent: "bg-purple-500", icon: "bg-purple-100 text-purple-600", pill: "bg-purple-500 text-white", badge: "bg-purple-100 text-purple-700" },
-  "Induction & Onboarding": { accent: "bg-blue-500", icon: "bg-blue-100 text-blue-600", pill: "bg-blue-500 text-white", badge: "bg-blue-100 text-blue-700" },
-  "Compliance & Safety": { accent: "bg-rose-500", icon: "bg-rose-100 text-rose-600", pill: "bg-rose-500 text-white", badge: "bg-rose-100 text-rose-700" },
-  "HR & Payroll": { accent: "bg-pink-500", icon: "bg-pink-100 text-pink-600", pill: "bg-pink-500 text-white", badge: "bg-pink-100 text-pink-700" },
-  "Work Health & Safety": { accent: "bg-amber-500", icon: "bg-amber-100 text-amber-600", pill: "bg-amber-500 text-white", badge: "bg-amber-100 text-amber-700" },
-  "Autism Awareness": { accent: "bg-indigo-500", icon: "bg-indigo-100 text-indigo-600", pill: "bg-indigo-500 text-white", badge: "bg-indigo-100 text-indigo-700" },
-  "Behaviour & Regulation": { accent: "bg-orange-500", icon: "bg-orange-100 text-orange-600", pill: "bg-orange-500 text-white", badge: "bg-orange-100 text-orange-700" },
-  "Neurodivergence": { accent: "bg-violet-500", icon: "bg-violet-100 text-violet-600", pill: "bg-violet-500 text-white", badge: "bg-violet-100 text-violet-700" },
-  "Support Strategies": { accent: "bg-teal-500", icon: "bg-teal-100 text-teal-600", pill: "bg-teal-500 text-white", badge: "bg-teal-100 text-teal-700" },
+  "Service Quality": { hex: "#10b981", hexLight: "#d1fae5" },
+  "NDIS & Community": { hex: "#8b5cf6", hexLight: "#ede9fe" },
+  "Induction & Onboarding": { hex: "#3b82f6", hexLight: "#dbeafe" },
+  "Compliance & Safety": { hex: "#f43f5e", hexLight: "#ffe4e6" },
+  "HR & Payroll": { hex: "#ec4899", hexLight: "#fce7f3" },
+  "Work Health & Safety": { hex: "#f59e0b", hexLight: "#fef3c7" },
+  "Autism Awareness": { hex: "#6366f1", hexLight: "#e0e7ff" },
+  "Behaviour & Regulation": { hex: "#f97316", hexLight: "#ffedd5" },
+  "Neurodivergence": { hex: "#8b5cf6", hexLight: "#f5f3ff" },
+  "Support Strategies": { hex: "#14b8a6", hexLight: "#ccfbf1" },
 };
 
 const CATEGORY_ICONS = {
@@ -226,116 +226,138 @@ export default function StaffTraining() {
   const lightboxFlyers = lightboxIndex !== null ? filteredFlyers : [];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4 flex-wrap">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-primary rounded-2xl flex items-center justify-center shrink-0">
-            <BookOpen size={26} className="text-primary-foreground" />
+    <div className="max-w-5xl mx-auto bg-white rounded-xl p-6 sm:p-8 my-6 space-y-6" style={{ boxShadow: "0 8px 30px rgba(20,49,76,.14)" }}>
+      {/* Brand Header */}
+      <div className="flex items-start justify-between gap-6 pb-3 border-b-2" style={{ borderColor: "#e4e9ef" }}>
+        <div className="flex items-center gap-3">
+          <div className="w-[60px] h-[60px] rounded-2xl flex items-center justify-center text-white font-black text-xl shrink-0"
+            style={{ background: "linear-gradient(135deg,#102c61,#146bb5 50%,#20b7d8)", boxShadow: "inset 0 0 0 3px rgba(255,255,255,.75), 0 4px 12px rgba(12,74,130,.22)" }}>
+            SZ
           </div>
           <div>
-            <h2 className="text-3xl font-black tracking-tight">Staff Training</h2>
-            <p className="text-muted-foreground text-sm">Training documents, induction resources & educational flyers</p>
+            <strong className="block text-xl" style={{ color: "#103f73" }}>SZ-JIE Support Services</strong>
+            <span className="block text-[11px] font-bold mt-0.5" style={{ color: "#1565a8", letterSpacing: "1.7px" }}>SUPPORT · TRAINING · DEVELOPMENT</span>
           </div>
         </div>
-        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-full px-4 py-2">
-          <div className="w-2 h-2 bg-emerald-500 rounded-full" />
-          <span className="text-xs font-black text-emerald-700">NSW Registered Provider</span>
-          <span className="text-xs font-black text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">Compliant</span>
+        <div className="text-right text-[11px] leading-relaxed hidden sm:block" style={{ color: "#5f7183" }}>
+          <strong style={{ color: "#30475d" }}>NSW Registered Provider</strong><br/>
+          NDIS Compliant · ABN 2638
         </div>
+      </div>
+
+      {/* Hero */}
+      <div className="text-center py-4">
+        <p className="text-xs font-black uppercase" style={{ color: "#21a8d8", letterSpacing: "2.2px" }}>Staff Development Portal</p>
+        <h1 className="text-3xl sm:text-4xl font-black my-2" style={{ color: "#103f73" }}>Online Training Resources</h1>
+        <p className="max-w-2xl mx-auto text-sm leading-relaxed" style={{ color: "#637588" }}>
+          Access training documents, induction resources, educational flyers, video modules and podcasts — all in one centralized hub for staff development and compliance.
+        </p>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4 hover:shadow-md transition">
-          <div className="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center shrink-0"><FileText size={22} className="text-blue-600" /></div>
-          <div><p className="text-2xl font-black">{DOCUMENTS.length}</p><p className="text-xs text-muted-foreground font-bold">Total Documents</p></div>
+        <div className="bg-white border rounded-2xl p-5 flex items-center gap-4" style={{ borderColor: "#dce6ef", boxShadow: "0 4px 14px rgba(20,70,110,.06)" }}>
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#e8f1fa" }}><FileText size={22} style={{ color: "#1565a8" }} /></div>
+          <div><p className="text-2xl font-black" style={{ color: "#103f73" }}>{DOCUMENTS.length}</p><p className="text-xs font-bold" style={{ color: "#637588" }}>Total Documents</p></div>
         </div>
-        <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4 hover:shadow-md transition">
-          <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center shrink-0"><Image size={22} className="text-emerald-600" /></div>
-          <div><p className="text-2xl font-black">{FLYERS.length}</p><p className="text-xs text-muted-foreground font-bold">Flyer Library</p></div>
+        <div className="bg-white border rounded-2xl p-5 flex items-center gap-4" style={{ borderColor: "#dce6ef", boxShadow: "0 4px 14px rgba(20,70,110,.06)" }}>
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#e8f6f0" }}><Image size={22} style={{ color: "#1a8a6a" }} /></div>
+          <div><p className="text-2xl font-black" style={{ color: "#103f73" }}>{FLYERS.length}</p><p className="text-xs font-bold" style={{ color: "#637588" }}>Flyer Library</p></div>
         </div>
-        <div className="bg-card border border-border rounded-2xl p-5 flex items-center gap-4 hover:shadow-md transition">
-          <div className="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center shrink-0"><Video size={22} className="text-amber-600" /></div>
-          <div><p className="text-2xl font-black">9</p><p className="text-xs text-muted-foreground font-bold">Videos & Podcasts</p></div>
+        <div className="bg-white border rounded-2xl p-5 flex items-center gap-4" style={{ borderColor: "#dce6ef", boxShadow: "0 4px 14px rgba(20,70,110,.06)" }}>
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#fef5e7" }}><Video size={22} style={{ color: "#c4861a" }} /></div>
+          <div><p className="text-2xl font-black" style={{ color: "#103f73" }}>9</p><p className="text-xs font-bold" style={{ color: "#637588" }}>Videos & Podcasts</p></div>
         </div>
       </div>
 
-      {/* Tab bar */}
-      <div className="flex gap-1 bg-secondary p-1 rounded-2xl w-fit">
+      {/* Tab bar — jump-nav style */}
+      <div className="flex gap-2 flex-wrap justify-center">
         <button onClick={() => { setTab("documents"); setSearch(""); }}
-          className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === "documents" ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-all"
+          style={tab === "documents" ? { background: "#103f73", color: "#fff", boxShadow: "0 3px 10px rgba(16,63,115,.25)" } : { background: "#eff6fc", color: "#103f73", border: "1px solid #cfe0ef" }}>
           <BookOpen size={14} /> Documents ({DOCUMENTS.length})
         </button>
         <button onClick={() => { setTab("flyers"); setSearch(""); }}
-          className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === "flyers" ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-all"
+          style={tab === "flyers" ? { background: "#103f73", color: "#fff", boxShadow: "0 3px 10px rgba(16,63,115,.25)" } : { background: "#eff6fc", color: "#103f73", border: "1px solid #cfe0ef" }}>
           <Image size={14} /> Flyer Library ({FLYERS.length})
         </button>
         <button onClick={() => { setTab("media"); setSearch(""); }}
-          className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === "media" ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-all"
+          style={tab === "media" ? { background: "#103f73", color: "#fff", boxShadow: "0 3px 10px rgba(16,63,115,.25)" } : { background: "#eff6fc", color: "#103f73", border: "1px solid #cfe0ef" }}>
           <Video size={14} /> Videos & Podcasts
         </button>
       </div>
 
       {/* Search bar */}
       <div className="relative">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2" style={{ color: "#9ca3af" }} />
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder={tab === "documents" ? "Search training documents…" : tab === "flyers" ? "Search flyers…" : "Search videos & podcasts…"}
-          className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-input bg-card text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+          className="w-full pl-9 pr-4 py-2.5 rounded-xl border bg-white text-sm focus:outline-none focus:ring-2"
+          style={{ borderColor: "#dce6ef", outline: "none" }}
         />
       </div>
 
       {/* ── DOCUMENTS TAB ──────────────────────────────────────────────────────── */}
       {tab === "documents" && !viewingDoc && (
-        <div className="space-y-4">
-          {/* Category filter pills */}
-          <div className="flex flex-wrap gap-2">
+        <div className="space-y-5">
+          {/* Jump-nav filter pills */}
+          <div className="flex flex-wrap gap-2 justify-center">
             {DOC_CATEGORIES.map(cat => {
               const style = CATEGORY_STYLES[cat];
               const active = docCategory === cat;
               return (
                 <button key={cat} onClick={() => setDocCategory(cat)}
-                  className={`px-4 py-2 rounded-full text-xs font-black transition-all ${active
-                    ? (style ? style.pill : "bg-primary text-primary-foreground") + " border-transparent"
-                    : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}>
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${active ? "text-white shadow" : "hover:shadow-md"}`}
+                  style={active
+                    ? { background: style ? style.hex : "#103f73", color: "#fff" }
+                    : { background: "#eff6fc", color: "#103f73", border: "1px solid #cfe0ef" }}>
                   {cat}
                 </button>
               );
             })}
           </div>
 
-          {/* Card grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {/* Training card grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredDocs.map((doc, i) => {
               const style = CATEGORY_STYLES[doc.category] || {};
               const Icon = CATEGORY_ICONS[doc.category] || BookOpen;
               return (
-                <div key={i} className="bg-card border border-border rounded-2xl overflow-hidden hover:shadow-lg hover:border-primary/30 transition-all group flex flex-col">
-                  <div className={`h-1.5 ${style.accent || "bg-slate-400"}`} />
-                  <div className="p-4 pb-2">
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${style.icon || "bg-slate-100 text-slate-500"}`}>
+                <div key={i} className="relative bg-white border rounded-2xl overflow-hidden hover:shadow-lg transition-all group flex flex-col"
+                  style={{ borderColor: "#dce6ef", boxShadow: "0 7px 20px rgba(20,70,110,.07)" }}>
+                  {/* Number badge */}
+                  <span className="absolute top-3 right-4 text-3xl font-black leading-none select-none z-10"
+                    style={{ color: "#e7f1f8" }}>{String(i + 1).padStart(2, "0")}</span>
+                  {/* Accent strip */}
+                  <div className="h-1" style={{ background: style.hex || "#94a3b8" }} />
+                  <div className="p-5 pr-16 flex-1 flex flex-col">
+                    <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-3 shrink-0"
+                      style={{ background: style.hexLight || "#f1f5f9", color: style.hex || "#64748b" }}>
                       <Icon size={20} />
                     </div>
-                  </div>
-                  <div className="px-4 flex-1">
-                    <p className="font-bold text-sm leading-snug min-h-[2.5rem]">{doc.title}</p>
-                  </div>
-                  <div className="p-4 pt-3 flex items-center justify-between gap-2">
-                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${style.badge || "bg-slate-100 text-slate-600"}`}>
-                      {doc.category}
-                    </span>
-                    <Button size="sm" onClick={() => setViewingDoc(doc)} className="rounded-xl font-bold text-xs gap-1">
-                      Open <ExternalLink size={12} />
-                    </Button>
+                    <h3 className="font-bold text-sm leading-snug mb-3 flex-1" style={{ color: "#103f73" }}>{doc.title}</h3>
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-black px-2 py-0.5 rounded-full"
+                        style={{ background: style.hexLight || "#f1f5f9", color: style.hex || "#64748b" }}>
+                        {doc.category}
+                      </span>
+                      <button onClick={() => setViewingDoc(doc)}
+                        className="flex items-center gap-1 text-xs font-bold rounded-lg px-3 py-1.5 transition-all hover:opacity-90"
+                        style={{ background: "#1565a8", color: "#fff" }}>
+                        Open <ExternalLink size={12} />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
             })}
             {filteredDocs.length === 0 && (
-              <div className="col-span-full text-center py-12 text-muted-foreground italic text-sm bg-card border border-border rounded-2xl">
+              <div className="col-span-full text-center py-12 italic text-sm bg-white border rounded-2xl"
+                style={{ borderColor: "#dce6ef", color: "#637588" }}>
                 No documents match your search.
               </div>
             )}
@@ -366,7 +388,8 @@ export default function StaffTraining() {
             <div className="bg-secondary px-4 py-2.5 border-b border-border flex items-center gap-2">
               <BookOpen size={14} className="text-primary" />
               <p className="text-sm font-bold truncate">{viewingDoc.title}</p>
-              <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ml-auto shrink-0 ${(CATEGORY_STYLES[viewingDoc.category] || {}).badge || "bg-slate-100 text-slate-600"}`}>
+              <span className="text-[10px] font-black px-2 py-0.5 rounded-full ml-auto shrink-0"
+                style={{ background: (CATEGORY_STYLES[viewingDoc.category] || {}).hexLight || "#f1f5f9", color: (CATEGORY_STYLES[viewingDoc.category] || {}).hex || "#64748b" }}>
                 {viewingDoc.category}
               </span>
             </div>
@@ -390,9 +413,10 @@ export default function StaffTraining() {
               const active = flyerCategory === cat;
               return (
                 <button key={cat} onClick={() => setFlyerCategory(cat)}
-                  className={`px-4 py-2 rounded-full text-xs font-black transition-all ${active
-                    ? (style ? style.pill : "bg-primary text-primary-foreground") + " border-transparent"
-                    : "bg-card border border-border text-muted-foreground hover:text-foreground"}`}>
+                  className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${active ? "text-white shadow" : "hover:shadow-md"}`}
+                  style={active
+                    ? { background: style ? style.hex : "#103f73", color: "#fff" }
+                    : { background: "#eff6fc", color: "#103f73", border: "1px solid #cfe0ef" }}>
                   {cat}
                 </button>
               );
@@ -408,7 +432,8 @@ export default function StaffTraining() {
                 </div>
                 <div className="p-2.5">
                   <p className="text-xs font-bold leading-tight line-clamp-2">{flyer.title}</p>
-                  <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full mt-1 inline-block ${(CATEGORY_STYLES[flyer.category] || {}).badge || "bg-slate-100 text-slate-600"}`}>
+                  <span className="text-[9px] font-black px-1.5 py-0.5 rounded-full mt-1 inline-block"
+                    style={{ background: (CATEGORY_STYLES[flyer.category] || {}).hexLight || "#f1f5f9", color: (CATEGORY_STYLES[flyer.category] || {}).hex || "#64748b" }}>
                     {flyer.category}
                   </span>
                 </div>
