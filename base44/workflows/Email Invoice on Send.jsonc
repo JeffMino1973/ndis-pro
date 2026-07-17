@@ -1,0 +1,40 @@
+{
+  "name": "Email Invoice on Send",
+  "description": "Automatically emails the invoice as a PDF attachment to the plan manager when an invoice status is changed to Sent. Uses the invoice email template with all billing information merged in.",
+  "trigger": {
+    "config": {
+      "trigger_type": "entity",
+      "entity_name": "Invoice",
+      "events": [
+        "update"
+      ]
+    },
+    "condition": "${ .trigger.data.status == \"Sent\" and .trigger.old_data.status != \"Sent\" }"
+  },
+  "definition": {
+    "document": {
+      "dsl": "1.0.0",
+      "name": "email_invoice_on_send",
+      "version": "1.0",
+      "namespace": "base44"
+    },
+    "do": [
+      {
+        "send_invoice_email": {
+          "call": "invoke_backend_function",
+          "with": {
+            "function_name": "emailInvoicePDF",
+            "args": {
+              "invoice_id": "${ .trigger.entity_id }"
+            }
+          },
+          "then": "end",
+          "x-base44": {
+            "title": "Email Invoice PDF",
+            "description": "Generate PDF and send to plan manager"
+          }
+        }
+      }
+    ]
+  }
+}
