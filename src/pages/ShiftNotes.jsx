@@ -153,83 +153,37 @@ export default function ShiftNotes() {
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                        {note.tasks_completed?.length || 0} tasks
+                        {note.template_label || "Template"}
                       </span>
                       {expanded ? <ChevronUp size={16} className="text-muted-foreground" /> : <ChevronDown size={16} className="text-muted-foreground" />}
                     </div>
                   </button>
 
                   {expanded && (
-                    <div className="border-t border-border p-4 space-y-4 bg-secondary/20">
+                    <div className="border-t border-border p-4 space-y-3 bg-secondary/20">
                       {/* Template link */}
-                      {note.template_url && (
+                      {note.template_url ? (
                         <a
                           href={note.template_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 text-xs font-bold text-primary bg-primary/10 border border-primary/20 rounded-lg px-3 py-2 hover:bg-primary/15 transition"
+                          className="flex items-center justify-center gap-2 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl px-4 py-3 transition"
                         >
-                          <ExternalLink size={13} /> {note.template_label || "Open Shift Note Workbook"}
+                          <ExternalLink size={16} /> {note.template_label || "Open Shift Note Workbook"}
                         </a>
+                      ) : (
+                        <p className="text-xs text-muted-foreground italic">No template linked to this shift note.</p>
                       )}
 
-                      {/* Route */}
-                      <div className="flex items-center gap-2 text-xs font-semibold text-primary bg-primary/5 rounded-lg px-3 py-2">
-                        <MapPin size={13} /> {note.travel_route || "—"}
-                      </div>
-
-                      {/* Tasks */}
-                      {note.tasks_completed?.length > 0 && (
-                        <div>
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-2">Tasks Completed</p>
-                          <div className="flex flex-wrap gap-1.5">
-                            {note.tasks_completed.map((t, i) => (
-                              <span key={i} className="flex items-center gap-1 text-xs bg-emerald-50 text-emerald-700 px-2 py-1 rounded-lg font-medium">
-                                <Check size={11} /> {t}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Assessment */}
-                      <div className="grid sm:grid-cols-3 gap-2">
-                        {[
-                          { label: "Engagement", value: note.participant_engagement },
-                          { label: "Support", value: note.support_level },
-                          { label: "Mood", value: note.mood_behaviour },
-                        ].map(a => (
-                          <div key={a.label} className="bg-card border border-border rounded-lg px-3 py-2">
-                            <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{a.label}</p>
-                            <p className="text-xs font-bold mt-0.5">{a.value || "—"}</p>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* Notes */}
-                      {note.progress_notes && (
-                        <div>
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Progress Notes</p>
-                          <p className="text-sm">{note.progress_notes}</p>
-                        </div>
-                      )}
-                      {note.safety_observations && (
-                        <div>
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Safety Observations</p>
-                          <p className="text-sm">{note.safety_observations}</p>
-                        </div>
-                      )}
-                      {note.next_session_goals && (
-                        <div>
-                          <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest mb-1">Goals for Next Session</p>
-                          <p className="text-sm">{note.next_session_goals}</p>
-                        </div>
-                      )}
-
-                      {/* Signature */}
-                      <div className="flex items-center justify-between pt-2 border-t border-border">
-                        <span className="text-xs text-muted-foreground">Signed: <strong className="text-foreground">{note.staff_signature || "—"}</strong></span>
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
+                      {/* Meta badges */}
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        {note.program_type && (
+                          <span className="bg-card border border-border rounded-lg px-2.5 py-1 font-semibold">{note.program_type}</span>
+                        )}
+                        {note.day_of_week && (
+                          <span className="bg-card border border-border rounded-lg px-2.5 py-1 font-semibold">{note.day_of_week}</span>
+                        )}
+                        <span className={`rounded-lg px-2.5 py-1 font-black ${
                           note.status === "Submitted" ? "bg-blue-100 text-blue-700" :
                           note.status === "Reviewed" ? "bg-emerald-100 text-emerald-700" :
                           "bg-slate-100 text-slate-600"
