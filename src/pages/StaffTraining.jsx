@@ -242,7 +242,6 @@ export default function StaffTraining({ embedded = false }) {
           </div>
         </div>
         <div className="text-right text-[11px] leading-relaxed hidden sm:block" style={{ color: "#5f7183" }}>
-          <strong style={{ color: "#30475d" }}>NSW Registered Provider</strong><br/>
           NDIS Compliant · ABN 2638
         </div>
       </div>
@@ -465,7 +464,7 @@ export default function StaffTraining({ embedded = false }) {
 
       {/* ── FOOTER ──────────────────────────────────────────────────────────────── */}
       <div className="pt-3.5 border-t text-center" style={{ borderColor: "#dce6ef", color: "#738292", fontSize: "11px" }}>
-        SZ-JIE Support Services · NSW Registered NDIS Provider · ABN 2638 · Staff Development Portal
+        SZ-JIE Support Services · ABN 2638 · Staff Development Portal
       </div>
       </>
       )}

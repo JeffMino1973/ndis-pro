@@ -84,7 +84,7 @@ export default function PublicWebsite() {
       <section className="bg-slate-800 overflow-hidden" style={{ minHeight: 360 }}>
         <div className="max-w-6xl mx-auto px-6 flex items-stretch" style={{ minHeight: 360 }}>
           <div className="flex flex-col justify-center py-16 pr-12 flex-1 z-10">
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">NSW Registered NDIS Provider · ABN 86 959 042 971</span>
+            <span className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4">ABN 86 959 042 971</span>
             <h1 className="text-4xl sm:text-5xl font-black text-white leading-tight mb-4">
               Empowering<br />Independence
             </h1>

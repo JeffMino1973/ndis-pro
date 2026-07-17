@@ -279,7 +279,6 @@ export default function Layout() {
             <Menu size={20} />
           </button>
           <div className="hidden lg:flex items-center gap-2 text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">NSW Registered Provider</span>
             <span className="text-[10px] bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">
               Compliant • 2026
             </span>

@@ -111,7 +111,7 @@ const INVOICE_TEMPLATE = (vars = {}) => `<!DOCTYPE html>
           <tr>
             <td style="background-color:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 40px;text-align:center;">
               <p style="margin:0;color:#94a3b8;font-size:11px;line-height:1.6;">
-                NDIS PRO · NSW Registered Provider · ABN: ${vars.abn || "{{ABN}}"}<br/>
+                NDIS PRO · ABN: ${vars.abn || "{{ABN}}"}<br/>
                 This email and any attachments are confidential. If you received this in error, please delete it immediately.
               </p>
             </td>
@@ -239,7 +239,7 @@ const WELCOME_TEMPLATE = (vars = {}) => `<!DOCTYPE html>
           <tr>
             <td style="background-color:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 40px;text-align:center;">
               <p style="margin:0;color:#94a3b8;font-size:11px;line-height:1.6;">
-                NDIS PRO · NSW Registered Provider · ABN: ${vars.abn || "{{ABN}}"}<br/>
+                NDIS PRO · ABN: ${vars.abn || "{{ABN}}"}<br/>
                 This email is confidential and intended only for ${vars.participantName || "the named recipient"}.
               </p>
             </td>
@@ -318,7 +318,7 @@ const GENERAL_TEMPLATE = (vars = {}) => `<!DOCTYPE html>
           <tr>
             <td style="background-color:#f8fafc;border-top:1px solid #e2e8f0;padding:20px 40px;text-align:center;">
               <p style="margin:0;color:#94a3b8;font-size:11px;line-height:1.6;">
-                NDIS PRO · NSW Registered Provider · ABN: ${vars.abn || "{{ABN}}"}<br/>
+                NDIS PRO · ABN: ${vars.abn || "{{ABN}}"}<br/>
                 This email is intended only for the named recipient. If you received it in error, please delete it.
               </p>
             </td>
