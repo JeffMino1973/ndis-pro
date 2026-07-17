@@ -75,6 +75,7 @@ const ADMIN_NAV_SECTIONS = [
       { path: "/gmail", label: "Gmail", icon: Mail },
       { path: "/links", label: "Quick Links", icon: Link2 },
       { path: "/staff-portal", label: "Staff Portal", icon: UserCircle },
+      { path: "/lms", label: "Learning Hub (LMS)", icon: BookOpen },
     ],
   },
   {

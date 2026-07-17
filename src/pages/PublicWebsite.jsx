@@ -70,6 +70,9 @@ export default function PublicWebsite() {
             <a href="/participant-portal" className="text-white text-xs font-bold px-3 py-2 rounded-lg hover:bg-slate-700 transition">
               Participant Portal
             </a>
+            <a href="/student-portal" className="bg-cyan-500 hover:bg-cyan-400 text-white text-xs font-bold px-4 py-2 rounded-lg transition">
+              🎓 Student Portal
+            </a>
             <a href="/dashboard/" className="bg-white text-slate-800 text-xs font-bold px-4 py-2 rounded-lg hover:bg-slate-100 transition">
               Staff Login
             </a>
@@ -479,6 +482,7 @@ export default function PublicWebsite() {
               </p>
               <div className="flex flex-col items-end gap-1">
                 <a href="/dashboard/" className="text-sm text-slate-400 hover:text-white transition underline">Staff Portal</a>
+                <a href="/student-portal" className="text-sm text-slate-400 hover:text-white transition underline">Student Portal</a>
                 <a href="/participant-portal" className="text-sm text-slate-400 hover:text-white transition underline">Participant Portal</a>
                 <a href="/innovation" className="text-sm text-slate-400 hover:text-white transition underline">Innovation</a>
               </div>

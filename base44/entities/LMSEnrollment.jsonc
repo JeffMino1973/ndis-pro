@@ -1,0 +1,52 @@
+{
+  "name": "LMSEnrollment",
+  "type": "object",
+  "properties": {
+    "student_name": {
+      "type": "string",
+      "title": "Student Name"
+    },
+    "student_email": {
+      "type": "string",
+      "title": "Student Email"
+    },
+    "participant_id": {
+      "type": "string",
+      "title": "Participant ID"
+    },
+    "course_id": {
+      "type": "string",
+      "title": "Course ID"
+    },
+    "course_title": {
+      "type": "string",
+      "title": "Course Title"
+    },
+    "assigned_by": {
+      "type": "string",
+      "title": "Assigned By"
+    },
+    "status": {
+      "type": "string",
+      "title": "Status",
+      "enum": [
+        "Assigned",
+        "In Progress",
+        "Completed"
+      ],
+      "default": "Assigned"
+    },
+    "completed_at": {
+      "type": "string",
+      "title": "Completed At"
+    },
+    "notes": {
+      "type": "string",
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "student_name",
+    "course_id"
+  ]
+}

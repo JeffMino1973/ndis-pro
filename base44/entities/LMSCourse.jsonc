@@ -1,0 +1,48 @@
+{
+  "name": "LMSCourse",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "title": "Course Title"
+    },
+    "description": {
+      "type": "string",
+      "title": "Description"
+    },
+    "category": {
+      "type": "string",
+      "title": "Category",
+      "enum": [
+        "Everyday Life & Community Skills",
+        "Maths & Literacy",
+        "Employment & Vocational",
+        "Health & Wellbeing",
+        "Travel & Transport",
+        "Other"
+      ],
+      "default": "Everyday Life & Community Skills"
+    },
+    "activity_url": {
+      "type": "string",
+      "title": "Activity URL (HTML file)"
+    },
+    "thumbnail_url": {
+      "type": "string",
+      "title": "Thumbnail Image URL"
+    },
+    "is_active": {
+      "type": "boolean",
+      "title": "Active",
+      "default": true
+    },
+    "order": {
+      "type": "number",
+      "title": "Display Order",
+      "default": 0
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

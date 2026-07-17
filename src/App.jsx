@@ -58,6 +58,8 @@ import ShiftNotes from './pages/ShiftNotes';
 import GoogleDrive from './pages/GoogleDrive';
 import Gmail from './pages/Gmail';
 import StaffTraining from './pages/StaffTraining';
+import LMSAdmin from './pages/LMSAdmin';
+import StudentPortal from './pages/StudentPortal';
 
 
 const AuthenticatedApp = () => {
@@ -124,6 +126,7 @@ const AuthenticatedApp = () => {
       <Route path="/google-drive" element={<GoogleDrive />} />
       <Route path="/gmail" element={<Gmail />} />
       <Route path="/staff-training" element={<StaffTraining />} />
+      <Route path="/lms" element={<LMSAdmin />} />
       <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/quotes" element={<Quotes />} />
@@ -157,6 +160,7 @@ function App() {
           <Route path="/" element={<PublicWebsite />} />
           <Route path="/innovation" element={<InnovationPage />} />
           <Route path="/participant-portal" element={<ParticipantPortal />} />
+          <Route path="/student-portal" element={<StudentPortal />} />
 
           <Route path="/dashboard/*" element={
             <AuthProvider>
