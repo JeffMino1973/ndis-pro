@@ -58,7 +58,7 @@ export default function PublicWebsite() {
       {/* SZ-JIE Global Header */}
       <nav className="sticky top-0 z-50 bg-slate-800 shadow-lg">
         <div className="max-w-6xl mx-auto px-6 py-3.5 flex items-center gap-4 flex-wrap">
-          <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/50cfec215_ChatGPTImageMay31202609_02_19AM.png" alt="SZ-JIE Logo" className="h-12 shrink-0" />
+          <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/539befd5f_White_transparent.png" alt="SZ-JIE Logo" className="h-12 shrink-0" />
           <div className="flex-1 min-w-0">
             <h1 className="text-lg font-black text-white leading-tight">SZ-JIE Support Services</h1>
             <p className="text-xs text-slate-300">Empowering Independence Across NSW</p>
