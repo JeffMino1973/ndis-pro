@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
-import { Mail, Send, Loader2, Paperclip, CheckCircle, AlertCircle } from "lucide-react";
+import { Mail, Send, Loader2, Paperclip, CheckCircle, AlertCircle, FileText } from "lucide-react";
+import { generatePDFFromHTML } from "@/utils/generatePDF";
 
 const INVOICE_TEMPLATE_URL = "https://media.base44.com/files/public/69d54775d9a169daad84a133/1189154e2_Invoice_Email.html";
 const PAYSLIP_TEMPLATE_URL = "https://media.base44.com/files/public/69d54775d9a169daad84a133/c23215a33_Payslip_Advice.html";
@@ -128,14 +129,12 @@ export default function EmailMergeDialog({
       if (cc) payload.cc = cc;
 
       if (attachmentHtml) {
-        // UTF-8 safe base64 encoding
-        const bytes = new TextEncoder().encode(attachmentHtml);
-        let binary = "";
-        bytes.forEach(b => binary += String.fromCharCode(b));
+        const pdfFilename = attachmentFilename.replace(/\.html$/i, ".pdf");
+        const pdfBase64 = await generatePDFFromHTML(attachmentHtml);
         payload.attachments = [{
-          filename: attachmentFilename,
-          mimeType: "text/html",
-          content: btoa(binary),
+          filename: pdfFilename,
+          mimeType: "application/pdf",
+          content: pdfBase64,
         }];
       }
 
@@ -199,7 +198,7 @@ export default function EmailMergeDialog({
 
             {attachmentHtml && (
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-blue-700 flex items-center gap-2">
-                <Paperclip size={14} /> Attachment: <strong>{attachmentFilename}</strong>
+                <FileText size={14} /> PDF Attachment: <strong>{attachmentFilename.replace(/\.html$/i, ".pdf")}</strong>
               </div>
             )}
 

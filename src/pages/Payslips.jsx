@@ -231,7 +231,7 @@ export default function Payslips() {
             defaultRecipient={activeRecord.staff_email || ""}
             defaultSubject={`Payslip Advice — ${activeRecord.date_from} to ${activeRecord.date_to}`}
             attachmentHtml={payslipAttachmentHtml}
-            attachmentFilename={`Payslip_${activeRecord.payslip_number}.html`}
+            attachmentFilename={`Payslip_${activeRecord.payslip_number}.pdf`}
           />
         </div>
       </>

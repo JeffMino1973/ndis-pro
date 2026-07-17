@@ -462,7 +462,7 @@ function InvoicePrint({ invoice, config, onBack }) {
         defaultRecipient={invoice.plan_manager_email || ""}
         defaultSubject={`NDIS Invoice Claim — ${invoice.invoice_number}`}
         attachmentHtml={attachmentHtml}
-        attachmentFilename={`Invoice_${invoice.invoice_number}.html`}
+        attachmentFilename={`Invoice_${invoice.invoice_number}.pdf`}
       />
     </div>
   );
