@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { BookOpen, Play, CheckCircle, Clock, Star, LogOut, X, ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { prepareActivityHtml } from "@/utils/prepareActivityHtml";
 
 const CATEGORY_COLORS = {
   "Everyday Life & Community Skills": "bg-blue-100 text-blue-700",
@@ -22,7 +23,8 @@ function ActivityViewer({ course, enrollment, onClose, onComplete }) {
     fetch(course.activity_url)
       .then(r => r.text())
       .then(html => {
-        const blob = new Blob([html], { type: "text/html" });
+        const prepared = prepareActivityHtml(html, course.activity_url);
+        const blob = new Blob([prepared], { type: "text/html" });
         url = URL.createObjectURL(blob);
         setBlobUrl(url);
         setLoading(false);

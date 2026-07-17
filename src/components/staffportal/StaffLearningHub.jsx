@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { BookOpen, CheckCircle, Clock, PlayCircle, Award, Loader2, X } from "lucide-react";
+import { prepareActivityHtml } from "@/utils/prepareActivityHtml";
 
 export default function StaffLearningHub({ user, staffRecord }) {
   const [enrollments, setEnrollments] = useState([]);
@@ -162,7 +163,8 @@ function CourseViewer({ course, enrollment, onClose, onComplete, onProgress }) {
     fetch(course.activity_url)
       .then(r => r.text())
       .then(html => {
-        const blob = new Blob([html], { type: "text/html" });
+        const prepared = prepareActivityHtml(html, course.activity_url);
+        const blob = new Blob([prepared], { type: "text/html" });
         url = URL.createObjectURL(blob);
         setBlobUrl(url);
         setLoading(false);
