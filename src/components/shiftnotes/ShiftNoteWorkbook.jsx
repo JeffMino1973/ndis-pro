@@ -1,15 +1,46 @@
-import { useState, useRef } from "react";
-import { X, FileText, Printer, CheckCircle2, Loader2 } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { X, FileText, Printer, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// Full-screen shift note workbook viewer — renders the HTML template inside an
-// iframe so staff complete the shift note within the portal (no external tab).
+// Full-screen shift note workbook viewer.
+// The template HTML files are hosted on media.base44.com and some browsers
+// treat them as downloads when loaded directly in an iframe src. To avoid that
+// (and the "stuck loading spinner" that follows), we fetch the HTML as text
+// and render it via a blob URL so it always loads inside the iframe.
 export default function ShiftNoteWorkbook({ templateUrl, templateLabel, shiftInfo, onClose, onComplete, status }) {
   const iframeRef = useRef(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [blobUrl, setBlobUrl] = useState(null);
+
+  useEffect(() => {
+    let revoked = false;
+    let createdUrl = null;
+
+    async function loadTemplate() {
+      try {
+        const res = await fetch(templateUrl);
+        if (!res.ok) throw new Error(`Failed to fetch (${res.status})`);
+        const html = await res.text();
+        if (revoked) return;
+        const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+        createdUrl = URL.createObjectURL(blob);
+        setBlobUrl(createdUrl);
+      } catch (err) {
+        if (!revoked) setError(err.message || "Could not load template");
+      }
+    }
+
+    loadTemplate();
+    return () => {
+      revoked = true;
+      if (createdUrl) URL.revokeObjectURL(createdUrl);
+    };
+  }, [templateUrl]);
 
   const handlePrint = () => {
     try {
+      iframeRef.current?.contentWindow?.focus();
       iframeRef.current?.contentWindow?.print();
     } catch {
       window.open(templateUrl, "_blank");
@@ -41,7 +72,7 @@ export default function ShiftNoteWorkbook({ templateUrl, templateLabel, shiftInf
               "bg-slate-100 text-slate-600"
             }`}>{status}</span>
           )}
-          <Button variant="ghost" size="sm" onClick={handlePrint} className="rounded-lg text-xs font-bold gap-1.5">
+          <Button variant="ghost" size="sm" onClick={handlePrint} className="rounded-lg text-xs font-bold gap-1.5" disabled={!blobUrl}>
             <Printer size={14} /> Print
           </Button>
           {onComplete && status !== "Reviewed" && (
@@ -57,19 +88,36 @@ export default function ShiftNoteWorkbook({ templateUrl, templateLabel, shiftInf
 
       {/* Iframe */}
       <div className="flex-1 relative bg-slate-100">
-        {loading && (
+        {loading && !error && (
           <div className="absolute inset-0 flex flex-col items-center justify-center bg-card gap-2">
             <Loader2 size={28} className="animate-spin text-primary" />
             <p className="text-xs text-muted-foreground">Loading shift note workbook…</p>
           </div>
         )}
-        <iframe
-          ref={iframeRef}
-          src={templateUrl}
-          className="w-full h-full border-0 bg-white"
-          onLoad={() => setLoading(false)}
-          title={templateLabel || "Shift Note"}
-        />
+        {error && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-card gap-3 p-6 text-center">
+            <AlertCircle size={32} className="text-rose-500" />
+            <p className="font-bold text-sm">Couldn't load the template</p>
+            <p className="text-xs text-muted-foreground max-w-sm">{error}</p>
+            <a
+              href={templateUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-bold text-primary hover:underline mt-1"
+            >
+              Open template in new tab
+            </a>
+          </div>
+        )}
+        {blobUrl && (
+          <iframe
+            ref={iframeRef}
+            src={blobUrl}
+            className="w-full h-full border-0 bg-white"
+            onLoad={() => setLoading(false)}
+            title={templateLabel || "Shift Note"}
+          />
+        )}
       </div>
     </div>
   );
