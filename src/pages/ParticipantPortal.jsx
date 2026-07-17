@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import PolicyManualViewer from "@/components/PolicyManualViewer";
 import SpendingTracker from "@/components/participantportal/SpendingTracker";
 import ParticipantLearningHub from "@/components/participantportal/ParticipantLearningHub";
+import ShiftNoteDocuments from "@/components/participantportal/ShiftNoteDocuments";
 
 const IP_PHASE_COLORS = ["bg-blue-600", "bg-amber-500", "bg-emerald-500", "bg-purple-600"];
 
@@ -131,7 +132,7 @@ const TABS = [
   { id: "pbsp", label: "Behaviour Plan", icon: MessageSquareWarning },
   { id: "risk_assessment", label: "Travel Risk Assessment", icon: AlertTriangle },
   { id: "implementation", label: "Implementation Program", icon: Target },
-  { id: "travel", label: "Travel Guides", icon: Navigation },
+  { id: "travel", label: "Travel & Shift Notes", icon: Navigation },
   { id: "spending", label: "My Spending", icon: BarChart3 },
   { id: "reports", label: "Session Notes", icon: Navigation },
   { id: "complaint", label: "Lodge Complaint", icon: MessageSquareWarning },
@@ -1239,9 +1240,17 @@ export default function ParticipantPortal() {
           </div>
         )}
 
-        {/* TRAVEL GUIDES TAB */}
+        {/* TRAVEL & SHIFT NOTES TAB */}
         {activeTab === "travel" && (
-          <div className="space-y-4">
+          <div className="space-y-6">
+            <ShiftNoteDocuments />
+
+            {/* Travel Itineraries */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Navigation size={16} className="text-primary" />
+                <h3 className="font-black text-slate-800">Travel Itineraries</h3>
+              </div>
             {(!participant.travel_itineraries || participant.travel_itineraries.length === 0) ? (
               <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">
                 <Navigation size={36} className="text-slate-300 mx-auto mb-3" />
@@ -1301,6 +1310,7 @@ export default function ParticipantPortal() {
                 </div>
               ))
             )}
+            </div>
           </div>
         )}
 
