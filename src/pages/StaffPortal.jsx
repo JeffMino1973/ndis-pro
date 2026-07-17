@@ -15,6 +15,7 @@ import StaffComplianceDocs from "@/components/staffportal/StaffComplianceDocs";
 import JeffreyProfile from "@/pages/JeffreyProfile";
 import TobyProfile from "@/pages/TobyProfile";
 import StaffLearningHub from "@/components/staffportal/StaffLearningHub";
+import PendingTrainingQuickStart from "@/components/staffportal/PendingTrainingQuickStart";
 
 // ─── All possible portal feature tabs ──────────────────────────────────────────
 export const ALL_PORTAL_FEATURES = [
@@ -282,6 +283,13 @@ export default function StaffPortal() {
           </div>
         </div>
       )}
+
+      {/* Quick-start: pending training modules */}
+      <PendingTrainingQuickStart
+        user={user}
+        staffRecord={staffRecord}
+        onJumpToLearning={() => setTab("learning")}
+      />
 
       {/* Tab bar — scrollable on mobile */}
       <div className="overflow-x-auto">
