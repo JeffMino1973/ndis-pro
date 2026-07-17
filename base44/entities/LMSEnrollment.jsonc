@@ -49,6 +49,13 @@
       ],
       "default": "Assigned"
     },
+    "progress_percent": {
+      "type": "number",
+      "title": "Progress (%)",
+      "default": 0,
+      "minimum": 0,
+      "maximum": 100
+    },
     "completed_at": {
       "type": "string",
       "title": "Completed At"

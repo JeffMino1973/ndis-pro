@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { BookOpen, CheckCircle, Clock, PlayCircle, Award, Loader2, X } from "lucide-react";
+import { BookOpen, CheckCircle, Clock, PlayCircle, Award, Loader2, X, Minus, Plus } from "lucide-react";
 import { prepareActivityHtml } from "@/utils/prepareActivityHtml";
+import { Progress } from "@/components/ui/progress";
 
 export default function StaffLearningHub({ user, staffRecord }) {
   const [enrollments, setEnrollments] = useState([]);
@@ -32,11 +33,26 @@ export default function StaffLearningHub({ user, staffRecord }) {
   useEffect(() => { load(); }, [user, staffRecord]);
 
   const updateStatus = async (enrollId, status) => {
-    await base44.entities.LMSEnrollment.update(enrollId, {
-      status,
-      completed_at: status === "Completed" ? new Date().toISOString() : undefined,
-    });
-    load();
+    const patch = { status };
+    if (status === "Completed") {
+      patch.completed_at = new Date().toISOString();
+      patch.progress_percent = 100;
+    }
+    await base44.entities.LMSEnrollment.update(enrollId, patch);
+    setEnrollments(prev => prev.map(e => e.id === enrollId ? { ...e, ...patch } : e));
+  };
+
+  const updateProgress = async (enrollId, currentPct, delta) => {
+    const newPct = Math.max(0, Math.min(100, (currentPct || 0) + delta));
+    const patch = { progress_percent: newPct };
+    if (newPct === 100) {
+      patch.status = "Completed";
+      patch.completed_at = new Date().toISOString();
+    } else if (newPct > 0) {
+      patch.status = "In Progress";
+    }
+    await base44.entities.LMSEnrollment.update(enrollId, patch);
+    setEnrollments(prev => prev.map(e => e.id === enrollId ? { ...e, ...patch } : e));
   };
 
   const myCourseIds = new Set(enrollments.map(e => e.course_id));
@@ -92,6 +108,46 @@ export default function StaffLearningHub({ user, staffRecord }) {
                 </div>
                 {course.description && (
                   <p className="text-xs text-muted-foreground line-clamp-2">{course.description}</p>
+                )}
+                {/* Progress bar */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex items-center justify-between text-[10px] font-black">
+                    <span className="text-muted-foreground uppercase tracking-widest">Progress</span>
+                    <span className={e.status === "Completed" ? "text-emerald-600" : "text-primary"}>{Math.round(e.progress_percent || 0)}%</span>
+                  </div>
+                  <Progress value={e.progress_percent || 0} className="h-2" />
+                </div>
+                {/* Progress controls */}
+                {e.status !== "Completed" && (
+                  <div className="flex items-center gap-1.5 pt-1">
+                    <button
+                      onClick={() => updateProgress(e.id, e.progress_percent, -25)}
+                      disabled={(e.progress_percent || 0) === 0}
+                      className="flex items-center justify-center w-7 h-7 rounded-lg border border-border text-muted-foreground hover:bg-secondary disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      title="Decrease 25%"
+                    >
+                      <Minus size={13} />
+                    </button>
+                    <div className="flex-1 flex gap-1">
+                      {[25, 50, 75].map(pct => (
+                        <button
+                          key={pct}
+                          onClick={() => updateProgress(e.id, e.progress_percent, pct - (e.progress_percent || 0))}
+                          className="flex-1 text-[10px] font-black text-muted-foreground bg-secondary hover:bg-primary hover:text-primary-foreground rounded-lg py-1.5 transition"
+                        >
+                          {pct}%
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      onClick={() => updateProgress(e.id, e.progress_percent, 25)}
+                      disabled={(e.progress_percent || 0) >= 100}
+                      className="flex items-center justify-center w-7 h-7 rounded-lg border border-border text-muted-foreground hover:bg-secondary disabled:opacity-40 disabled:cursor-not-allowed transition"
+                      title="Increase 25%"
+                    >
+                      <Plus size={13} />
+                    </button>
+                  </div>
                 )}
                 <div className="flex gap-2 pt-1">
                   {course.activity_url && (
