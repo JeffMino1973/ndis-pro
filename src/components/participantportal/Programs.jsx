@@ -27,7 +27,9 @@ const PROGRAM_SECTIONS = [
     icon: Users,
     color: "text-emerald-600 bg-emerald-50 border-emerald-200",
     description: "Community access and participation program documents",
-    docs: [],
+    docs: [
+      { label: "30-Week Essential Practical Life Skills Workbook", description: "Interactive community program workbook", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/8c68a04ed_30_Week_Interactive_CommunityProgram.html" },
+    ],
   },
   {
     id: "domestic",
