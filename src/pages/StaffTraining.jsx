@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { BookOpen, Image, Search, ExternalLink, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { BookOpen, Image, Search, ExternalLink, X, ChevronLeft, ChevronRight, Video, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import TrainingMedia from "@/components/staffportal/TrainingMedia";
 
 // ─── HTML Training Documents ──────────────────────────────────────────────────
 const DOCUMENTS = [
@@ -42,6 +43,10 @@ const DOCUMENTS = [
   { title: "Support Worker Role", category: "Induction & Onboarding", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/2898a8f9c_role.html" },
   { title: "Worker Screening", category: "Compliance & Safety", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/63ab1f1bf_screening.html" },
   { title: "Timesheets and Payroll", category: "HR & Payroll", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/14b15c772_timesheet.html" },
+  { title: "Training Resources Hub", category: "Induction & Onboarding", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/d48114f80_index.html" },
+  { title: "Video Library", category: "Induction & Onboarding", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/979c7c771_index.html" },
+  { title: "Training Portal Home", category: "Induction & Onboarding", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/e53327d35_index.html" },
+  { title: "PPE – Full Reference Document", category: "Work Health & Safety", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/c10e89666_ppe_original.html" },
 ];
 
 // ─── Flyer/Infographic Gallery ─────────────────────────────────────────────────
@@ -230,6 +235,10 @@ export default function StaffTraining() {
           className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === "flyers" ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
           <Image size={14} /> Flyer Library ({FLYERS.length})
         </button>
+        <button onClick={() => { setTab("media"); setSearch(""); }}
+          className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-bold transition-all ${tab === "media" ? "bg-card shadow text-foreground" : "text-muted-foreground hover:text-foreground"}`}>
+          <Video size={14} /> Videos & Podcasts
+        </button>
       </div>
 
       {/* Search bar */}
@@ -238,7 +247,7 @@ export default function StaffTraining() {
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder={tab === "documents" ? "Search training documents…" : "Search flyers…"}
+          placeholder={tab === "documents" ? "Search training documents…" : tab === "flyers" ? "Search flyers…" : "Search videos & podcasts…"}
           className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-input bg-card text-sm focus:outline-none focus:ring-1 focus:ring-ring"
         />
       </div>
@@ -364,6 +373,9 @@ export default function StaffTraining() {
           </div>
         </div>
       )}
+
+      {/* ── VIDEOS & PODCASTS TAB ─────────────────────────────────────────────────── */}
+      {tab === "media" && <TrainingMedia search={search} />}
 
       {/* ── LIGHTBOX ─────────────────────────────────────────────────────────────── */}
       {lightboxIndex !== null && (
