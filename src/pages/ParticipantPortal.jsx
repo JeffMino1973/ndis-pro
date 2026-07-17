@@ -16,6 +16,7 @@ import PolicyManualViewer from "@/components/PolicyManualViewer";
 import SpendingTracker from "@/components/participantportal/SpendingTracker";
 import ParticipantLearningHub from "@/components/participantportal/ParticipantLearningHub";
 import ShiftNoteDocuments from "@/components/participantportal/ShiftNoteDocuments";
+import Programs from "@/components/participantportal/Programs";
 
 const IP_PHASE_COLORS = ["bg-blue-600", "bg-amber-500", "bg-emerald-500", "bg-purple-600"];
 
@@ -133,6 +134,7 @@ const TABS = [
   { id: "risk_assessment", label: "Travel Risk Assessment", icon: AlertTriangle },
   { id: "implementation", label: "Implementation Program", icon: Target },
   { id: "travel", label: "Travel & Shift Notes", icon: Navigation },
+  { id: "programs", label: "Programs", icon: ClipboardList },
   { id: "spending", label: "My Spending", icon: BarChart3 },
   { id: "reports", label: "Session Notes", icon: Navigation },
   { id: "complaint", label: "Lodge Complaint", icon: MessageSquareWarning },
@@ -1312,6 +1314,11 @@ export default function ParticipantPortal() {
             )}
             </div>
           </div>
+        )}
+
+        {/* PROGRAMS TAB */}
+        {activeTab === "programs" && (
+          <Programs />
         )}
 
         {/* HEALTH PLAN TAB */}
