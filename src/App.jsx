@@ -57,6 +57,7 @@ import FinancialReports from './pages/FinancialReports';
 import ShiftNotes from './pages/ShiftNotes';
 import GoogleDrive from './pages/GoogleDrive';
 import Gmail from './pages/Gmail';
+import StaffTraining from './pages/StaffTraining';
 
 
 const AuthenticatedApp = () => {
@@ -122,6 +123,7 @@ const AuthenticatedApp = () => {
       <Route path="/shift-notes" element={<ShiftNotes />} />
       <Route path="/google-drive" element={<GoogleDrive />} />
       <Route path="/gmail" element={<Gmail />} />
+      <Route path="/staff-training" element={<StaffTraining />} />
       <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/quotes" element={<Quotes />} />
