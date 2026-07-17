@@ -9,6 +9,7 @@ const VIDEOS = [
   { title: "Privacy", category: "NDIS Code of Conduct", url: "https://media.base44.com/videos/public/69d54775d9a169daad84a133/b015533ed_NDISCodeofConductPrivacy.mp4" },
   { title: "Promptly Act on Concerns", category: "NDIS Code of Conduct", url: "https://media.base44.com/videos/public/69d54775d9a169daad84a133/d14748494_NDISCodeofConductPromptlyactonconcerns.mp4" },
   { title: "Safety and Competency", category: "NDIS Code of Conduct", url: "https://media.base44.com/videos/public/69d54775d9a169daad84a133/58b160823_NDISCodeofConductSafetyandcompetency.mp4" },
+  { title: "Restrictive Practices", category: "NDIS Code of Conduct", url: "https://media.base44.com/videos/public/69d54775d9a169daad84a133/b064a6df8_RestrictivePractices.mp4" },
 ];
 
 const PODCASTS = [
