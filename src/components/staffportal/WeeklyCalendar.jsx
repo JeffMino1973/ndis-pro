@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, Clock, MapPin, FileText, AlertCircle, CheckC
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import ShiftNoteTemplatePicker from "@/components/shiftnotes/ShiftNoteTemplatePicker";
+import ShiftNoteWorkbook from "@/components/shiftnotes/ShiftNoteWorkbook";
 import { getTemplateForShift } from "@/utils/shiftNoteTemplates";
 
 const STATUS_STYLE = {
@@ -137,8 +138,9 @@ function DayColumn({ day, shifts, pendingParticipants, shiftNotes, onShiftClick 
 
 // ── Shift Detail Modal ──
 function ShiftDetailModal({ shift, shiftNote, staffMembers, participants, onClose, onNoteSubmitted }) {
-  const [mode, setMode] = useState("detail"); // "detail" | "note"
+  const [mode, setMode] = useState("detail"); // "detail" | "note" | "workbook"
   const [saving, setSaving] = useState(false);
+  const [workbookTpl, setWorkbookTpl] = useState(null);
 
   if (!shift) return null;
 
@@ -162,9 +164,42 @@ function ShiftDetailModal({ shift, shiftNote, staffMembers, participants, onClos
     });
     setSaving(false);
     onNoteSubmitted();
-    setMode("detail");
-    window.open(tpl.url, "_blank");
+    setWorkbookTpl(tpl);
+    setMode("workbook");
   };
+
+  const handleMarkReviewed = async () => {
+    if (!shiftNote) return;
+    await base44.entities.ShiftNote.update(shiftNote.id, { status: "Reviewed" });
+    onNoteSubmitted();
+    setMode("detail");
+    setWorkbookTpl(null);
+  };
+
+  const openWorkbook = () => {
+    const tpl = shiftNote
+      ? { url: shiftNote.template_url, label: shiftNote.template_label }
+      : workbookTpl;
+    if (tpl?.url) {
+      setWorkbookTpl(tpl);
+      setMode("workbook");
+    }
+  };
+
+  // ── Full-screen workbook mode ──
+  if (mode === "workbook" && (workbookTpl?.url || shiftNote?.template_url)) {
+    const tpl = workbookTpl || { url: shiftNote.template_url, label: shiftNote.template_label };
+    return (
+      <ShiftNoteWorkbook
+        templateUrl={tpl.url}
+        templateLabel={tpl.label}
+        shiftInfo={shift}
+        status={shiftNote?.status}
+        onClose={() => { setMode("detail"); setWorkbookTpl(null); }}
+        onComplete={handleMarkReviewed}
+      />
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
@@ -263,7 +298,7 @@ function ShiftDetailModal({ shift, shiftNote, staffMembers, participants, onClos
                         "bg-slate-100 text-slate-600"
                       }`}>{shiftNote.status}</span>
                     </div>
-                    <ShiftNoteContent note={shiftNote} />
+                    <ShiftNoteContent note={shiftNote} onOpenWorkbook={openWorkbook} />
                   </>
                 ) : (
                   <div className="text-center py-6">
@@ -285,18 +320,16 @@ function ShiftDetailModal({ shift, shiftNote, staffMembers, participants, onClos
 }
 
 // ── Shift Note Content (reused in detail + view) ──
-function ShiftNoteContent({ note }) {
+function ShiftNoteContent({ note, onOpenWorkbook }) {
   return (
     <div className="space-y-3 text-sm">
       {note.template_url ? (
-        <a
-          href={note.template_url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl px-4 py-3 transition"
+        <button
+          onClick={onOpenWorkbook}
+          className="flex items-center justify-center gap-2 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl px-4 py-3 transition w-full"
         >
-          <ExternalLink size={16} /> {note.template_label || "Open Shift Note Workbook"}
-        </a>
+          <FileText size={16} /> {note.template_label || "Open Shift Note Workbook"}
+        </button>
       ) : (
         <p className="text-xs text-muted-foreground italic">No template linked to this shift note.</p>
       )}
@@ -419,18 +452,19 @@ export default function WeeklyCalendar({ shifts }) {
                     {s.program_type && <span className="text-amber-500 ml-1">· {s.program_type}</span>}
                   </div>
                   {hasNote ? (
-                    <span className="flex items-center gap-1 text-[10px] font-black text-primary bg-primary/5 border border-primary/20 rounded-lg px-2 py-1">
-                      <CheckCircle2 size={11} /> Note completed
-                    </span>
+                    <button
+                      onClick={() => setSelectedShift(s)}
+                      className="flex items-center gap-1 text-[10px] font-black text-primary bg-primary/5 border border-primary/20 hover:bg-primary/10 rounded-lg px-2 py-1 transition shrink-0"
+                    >
+                      <CheckCircle2 size={11} /> View Note
+                    </button>
                   ) : tpl ? (
-                    <a
-                      href={tpl.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => setSelectedShift(s)}
                       className="flex items-center gap-1.5 text-[10px] font-black text-white bg-primary hover:bg-primary/90 rounded-lg px-2.5 py-1 transition shrink-0"
                     >
-                      <ExternalLink size={11} /> {tpl.label}
-                    </a>
+                      <ClipboardList size={11} /> Complete Note
+                    </button>
                   ) : (
                     <span className="text-[10px] font-black text-amber-600 bg-amber-100 rounded-lg px-2 py-1">No template</span>
                   )}

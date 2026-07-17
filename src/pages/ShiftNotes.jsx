@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { format, parseISO } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { Plus, ClipboardList, Loader2, ChevronDown, ChevronUp, MapPin, Check, ExternalLink } from "lucide-react";
+import { Plus, ClipboardList, Loader2, ChevronDown, ChevronUp, FileText, ExternalLink } from "lucide-react";
 import ShiftNoteTemplatePicker from "@/components/shiftnotes/ShiftNoteTemplatePicker";
+import ShiftNoteWorkbook from "@/components/shiftnotes/ShiftNoteWorkbook";
 import { getDayOfWeek } from "@/utils/shiftNoteTemplates";
 
 const DAY_COLORS = {
@@ -26,6 +27,7 @@ export default function ShiftNotes() {
   const [showPicker, setShowPicker] = useState(false);
   const [creating, setCreating] = useState(false);
   const [expandedId, setExpandedId] = useState(null);
+  const [activeWorkbookNote, setActiveWorkbookNote] = useState(null);
 
   useEffect(() => {
     async function load() {
@@ -84,7 +86,27 @@ export default function ShiftNotes() {
     await refreshNotes();
     setCreating(false);
     setShowPicker(false);
-    window.open(tpl.url, "_blank");
+    // Open the workbook in-portal instead of a new tab
+    setActiveWorkbookNote({
+      template_url: tpl.url,
+      template_label: tpl.label,
+      shiftInfo: shift,
+      status: "Submitted",
+    });
+  };
+
+  const handleMarkReviewed = async () => {
+    if (!activeWorkbookNote?.id) return;
+    await base44.entities.ShiftNote.update(activeWorkbookNote.id, { status: "Reviewed" });
+    await refreshNotes();
+    setActiveWorkbookNote(null);
+  };
+
+  const openNoteWorkbook = (note) => {
+    setActiveWorkbookNote({
+      ...note,
+      shiftInfo: { participant_name: note.participant_name, date: note.shift_date, staff_name: note.staff_name },
+    });
   };
 
   if (loading) return (
@@ -161,16 +183,14 @@ export default function ShiftNotes() {
 
                   {expanded && (
                     <div className="border-t border-border p-4 space-y-3 bg-secondary/20">
-                      {/* Template link */}
+                      {/* Template link — opens in-portal */}
                       {note.template_url ? (
-                        <a
-                          href={note.template_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-center gap-2 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl px-4 py-3 transition"
+                        <button
+                          onClick={() => openNoteWorkbook(note)}
+                          className="flex items-center justify-center gap-2 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-xl px-4 py-3 transition w-full"
                         >
-                          <ExternalLink size={16} /> {note.template_label || "Open Shift Note Workbook"}
-                        </a>
+                          <FileText size={16} /> {note.template_label || "Open Shift Note Workbook"}
+                        </button>
                       ) : (
                         <p className="text-xs text-muted-foreground italic">No template linked to this shift note.</p>
                       )}
@@ -196,6 +216,18 @@ export default function ShiftNotes() {
             })
           )}
         </div>
+      )}
+
+      {/* Full-screen in-portal workbook viewer */}
+      {activeWorkbookNote?.template_url && (
+        <ShiftNoteWorkbook
+          templateUrl={activeWorkbookNote.template_url}
+          templateLabel={activeWorkbookNote.template_label}
+          shiftInfo={activeWorkbookNote.shiftInfo}
+          status={activeWorkbookNote.status}
+          onClose={() => setActiveWorkbookNote(null)}
+          onComplete={activeWorkbookNote.id ? handleMarkReviewed : undefined}
+        />
       )}
     </div>
   );
