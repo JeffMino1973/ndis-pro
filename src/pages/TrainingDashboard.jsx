@@ -1,10 +1,12 @@
 import { useState, useEffect, useMemo } from "react";
-import { Users, GraduationCap, TrendingUp, CheckCircle2, AlertTriangle, Loader2, BookOpen } from "lucide-react";
+import { Users, GraduationCap, TrendingUp, CheckCircle2, AlertTriangle, Loader2, BookOpen, Download } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList,
 } from "recharts";
 import TeamHeatmap from "@/components/training/TeamHeatmap";
+import { generateTrainingReportPDF } from "@/utils/generateTrainingReport";
+import { Button } from "@/components/ui/button";
 
 const CHART_HEIGHT = 420;
 
@@ -34,6 +36,20 @@ export default function TrainingDashboard() {
   const [enrollments, setEnrollments] = useState([]);
   const [staffMembers, setStaffMembers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownloadReport = () => {
+    setDownloading(true);
+    try {
+      generateTrainingReportPDF({
+        staffMembers,
+        enrollments,
+        avgOverall: stats.avgPct,
+      });
+    } finally {
+      setDownloading(false);
+    }
+  };
 
   useEffect(() => {
     Promise.all([
@@ -91,14 +107,24 @@ export default function TrainingDashboard() {
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
-          <GraduationCap className="text-primary" size={22} />
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center">
+            <GraduationCap className="text-primary" size={22} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-black">Staff Training Dashboard</h1>
+            <p className="text-sm text-muted-foreground">Completion rates across all assigned staff training modules</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-black">Staff Training Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Completion rates across all assigned staff training modules</p>
-        </div>
+        <Button
+          onClick={handleDownloadReport}
+          disabled={downloading || enrollments.length === 0}
+          className="rounded-xl gap-2 font-bold"
+        >
+          {downloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+          {downloading ? "Generating…" : "Download Report"}
+        </Button>
       </div>
 
       {/* Stat cards */}
