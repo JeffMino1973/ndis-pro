@@ -56,6 +56,7 @@ const ADMIN_NAV_SECTIONS = [
   {
     title: "Compliance & Safety",
     items: [
+      { path: "/compliance-dashboard", label: "Compliance Dashboard", icon: ShieldCheck },
       { path: "/staff", label: "Staff & Compliance", icon: ShieldCheck },
       { path: "/risk-assessments", label: "Risk Assessments", icon: AlertTriangle },
       { path: "/incidents", label: "Incidents", icon: Flame },
