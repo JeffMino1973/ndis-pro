@@ -637,20 +637,20 @@ export default function ParticipantPortal() {
             {siteLinks.length > 0 && (
               <section>
                 <h3 className="font-black text-slate-800 flex items-center gap-2 mb-3"><LinkIcon size={16} className="text-indigo-600" /> Useful Links</h3>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid sm:grid-cols-2 gap-4">
                   {siteLinks.map(link => (
                     <a key={link.id} href={link.url} target="_blank" rel="noopener noreferrer"
-                      className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:shadow-md transition-shadow">
-                      {link.image_url ? (
-                        <img src={link.image_url} alt={link.title} className="w-full h-24 object-cover" />
-                      ) : (
-                        <div className="flex items-center justify-center h-24 bg-indigo-50">
-                          <LinkIcon size={24} className="text-indigo-400" />
-                        </div>
-                      )}
-                      <div className="p-3">
-                        <p className="font-black text-slate-900 text-xs flex items-center gap-1">{link.title} <ExternalLink size={10} /></p>
-                        {link.description && <p className="text-[10px] text-slate-500 mt-0.5 line-clamp-1">{link.description}</p>}
+                      className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-5 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+                      <div className="shrink-0 w-20 h-20 rounded-2xl bg-slate-100 border border-slate-200 overflow-hidden flex items-center justify-center">
+                        {link.image_url ? (
+                          <img src={link.image_url} alt={link.title} className="w-full h-full object-cover" />
+                        ) : (
+                          <LinkIcon size={28} className="text-slate-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-black text-slate-900 text-lg leading-tight mb-1 flex items-center gap-1">{link.title} <ExternalLink size={12} /></p>
+                        {link.description && <p className="text-sm text-slate-500 leading-snug line-clamp-3">{link.description}</p>}
                       </div>
                     </a>
                   ))}
