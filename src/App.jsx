@@ -60,6 +60,7 @@ import Gmail from './pages/Gmail';
 import StaffTraining from './pages/StaffTraining';
 import LMSAdmin from './pages/LMSAdmin';
 import StudentPortal from './pages/StudentPortal';
+import TrainingDashboard from './pages/TrainingDashboard';
 
 
 const AuthenticatedApp = () => {
@@ -127,6 +128,7 @@ const AuthenticatedApp = () => {
       <Route path="/gmail" element={<Gmail />} />
       <Route path="/staff-training" element={<StaffTraining />} />
       <Route path="/lms" element={<LMSAdmin />} />
+      <Route path="/training-dashboard" element={<TrainingDashboard />} />
       <Route path="/jeffrey" element={<JeffreyProfile />} />
       <Route path="/onboarding-form" element={<OnboardingPublicForm />} />
       <Route path="/quotes" element={<Quotes />} />
