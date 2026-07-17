@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, Image, Search, ExternalLink, X, ChevronLeft, ChevronRight, Video, Mic, Award, Users, ShieldCheck, Banknote, AlertTriangle, Brain, Activity, Heart, FileText, Phone, Mail, MapPin } from "lucide-react";
+import { BookOpen, Image, Search, ExternalLink, X, ChevronLeft, ChevronRight, Video, Mic, Award, Users, ShieldCheck, Banknote, AlertTriangle, Brain, Activity, Heart, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TrainingMedia from "@/components/staffportal/TrainingMedia";
 
@@ -205,7 +205,7 @@ const CATEGORY_ICONS = {
   "Support Strategies": Heart,
 };
 
-export default function StaffTraining() {
+export default function StaffTraining({ embedded = false }) {
   const [tab, setTab] = useState("documents");
   const [search, setSearch] = useState("");
   const [docCategory, setDocCategory] = useState("All");
@@ -226,7 +226,9 @@ export default function StaffTraining() {
   const lightboxFlyers = lightboxIndex !== null ? filteredFlyers : [];
 
   return (
-    <div className="max-w-5xl mx-auto bg-white rounded-xl p-6 sm:p-8 my-6 space-y-6" style={{ boxShadow: "0 8px 30px rgba(20,49,76,.14)" }}>
+    <div className={embedded ? "space-y-6" : "max-w-5xl mx-auto bg-white rounded-xl p-6 sm:p-8 my-6 space-y-6"} style={embedded ? {} : { boxShadow: "0 8px 30px rgba(20,49,76,.14)" }}>
+      {!embedded && (
+      <>
       {/* Brand Header */}
       <div className="flex items-start justify-between gap-6 pb-3 border-b-2" style={{ borderColor: "#e4e9ef" }}>
         <div className="flex items-center gap-3">
@@ -269,6 +271,8 @@ export default function StaffTraining() {
           <div><p className="text-2xl font-black" style={{ color: "#103f73" }}>9</p><p className="text-xs font-bold" style={{ color: "#637588" }}>Videos & Podcasts</p></div>
         </div>
       </div>
+      </>
+      )}
 
       {/* Tab bar — jump-nav style */}
       <div className="flex gap-2 flex-wrap justify-center">
@@ -384,45 +388,15 @@ export default function StaffTraining() {
               </Button>
             </div>
           </div>
-          <div className="bg-white border rounded-2xl overflow-hidden" style={{ borderColor: "#dce6ef" }}>
-            {/* SZ-JIE Branded A4 Document Header */}
-            <div className="w-full pb-1.5 mb-2.5" style={{ borderBottom: "2px solid #e5e7eb" }}>
-              <div className="flex justify-between items-start gap-4 w-full flex-wrap sm:flex-nowrap">
-                <img
-                  src="https://media.base44.com/images/public/69d54775d9a169daad84a133/50cfec215_ChatGPTImageMay31202609_02_19AM.png"
-                  alt="SZ-JIE Support Services"
-                  className="h-auto block object-contain"
-                  style={{ width: "180px", maxWidth: "220px" }}
-                />
-                <div className="text-right flex flex-col gap-2 items-end" style={{ fontSize: "11px", lineHeight: 1.3, color: "#64748b" }}>
-                  <div className="flex items-center gap-2">
-                    <Phone size={14} className="text-slate-500" />
-                    <a href="tel:0401343876" className="text-slate-600 font-semibold hover:underline">0401 343 876</a>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Mail size={14} className="text-slate-500" />
-                    <a href="mailto:jeff@szjiesupportservices.com" className="text-slate-600 font-semibold hover:underline">jeff@szjiesupportservices.com</a>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <MapPin size={14} className="text-slate-500" />
-                    <span className="text-slate-600">309/12 Broome St, Waterloo NSW 2017</span>
-                  </div>
-                  <div style={{ fontSize: "10px" }}>
-                    <strong className="text-slate-700">ABN:</strong> <span className="text-slate-500">86 959 042 971</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            {/* Document title bar */}
-            <div className="px-4 py-2.5 flex items-center gap-2" style={{ background: "#f6f9fc", borderBottom: "1px solid #dce6ef" }}>
-              <BookOpen size={14} style={{ color: "#1565a8" }} />
-              <p className="text-sm font-bold truncate" style={{ color: "#103f73" }}>{viewingDoc.title}</p>
+          <div className="bg-card border border-border rounded-2xl overflow-hidden">
+            <div className="bg-secondary px-4 py-2.5 border-b border-border flex items-center gap-2">
+              <BookOpen size={14} className="text-primary" />
+              <p className="text-sm font-bold truncate">{viewingDoc.title}</p>
               <span className="text-[10px] font-black px-2 py-0.5 rounded-full ml-auto shrink-0"
                 style={{ background: (CATEGORY_STYLES[viewingDoc.category] || {}).hexLight || "#f1f5f9", color: (CATEGORY_STYLES[viewingDoc.category] || {}).hex || "#64748b" }}>
                 {viewingDoc.category}
               </span>
             </div>
-            {/* Document iframe */}
             <iframe
               src={viewingDoc.url}
               title={viewingDoc.title}
@@ -481,6 +455,8 @@ export default function StaffTraining() {
       {/* ── VIDEOS & PODCASTS TAB ─────────────────────────────────────────────────── */}
       {tab === "media" && <TrainingMedia search={search} />}
 
+      {!embedded && (
+      <>
       {/* ── SOURCE NOTE ──────────────────────────────────────────────────────────── */}
       <div className="mt-2 p-4" style={{ background: "#f6f9fc", borderLeft: "4px solid #1565a8", color: "#566a7c", fontSize: "12px", lineHeight: 1.55 }}>
         Training resources are curated from NDIS Quality and Safeguards Commission materials, Sue Larkey educational content,
@@ -491,6 +467,8 @@ export default function StaffTraining() {
       <div className="pt-3.5 border-t text-center" style={{ borderColor: "#dce6ef", color: "#738292", fontSize: "11px" }}>
         SZ-JIE Support Services · NSW Registered NDIS Provider · ABN 2638 · Staff Development Portal
       </div>
+      </>
+      )}
 
       {/* ── LIGHTBOX ─────────────────────────────────────────────────────────────── */}
       {lightboxIndex !== null && (

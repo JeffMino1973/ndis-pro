@@ -4,9 +4,10 @@ import { format, parseISO } from "date-fns";
 import {
   Calendar, Banknote, ShieldCheck,
   CheckCircle, AlertTriangle, XCircle, Loader2, User, FileText, ExternalLink, Upload,
-  ClipboardList, Pill, Brain, Heart, Activity, BarChart3, Shield, BookOpen, UserCircle
+  ClipboardList, Pill, Brain, Heart, Activity, BarChart3, Shield, BookOpen, UserCircle, GraduationCap
 } from "lucide-react";
 import PolicyManualViewer from "@/components/PolicyManualViewer";
+import StaffTraining from "@/pages/StaffTraining";
 import { Button } from "@/components/ui/button";
 import WeeklyCalendar from "@/components/staffportal/WeeklyCalendar";
 import StaffMyProfile from "@/components/staffportal/StaffMyProfile";
@@ -226,6 +227,7 @@ export default function StaffPortal() {
     { id: "compliance", label: "Compliance",   icon: ShieldCheck },
     { id: "documents",  label: "Business Docs", icon: FileText },
     { id: "policy",     label: "Policy Manual", icon: BookOpen },
+    { id: "training",   label: "Staff Training", icon: GraduationCap },
   ];
 
   const allTabs = [
@@ -512,6 +514,9 @@ export default function StaffPortal() {
 
       {/* ── POLICY MANUAL TAB ─────────────────────────────────────────────────── */}
       {tab === "policy" && <PolicyManualViewer compact />}
+
+      {/* ── STAFF TRAINING TAB ─────────────────────────────────────────────────── */}
+      {tab === "training" && <StaffTraining embedded />}
 
       {/* ── FEATURE TABS — linked pages ────────────────────────────────────────── */}
       {featureTabs.map(ft => tab === ft.id && (
