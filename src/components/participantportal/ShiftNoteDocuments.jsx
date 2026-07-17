@@ -1,68 +1,7 @@
 import { useState } from "react";
 import { ClipboardList, ExternalLink, Calendar, X, Loader2, Navigation } from "lucide-react";
 
-const SHIFT_NOTE_DOCS = [
-  {
-    day: "Friday",
-    label: "Friday Morning Shift Notes",
-    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/7b294704f_Friday_Morning_Shift_Notes.html",
-    description: "Morning shift documentation and checklists",
-  },
-  {
-    day: "Friday",
-    label: "Friday Afternoon Shift Notes",
-    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/86dba06d2_Friday_Afternoon_Shift_Notes.html",
-    description: "Afternoon shift documentation and checklists",
-  },
-  {
-    day: "Monday / Wednesday",
-    label: "Mon & Wed Outbound Shift Notes",
-    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/75b7fda67_Monday_Wednesday_Outbound_Shift_Notes.html",
-    description: "Outbound journey shift notes",
-  },
-  {
-    day: "Monday / Wednesday",
-    label: "Mon & Wed Return Shift Notes",
-    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/1ef0e54c4_Monday_Wednesday_Return_Shift_Notes.html",
-    description: "Return journey shift notes",
-  },
-  {
-    day: "Saturday",
-    label: "Saturday Outbound Shift Notes",
-    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/874e48895_Saturday_Outbound_Shift_Notes.html",
-    description: "Outbound journey shift notes",
-  },
-  {
-    day: "Saturday",
-    label: "Saturday Return Shift Notes",
-    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/aa4d1cf08_Saturday_Return_Shift_Notes.html",
-    description: "Return journey shift notes",
-  },
-  {
-    day: "Saturday",
-    label: "Saturday Domestic Skills Notes & Checklist",
-    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/23feabeb3_Saturday_Domestic_Skills_Shift_Notes_Checklist.html",
-    description: "Domestic skills shift notes and checklists",
-  },
-  {
-    day: "Sunday",
-    label: "Sunday Outbound Shift Notes",
-    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/f0194d559_Sunday_Outbound_Shift_Notes.html",
-    description: "Outbound journey shift notes",
-  },
-  {
-    day: "Sunday",
-    label: "Sunday Return Shift Notes",
-    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/9fa3e13f6_Sunday_Return_Shift_Notes.html",
-    description: "Return journey shift notes",
-  },
-  {
-    day: "Sunday",
-    label: "Sunday Coles Weekly Shopping Checklist",
-    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/2de671eeb_Sunday_Coles_Weekly_Shopping_Checklist.html",
-    description: "Weekly shopping checklist for Coles",
-  },
-];
+const SHIFT_NOTE_DOCS = [];
 
 const DAY_COLORS = {
   "Friday": "bg-blue-100 text-blue-700 border-blue-200",
