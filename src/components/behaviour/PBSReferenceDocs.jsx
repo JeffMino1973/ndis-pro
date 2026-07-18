@@ -115,14 +115,22 @@ export default function PBSReferenceDocs() {
               </div>
               <h4 className="font-black text-slate-900 text-xs leading-tight mb-1">{doc.title}</h4>
               <p className="text-[11px] text-slate-500 mb-3 flex-1">{doc.subtitle}</p>
-              <a
-                href={doc.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center justify-center gap-1.5 bg-slate-100 text-slate-700 text-xs font-bold py-2 px-3 rounded-lg hover:bg-slate-200 transition w-full"
-              >
-                <ExternalLink size={12} /> Open PDF
-              </a>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => openPreview(doc)}
+                  className="flex-1 bg-primary text-white text-xs font-bold py-2 rounded-lg hover:bg-primary/90 transition"
+                >
+                  Preview
+                </button>
+                <a
+                  href={doc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-1 bg-slate-100 text-slate-600 text-xs font-bold py-2 px-3 rounded-lg hover:bg-slate-200 transition"
+                >
+                  <ExternalLink size={12} />
+                </a>
+              </div>
             </div>
           ))}
         </div>
@@ -183,7 +191,9 @@ export default function PBSReferenceDocs() {
               </div>
             </div>
             <iframe
-              src={previewUrl}
+              src={previewUrl?.toLowerCase().endsWith(".pdf")
+                ? `https://docs.google.com/viewer?url=${encodeURIComponent(previewUrl)}&embedded=true`
+                : previewUrl}
               title={previewTitle}
               className="flex-1 w-full rounded-b-2xl"
               sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
