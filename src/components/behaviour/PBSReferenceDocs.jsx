@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { FileText, ExternalLink, X, Brain, ImageIcon } from "lucide-react";
+import { usePreviewSrc } from "@/hooks/usePreviewSrc";
 
 const BRONWYN_INFOGRAPHICS = [
   {
@@ -80,6 +81,7 @@ const PBS_REFERENCE_DOCS = [
 export default function PBSReferenceDocs() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [previewTitle, setPreviewTitle] = useState("");
+  const { src: iframeSrc } = usePreviewSrc(previewUrl);
 
   const openPreview = (doc) => {
     setPreviewUrl(doc.url);
@@ -191,9 +193,7 @@ export default function PBSReferenceDocs() {
               </div>
             </div>
             <iframe
-              src={previewUrl?.toLowerCase().endsWith(".pdf")
-                ? `https://docs.google.com/viewer?url=${encodeURIComponent(previewUrl)}&embedded=true`
-                : previewUrl}
+              src={iframeSrc}
               title={previewTitle}
               className="flex-1 w-full rounded-b-2xl"
               sandbox="allow-scripts allow-same-origin allow-popups allow-forms"

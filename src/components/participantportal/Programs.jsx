@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Navigation, Users, Home, ExternalLink, X, Loader2, FolderOpen } from "lucide-react";
+import { usePreviewSrc } from "@/hooks/usePreviewSrc";
 
 const PROGRAM_SECTIONS = [
   {
@@ -46,6 +47,7 @@ const PROGRAM_SECTIONS = [
 export default function Programs() {
   const [previewDoc, setPreviewDoc] = useState(null);
   const [previewLoading, setPreviewLoading] = useState(false);
+  const { src: previewSrc, loading: srcLoading } = usePreviewSrc(previewDoc?.url);
 
   const openPreview = (doc) => {
     setPreviewDoc(doc);
@@ -140,13 +142,13 @@ export default function Programs() {
               </div>
             </div>
             <div className="flex-1 relative bg-slate-50">
-              {previewLoading && (
+              {(previewLoading || srcLoading) && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <Loader2 size={28} className="animate-spin text-primary" />
                 </div>
               )}
               <iframe
-                src={previewDoc.url}
+                src={previewSrc}
                 className="w-full h-full border-0"
                 onLoad={() => setPreviewLoading(false)}
                 title={previewDoc.label}
