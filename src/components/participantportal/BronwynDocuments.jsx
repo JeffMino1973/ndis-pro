@@ -10,6 +10,41 @@ const BRONWYN_DOCS = [
     url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/74564661c_Quote.html",
     color: "bg-blue-100 text-blue-700",
   },
+  {
+    id: "service_agreement_1",
+    title: "Service Agreement — Bronwyn Chau",
+    subtitle: "NDIS Service Agreement (Version 1)",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/5a1f548e9_Service_Agreement.html",
+    color: "bg-purple-100 text-purple-700",
+  },
+  {
+    id: "service_agreement_2",
+    title: "Service Agreement v2 — Bronwyn Chau",
+    subtitle: "NDIS Service Agreement (Version 2)",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/33c683a3e_Service_Agreement.html",
+    color: "bg-violet-100 text-violet-700",
+  },
+  {
+    id: "support_plan",
+    title: "Support Plan — Bronwyn Chau",
+    subtitle: "NDIS Support Plan",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/f7ab9cf81_Support_Plan.html",
+    color: "bg-emerald-100 text-emerald-700",
+  },
+  {
+    id: "crisis_management",
+    title: "Crisis Management & Safety Plan",
+    subtitle: "Crisis Management & Safety Plan — Bronwyn Chau",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/79cb90068_Crisis_Management.html",
+    color: "bg-rose-100 text-rose-700",
+  },
+  {
+    id: "epilepsy_plan",
+    title: "Epilepsy Management Plan",
+    subtitle: "Epilepsy Management Plan — Bronwyn Chau",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/3789a946d_Epilepsy_Management_Plan.html",
+    color: "bg-amber-100 text-amber-700",
+  },
 ];
 
 export default function BronwynDocuments() {
