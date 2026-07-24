@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { base44 } from "@/api/base44Client";
-import { Loader2, Search, BookOpen, ChevronRight, X } from "lucide-react";
+import { Loader2, Search, BookOpen, ChevronRight, X, Download } from "lucide-react";
+
+const POLICY_SOURCE_URL = "https://media.base44.com/files/public/69d54775d9a169daad84a133/896d1b30e_SZ-JIE_Support_Services_Policies_and_Procedures.html";
 
 const POLICY_BODY_CSS = `
 .pm-body { font-size: 13px; line-height: 1.6; color: #1f2937; }
@@ -73,6 +75,29 @@ export default function PolicyManualViewer({ compact = false }) {
       el.scrollIntoView({ behavior: "smooth", block: "start" });
       setActivePolicyId(id);
       setSidebarOpen(false);
+    }
+  }, []);
+
+  const [downloading, setDownloading] = useState(false);
+
+  const downloadHtml = useCallback(async () => {
+    setDownloading(true);
+    try {
+      const res = await fetch(POLICY_SOURCE_URL);
+      const html = await res.text();
+      const blob = new Blob([html], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "SZ-JIE_Policies_and_Procedures.html";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download failed:", err);
+    } finally {
+      setDownloading(false);
     }
   }, []);
 
@@ -179,6 +204,15 @@ export default function PolicyManualViewer({ compact = false }) {
               Index
             </button>
           )}
+          <button
+            onClick={downloadHtml}
+            disabled={downloading}
+            className="flex items-center gap-1.5 px-3 py-2 border border-border rounded-lg text-sm font-bold bg-card hover:bg-secondary transition-colors disabled:opacity-50 shrink-0"
+            title="Download full HTML source to edit"
+          >
+            {downloading ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
+            <span className="hidden sm:inline">Download HTML</span>
+          </button>
         </div>
 
         {/* Result count */}
