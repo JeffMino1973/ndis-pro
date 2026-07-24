@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Navigation, Users, Home, ExternalLink, X, Loader2, FolderOpen } from "lucide-react";
+import { Navigation, Users, Home, ExternalLink, X, Loader2, FolderOpen, BookOpen, ClipboardList } from "lucide-react";
 import { usePreviewSrc } from "@/hooks/usePreviewSrc";
 
 const PROGRAM_SECTIONS = [
@@ -40,6 +40,30 @@ const PROGRAM_SECTIONS = [
     description: "Daily living and domestic skills program documents",
     docs: [
       { label: "Saturday Domestic Skills Shift Notes", description: "Weekly shift notes workbook for Saturday domestic skills sessions", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/eae5f78cc_SaturdayDomesticSkillsShiftNotes.html" },
+    ],
+  },
+  {
+    id: "lesson_plans",
+    label: "Programs & Lesson Plans",
+    icon: BookOpen,
+    color: "text-indigo-600 bg-indigo-50 border-indigo-200",
+    description: "Detailed teaching programs and lesson plans",
+    docs: [
+      { label: "English Skills Program & Lesson Plans", description: "Detailed teaching program and lesson plans for English skills", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/9d5b4dc79_English_Skills_Program_and_Lesson_Plans.html" },
+      { label: "Literacy Box Program & Lesson Plans", description: "Detailed teaching program and lesson plans for Literacy Box", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/d8ff74d6f_Literacy_Box_Program_and_Lesson_Plans.html" },
+      { label: "Maths Box 1 Program & Lesson Plans", description: "Detailed teaching program and lesson plans for Maths Box 1", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/bfa05198b_Maths_Box_1_Program_and_Lesson_Plans.html" },
+      { label: "Maths Box 4 Program & Lesson Plans", description: "Detailed teaching program and lesson plans for Maths Box 4", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/4b531e690_Maths_Box_4_Program_and_Lesson_Plans.html" },
+      { label: "Universal Life Skills & Vocational Academy", description: "Detailed program and lesson plans for Universal Life Skills & Vocational Academy", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/a6b772551_Universal_Life_Skills_Program_and_Lesson_Plans.html" },
+    ],
+  },
+  {
+    id: "shift_checklists",
+    label: "Shift Notes & Checklists",
+    icon: ClipboardList,
+    color: "text-amber-600 bg-amber-50 border-amber-200",
+    description: "Life skills shift notes and checklists",
+    docs: [
+      { label: "Life Skills Shift Notes & Checklists", description: "SZ-JIE life skills shift notes and checklists workbook", url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/d00d1d827_Life_Skills_Shift_Notes_Checklists.html" },
     ],
   },
 ];
