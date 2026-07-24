@@ -17,6 +17,7 @@ import SpendingTracker from "@/components/participantportal/SpendingTracker";
 import ParticipantLearningHub from "@/components/participantportal/ParticipantLearningHub";
 import ShiftNoteDocuments from "@/components/participantportal/ShiftNoteDocuments";
 import Programs from "@/components/participantportal/Programs";
+import BronwynDocuments from "@/components/participantportal/BronwynDocuments";
 import PBSReferenceDocs from "@/components/behaviour/PBSReferenceDocs";
 
 const IP_PHASE_COLORS = ["bg-blue-600", "bg-amber-500", "bg-emerald-500", "bg-purple-600"];
@@ -126,6 +127,7 @@ function DocCard({ icon: Icon, color, title, number, date, total, status, signed
 
 const TABS = [
   { id: "documents", label: "My Documents", icon: FileText },
+  { id: "mydocs", label: "Bronwyn's Docs", icon: FileText },
   { id: "profile", label: "My Profile", icon: User },
   { id: "epilepsy", label: "Epilepsy Plan", icon: AlertTriangle },
   { id: "pbsp", label: "Behaviour Plan", icon: MessageSquareWarning },
@@ -1332,6 +1334,11 @@ export default function ParticipantPortal() {
         {/* PROGRAMS TAB */}
         {activeTab === "programs" && (
           <Programs />
+        )}
+
+        {/* BRONWYN DOCS TAB */}
+        {activeTab === "mydocs" && (
+          <BronwynDocuments />
         )}
 
         {/* HEALTH PLAN TAB */}
