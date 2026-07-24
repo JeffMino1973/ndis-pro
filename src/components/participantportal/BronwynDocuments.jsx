@@ -45,6 +45,48 @@ const BRONWYN_DOCS = [
     url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/3789a946d_Epilepsy_Management_Plan.html",
     color: "bg-amber-100 text-amber-700",
   },
+  {
+    id: "english_skills",
+    title: "English Skills Program & Lesson Plans",
+    subtitle: "Detailed teaching program and lesson plans",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/9d5b4dc79_English_Skills_Program_and_Lesson_Plans.html",
+    color: "bg-indigo-100 text-indigo-700",
+  },
+  {
+    id: "literacy_box",
+    title: "Literacy Box Program & Lesson Plans",
+    subtitle: "Detailed teaching program and lesson plans",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/d8ff74d6f_Literacy_Box_Program_and_Lesson_Plans.html",
+    color: "bg-cyan-100 text-cyan-700",
+  },
+  {
+    id: "maths_box_1",
+    title: "Maths Box 1 Program & Lesson Plans",
+    subtitle: "Detailed teaching program and lesson plans",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/bfa05198b_Maths_Box_1_Program_and_Lesson_Plans.html",
+    color: "bg-teal-100 text-teal-700",
+  },
+  {
+    id: "maths_box_4",
+    title: "Maths Box 4 Program & Lesson Plans",
+    subtitle: "Detailed teaching program and lesson plans",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/4b531e690_Maths_Box_4_Program_and_Lesson_Plans.html",
+    color: "bg-green-100 text-green-700",
+  },
+  {
+    id: "universal_life_skills",
+    title: "Universal Life Skills & Vocational Academy",
+    subtitle: "Detailed program and lesson plans",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/a6b772551_Universal_Life_Skills_Program_and_Lesson_Plans.html",
+    color: "bg-orange-100 text-orange-700",
+  },
+  {
+    id: "life_skills_checklists",
+    title: "Life Skills Shift Notes & Checklists",
+    subtitle: "SZ-JIE life skills shift notes and checklists workbook",
+    url: "https://media.base44.com/files/public/69d54775d9a169daad84a133/d00d1d827_Life_Skills_Shift_Notes_Checklists.html",
+    color: "bg-amber-100 text-amber-700",
+  },
 ];
 
 export default function BronwynDocuments() {
