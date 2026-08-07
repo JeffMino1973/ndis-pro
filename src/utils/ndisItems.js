@@ -4,7 +4,7 @@ export const NDIS_ITEMS = [
   { code: "01_012_0107_1_1", name: "Assistance With Self-Care Activities - Standard - Saturday", category: "Core Supports: Assistance with Daily Life", unit: "Hour", rate: 103.52, effective_from: "2026-07-01" },
   { code: "01_013_0107_1_1", name: "Assistance With Self-Care Activities - Standard - Sunday", category: "Core Supports: Assistance with Daily Life", unit: "Hour", rate: 133.48, effective_from: "2026-07-01" },
   { code: "01_014_0107_1_1", name: "Assistance With Self-Care Activities - Standard - Public Holiday", category: "Core Supports: Assistance with Daily Life", unit: "Hour", rate: 163.44, effective_from: "2026-07-01" },
-  { code: "01_004_0107_1_1", name: "Assistance with Personal Domestic Activities", category: "Core Supports: Assistance with Daily Life", unit: "Hour", rate: 61.87, effective_from: "2026-07-01" },
+  { code: "01_004_0107_1_1", name: "Assistance with Personal Domestic Activities", category: "Core Supports: Assistance with Daily Life", unit: "Hour", rate: 61.16, effective_from: "2026-07-01" },
   { code: "01_058_0115_1_1", name: "Short Term Respite (STA) - 1:2 Ratio - Weekday", category: "Core Supports: Assistance with Daily Life", unit: "Day", rate: 1255.63, effective_from: "2026-07-01" },
   { code: "01_059_0115_1_1", name: "Short Term Respite (STA) - 1:2 Ratio - Saturday", category: "Core Supports: Assistance with Daily Life", unit: "Day", rate: 1573.31, effective_from: "2026-07-01" },
   { code: "01_060_0115_1_1", name: "Short Term Respite (STA) - 1:2 Ratio - Sunday", category: "Core Supports: Assistance with Daily Life", unit: "Day", rate: 1962.23, effective_from: "2026-07-01" },
@@ -14,7 +14,7 @@ export const NDIS_ITEMS = [
   { code: "04_111_0136_6_1", name: "Group Activities in the Community - Standard - Weekday Daytime", category: "Core Supports: Community Participation", unit: "Hour", rate: 73.57, effective_from: "2026-07-01" },
   { code: "04_103_0125_6_1", name: "Access Community Social and Rec Activ - Standard - Weekday Daytime", category: "Core Supports: Community Participation", unit: "Hour", rate: 73.58, effective_from: "2026-07-01" },
   { code: "04_104_0125_6_1", name: "Access Community Social and Rec Activ - Standard - Saturday", category: "Core Supports: Community Participation", unit: "Hour", rate: 103.52, effective_from: "2026-07-01" },
-  { code: "04_105_0125_6_1", name: "Access Community Social and Rec Activ - Standard - Sunday", category: "Core Supports: Community Participation", unit: "Hour", rate: 133.48, effective_from: "2026-07-01" },
+  { code: "04_106_0125_6_1", name: "Access Community Social and Rec Activ - Standard - Sunday", category: "Core Supports: Community Participation", unit: "Hour", rate: 133.48, effective_from: "2026-07-01" },
   { code: "04_599_0136_6_1", name: "Centre Capital Cost", category: "Core Supports: Community Participation", unit: "Hour", rate: 2.59, effective_from: "2026-07-01" },
 
   // Capacity Building Supports

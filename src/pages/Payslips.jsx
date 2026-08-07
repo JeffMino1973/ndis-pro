@@ -34,7 +34,7 @@ const PRINT_STYLES = `
 // Remove old local tax functions — now using utils/taxCalc.js
 
 const NDIS_ITEMS = [
-  { code: "01_004_0107_1_1", description: "Assistance with Personal Domestic Activity", rate: 59.06 },
+  { code: "01_004_0107_1_1", description: "Assistance with Personal Domestic Activity", rate: 61.16 },
   { code: "04_104_0125_6_1", description: "Access Community Social and Rec Activ – Weekday", rate: 70.23 },
   { code: "04_105_0125_6_1", description: "Access Community Social and Rec Activ – Saturday", rate: 98.83 },
   { code: "04_106_0125_6_1", description: "Access Community Social and Rec Activ – Sunday", rate: 127.43 },
