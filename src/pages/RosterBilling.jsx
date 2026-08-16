@@ -6,15 +6,15 @@ import { format, parseISO, startOfWeek, endOfWeek, addWeeks, subWeeks } from "da
 function getEntityForDate(shiftDate, config) {
   const newBank = {
     bankName: config?.bankName || "NAB",
-    accountName: config?.accountName || "",
-    bsb: config?.bsb || "",
-    accountNumber: config?.accountNumber || "",
+    accountName: config?.accountName || "SZ-JIE WANG JEFFREY KENNETH MINTON",
+    bsb: config?.bsb || "083-054",
+    accountNumber: config?.accountNumber || "42-731-9774",
   };
   const legacyBank = {
     bankName: config?.legacyBankName || config?.bankName || "NAB",
-    accountName: config?.legacyAccountName || config?.accountName || "",
-    bsb: config?.legacyBsb || config?.bsb || "",
-    accountNumber: config?.legacyAccountNumber || config?.accountNumber || "",
+    accountName: config?.legacyAccountName || config?.accountName || "SZ-JIE WANG",
+    bsb: config?.legacyBsb || config?.bsb || "083-054",
+    accountNumber: config?.legacyAccountNumber || config?.accountNumber || "429014456",
   };
 
   if (!config || !config.abnChangeDate || !shiftDate) {
