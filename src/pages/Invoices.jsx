@@ -5,6 +5,7 @@ import { NDIS_ITEMS } from "@/utils/ndisItems";
 import NDISItemSelect from "@/components/NDISItemSelect";
 import EmailMergeDialog, { buildInvoiceMergeData } from "@/components/EmailMergeDialog";
 import { generateInvoiceHTML } from "@/utils/generateDocumentHTML";
+import { getEntityForDate } from "@/utils/businessEntity";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -331,6 +332,7 @@ function InvoicePrint({ invoice, config, onBack }) {
     return `${parts[2]}/${parts[1]}/${parts[0].slice(2)}`;
   };
 
+  const entity = getEntityForDate(invoice.issue_date, config);
   const mergeData = buildInvoiceMergeData(invoice, config);
   const attachmentHtml = generateInvoiceHTML(invoice, config);
 
@@ -361,12 +363,12 @@ function InvoicePrint({ invoice, config, onBack }) {
         {/* Header: provider left, invoice # right */}
         <div className="flex justify-between items-start mb-8">
           <div>
-            <p className="text-xl font-black" style={{ color: '#c0392b' }}>{config.businessName || 'Provider Name'}</p>
+            <p className="text-xl font-black" style={{ color: '#c0392b' }}>{entity.name}</p>
             <div className="mt-2 space-y-0.5 text-sm text-slate-700">
-              {config.abn && <p>ABN: {config.abn}</p>}
-              {config.address && <p>{config.address}</p>}
-              {config.email && <p className="text-blue-600 underline">{config.email}</p>}
-              {config.phone && <p>{config.phone}</p>}
+              {entity.abn && <p>ABN: {entity.abn}</p>}
+              {entity.address && <p>{entity.address}</p>}
+              {entity.email && <p className="text-blue-600 underline">{entity.email}</p>}
+              {entity.phone && <p>{entity.phone}</p>}
             </div>
           </div>
           <div className="text-right">
@@ -440,10 +442,10 @@ function InvoicePrint({ invoice, config, onBack }) {
         {/* Payment details */}
         <div className="text-sm text-slate-700 mt-4">
           <p className="font-bold mb-1">Please make payment to:</p>
-          {config.bankName && <p>{config.bankName}</p>}
-          {config.accountName && <p>Account Name {config.accountName}</p>}
-          {config.bsb && <p>BSB : {config.bsb}</p>}
-          {config.accountNumber && <p>Account :{config.accountNumber}</p>}
+          <p>{entity.bankName}</p>
+          {entity.accountName && <p>Account Name {entity.accountName}</p>}
+          {entity.bsb && <p>BSB : {entity.bsb}</p>}
+          {entity.accountNumber && <p>Account :{entity.accountNumber}</p>}
         </div>
 
         {invoice.notes && (

@@ -1,5 +1,6 @@
 import { getEmployer } from "@/components/payslips/PayslipPreview";
 import { calcPayPeriodDeductions, TAX_STATUS_LABELS } from "@/utils/taxCalc";
+import { getEntityForDate } from "@/utils/businessEntity";
 
 const fmtDate = (d) => {
   if (!d) return "";
@@ -9,6 +10,7 @@ const fmtDate = (d) => {
 };
 
 export function generateInvoiceHTML(invoice, config) {
+  const entity = getEntityForDate(invoice.issue_date, config);
   const lines = (invoice.line_items || []).map((l, i) => `
     <tr style="background:${i % 2 === 0 ? "#f8fafc" : "#fff"}">
       <td style="padding:6px 10px;border-bottom:1px solid #e2e8f0;white-space:nowrap">${fmtDate(l.date)}</td>
@@ -32,12 +34,12 @@ export function generateInvoiceHTML(invoice, config) {
     .total-row td{font-weight:900;background:#dbeafe!important}
     .meta{color:#475569;font-size:11px;margin-bottom:10px}
   </style></head><body>
-    <h1>${config.businessName || "Provider Name"}</h1>
+    <h1>${entity.name}</h1>
     <div class="meta">
-      ${config.abn ? `<p>ABN: ${config.abn}</p>` : ""}
-      ${config.address ? `<p>${config.address}</p>` : ""}
-      ${config.email ? `<p style="color:#2563eb">${config.email}</p>` : ""}
-      ${config.phone ? `<p>${config.phone}</p>` : ""}
+      ${entity.abn ? `<p>ABN: ${entity.abn}</p>` : ""}
+      ${entity.address ? `<p>${entity.address}</p>` : ""}
+      ${entity.email ? `<p style="color:#2563eb">${entity.email}</p>` : ""}
+      ${entity.phone ? `<p>${entity.phone}</p>` : ""}
     </div>
     <p style="font-size:14px;font-weight:900;margin:16px 0 4px">INVOICE # ${invoice.invoice_number}</p>
     <p style="font-size:12px;margin:0 0 12px"><strong>Date:</strong> ${fmtDate(invoice.issue_date)}</p>
@@ -60,10 +62,10 @@ export function generateInvoiceHTML(invoice, config) {
     </table>
     <div style="margin-top:16px">
       <p style="font-weight:700;margin-bottom:4px">Please make payment to:</p>
-      ${config.bankName ? `<p>${config.bankName}</p>` : ""}
-      ${config.accountName ? `<p>Account Name: ${config.accountName}</p>` : ""}
-      ${config.bsb ? `<p>BSB: ${config.bsb}</p>` : ""}
-      ${config.accountNumber ? `<p>Account: ${config.accountNumber}</p>` : ""}
+      <p>${entity.bankName}</p>
+      ${entity.accountName ? `<p>Account Name: ${entity.accountName}</p>` : ""}
+      ${entity.bsb ? `<p>BSB: ${entity.bsb}</p>` : ""}
+      ${entity.accountNumber ? `<p>Account: ${entity.accountNumber}</p>` : ""}
     </div>
     ${invoice.notes ? `<div style="margin-top:16px;font-size:10px;color:#64748b"><p style="font-weight:700">Notes:</p><p>${invoice.notes}</p></div>` : ""}
   </body></html>`;
