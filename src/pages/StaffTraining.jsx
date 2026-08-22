@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { BookOpen, Image, Search, ExternalLink, X, ChevronLeft, ChevronRight, Video, Mic, Award, Users, ShieldCheck, Banknote, AlertTriangle, Brain, Activity, Heart, FileText } from "lucide-react";
+import { BookOpen, Image, Search, ExternalLink, X, ChevronLeft, ChevronRight, Video, Mic, Award, Users, ShieldCheck, Banknote, AlertTriangle, Brain, Activity, Heart, FileText, Images } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TrainingMedia from "@/components/staffportal/TrainingMedia";
+import TrainingImageGallery from "@/components/staffportal/TrainingImageGallery";
 
 // ─── HTML Training Documents ──────────────────────────────────────────────────
 const DOCUMENTS = [
@@ -290,6 +291,11 @@ export default function StaffTraining({ embedded = false }) {
           style={tab === "media" ? { background: "#103f73", color: "#fff", boxShadow: "0 3px 10px rgba(16,63,115,.25)" } : { background: "#eff6fc", color: "#103f73", border: "1px solid #cfe0ef" }}>
           <Video size={14} /> Videos & Podcasts
         </button>
+        <button onClick={() => { setTab("image_library"); setSearch(""); }}
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-bold transition-all"
+          style={tab === "image_library" ? { background: "#103f73", color: "#fff", boxShadow: "0 3px 10px rgba(16,63,115,.25)" } : { background: "#eff6fc", color: "#103f73", border: "1px solid #cfe0ef" }}>
+          <Images size={14} /> Image Library (113)
+        </button>
       </div>
 
       {/* Search bar */}
@@ -470,6 +476,9 @@ export default function StaffTraining({ embedded = false }) {
       )}
 
       {/* ── LIGHTBOX ─────────────────────────────────────────────────────────────── */}
+      {/* ── IMAGE LIBRARY TAB ──────────────────────────────────────────────────── */}
+      {tab === "image_library" && <TrainingImageGallery />}
+
       {lightboxIndex !== null && (
         <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4" onClick={() => setLightboxIndex(null)}>
           <button className="absolute top-4 right-4 text-white/80 hover:text-white" onClick={() => setLightboxIndex(null)}>
