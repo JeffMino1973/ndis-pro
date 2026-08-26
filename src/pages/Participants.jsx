@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import ParticipantForm from "../components/ParticipantForm";
 import ParticipantDetail from "../components/ParticipantDetail";
+import { formatDate } from "@/lib/utils";
 
 export default function Participants() {
   const [participants, setParticipants] = useState([]);
@@ -137,7 +138,7 @@ export default function Participants() {
                 </div>
                 <div className="bg-secondary flex-1 p-2.5 rounded-xl">
                   <p className="text-[9px] font-black text-muted-foreground uppercase">Review</p>
-                  <p className="text-xs font-bold text-foreground">{p.next_review || "TBD"}</p>
+                  <p className="text-xs font-bold text-foreground">{formatDate(p.next_review) || "TBD"}</p>
                 </div>
               </div>
 

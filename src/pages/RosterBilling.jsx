@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { format, parseISO, startOfWeek, endOfWeek, addWeeks, subWeeks } from "date-fns";
+import { formatDate } from "@/lib/utils";
 
 // Returns the correct business entity config based on shift date vs ABN change date
 function getEntityForDate(shiftDate, config) {
@@ -99,7 +100,7 @@ function buildInvoiceHTML(participant, shifts, participants, entity) {
     const rate = sh.hourly_rate || 0;
     const amt = sh.amount || hrs * rate;
     const timeStr = sh.start_time && sh.end_time ? `${sh.start_time}–${sh.end_time}` : "";
-    const dateShort = sh.date ? sh.date.replace(/^20/, "").replace(/-/g, "/") : "";
+    const dateShort = formatDate(sh.date);
     const rowBg = i % 2 === 0 ? "#ffffff" : "#dce8f5";
     const td = `padding:8px 10px;border-bottom:1px solid #c5d7ec;font-size:11.5px;color:#1a2e4a;background:${rowBg};`;
     return `<tr>
@@ -227,8 +228,8 @@ function buildPayslipHTML(staffName, shifts, staffMembers, entity) {
   const fromRaw = dates[0] || "";
   const toRaw = dates[dates.length - 1] || "";
   // Format as YYYY/MM/DD → keep YYYY/MM/DD style matching reference: "2026/04/07 – 2026/04/12"
-  const from = fromRaw.replace(/-/g, "/");
-  const to = toRaw.replace(/-/g, "/");
+  const from = formatDate(fromRaw);
+  const to = formatDate(toRaw);
   const payslipNum = `PS-${Date.now().toString().slice(-6)}`;
 
   // Bank — prefer staff member bank, fall back to entity bank
@@ -243,7 +244,7 @@ function buildPayslipHTML(staffName, shifts, staffMembers, entity) {
     const rate = sh.hourly_rate || 0;
     const amt = sh.amount || hrs * rate;
     const timeStr = sh.start_time && sh.end_time ? `${sh.start_time}–${sh.end_time}` : "";
-    const dateShort = sh.date ? sh.date.replace(/^20/, "").replace(/-/g, "/") : "";
+    const dateShort = formatDate(sh.date);
     const rowBg = i % 2 === 0 ? "#ffffff" : "#dce8f5";
     const baseTd = `padding:10px 10px;border-bottom:1px solid #c5d7ec;font-size:12px;color:#1a2e4a;background:${rowBg};`;
     return `<tr>
@@ -677,7 +678,7 @@ export default function RosterBilling() {
                       <div className={`w-2 h-10 rounded-full flex-shrink-0 ${isComplete ? "bg-emerald-400" : s.status === "Cancelled" ? "bg-rose-400" : "bg-blue-400"}`} />
                       <div>
                         <p className="font-bold text-sm">{s.staff_name} → {s.participant_name}</p>
-                        <p className="text-xs text-muted-foreground">{s.date} · {s.start_time}–{s.end_time} · {s.support_type}</p>
+                        <p className="text-xs text-muted-foreground">{formatDate(s.date)} · {s.start_time}–{s.end_time} · {s.support_type}</p>
                         <p className="text-xs text-muted-foreground">{hrs.toFixed(2)} hrs {s.hourly_rate ? `· ${formatCurrency(s.hourly_rate)}/hr · ${formatCurrency(amt)}` : ""}</p>
                       </div>
                     </div>
@@ -765,7 +766,7 @@ export default function RosterBilling() {
                             const amt = sh.amount || hrs * rate;
                             return (
                               <tr key={sh.id}>
-                                <td className="px-4 py-2.5">{sh.date}</td>
+                                <td className="px-4 py-2.5">{formatDate(sh.date)}</td>
                                 <td className="px-4 py-2.5">{sh.staff_name}</td>
                                 <td className="px-4 py-2.5">{sh.support_type || "—"}</td>
                                 <td className="px-4 py-2.5">{sh.support_item_code || "—"}</td>
@@ -855,7 +856,7 @@ export default function RosterBilling() {
                             const amt = sh.amount || hrs * rate;
                             return (
                               <tr key={sh.id}>
-                                <td className="px-4 py-2.5">{sh.date}</td>
+                                <td className="px-4 py-2.5">{formatDate(sh.date)}</td>
                                 <td className="px-4 py-2.5">{sh.start_time}–{sh.end_time}</td>
                                 <td className="px-4 py-2.5">{sh.participant_name}</td>
                                 <td className="px-4 py-2.5">{sh.support_type || "—"}</td>

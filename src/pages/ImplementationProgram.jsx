@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatDate } from "@/lib/utils";
 
 const BRONWYN_TEMPLATE = {
   participant_name: "Bronwyn Chau",
@@ -420,7 +421,7 @@ export default function ImplementationProgram() {
                         <div key={i} className="bg-secondary rounded-2xl p-4">
                           <div className="flex justify-between items-start mb-2">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-black text-foreground">{log.date}</span>
+                              <span className="text-xs font-black text-foreground">{formatDate(log.date)}</span>
                               <span className="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">{log.phase}</span>
                               {log.support_level_used && <span className="text-[10px] bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-bold">{log.support_level_used} support</span>}
                             </div>

@@ -7,6 +7,7 @@ import {
   Activity, Plus, ChevronRight, Star
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { formatDate } from "@/lib/utils";
 
 const today = new Date().toISOString().split("T")[0];
 
@@ -111,7 +112,7 @@ export default function Dashboard() {
         <div>
           <h2 className="text-3xl font-black tracking-tight">Control Centre</h2>
           <p className="text-muted-foreground text-sm mt-1">
-            {new Date().toLocaleDateString("en-AU", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+            {formatDate(new Date())}
           </p>
         </div>
         <div className="flex gap-2">
@@ -231,7 +232,7 @@ export default function Dashboard() {
                 <div key={n.id} className="flex items-center justify-between p-3 bg-amber-50 border border-amber-100 rounded-xl">
                   <div>
                     <p className="text-sm font-bold text-amber-900">{n.participant_name}</p>
-                    <p className="text-[10px] text-amber-600">{n.note_date} · {n.staff_name} · {n.template_type}</p>
+                    <p className="text-[10px] text-amber-600">{formatDate(n.note_date)} · {n.staff_name} · {n.template_type}</p>
                   </div>
                   <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">DRAFT</span>
                 </div>
@@ -253,7 +254,7 @@ export default function Dashboard() {
                 <div key={inv.id} className="flex items-center justify-between p-3 bg-secondary rounded-xl">
                   <div>
                     <p className="text-sm font-bold">{inv.invoice_number} — {inv.participant_name}</p>
-                    <p className="text-[10px] text-muted-foreground">{inv.issue_date}</p>
+                    <p className="text-[10px] text-muted-foreground">{formatDate(inv.issue_date)}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-black text-foreground">${(inv.total || 0).toLocaleString()}</p>

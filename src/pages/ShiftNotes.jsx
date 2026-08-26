@@ -6,6 +6,7 @@ import { Plus, ClipboardList, Loader2, ChevronDown, ChevronUp, FileText, Externa
 import ShiftNoteTemplatePicker from "@/components/shiftnotes/ShiftNoteTemplatePicker";
 import ShiftNoteWorkbook from "@/components/shiftnotes/ShiftNoteWorkbook";
 import { getDayOfWeek } from "@/utils/shiftNoteTemplates";
+import { formatDate } from "@/lib/utils";
 
 const DAY_COLORS = {
   Monday: "bg-blue-100 text-blue-700",
@@ -170,7 +171,7 @@ export default function ShiftNotes() {
                     <div className="flex-1 min-w-0">
                       <p className="font-bold text-sm">{note.participant_name || "—"}</p>
                       <p className="text-xs text-muted-foreground">
-                        {note.shift_date ? format(parseISO(note.shift_date), "d MMM yyyy") : "—"} · {note.staff_name || "—"}
+                        {formatDate(note.shift_date) || "—"} · {note.staff_name || "—"}
                       </p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { formatDate } from "@/lib/utils";
 
 const PRACTICE_TYPES = ["Chemical Restraint", "Mechanical Restraint", "Physical Restraint", "Environmental Restraint", "Seclusion"];
 
@@ -172,13 +173,13 @@ export default function RestrictivePractices() {
           {expiringAuthorisations.map(r => (
             <div key={r.id} className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3">
               <Calendar size={18} className="text-amber-600 shrink-0" />
-              <p className="text-sm font-bold text-amber-700">Authorisation expiring soon: <span className="font-black">{r.participant_name}</span> — {r.authorisation_expiry}</p>
+              <p className="text-sm font-bold text-amber-700">Authorisation expiring soon: <span className="font-black">{r.participant_name}</span> — {formatDate(r.authorisation_expiry)}</p>
             </div>
           ))}
           {expiringBSPs.map(r => (
             <div key={r.id} className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex items-center gap-3">
               <Calendar size={18} className="text-amber-600 shrink-0" />
-              <p className="text-sm font-bold text-amber-700">BSP expiring soon: <span className="font-black">{r.participant_name}</span> — {r.bsp_expiry}</p>
+              <p className="text-sm font-bold text-amber-700">BSP expiring soon: <span className="font-black">{r.participant_name}</span> — {formatDate(r.bsp_expiry)}</p>
             </div>
           ))}
         </div>
@@ -235,7 +236,7 @@ export default function RestrictivePractices() {
                     <DaysUntil date={r.authorisation_expiry} label="Auth" />
                     <DaysUntil date={r.bsp_expiry} label="BSP" />
                   </div>
-                  <p className="text-xs text-muted-foreground">{r.episode_date} {r.episode_time} · {r.duration_minutes} min · {r.staff_name}</p>
+                  <p className="text-xs text-muted-foreground">{formatDate(r.episode_date)} {r.episode_time} · {r.duration_minutes} min · {r.staff_name}</p>
                   {r.trigger && <p className="text-xs text-muted-foreground mt-1 line-clamp-1">Trigger: {r.trigger}</p>}
                 </div>
                 <div className="flex gap-1 shrink-0">

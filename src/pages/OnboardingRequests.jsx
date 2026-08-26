@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatDate } from "@/lib/utils";
 
 const STATUS_COLORS = {
   Sent: "bg-amber-100 text-amber-700",
@@ -155,7 +156,7 @@ export default function OnboardingRequests() {
                 <tr key={r.id} className="hover:bg-secondary/50">
                   <td className="px-6 py-4 font-bold">{r.participant_name}</td>
                   <td className="px-6 py-4 text-muted-foreground text-sm">{r.sent_to_email}</td>
-                  <td className="px-6 py-4 text-muted-foreground text-sm">{r.created_date?.split("T")[0]}</td>
+                  <td className="px-6 py-4 text-muted-foreground text-sm">{formatDate(r.created_date)}</td>
                   <td className="px-6 py-4">
                     <span className={`text-[10px] font-black px-2 py-1 rounded-full ${STATUS_COLORS[r.status] || "bg-slate-100 text-slate-600"}`}>{r.status}</span>
                   </td>
@@ -185,7 +186,7 @@ export default function OnboardingRequests() {
             <div className="space-y-3 text-sm">
               {[
                 ["Participant Name", selected.participant_name], ["NDIS Number", selected.ndis_number],
-                ["Date of Birth", selected.date_of_birth], ["Address", selected.address],
+                ["Date of Birth", formatDate(selected.date_of_birth)], ["Address", selected.address],
                 ["Phone", selected.phone], ["Email", selected.email],
                 ["Primary Disability", selected.primary_disability], ["Medical Alerts", selected.medical_alerts],
                 ["Plan Type", selected.plan_type], ["Plan Coordinator", selected.plan_coordinator_name],

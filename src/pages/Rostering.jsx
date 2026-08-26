@@ -10,6 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { format, startOfWeek, addDays, addWeeks, subWeeks, isSameDay, parseISO, startOfMonth, endOfMonth, addMonths, subMonths, eachDayOfInterval } from "date-fns";
 import { NDIS_ITEMS } from "@/utils/ndisItems";
 import ShiftNoteReminder from "@/components/rostering/ShiftNoteReminder";
+import { formatDate } from "@/lib/utils";
 
 const STATUS_COLORS = {
   Scheduled: "bg-blue-100 text-blue-700",
@@ -26,7 +27,7 @@ function buildPrintHTML(title, shifts) {
     const statusColors = { Completed: "#dcfce7", Scheduled: "#dbeafe", Confirmed: "#d1fae5", Cancelled: "#fee2e2", "No Show": "#fef9c3" };
     const statusBg = statusColors[s.status] || "#f1f5f9";
     return `<tr style="background:${bg}">
-      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;">${s.date||""}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;">${formatDate(s.date||"")}</td>
       <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;">${s.start_time||""}–${s.end_time||""}</td>
       <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;font-weight:bold;">${s.staff_name||""}</td>
       <td style="padding:7px 10px;border-bottom:1px solid #e2e8f0;font-size:11px;">${s.participant_name||""}</td>
@@ -409,10 +410,10 @@ export default function Rostering() {
               {filteredShifts.filter(s => statusFilter === "all" || s.status === statusFilter).slice(0, 100).map((s) => (
                 <div key={s.id} className="px-6 py-4 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-black text-xs">{s.date?.slice(5)}</div>
+                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary font-black text-xs">{formatDate(s.date)}</div>
                     <div>
                       <p className="font-bold text-foreground text-sm">{s.staff_name} → {s.participant_name}</p>
-                      <p className="text-[10px] text-muted-foreground">{s.date} · {s.start_time}–{s.end_time} · {s.support_type}</p>
+                      <p className="text-[10px] text-muted-foreground">{formatDate(s.date)} · {s.start_time}–{s.end_time} · {s.support_type}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -567,7 +568,7 @@ export default function Rostering() {
             <div className="space-y-4">
               <div className="bg-secondary rounded-xl p-3 text-sm">
                 <p className="font-black">{copySource.staff_name} → {copySource.participant_name}</p>
-                <p className="text-muted-foreground text-xs">{copySource.date} · {copySource.start_time}–{copySource.end_time}</p>
+                <p className="text-muted-foreground text-xs">{formatDate(copySource.date)} · {copySource.start_time}–{copySource.end_time}</p>
               </div>
 
               <div>
@@ -598,7 +599,7 @@ export default function Rostering() {
 
               {copyMode === "nextweek" && (
                 <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-sm text-blue-700">
-                  Will create 1 copy on <strong>{copySource.date ? format(addDays(parseISO(copySource.date), 7), "EEEE d MMM yyyy") : "next week"}</strong>
+                  Will create 1 copy on <strong>{copySource.date ? formatDate(addDays(parseISO(copySource.date), 7)) : "next week"}</strong>
                 </div>
               )}
 

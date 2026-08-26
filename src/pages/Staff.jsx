@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { formatDate } from "@/lib/utils";
 
 const DOC_TYPES = ["Contract", "WWCC Certificate", "Police Check", "First Aid Certificate", "Training Record", "ID Document", "Other"];
 
@@ -153,8 +154,8 @@ export default function Staff() {
 
               <div className="space-y-2">
                 {[
-                  { label: "WWCC", icon: getComplianceIcon(s.wwcc_expiry), val: s.wwcc_expiry || "N/A" },
-                  { label: "First Aid", icon: getComplianceIcon(s.first_aid_expiry), val: s.first_aid_expiry || "N/A" },
+                  { label: "WWCC", icon: getComplianceIcon(s.wwcc_expiry), val: formatDate(s.wwcc_expiry) || "N/A" },
+                  { label: "First Aid", icon: getComplianceIcon(s.first_aid_expiry), val: formatDate(s.first_aid_expiry) || "N/A" },
                   { label: "Police Check", icon: s.police_check === "Cleared" ? <CheckCircle size={13} className="text-emerald-500" /> : <AlertCircle size={13} className="text-rose-500" />, val: s.police_check || "N/A" },
                 ].map(item => (
                   <div key={item.label} className="flex justify-between items-center px-3 py-2 bg-secondary rounded-xl">
@@ -414,9 +415,9 @@ function StaffDetail({ staff: s, onBack, onEdit, onDelete, onToggleStatus }) {
           <Info label="Address" value={member.address} icon={MapPin} />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
-          <Info label="Date of Birth" value={member.date_of_birth} />
-          <Info label="WWCC Expiry" value={member.wwcc_expiry} />
-          <Info label="First Aid Expiry" value={member.first_aid_expiry} />
+          <Info label="Date of Birth" value={formatDate(member.date_of_birth)} />
+          <Info label="WWCC Expiry" value={formatDate(member.wwcc_expiry)} />
+          <Info label="First Aid Expiry" value={formatDate(member.first_aid_expiry)} />
           <Info label="Police Check" value={member.police_check} />
           <Info label="Training" value={member.training_status} />
         </div>
@@ -474,7 +475,7 @@ function StaffDetail({ staff: s, onBack, onEdit, onDelete, onToggleStatus }) {
                   <FileText size={16} className="text-primary shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold truncate">{doc.title}</p>
-                    <p className="text-[10px] text-muted-foreground">{doc.document_type} · {doc.created_date?.split("T")[0]}</p>
+                    <p className="text-[10px] text-muted-foreground">{doc.document_type} · {formatDate(doc.created_date)}</p>
                   </div>
                   <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/70"><Download size={15} /></a>
                   <button onClick={() => deleteDoc(doc.id)} className="text-muted-foreground hover:text-destructive"><Trash2 size={15} /></button>

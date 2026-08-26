@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { formatDate } from "@/lib/utils";
 
 const LIKELIHOODS = ["Almost Certain", "Likely", "Possible", "Unlikely", "Rare"];
 const CONSEQUENCES = ["Catastrophic", "Major", "Moderate", "Minor", "Insignificant"];
@@ -387,7 +388,7 @@ export default function RiskAssessments() {
 }
 
 function RiskAssessmentPrint({ data, onBack }) {
-  const today = new Date().toLocaleDateString("en-AU");
+  const today = formatDate(new Date());
 
   return (
     <div className="space-y-4">
@@ -422,8 +423,8 @@ function RiskAssessmentPrint({ data, onBack }) {
               <p style={{ fontSize: '12px', margin: '4px 0 0', opacity: 0.8 }}>{data.activity_description || data.activityDescription || ""}</p>
             </div>
             <div style={{ textAlign: 'right', fontSize: '11px', opacity: 0.8 }}>
-              <p>Date: {data.assessment_date || today}</p>
-              <p>Review: {data.review_date || "—"}</p>
+              <p>Date: {formatDate(data.assessment_date) || today}</p>
+              <p>Review: {formatDate(data.review_date) || "—"}</p>
             </div>
           </div>
         </div>
@@ -436,7 +437,7 @@ function RiskAssessmentPrint({ data, onBack }) {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '10px' }}>
               {[
                 { label: "Client Full Name", value: data.participant_name },
-                { label: "Date of Birth", value: data.participant_dob },
+                { label: "Date of Birth", value: formatDate(data.participant_dob) },
                 { label: "NDIS Number", value: data.ndis_number },
                 { label: "Home Address", value: data.home_address },
                 { label: "Destination / Workplace", value: data.destination },

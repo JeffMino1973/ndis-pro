@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { formatDate } from "@/lib/utils";
 
 const TEMPLATES = {
   "Daily Support": {
@@ -206,7 +207,7 @@ export default function ProgressNotes() {
                     <span className="text-[10px] font-bold text-muted-foreground px-2 py-0.5 bg-secondary rounded-full">{n.template_type}</span>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mb-2">
-                    <span className="flex items-center gap-1"><Clock size={11} /> {n.note_date} {n.note_time}</span>
+                    <span className="flex items-center gap-1"><Clock size={11} /> {formatDate(n.note_date)} {n.note_time}</span>
                     {n.gps_coordinates && <span className="flex items-center gap-1"><MapPin size={11} /> {n.gps_coordinates}</span>}
                     {n.client_signature && <span className="flex items-center gap-1 text-emerald-600"><CheckCircle size={11} /> {n.client_signature}</span>}
                   </div>
@@ -315,7 +316,7 @@ function NotePrint({ note, onBack }) {
             <p className="text-xs text-slate-500 mt-1">Audit Record — NDIS Service Delivery</p>
           </div>
           <div className="text-right text-xs text-slate-500">
-            <p className="font-bold">{note.note_date} {note.note_time}</p>
+            <p className="font-bold">{formatDate(note.note_date)} {note.note_time}</p>
             {note.gps_coordinates && <p className="flex items-center gap-1 justify-end mt-0.5"><MapPin size={10} /> {note.gps_coordinates}</p>}
           </div>
         </div>
@@ -348,11 +349,11 @@ function NotePrint({ note, onBack }) {
           <div className="mt-6 pt-4 border-t">
             <p className="text-[10px] font-black text-slate-400 uppercase mb-2">Client Acknowledgement</p>
             <p className="text-xl" style={{ fontFamily: "cursive" }}>{note.client_signature}</p>
-            <p className="text-xs text-slate-400 mt-1">Signed: {note.client_signed_at ? new Date(note.client_signed_at).toLocaleString("en-AU") : note.note_date}</p>
+            <p className="text-xs text-slate-400 mt-1">Signed: {note.client_signed_at ? formatDate(note.client_signed_at) : formatDate(note.note_date)}</p>
           </div>
         )}
         <div className="mt-8 pt-4 border-t text-[9px] text-slate-400 text-center">
-          This document is an official NDIS service delivery record. Timestamp: {note.note_date} {note.note_time} · GPS: {note.gps_coordinates || "N/A"}
+          This document is an official NDIS service delivery record. Timestamp: {formatDate(note.note_date)} {note.note_time} · GPS: {note.gps_coordinates || "N/A"}
         </div>
       </div>
     </div>

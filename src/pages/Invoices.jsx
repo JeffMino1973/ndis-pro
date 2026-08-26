@@ -6,6 +6,7 @@ import NDISItemSelect from "@/components/NDISItemSelect";
 import EmailMergeDialog, { buildInvoiceMergeData } from "@/components/EmailMergeDialog";
 import { generateInvoiceHTML } from "@/utils/generateDocumentHTML";
 import { getEntityForDate } from "@/utils/businessEntity";
+import { formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -182,7 +183,7 @@ export default function Invoices() {
                 <tr key={inv.id} className="hover:bg-secondary/50 transition-all">
                   <td className="px-6 py-4 font-bold text-foreground">{inv.invoice_number}</td>
                   <td className="px-6 py-4 text-foreground">{inv.participant_name}</td>
-                  <td className="px-6 py-4 text-muted-foreground">{inv.issue_date}</td>
+                  <td className="px-6 py-4 text-muted-foreground">{formatDate(inv.issue_date)}</td>
                   <td className="px-6 py-4 font-black text-foreground">${(inv.total || 0).toLocaleString()}</td>
                   <td className="px-6 py-4">
                     <Select value={inv.status} onValueChange={(v) => updateStatus(inv.id, v)}>
@@ -329,7 +330,7 @@ function InvoicePrint({ invoice, config, onBack }) {
     if (!d) return "";
     const parts = d.split("-");
     if (parts.length !== 3) return d;
-    return `${parts[2]}/${parts[1]}/${parts[0].slice(2)}`;
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
   };
 
   const entity = getEntityForDate(invoice.issue_date, config);

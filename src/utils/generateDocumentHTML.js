@@ -83,7 +83,7 @@ export function generatePayslipHTML(record, staffMember) {
 
   const lineRows = lines.map((l, i) => `
     <tr style="background:${i % 2 === 0 ? "#f8fafc" : "#fff"}">
-      <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0">${l.date || ""}</td>
+      <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0">${fmtDate(l.date)}</td>
       <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0">${l.time || ""}</td>
       <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0;font-family:monospace">${l.item_code || ""}</td>
       <td style="padding:5px 8px;border-bottom:1px solid #e2e8f0">${l.description || ""}</td>
@@ -110,7 +110,7 @@ export function generatePayslipHTML(record, staffMember) {
     .footer{margin-top:16px;padding-top:8px;border-top:1px solid #e2e8f0;font-size:9px;color:#94a3b8}
   </style></head><body>
     <h1>Payslip — ${record.payslip_number || ""}</h1>
-    <p class="meta"><strong>${record.staff_name}</strong> &nbsp;·&nbsp; Period: ${record.date_from} → ${record.date_to} &nbsp;·&nbsp; Pay: ${record.pay_period || "Fortnightly"} &nbsp;·&nbsp; Employer: ${emp.name}</p>
+    <p class="meta"><strong>${record.staff_name}</strong> &nbsp;·&nbsp; Period: ${fmtDate(record.date_from)} → ${fmtDate(record.date_to)} &nbsp;·&nbsp; Pay: ${record.pay_period || "Fortnightly"} &nbsp;·&nbsp; Employer: ${emp.name}</p>
     <div class="summary">
       <div class="summary-item"><div class="val">$${subtotal.toFixed(2)}</div><div class="lbl">Gross Pay</div></div>
       <div class="summary-item"><div class="val" style="color:#e11d48">-$${(tax + medicare).toFixed(2)}</div><div class="lbl">Tax + Medicare</div></div>

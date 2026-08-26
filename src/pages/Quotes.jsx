@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { formatDate } from "@/lib/utils";
 
 const statusColor = {
   Draft: "bg-slate-100 text-slate-700",
@@ -178,7 +179,7 @@ export default function Quotes() {
                 <tr key={q.id} className="hover:bg-secondary/50 transition-all">
                   <td className="px-6 py-4 font-bold text-foreground">{q.quote_number}</td>
                   <td className="px-6 py-4 text-foreground">{q.participant_name}</td>
-                  <td className="px-6 py-4 text-muted-foreground">{q.issue_date}</td>
+                  <td className="px-6 py-4 text-muted-foreground">{formatDate(q.issue_date)}</td>
                   <td className="px-6 py-4 font-black text-foreground">${(q.total || 0).toLocaleString()}</td>
                   <td className="px-6 py-4">
                     <Select value={q.status} onValueChange={(v) => updateStatus(q.id, v)}>
@@ -346,12 +347,12 @@ function QuotePrint({ quote, config, onBack }) {
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-slate-400 font-bold">Issue Date</span>
-              <span className="font-bold text-slate-700">{quote.issue_date}</span>
+              <span className="font-bold text-slate-700">{formatDate(quote.issue_date)}</span>
             </div>
             {quote.expiry_date && (
               <div className="flex justify-between text-sm">
                 <span className="text-slate-400 font-bold">Valid Until</span>
-                <span className="font-bold text-slate-700">{quote.expiry_date}</span>
+                <span className="font-bold text-slate-700">{formatDate(quote.expiry_date)}</span>
               </div>
             )}
             <div className="flex justify-between text-sm">

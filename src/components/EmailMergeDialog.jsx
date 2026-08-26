@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Mail, Send, Loader2, Paperclip, CheckCircle, AlertCircle, FileText } from "lucide-react";
 import { generatePDFFromHTML } from "@/utils/generatePDF";
+import { formatDate } from "@/lib/utils";
 
 const INVOICE_TEMPLATE_URL = "https://media.base44.com/files/public/69d54775d9a169daad84a133/1189154e2_Invoice_Email.html";
 const PAYSLIP_TEMPLATE_URL = "https://media.base44.com/files/public/69d54775d9a169daad84a133/c23215a33_Payslip_Advice.html";
@@ -35,7 +36,7 @@ export function buildInvoiceMergeData(invoice, config) {
     "Plan Manager Name": invoice.plan_manager_name || "",
     "Participant Name": invoice.participant_name || "",
     "NDIS Number": invoice.participant_ndis_number || "",
-    "Invoice Date": invoice.issue_date || "",
+    "Invoice Date": formatDate(invoice.issue_date),
     "Bank Name": config.bankName || "",
     "Account Name": config.accountName || "",
     "BSB": config.bsb || "",
@@ -50,10 +51,10 @@ export function buildPayslipMergeData(record) {
   const lineTotal = (l) => parseFloat(l.unit_price || 0) * parseFloat(l.qty || 0);
   const gross = lines.reduce((a, l) => a + lineTotal(l), 0);
   return {
-    "Pay_Period_Start": record.date_from || "",
-    "Pay_Period_End": record.date_to || "",
+    "Pay_Period_Start": formatDate(record.date_from),
+    "Pay_Period_End": formatDate(record.date_to),
     "Employee_Name": record.staff_name || "",
-    "Pay_Date": new Date().toLocaleDateString("en-AU"),
+    "Pay_Date": formatDate(new Date()),
     "Hours_Worked": totalHours.toFixed(2),
     "Hourly_Rate": totalHours > 0 ? (gross / totalHours).toFixed(2) : "0.00",
     "Gross_Pay": `$${(record.gross_pay || gross || 0).toFixed(2)}`,

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { formatDate } from "@/lib/utils";
 
 export default function Incidents() {
   const [incidents, setIncidents] = useState([]);
@@ -107,7 +108,7 @@ export default function Incidents() {
                   {inc.action_taken && <p className="text-xs text-muted-foreground mt-1">Action: {inc.action_taken}</p>}
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-xs font-bold text-foreground">{inc.incident_date}</p>
+                  <p className="text-xs font-bold text-foreground">{formatDate(inc.incident_date)}</p>
                   {inc.participant_name && <p className="text-[10px] text-muted-foreground">{inc.participant_name}</p>}
                 </div>
               </div>

@@ -11,6 +11,7 @@ import PayslipPreview, { getEmployer } from "@/components/payslips/PayslipPrevie
 import { calcPayPeriodDeductions, TAX_STATUS_LABELS } from "@/utils/taxCalc";
 import EmailMergeDialog, { buildPayslipMergeData } from "@/components/EmailMergeDialog";
 import { generatePayslipHTML } from "@/utils/generateDocumentHTML";
+import { formatDate } from "@/lib/utils";
 
 const PRINT_STYLES = `
 @media print {
@@ -229,7 +230,7 @@ export default function Payslips() {
             type="payslip"
             mergeData={payslipMergeData}
             defaultRecipient={activeRecord.staff_email || ""}
-            defaultSubject={`Payslip Advice — ${activeRecord.date_from} to ${activeRecord.date_to}`}
+            defaultSubject={`Payslip Advice — ${formatDate(activeRecord.date_from)} to ${formatDate(activeRecord.date_to)}`}
             attachmentHtml={payslipAttachmentHtml}
             attachmentFilename={`Payslip_${activeRecord.payslip_number}.pdf`}
           />
@@ -429,7 +430,7 @@ export default function Payslips() {
       <button class="print-btn no-print" onclick="window.print()">🖨 Print / Save PDF</button>
       <h1>Payslip — ${r.payslip_number || ""}</h1>
       <p class="meta">
-        <strong>${r.staff_name}</strong> &nbsp;·&nbsp; Period: ${r.date_from} → ${r.date_to}
+        <strong>${r.staff_name}</strong> &nbsp;·&nbsp; Period: ${formatDate(r.date_from)} → ${formatDate(r.date_to)}
         &nbsp;·&nbsp; Pay: ${r.pay_period || "Fortnightly"} &nbsp;·&nbsp; Employer: ${emp.name}
         &nbsp;·&nbsp; Generated: ${format(new Date(), "dd/MM/yyyy")}
       </p>
@@ -443,7 +444,7 @@ export default function Payslips() {
       <h2>Shift Line Items</h2>
       <table><thead><tr><th>Date</th><th>Time</th><th>Item Code</th><th>Description</th><th style="text-align:right">Rate</th><th style="text-align:right">Hrs</th><th style="text-align:right">Amount</th></tr></thead>
       <tbody>
-        ${(r.line_items || []).map(l => `<tr><td>${l.date || ""}</td><td>${l.time || ""}</td><td style="font-family:monospace">${l.item_code || ""}</td><td>${l.description || ""}</td><td style="text-align:right">$${(l.unit_price || 0).toFixed(2)}</td><td style="text-align:right">${l.qty || ""}</td><td style="text-align:right;font-weight:700">$${(l.total || l.unit_price * l.qty || 0).toFixed(2)}</td></tr>`).join("")}
+        ${(r.line_items || []).map(l => `<tr><td>${formatDate(l.date)}</td><td>${l.time || ""}</td><td style="font-family:monospace">${l.item_code || ""}</td><td>${l.description || ""}</td><td style="text-align:right">$${(l.unit_price || 0).toFixed(2)}</td><td style="text-align:right">${l.qty || ""}</td><td style="text-align:right;font-weight:700">$${(l.total || l.unit_price * l.qty || 0).toFixed(2)}</td></tr>`).join("")}
         <tr class="total-row"><td colspan="6">GROSS PAY</td><td style="text-align:right">$${(r.gross_pay || 0).toFixed(2)}</td></tr>
       </tbody></table>
       <div class="grid2">
@@ -500,7 +501,7 @@ export default function Payslips() {
     </head><body>
       <button class="print-btn no-print" onclick="window.print()">🖨 Print / Save PDF</button>
       <h1>Payroll Banking Report</h1>
-      <p class="meta">Payslip #${r.payslip_number || "—"} &nbsp;·&nbsp; ${r.date_from} → ${r.date_to} &nbsp;·&nbsp; Generated: ${format(new Date(), "dd/MM/yyyy")}</p>
+      <p class="meta">Payslip #${r.payslip_number || "—"} &nbsp;·&nbsp; ${formatDate(r.date_from)} → ${formatDate(r.date_to)} &nbsp;·&nbsp; Generated: ${format(new Date(), "dd/MM/yyyy")}</p>
 
       <div style="margin-bottom:12px;">
         <h2 style="color:#1e3a5f;">Employer Details</h2>
@@ -533,7 +534,7 @@ export default function Payslips() {
           <p><strong>Account Name:</strong> ${r.bank_account_name || "—"}</p>
           <p><strong>BSB:</strong> ${r.bank_bsb || "—"}</p>
           <p><strong>Account Number:</strong> ${r.bank_account_number || "—"}</p>
-          <p><strong>Reference:</strong> ${r.payslip_number} – ${r.date_from} to ${r.date_to}</p>
+          <p><strong>Reference:</strong> ${r.payslip_number} – ${formatDate(r.date_from)} to ${formatDate(r.date_to)}</p>
         </div>
         <div class="box-amount"><span style="font-weight:900;color:#1e40af;">TRANSFER AMOUNT</span><span class="amount-val" style="color:#1e40af;">$${(r.net_pay || 0).toFixed(2)}</span></div>
       </div>
@@ -651,7 +652,7 @@ export default function Payslips() {
               <div key={r.id} className="grid grid-cols-[1fr_120px_90px_90px_90px_90px_auto] gap-3 px-6 py-3 hover:bg-secondary/20 items-center text-sm">
                 <div className="cursor-pointer" onClick={() => { setActiveRecord(r); setView("view"); }}>
                   <p className="font-bold truncate">{r.staff_name}</p>
-                  <p className="text-xs text-muted-foreground">{r.date_from} → {r.date_to} · {r.pay_period}</p>
+                  <p className="text-xs text-muted-foreground">{formatDate(r.date_from)} → {formatDate(r.date_to)} · {r.pay_period}</p>
                 </div>
                 <span className="font-mono text-xs text-muted-foreground">{r.payslip_number}</span>
                 <span className="text-right font-bold">${(r.gross_pay || 0).toFixed(2)}</span>

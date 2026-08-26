@@ -1,5 +1,6 @@
 import { format, parseISO } from "date-fns";
 import { calcPayPeriodDeductions, TAX_STATUS_LABELS } from "@/utils/taxCalc";
+import { formatDate } from "@/lib/utils";
 
 const EMPLOYER_OLD = {
   name: "SZ-Jie Wang",
@@ -66,7 +67,7 @@ export default function PayslipPreview({ record, staffMember }) {
           <h1 style={{ fontSize: "22px", fontWeight: 900, margin: 0, color: "#1e3a5f" }}>PAYSLIP</h1>
           <p style={{ margin: "2px 0", color: "#475569" }}>#{record.payslip_number}</p>
           <p style={{ margin: "2px 0", fontWeight: 700 }}>{record.staff_name}</p>
-          <p style={{ margin: "2px 0", color: "#64748b" }}>{record.date_from} → {record.date_to}</p>
+          <p style={{ margin: "2px 0", color: "#64748b" }}>{formatDate(record.date_from)} → {formatDate(record.date_to)}</p>
         </div>
       </div>
 
@@ -82,7 +83,7 @@ export default function PayslipPreview({ record, staffMember }) {
         <tbody>
           {lines.map((l, i) => (
             <tr key={i} style={{ backgroundColor: i % 2 === 0 ? "#f8fafc" : "#ffffff" }}>
-              <td style={{ padding: "5px 8px", color: "#475569" }}>{l.date ? format(parseISO(l.date), "dd/MM/yy") : "—"}</td>
+              <td style={{ padding: "5px 8px", color: "#475569" }}>{formatDate(l.date) || "—"}</td>
               <td style={{ padding: "5px 8px", color: "#475569" }}>{l.time || "—"}</td>
               <td style={{ padding: "5px 8px", fontFamily: "monospace", color: "#334155" }}>{l.item_code}</td>
               <td style={{ padding: "5px 8px", color: "#334155" }}>{l.description}</td>
