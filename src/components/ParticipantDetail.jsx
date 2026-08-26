@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import ParticipantForm from "./ParticipantForm";
+import { formatDate } from "@/lib/utils";
 
 function InfoCard({ label, value, icon: Icon }) {
   if (!value) return null;
@@ -137,7 +138,7 @@ export default function ParticipantDetail({ participant, onBack }) {
                   </button>
                 )}
               </div>
-              {p.date_of_birth && <p className="text-xs text-muted-foreground mt-0.5">DOB: {p.date_of_birth}</p>}
+              {p.date_of_birth && <p className="text-xs text-muted-foreground mt-0.5">DOB: {formatDate(p.date_of_birth)}</p>}
               <span className={`inline-block mt-2 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider ${
                 p.status === "Active" ? "bg-emerald-100 text-emerald-700" :
                 p.status === "Review Due" ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"
@@ -180,7 +181,7 @@ export default function ParticipantDetail({ participant, onBack }) {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 mt-3">
-          <InfoCard label="Next Plan Review" value={p.next_review} />
+          <InfoCard label="Next Plan Review" value={formatDate(p.next_review)} />
           <InfoCard label="Primary Disability" value={p.primary_disability} />
         </div>
       </div>
@@ -296,7 +297,7 @@ export default function ParticipantDetail({ participant, onBack }) {
                   <FileText size={16} className="text-primary shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-foreground truncate">{doc.title}</p>
-                    <p className="text-[10px] text-muted-foreground">{doc.document_type} · {doc.created_date?.split("T")[0]}</p>
+                    <p className="text-[10px] text-muted-foreground">{doc.document_type} · {formatDate(doc.created_date)}</p>
                   </div>
                   <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary/70">
                     <Download size={15} />
@@ -322,7 +323,7 @@ export default function ParticipantDetail({ participant, onBack }) {
           {(p.notes || []).map((note, i) => (
             <div key={i} className="p-4 bg-secondary rounded-2xl">
               <p className="text-sm text-foreground">{note.text}</p>
-              <p className="text-[10px] text-muted-foreground mt-2">{note.date} · {note.by}</p>
+              <p className="text-[10px] text-muted-foreground mt-2">{formatDate(note.date)} · {note.by}</p>
             </div>
           ))}
           <div className="flex gap-3 pt-2">

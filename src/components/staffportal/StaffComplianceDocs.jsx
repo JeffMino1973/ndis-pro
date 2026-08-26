@@ -3,6 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { Upload, FileText, ExternalLink, Loader2, Trash2, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format, parseISO } from "date-fns";
+import { formatDate } from "@/lib/utils";
 
 const CATEGORIES = ["WWCC", "First Aid", "Police Check", "Driver Licence", "Qualifications", "Insurance", "Other"];
 
@@ -153,7 +154,7 @@ export default function StaffComplianceDocs({ staffRecord }) {
                             )}
                             {doc.expiry_date && (
                               <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${expired ? "bg-rose-100 text-rose-700" : expiring ? "bg-amber-100 text-amber-700" : "bg-emerald-100 text-emerald-700"}`}>
-                                {expired ? "EXPIRED" : expiring ? `${days}d left` : `Exp ${doc.expiry_date}`}
+                                {expired ? "EXPIRED" : expiring ? `${days}d left` : `Exp ${formatDate(doc.expiry_date)}`}
                               </span>
                             )}
                           </div>

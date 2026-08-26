@@ -125,7 +125,7 @@ export default function AuditLogPage() {
                 <div className="text-right">
                   <p className="text-xs font-bold truncate">{log.performed_by_name || log.performed_by || "Unknown"}</p>
                   <p className="text-[10px] text-muted-foreground">
-                    {log.created_date ? format(new Date(log.created_date), "dd/MM/yy HH:mm") : "—"}
+                    {log.created_date ? format(new Date(log.created_date), "dd/MM/yyyy HH:mm") : "—"}
                   </p>
                 </div>
               </div>

@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { formatDate } from "@/lib/utils";
 
 export default function ServiceAgreements() {
   const [agreements, setAgreements] = useState([]);
@@ -132,9 +133,9 @@ export default function ServiceAgreements() {
                 <span className={`text-[10px] font-black px-2 py-1 rounded-full ${statusColor[a.status] || ""}`}>{a.status}</span>
               </div>
               <div className="flex gap-3 text-xs text-muted-foreground mb-3">
-                <span>{a.start_date || "N/A"}</span>
+                <span>{formatDate(a.start_date) || "N/A"}</span>
                 <span>→</span>
-                <span>{a.end_date || "N/A"}</span>
+                <span>{formatDate(a.end_date) || "N/A"}</span>
               </div>
               <p className="text-lg font-black text-primary">${totalValue(a.services).toLocaleString()}</p>
               <p className="text-[10px] text-muted-foreground font-bold uppercase">Total Value</p>
@@ -282,7 +283,7 @@ function AgreementPreview({ agreement, onBack }) {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
                 { label: "Participant Name", value: agreement.participant_name, accent: true },
-                { label: "Agreement Date", value: agreement.start_date || new Date().toLocaleDateString("en-AU") },
+                { label: "Agreement Date", value: formatDate(agreement.start_date) || formatDate(new Date()) },
                 { label: "NDIS Number", value: agreement.participant_ndis_number || "—" },
                 { label: "Agreement Status", value: agreement.status || "Draft", accent: true },
               ].map(f => (

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { NDIS_ITEMS } from "@/utils/ndisItems";
 import { format, startOfWeek, addDays, parseISO, isSameDay, eachWeekOfInterval } from "date-fns";
+import { formatDate } from "@/lib/utils";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function openReport(html) {
@@ -91,7 +92,7 @@ function InvoiceSummaryReport({ invoices }) {
       <h2>Invoice List</h2>
       <table><thead><tr><th>Invoice #</th><th>Date</th><th>Participant</th><th>Plan Manager</th><th>Total</th><th>Status</th></tr></thead>
       <tbody>
-        ${filtered.map(i => `<tr><td><strong>${i.invoice_number || "—"}</strong></td><td>${i.issue_date || "—"}</td><td>${i.participant_name || "—"}</td><td>${i.plan_manager_name || "—"}</td><td>$${parseFloat(i.total || 0).toFixed(2)}</td><td><span class="badge badge-${(i.status || "").toLowerCase()}">${i.status}</span></td></tr>`).join("")}
+        ${filtered.map(i => `<tr><td><strong>${i.invoice_number || "—"}</strong></td><td>${formatDate(i.issue_date) || "—"}</td><td>${i.participant_name || "—"}</td><td>${i.plan_manager_name || "—"}</td><td>$${parseFloat(i.total || 0).toFixed(2)}</td><td><span class="badge badge-${(i.status || "").toLowerCase()}">${i.status}</span></td></tr>`).join("")}
         ${filtered.length === 0 ? `<tr><td colspan="6" style="text-align:center;color:#94a3b8;font-style:italic;">No invoices match the filter</td></tr>` : ""}
         <tr class="total"><td colspan="4">TOTALS</td><td>$${totalInvoiced.toFixed(2)}</td><td></td></tr>
       </tbody></table>
@@ -322,7 +323,7 @@ function RosterIndividualReport({ shifts, staff, participants }) {
     </head><body>
       <button class="print-btn no-print" onclick="window.print()">🖨 Print / Save PDF</button>
       <h1>Individual Roster — ${viewType === "staff" ? "Staff" : "Participant"} View</h1>
-      <p class="meta"><strong>${viewType === "staff" ? "Staff Member" : "Participant"}:</strong> ${title} &nbsp;|&nbsp; <strong>Period:</strong> ${fromDate || "All"} → ${toDate || "All"} &nbsp;|&nbsp; <strong>Total Shifts:</strong> ${filtered.length} &nbsp;|&nbsp; <strong>Generated:</strong> ${new Date().toLocaleDateString("en-AU")}</p>
+      <p class="meta"><strong>${viewType === "staff" ? "Staff Member" : "Participant"}:</strong> ${title} &nbsp;|&nbsp; <strong>Period:</strong> ${formatDate(fromDate) || "All"} → ${formatDate(toDate) || "All"} &nbsp;|&nbsp; <strong>Total Shifts:</strong> ${filtered.length} &nbsp;|&nbsp; <strong>Generated:</strong> ${new Date().toLocaleDateString("en-AU")}</p>
       <div class="legend">
         <div class="legend-item"><div class="legend-dot" style="background:#dbeafe;"></div> Scheduled</div>
         <div class="legend-item"><div class="legend-dot" style="background:#dcfce7;"></div> Confirmed</div>
@@ -372,7 +373,7 @@ function RosterIndividualReport({ shifts, staff, participants }) {
         </div>
       </div>
       <div className="bg-card border border-border rounded-xl p-3 text-sm text-muted-foreground">
-        <strong className="text-foreground">{filtered.length}</strong> shifts match · {selectedName || `All ${viewType === "staff" ? "staff" : "participants"}`} · {fromDate} → {toDate}
+        <strong className="text-foreground">{filtered.length}</strong> shifts match · {selectedName || `All ${viewType === "staff" ? "staff" : "participants"}`} · {formatDate(fromDate)} → {formatDate(toDate)}
       </div>
     </div>
   );
@@ -462,7 +463,7 @@ function PayrollTaxRecon({ payslips }) {
       <h2>Payslip Detail</h2>
       <table><thead><tr><th>Payslip #</th><th>Staff</th><th>Period</th><th>Gross</th><th>Tax</th><th>Medicare</th><th>Super</th><th>Net</th></tr></thead>
       <tbody>
-        ${filtered.map(p => `<tr><td>${p.payslip_number || "—"}</td><td>${p.staff_name || "—"}</td><td>${p.date_from} → ${p.date_to}</td><td>$${(p.gross_pay||0).toFixed(2)}</td><td>$${(p.tax||0).toFixed(2)}</td><td>$${(p.medicare||0).toFixed(2)}</td><td>$${(p.super_amount||0).toFixed(2)}</td><td>$${(p.net_pay||0).toFixed(2)}</td></tr>`).join("")}
+        ${filtered.map(p => `<tr><td>${p.payslip_number || "—"}</td><td>${p.staff_name || "—"}</td><td>${formatDate(p.date_from)} → ${formatDate(p.date_to)}</td><td>$${(p.gross_pay||0).toFixed(2)}</td><td>$${(p.tax||0).toFixed(2)}</td><td>$${(p.medicare||0).toFixed(2)}</td><td>$${(p.super_amount||0).toFixed(2)}</td><td>$${(p.net_pay||0).toFixed(2)}</td></tr>`).join("")}
         ${filtered.length === 0 ? `<tr><td colspan="8" style="text-align:center;color:#94a3b8;font-style:italic;">No payslips match</td></tr>` : ""}
       </tbody></table>
       <div class="footer">SZ-Jie Support Services — Payroll Tax Reconciliation — ATO PAYG Withholding Summary. Remit Tax + Medicare to ATO. Pay Super quarterly.</div>
@@ -560,7 +561,7 @@ function ShiftNoteSummaryReport() {
       return `
         <div style="page-break-inside:avoid;margin-bottom:14px;border:1px solid #e2e8f0;border-radius:6px;overflow:hidden;">
           <div style="background:#f1f5f9;padding:6px 10px;font-size:10px;font-weight:900;color:#1e3a5f;display:flex;justify-content:space-between;">
-            <span>${i + 1}. ${n.shift_date || "—"} (${n.day_of_week || "—"})</span>
+            <span>${i + 1}. ${formatDate(n.shift_date) || "—"} (${n.day_of_week || "—"})</span>
             <span style="font-weight:400;color:#475569;">${n.staff_name || "—"} → ${n.participant_name || "—"}</span>
           </div>
           <div style="padding:8px 10px;">
@@ -679,7 +680,7 @@ function ShiftNoteSummaryReport() {
             {filtered.map(n => (
               <div key={n.id} className="px-4 py-2.5 flex items-center justify-between gap-2 text-sm">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-bold text-xs shrink-0">{n.shift_date}</span>
+                  <span className="font-bold text-xs shrink-0">{formatDate(n.shift_date)}</span>
                   <span className="text-muted-foreground text-xs truncate">{n.staff_name} → {n.participant_name}</span>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">

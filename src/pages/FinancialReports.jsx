@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { NDIS_ITEMS, NDIS_ITEMS_BY_CODE } from "@/utils/ndisItems";
 import { calcPayPeriodDeductions, TAX_STATUS_LABELS } from "@/utils/taxCalc";
 import FinanceNav from "@/components/FinanceNav";
+import { formatDate } from "@/lib/utils";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -461,7 +462,7 @@ export default function FinancialReports() {
                               const usedCatalogue = (!s.hourly_rate || s.hourly_rate === 0) && s.support_item_code;
                               return (
                                 <tr key={s.id}>
-                                  <td className="px-4 py-2">{s.date}</td>
+                                  <td className="px-4 py-2">{formatDate(s.date)}</td>
                                   <td className="px-4 py-2">{s.staff_name}</td>
                                   <td className="px-4 py-2">{s.participant_name}</td>
                                   <td className="px-4 py-2 font-mono">{s.support_item_code || "—"}</td>
@@ -578,7 +579,7 @@ export default function FinancialReports() {
                       <tr key={inv.id} className="hover:bg-secondary/30">
                         <td className="px-5 py-3 font-mono text-xs">{inv.invoice_number || "—"}</td>
                         <td className="px-5 py-3 font-bold">{inv.participant_name}</td>
-                        <td className="px-5 py-3 text-muted-foreground">{inv.issue_date}</td>
+                        <td className="px-5 py-3 text-muted-foreground">{formatDate(inv.issue_date)}</td>
                         <td className="px-5 py-3">
                           <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${
                             inv.status === "Paid" ? "bg-emerald-100 text-emerald-700" :

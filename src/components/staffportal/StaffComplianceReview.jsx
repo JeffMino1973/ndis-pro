@@ -4,6 +4,7 @@ import { Loader2, FileText, ExternalLink, CheckCircle, XCircle, Clock, ShieldChe
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { format } from "date-fns";
+import { formatDate } from "@/lib/utils";
 
 export default function StaffComplianceReview() {
   const [docs, setDocs] = useState([]);
@@ -119,7 +120,7 @@ export default function StaffComplianceReview() {
                           <FileText size={18} className="text-muted-foreground shrink-0" />
                           <div className="min-w-0">
                             <p className="font-bold text-sm">{doc.title}</p>
-                            <p className="text-xs text-muted-foreground">{doc.category}{doc.expiry_date ? ` · Exp: ${doc.expiry_date}` : ""}{expired ? " (EXPIRED)" : ""}</p>
+                            <p className="text-xs text-muted-foreground">{doc.category}{doc.expiry_date ? ` · Exp: ${formatDate(doc.expiry_date)}` : ""}{expired ? " (EXPIRED)" : ""}</p>
                             {doc.reviewed_by && <p className="text-[10px] text-muted-foreground">Reviewed by: {doc.reviewed_by}</p>}
                           </div>
                         </div>

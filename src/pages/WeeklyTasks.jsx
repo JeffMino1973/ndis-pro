@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import FinanceNav from "@/components/FinanceNav";
+import { formatDate } from "@/lib/utils";
 
 const INVOICE_EMAIL = "invoices@planhero.com.au";
 
@@ -67,7 +68,7 @@ function Step1Roster({ weekStart, shifts, participants, staff, onShiftAdded, don
               <div key={s.id} className="px-4 py-3 flex items-center justify-between text-sm">
                 <div>
                   <p className="font-bold">{s.staff_name} → {s.participant_name}</p>
-                  <p className="text-xs text-muted-foreground">{s.date} · {s.start_time}–{s.end_time} · {s.support_type}</p>
+                  <p className="text-xs text-muted-foreground">{formatDate(s.date)} · {s.start_time}–{s.end_time} · {s.support_type}</p>
                 </div>
                 <Badge className="bg-blue-100 text-blue-700 text-xs">{s.status}</Badge>
               </div>
@@ -171,9 +172,9 @@ function Step2Invoice({ weekStart, shifts, participants, config, onDone, done })
       const bg = i % 2 === 0 ? "#fff" : "#dce8f5";
       const td = `padding:8px 10px;border-bottom:1px solid #c5d7ec;font-size:11.5px;color:#1a2e4a;background:${bg};`;
       const time = sh.start_time && sh.end_time ? `${sh.start_time}–${sh.end_time}` : "";
-      return `<tr><td style="${td}">${sh.date?.slice(5).replace("-","/")||""}</td><td style="${td}">${time}</td><td style="${td}">${sh.support_item_code||""}</td><td style="${td}">${sh.support_type||""}</td><td style="${td}text-align:right;">${rate>0?"$"+rate.toFixed(2):""}</td><td style="${td}text-align:center;">${hrs>0?Math.round(hrs):""}</td><td style="${td}text-align:right;">${amt.toFixed(2)}</td></tr>`;
-    }).join("");
-    return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice – ${participant}</title>
+      return `<tr><td style="${td}">${formatDate(sh.date)||""}</td><td style="${td}">${time}</td><td style="${td}">${sh.support_item_code||""}</td><td style="${td}">${sh.support_type||""}</td><td style="${td}text-align:right;">${rate>0?"$"+rate.toFixed(2):""}</td><td style="${td}text-align:center;">${hrs>0?Math.round(hrs):""}</td><td style="${td}text-align:right;">${amt.toFixed(2)}</td></tr>`;
+      }).join("");
+      return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice – ${participant}</title>
 <style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#1a2e4a;font-size:12px;padding:40px 52px;background:#fff;}
 .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;}.logo{width:170px;}.tax-title{font-size:32px;font-weight:900;color:#00b0d8;letter-spacing:3px;margin-bottom:12px;}
 table{width:100%;border-collapse:collapse;}thead tr{background:#1a2e4a;color:#fff;}thead th{padding:9px 10px;font-size:12px;font-weight:bold;text-align:left;color:#fff;}
@@ -248,7 +249,7 @@ table{width:100%;border-collapse:collapse;}thead tr{background:#1a2e4a;color:#ff
               <div key={s.id} className="px-4 py-3 flex items-center justify-between text-sm">
                 <div>
                   <p className="font-bold">{s.staff_name} → {s.participant_name}</p>
-                  <p className="text-xs text-muted-foreground">{s.date} · {s.start_time}–{s.end_time}</p>
+                  <p className="text-xs text-muted-foreground">{formatDate(s.date)} · {s.start_time}–{s.end_time}</p>
                 </div>
                 <Button size="sm" variant="outline" disabled={markingComplete[s.id]} onClick={() => markComplete(s.id)} className="rounded-lg text-emerald-700 border-emerald-300 hover:bg-emerald-50 gap-1">
                   {markingComplete[s.id] ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />} Mark Done
@@ -289,7 +290,7 @@ table{width:100%;border-collapse:collapse;}thead tr{background:#1a2e4a;color:#ff
                 const amt = sh.amount || hrs * (sh.hourly_rate || 0);
                 return (
                   <div key={sh.id} className="px-4 py-2.5 flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">{sh.date} {sh.start_time}–{sh.end_time} · {sh.support_type}</span>
+                    <span className="text-muted-foreground">{formatDate(sh.date)} {sh.start_time}–{sh.end_time} · {sh.support_type}</span>
                     <span className="font-bold">{fmtMoney(amt)}</span>
                   </div>
                 );
@@ -343,8 +344,8 @@ function Step3Payslips({ weekStart, shifts, staffMembers, config, onDone, done }
     const netPay = gross;
     const psNum = `PS-${Date.now().toString().slice(-6)}`;
     const dates = sShifts.map(s => s.date).filter(Boolean).sort();
-    const from = dates[0]?.replace(/-/g, "/") || "";
-    const to = dates[dates.length - 1]?.replace(/-/g, "/") || "";
+    const from = formatDate(dates[0]) || "";
+    const to = formatDate(dates[dates.length - 1]) || "";
     const rows = sShifts.map((sh, i) => {
       const hrs = sh.hours || calcHours(sh.start_time, sh.end_time);
       const rate = sh.hourly_rate || 0;
@@ -352,7 +353,7 @@ function Step3Payslips({ weekStart, shifts, staffMembers, config, onDone, done }
       const bg = i % 2 === 0 ? "#fff" : "#dce8f5";
       const td = `padding:8px 10px;border-bottom:1px solid #c5d7ec;font-size:11.5px;color:#1a2e4a;background:${bg};`;
       const time = sh.start_time && sh.end_time ? `${sh.start_time}–${sh.end_time}` : "";
-      return `<tr><td style="${td}">${sh.date?.slice(5).replace("-","/")||""}</td><td style="${td}border-left:4px solid #c0392b;color:#c0392b;font-weight:bold;">${time}</td><td style="${td}">${sh.support_item_code||""}</td><td style="${td}">${sh.support_type||""}</td><td style="${td}text-align:right;">${rate>0?"$"+rate.toFixed(2):""}</td><td style="${td}text-align:center;">${hrs>0?Math.round(hrs):""}</td><td style="${td}text-align:right;">${amt.toFixed(2)}</td></tr>`;
+      return `<tr><td style="${td}">${formatDate(sh.date)||""}</td><td style="${td}border-left:4px solid #c0392b;color:#c0392b;font-weight:bold;">${time}</td><td style="${td}">${sh.support_item_code||""}</td><td style="${td}">${sh.support_type||""}</td><td style="${td}text-align:right;">${rate>0?"$"+rate.toFixed(2):""}</td><td style="${td}text-align:center;">${hrs>0?Math.round(hrs):""}</td><td style="${td}text-align:right;">${amt.toFixed(2)}</td></tr>`;
     }).join("");
     return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Payslip – ${staffName}</title>
 <style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#1a2e4a;font-size:12px;padding:40px 52px;background:#fff;}
@@ -441,7 +442,7 @@ ${isABN ? `<div style="background:#fffbeb;border:1px solid #fde68a;border-radius
                 const amt = sh.amount || hrs * (sh.hourly_rate || 0);
                 return (
                   <div key={sh.id} className="px-4 py-2.5 flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">{sh.date} {sh.start_time}–{sh.end_time} · {sh.support_type}</span>
+                    <span className="text-muted-foreground">{formatDate(sh.date)} {sh.start_time}–{sh.end_time} · {sh.support_type}</span>
                     <span className="font-bold">{fmtMoney(amt)}</span>
                   </div>
                 );
