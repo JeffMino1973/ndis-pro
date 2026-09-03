@@ -5,7 +5,7 @@ import {
   Loader2, User, Target, AlertTriangle, MessageSquareWarning, Navigation, Pencil,
   ChevronRight, Phone, Mail, MapPin, Edit, Save, X, Plus, Star, Bus, Train, Brain, Heart, Download, Trash2, File, Circle, Menu, Pill,
   ChevronDown, ChevronUp, BarChart3, BookOpen, Printer, Link as LinkIcon, ExternalLink, ImageIcon, LogOut,
-  Archive, RotateCcw, GraduationCap
+  Archive, RotateCcw, GraduationCap, FileSignature
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,7 @@ import ParticipantLearningHub from "@/components/participantportal/ParticipantLe
 import ShiftNoteDocuments from "@/components/participantportal/ShiftNoteDocuments";
 import Programs from "@/components/participantportal/Programs";
 import BronwynDocuments from "@/components/participantportal/BronwynDocuments";
+import ConsentForm from "@/components/participantportal/ConsentForm";
 import PBSReferenceDocs from "@/components/behaviour/PBSReferenceDocs";
 
 const IP_PHASE_COLORS = ["bg-blue-600", "bg-amber-500", "bg-emerald-500", "bg-purple-600"];
@@ -134,6 +135,7 @@ const TABS = [
   { id: "programs", label: "Programs", icon: ClipboardList },
   { id: "spending", label: "My Spending", icon: BarChart3 },
   { id: "reports", label: "Session Notes", icon: Navigation },
+  { id: "consent", label: "Consent Form", icon: FileSignature },
   { id: "complaint", label: "Lodge Complaint", icon: MessageSquareWarning },
   { id: "policies", label: "Policy Manual", icon: BookOpen },
   { id: "learning", label: "My Learning", icon: GraduationCap },
@@ -1478,6 +1480,11 @@ export default function ParticipantPortal() {
         {/* MY LEARNING TAB */}
         {activeTab === "learning" && (
           <ParticipantLearningHub participant={participant} />
+        )}
+
+        {/* CONSENT FORM TAB */}
+        {activeTab === "consent" && (
+          <ConsentForm participant={participant} />
         )}
 
         {/* COMPLAINT TAB */}
