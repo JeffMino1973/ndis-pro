@@ -87,11 +87,29 @@ function printHTML(html) {
   setTimeout(() => win.print(), 600);
 }
 
-function buildInvoiceHTML(participant, shifts, participants, entity) {
+function stableInvoiceNumber(participant, weekStart) {
+  const key = (participant || "") + format(weekStart, "yyyy-MM-dd");
+  let hash = 0;
+  for (let i = 0; i < key.length; i++) { hash = (hash * 31 + key.charCodeAt(i)) >>> 0; }
+  return "INV-" + (hash % 1000000).toString().padStart(6, "0");
+}
+
+function findSavedInvoiceNumber(invoices, participant, shifts) {
+  const shiftDates = new Set(shifts.map(s => s.date).filter(Boolean));
+  const candidates = (invoices || []).filter(inv =>
+    inv.participant_name === participant &&
+    (inv.line_items || []).some(li => shiftDates.has(li.date))
+  );
+  if (!candidates.length) return null;
+  candidates.sort((a, b) => (b.issue_date || "").localeCompare(a.issue_date || ""));
+  return candidates[0].invoice_number;
+}
+
+function buildInvoiceHTML(participant, shifts, participants, entity, invoiceNumber) {
   entity = entity || { name: "SZ-Jie Support Services", abn: "86959042971", address: "309/12 Broome St, Waterloo NSW 2017", email: "jeff@szjiesupportservices.com", phone: "0401 343 876" };
   const pData = participants.find(p => p.name === participant) || {};
   const subtotal = shifts.reduce((s, sh) => s + (sh.amount || (calcHours(sh.start_time, sh.end_time) * (sh.hourly_rate || 0))), 0);
-  const invoiceNum = Date.now().toString().slice(-3);
+  const invoiceNum = invoiceNumber || Date.now().toString().slice(-3);
   const today = format(new Date(), "dd/MM/yyyy");
 
   // Alternating rows: white / light blue (inline styles — CSS nth-child unreliable in print)
@@ -438,6 +456,7 @@ export default function RosterBilling() {
   const [participants, setParticipants] = useState([]);
   const [staffMembers, setStaffMembers] = useState([]);
   const [businessConfig, setBusinessConfig] = useState(null);
+  const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const weekEnd = endOfWeek(weekStart, { weekStartsOn: 1 });
@@ -445,15 +464,17 @@ export default function RosterBilling() {
 
   const load = async () => {
     setLoading(true);
-    const [s, p, sm, me] = await Promise.all([
+    const [s, p, sm, me, inv] = await Promise.all([
       base44.entities.Shift.list("-date"),
       base44.entities.Participant.list(),
       base44.entities.StaffMember.list(),
       base44.auth.me(),
+      base44.entities.Invoice.list("-created_date"),
     ]);
     setShifts(s);
     setParticipants(p);
     setStaffMembers(sm);
+    setInvoices(inv || []);
     if (me?.businessConfig) setBusinessConfig(me.businessConfig);
     setLoading(false);
   };
@@ -543,7 +564,7 @@ export default function RosterBilling() {
     load();
   };
 
-  const saveToInvoices = async (participant, pShifts) => {
+  const saveToInvoices = async (participant, pShifts, invoiceNumber) => {
     setSavingInvoice(participant);
     const pData = participants.find(p => p.name === participant) || {};
     const line_items = pShifts.map(sh => {
@@ -560,7 +581,7 @@ export default function RosterBilling() {
     });
     const subtotal = line_items.reduce((a, l) => a + l.amount, 0);
     await base44.entities.Invoice.create({
-      invoice_number: "INV-" + Date.now().toString().slice(-6),
+      invoice_number: invoiceNumber || ("INV-" + Date.now().toString().slice(-6)),
       participant_name: participant,
       participant_id: pData.id || "",
       participant_ndis_number: pData.ndis_number || "",
@@ -714,6 +735,7 @@ export default function RosterBilling() {
               {Object.entries(byParticipant).map(([participant, pShifts]) => {
                 const total = pShifts.reduce((s, sh) => s + (sh.amount || calcHours(sh.start_time, sh.end_time) * (sh.hourly_rate || 0)), 0);
                 const pData = participants.find(p => p.name === participant) || {};
+                const invoiceNumber = findSavedInvoiceNumber(invoices, participant, pShifts) || stableInvoiceNumber(participant, weekStart);
                 return (
                   <div key={participant} className="bg-card border border-border rounded-2xl overflow-hidden">
                     <div className="p-4 border-b border-border flex items-center justify-between gap-4 flex-wrap">
@@ -723,7 +745,7 @@ export default function RosterBilling() {
                         </div>
                         <div>
                           <p className="font-black">{participant}</p>
-                          <p className="text-xs text-muted-foreground">NDIS: {pData.ndis_number || "—"} · {pShifts.length} shift{pShifts.length !== 1 ? "s" : ""} · {formatCurrency(total)}</p>
+                          <p className="text-xs text-muted-foreground">{invoiceNumber} · NDIS: {pData.ndis_number || "—"} · {pShifts.length} shift{pShifts.length !== 1 ? "s" : ""} · {formatCurrency(total)}</p>
                         </div>
                       </div>
                       <div className="flex gap-2 flex-wrap">
@@ -735,13 +757,13 @@ export default function RosterBilling() {
                             variant="outline"
                             className="gap-2 rounded-xl font-bold border-emerald-300 text-emerald-700 hover:bg-emerald-50"
                             disabled={savingInvoice === participant}
-                            onClick={() => saveToInvoices(participant, pShifts)}
+                            onClick={() => saveToInvoices(participant, pShifts, invoiceNumber)}
                           >
                             {savingInvoice === participant ? <Loader2 size={13} className="animate-spin" /> : <SaveAll size={13} />}
                             Save to Invoices
                           </Button>
                         )}
-                        <Button size="sm" className="gap-2 rounded-xl font-bold" onClick={() => printHTML(buildInvoiceHTML(participant, pShifts, participants, getEntityForShifts(pShifts, businessConfig)))}>
+                        <Button size="sm" className="gap-2 rounded-xl font-bold" onClick={() => printHTML(buildInvoiceHTML(participant, pShifts, participants, getEntityForShifts(pShifts, businessConfig), invoiceNumber))}>
                           <Printer size={14} /> Print Invoice
                         </Button>
                       </div>
