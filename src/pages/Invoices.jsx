@@ -364,6 +364,7 @@ function InvoicePrint({ invoice, config, onBack }) {
         {/* Header: provider left, invoice # right */}
         <div className="flex justify-between items-start mb-8">
           <div>
+            <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" style={{ width: 160, marginBottom: 8 }} alt="SZ-JIE logo" />
             <p className="text-xl font-black" style={{ color: '#c0392b' }}>{entity.name}</p>
             <div className="mt-2 space-y-0.5 text-sm text-slate-700">
               {entity.abn && <p>ABN: {entity.abn}</p>}
