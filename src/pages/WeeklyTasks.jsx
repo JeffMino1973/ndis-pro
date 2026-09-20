@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import FinanceNav from "@/components/FinanceNav";
 import { formatDate } from "@/lib/utils";
+import { LOGO_URL } from "@/utils/brandLogo";
 
 const INVOICE_EMAIL = "invoices@planhero.com.au";
 
@@ -179,7 +180,7 @@ function Step2Invoice({ weekStart, shifts, participants, config, onDone, done })
 .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;}.logo{width:170px;}.tax-title{font-size:32px;font-weight:900;color:#00b0d8;letter-spacing:3px;margin-bottom:12px;}
 table{width:100%;border-collapse:collapse;}thead tr{background:#1a2e4a;color:#fff;}thead th{padding:9px 10px;font-size:12px;font-weight:bold;text-align:left;color:#fff;}
 @media print{.no-print{display:none;}}</style></head><body>
-<div class="header"><img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" style="width:170px"/><div style="text-align:right"><div class="tax-title">TAX INVOICE</div><div style="font-weight:bold;font-size:13px;">${config?.businessName||"SZ-Jie Support Services"}</div><div style="font-size:12px;">ABN: ${config?.abn||""}<br/>${config?.address||""}<br/>${config?.email||""}<br/>${config?.phone||""}</div></div></div>
+<div class="header"><img src="${LOGO_URL}" style="width:170px"/><div style="text-align:right"><div class="tax-title">TAX INVOICE</div><div style="font-weight:bold;font-size:13px;">${config?.businessName||"SZ-Jie Support Services"}</div><div style="font-size:12px;">ABN: ${config?.abn||""}<br/>${config?.address||""}<br/>${config?.email||""}<br/>${config?.phone||""}</div></div></div>
 <div style="margin-bottom:8px;font-size:12px;line-height:2;"><div><b>INVOICE #</b> ${invNum}</div><div><b>Date:</b> ${today}</div><div><b>Client:</b> ${participant}</div><div><b>NDIS:</b> ${pData?.ndis_number||"—"}</div>${pData?.plan_coordinator_email?`<div><b>To:</b> ${pData.plan_coordinator_email}</div>`:""}</div>
 <table><thead><tr><th>Date</th><th>Time</th><th>Item Number</th><th>Description</th><th style="text-align:right">Unit price</th><th style="text-align:center">Qty</th><th style="text-align:right">Line total</th></tr></thead><tbody>${rows}</tbody></table>
 <div style="display:flex;justify-content:flex-end;margin-top:8px;"><table style="width:340px;border-collapse:collapse;">
@@ -360,7 +361,7 @@ function Step3Payslips({ weekStart, shifts, staffMembers, config, onDone, done }
 .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;}.logo{width:160px;}
 table{width:100%;border-collapse:collapse;}thead tr{background:#1a2e4a;color:#fff;}thead th{padding:10px 10px;font-size:12px;font-weight:bold;text-align:left;color:#fff;}
 @media print{.no-print{display:none;}}</style></head><body>
-<div class="header"><img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" class="logo"/>
+<div class="header"><img src="${LOGO_URL}" class="logo"/>
 <div style="text-align:right;font-size:12px;line-height:1.9;">
 <div style="font-weight:bold;font-size:13px;">${config?.businessName||"SZ-Jie Support Services"}</div>
 <div>ABN: ${config?.abn||""}</div><div>${config?.address||""}</div><div>${config?.email||""}</div></div></div>
@@ -521,7 +522,7 @@ table{width:100%;border-collapse:collapse;margin-top:16px;}
 thead tr{background:#1a2e4a;color:#fff;}thead th{padding:9px 10px;font-size:11px;font-weight:bold;text-align:left;color:#fff;}
 .totals td{background:#dbeafe!important;font-weight:900;color:#1e3a5f;}
 @media print{.no-print{display:none;}}</style></head><body>
-<img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" style="width:160px;margin-bottom:16px;"/>
+<img src="${LOGO_URL}" style="width:160px;margin-bottom:16px;"/>
 <h1>Bank Reconciliation Report</h1>
 <p style="color:#64748b;font-size:12px;margin-bottom:4px;">Week: ${wLabel} · Generated: ${format(new Date(), "dd/MM/yyyy")} · ${config?.businessName||"SZ-Jie Support Services"} · ABN: ${config?.abn||""}</p>
 <table><thead><tr><th>Staff Member</th><th>Bank</th><th>BSB</th><th>Account No.</th><th>Account Name</th><th style="text-align:right">Gross</th><th style="text-align:right">Tax+Medicare</th><th style="text-align:right">NET TRANSFER</th><th style="text-align:right">Super</th></tr></thead>

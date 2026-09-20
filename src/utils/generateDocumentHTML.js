@@ -1,6 +1,7 @@
 import { getEmployer } from "@/components/payslips/PayslipPreview";
 import { calcPayPeriodDeductions, TAX_STATUS_LABELS } from "@/utils/taxCalc";
 import { getEntityForDate } from "@/utils/businessEntity";
+import { LOGO_URL } from "@/utils/brandLogo";
 
 const fmtDate = (d) => {
   if (!d) return "";
@@ -34,7 +35,7 @@ export function generateInvoiceHTML(invoice, config) {
     .total-row td{font-weight:900;background:#dbeafe!important}
     .meta{color:#475569;font-size:11px;margin-bottom:10px}
   </style></head><body>
-    <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" style="width:160px;margin-bottom:10px" alt="logo"/>
+    <img src="${LOGO_URL}" style="width:160px;margin-bottom:10px" alt="logo"/>
     <h1>${entity.name}</h1>
     <div class="meta">
       ${entity.abn ? `<p>ABN: ${entity.abn}</p>` : ""}

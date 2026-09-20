@@ -66,6 +66,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import FinanceNav from "@/components/FinanceNav";
+import { LOGO_URL } from "@/utils/brandLogo";
 
 function calcHours(start, end) {
   if (!start || !end) return 0;
@@ -174,7 +175,7 @@ table.totals{width:340px;border-collapse:collapse;}
 </style></head><body>
 
 <div class="header">
-  <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" class="logo"/>
+  <img src="${LOGO_URL}" class="logo"/>
   <div class="right-block">
     <div class="tax-title">TAX INVOICE</div>
     <div class="entity-name">${entity.name}</div>
@@ -316,7 +317,7 @@ table.totals{width:340px;border-collapse:collapse;flex-shrink:0;}
 </style></head><body>
 
 <div class="header">
-  <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" class="logo"/>
+  <img src="${LOGO_URL}" class="logo"/>
   <div class="entity-block">
     <div class="er"><span class="ico">📋</span><span class="ename">${entity.name}</span></div>
     <div class="er"><span class="ico">🪪</span><span><b>ABN:</b> ${entity.abn}</span></div>
@@ -421,7 +422,7 @@ function buildFinanceSummaryHTML(shifts, staffMembers, entity) {
   @media print{.no-print{display:none;}}
   </style></head><body>
   <div class="header">
-    <img src="https://media.base44.com/images/public/69d54775d9a169daad84a133/5a211afd4_logo_coloured_transpaprent.png" class="logo" />
+    <img src="${LOGO_URL}" class="logo" />
     <div class="contact"><div><strong>${entity.name}</strong></div><div>ABN: ${entity.abn}</div><div>${entity.address}</div><div>${entity.email}</div></div>
   </div>
   <h1>Accountant Summary &amp; BAS Report</h1>
