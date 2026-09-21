@@ -151,7 +151,7 @@ function buildInvoiceHTML(participant, shifts, participants, entity, invoiceNumb
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Tax Invoice – ${participant}</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 body{font-family:Arial,Helvetica,sans-serif;color:#1a2e4a;font-size:12px;padding:40px 52px;background:#fff;}
 .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;}
 .logo{width:170px;}
@@ -292,7 +292,7 @@ function buildPayslipHTML(staffName, shifts, staffMembers, entity) {
 
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Payslip – ${staffName}</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 body{font-family:Arial,Helvetica,sans-serif;color:#1a2e4a;font-size:12px;padding:40px 52px;background:#fff;}
 .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;}
 .logo{width:160px;}
@@ -402,7 +402,7 @@ function buildFinanceSummaryHTML(shifts, staffMembers, entity) {
   const monthRows = Object.entries(byMonth).sort().map(([m, d]) =>
     `<tr><td>${m}</td><td>${d.shifts}</td><td>$${d.revenue.toFixed(2)}</td><td>$${(d.revenue / 11).toFixed(2)}</td></tr>`).join("");
   return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Accountant Summary</title>
-  <style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#1e293b;font-size:13px;padding:28px 36px;}
+  <style>*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}body{font-family:Arial,sans-serif;color:#1e293b;font-size:13px;padding:28px 36px;}
   .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;padding-bottom:14px;border-bottom:2px solid #1e293b;}
   .logo{width:140px;}.contact{text-align:right;font-size:11px;color:#475569;line-height:1.75;}
   h1{font-size:28px;font-weight:900;color:#1e293b;margin-bottom:4px;}

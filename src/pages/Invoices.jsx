@@ -346,6 +346,7 @@ function InvoicePrint({ invoice, config, onBack }) {
           body * { visibility: hidden; }
           #inv-print, #inv-print * { visibility: visible; }
           #inv-print { position: absolute; left: 0; top: 0; width: 100%; }
+          #inv-print * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
           .no-print { display: none !important; }
         }
       `}</style>

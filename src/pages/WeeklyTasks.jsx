@@ -176,7 +176,7 @@ function Step2Invoice({ weekStart, shifts, participants, config, onDone, done })
       return `<tr><td style="${td}">${formatDate(sh.date)||""}</td><td style="${td}">${time}</td><td style="${td}">${sh.support_item_code||""}</td><td style="${td}">${sh.support_type||""}</td><td style="${td}text-align:right;">${rate>0?"$"+rate.toFixed(2):""}</td><td style="${td}text-align:center;">${hrs>0?Math.round(hrs):""}</td><td style="${td}text-align:right;">${amt.toFixed(2)}</td></tr>`;
       }).join("");
       return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice – ${participant}</title>
-<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#1a2e4a;font-size:12px;padding:40px 52px;background:#fff;}
+<style>*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}body{font-family:Arial,sans-serif;color:#1a2e4a;font-size:12px;padding:40px 52px;background:#fff;}
 .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;}.logo{width:170px;}.tax-title{font-size:32px;font-weight:900;color:#00b0d8;letter-spacing:3px;margin-bottom:12px;}
 table{width:100%;border-collapse:collapse;}thead tr{background:#1a2e4a;color:#fff;}thead th{padding:9px 10px;font-size:12px;font-weight:bold;text-align:left;color:#fff;}
 @media print{.no-print{display:none;}}</style></head><body>
@@ -357,7 +357,7 @@ function Step3Payslips({ weekStart, shifts, staffMembers, config, onDone, done }
       return `<tr><td style="${td}">${formatDate(sh.date)||""}</td><td style="${td}border-left:4px solid #c0392b;color:#c0392b;font-weight:bold;">${time}</td><td style="${td}">${sh.support_item_code||""}</td><td style="${td}">${sh.support_type||""}</td><td style="${td}text-align:right;">${rate>0?"$"+rate.toFixed(2):""}</td><td style="${td}text-align:center;">${hrs>0?Math.round(hrs):""}</td><td style="${td}text-align:right;">${amt.toFixed(2)}</td></tr>`;
     }).join("");
     return `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Payslip – ${staffName}</title>
-<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#1a2e4a;font-size:12px;padding:40px 52px;background:#fff;}
+<style>*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}body{font-family:Arial,sans-serif;color:#1a2e4a;font-size:12px;padding:40px 52px;background:#fff;}
 .header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;}.logo{width:160px;}
 table{width:100%;border-collapse:collapse;}thead tr{background:#1a2e4a;color:#fff;}thead th{padding:10px 10px;font-size:12px;font-weight:bold;text-align:left;color:#fff;}
 @media print{.no-print{display:none;}}</style></head><body>
@@ -516,7 +516,7 @@ function Step4BankRec({ weekStart, shifts, staffMembers, config, onDone, done })
       </tr>`;
     }).join("");
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Bank Reconciliation – ${wLabel}</title>
-<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;color:#1a2e4a;font-size:12px;padding:40px 52px;background:#fff;}
+<style>*{box-sizing:border-box;margin:0;padding:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}body{font-family:Arial,sans-serif;color:#1a2e4a;font-size:12px;padding:40px 52px;background:#fff;}
 h1{font-size:22px;font-weight:900;color:#1a2e4a;margin-bottom:4px;}
 table{width:100%;border-collapse:collapse;margin-top:16px;}
 thead tr{background:#1a2e4a;color:#fff;}thead th{padding:9px 10px;font-size:11px;font-weight:bold;text-align:left;color:#fff;}
