@@ -279,7 +279,7 @@ export default function Invoices() {
                     <div className="grid grid-cols-3 gap-3 items-end">
                       <div>
                         <Label className="text-[10px]">Qty / Hours</Label>
-                        <Input type="number" value={line.hours} onChange={(e) => updateLine(i, "hours", parseFloat(e.target.value))} className="h-9 text-sm" />
+                        <Input type="number" step="0.25" value={line.hours} onChange={(e) => updateLine(i, "hours", parseFloat(e.target.value))} className="h-9 text-sm" />
                       </div>
                       <div>
                         <Label className="text-[10px]">Unit Price ($/hr)</Label>
