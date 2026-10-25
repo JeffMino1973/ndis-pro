@@ -80,6 +80,10 @@ function formatCurrency(n) {
   return `$${(n || 0).toFixed(2)}`;
 }
 
+function formatQty(hrs) {
+  return String(parseFloat((hrs || 0).toFixed(2)));
+}
+
 function printHTML(html) {
   const win = window.open("", "_blank");
   win.document.write(html);
@@ -128,7 +132,7 @@ function buildInvoiceHTML(participant, shifts, participants, entity, invoiceNumb
       <td style="${td}">${sh.support_item_code || ""}</td>
       <td style="${td}">${sh.support_type || ""}</td>
       <td style="${td}text-align:right;">${rate > 0 ? "$"+rate.toFixed(2) : ""}</td>
-      <td style="${td}text-align:center;">${hrs > 0 ? Math.round(hrs) : ""}</td>
+      <td style="${td}text-align:center;">${hrs > 0 ? formatQty(hrs) : ""}</td>
       <td style="${td}text-align:right;">${amt.toFixed(2)}</td>
     </tr>`;
   }).join("");
@@ -297,7 +301,7 @@ function buildPayslipBodyHTML(staffName, shifts, staffMembers, entity, payslipNu
       <td style="${baseTd}">${sh.support_item_code || ""}</td>
       <td style="${baseTd}">${sh.support_type || ""}</td>
       <td style="${baseTd}text-align:right;">${rate > 0 ? "$"+rate.toFixed(2) : ""}</td>
-      <td style="${baseTd}text-align:center;">${hrs > 0 ? Math.round(hrs) : ""}</td>
+      <td style="${baseTd}text-align:center;">${hrs > 0 ? formatQty(hrs) : ""}</td>
       <td style="${baseTd}text-align:right;">${amt.toFixed(2)}</td>
     </tr>`;
   }).join("");
